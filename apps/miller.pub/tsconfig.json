@@ -25,7 +25,8 @@
 		"**/*.jsx",
 		"../../apps/miller.pub/.next/types/**/*.ts",
 		"../../dist/apps/miller.pub/.next/types/**/*.ts",
-		"next-env.d.ts"
+		"next-env.d.ts",
+		".next/types/**/*.ts"
 	],
 	"exclude": [
 		"node_modules",
