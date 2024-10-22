@@ -9,7 +9,7 @@
     "dev:miller.pub": "nx run miller.pub:dev",
     "lint:miller.pub": "nx run miller.pub:lint",
     "start:miller.pub": "nx run miller.pub:start",
-    "test:miller.pub": "nx run miller.pub:test",
+    "test:miller.pub": "nx run miller.pub:test"
   },
   "dependencies": {
     "next": "14.2.3",
