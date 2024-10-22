@@ -1,3 +1,34 @@
 {
-  "singleQuote": true
+  "singleQuote": true,
+  "useTabs": true,
+  "tabWidth": 4,
+  "arrowParens": "always",
+  "semi": true,
+  "trailingComma": "all",
+  "plugins": [
+    "prettier-plugin-organize-imports",
+    "@trivago/prettier-plugin-sort-imports",
+    "prettier-plugin-packagejson",
+    "prettier-plugin-eslint",
+    "prettier-plugin-jsdoc",
+    "prettier-plugin-tailwindcss"
+  ],
+  "importOrder": [
+    "<THIRD_PARTY_MODULES>",
+    "^@(lellimecnar)/(.*)$",
+    "^@/(.*)$",
+    "^../",
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderGroupNamespaceSpecifiers": true,
+  "importOrderCaseInsensitive": true,
+  "jsdocSeparateReturnsFromParam": true,
+  "jsdocPreferCodeFences": true,
+  "tailwindFunctions": [
+    "cn",
+    "clsx",
+    "cva"
+  ]
 }
