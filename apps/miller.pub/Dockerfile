@@ -23,7 +23,7 @@ ENV TURBO_TEAM=$TURBO_TEAM
 ARG TURBO_TOKEN
 ENV TURBO_TOKEN=$TURBO_TOKEN
 
-RUN pnpm -s dlx turbo build --filter=miller.pub...
+RUN pnpm build --filter=miller.pub...
 
 FROM base AS runner
 WORKDIR /app
