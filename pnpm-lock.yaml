@@ -17,6 +17,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:packages/config-typescript
+      '@typescript-eslint/typescript-estree':
+        specifier: ^8.11.0
+        version: 8.11.0(typescript@5.6.3)
       eslint:
         specifier: ^8.57.0
         version: 8.57.1

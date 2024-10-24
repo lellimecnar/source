@@ -1,6 +1,6 @@
-const baseConfig = require("@lellimecnar/prettier-config");
+const baseConfig = require('@lellimecnar/prettier-config');
 
 /** @type {import('prettier').Config} */
 module.exports = {
-  ...baseConfig,
+	...baseConfig,
 };

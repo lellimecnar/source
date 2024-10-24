@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
-  reactStrictMode: true,
-  transpilePackages: ["@lellimecnar/ui"],
+	reactStrictMode: true,
+	transpilePackages: ['@lellimecnar/ui'],
 };
