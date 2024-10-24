@@ -1,0 +1,9 @@
+{
+  "extends": [
+    "@lellimecnar/eslint-config/next"
+  ],
+  "ignorePatterns": [
+    "!**/*",
+    ".next/**/*"
+  ]
+}

@@ -1,9 +1,17 @@
 {
-  "name": "@repo/typescript-config",
+  "name": "@lellimecnar/typescript-config",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
   "publishConfig": {
     "access": "public"
+  },
+  "exports": {
+    ".": "./base.json",
+    "./next.json": "./next.json",
+    "./react.json": "./react.json"
+  },
+  "devDependencies": {
+    "@vercel/style-guide": "^6.0.0"
   }
 }
