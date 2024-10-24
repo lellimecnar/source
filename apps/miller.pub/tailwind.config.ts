@@ -8,7 +8,7 @@ import sharedConfig from '@lellimecnar/tailwind-config';
 const config: Pick<Config, 'content' | 'presets'> = {
 	content: [
 		resolve(__dirname, 'src/**/*.{ts,tsx}'),
-		resolve(__dirname, '../../packages/**/*.{ts,tsx}'),
+		resolve(__dirname, '../../packages/ui/src/**/*.{ts,tsx}'),
 	],
 	presets: [sharedConfig],
 };

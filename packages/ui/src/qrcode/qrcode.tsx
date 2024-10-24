@@ -11,40 +11,42 @@ export interface QRCodeProps
 export function QRCode(props: QRCodeProps): JSX.Element {
 	const qrCode = useMemo(
 		() =>
-			new QRCodeStyling({
-				shape: 'square',
-				type: 'svg',
-				...props,
-				dotsOptions: {
-					type: 'extra-rounded',
-					...props.dotsOptions,
-				},
-				cornersDotOptions: {
-					type: 'dot',
-					...props.cornersDotOptions,
-				},
-				cornersSquareOptions: {
-					type: 'dot',
-					...props.cornersSquareOptions,
-				},
-				qrOptions: {
-					mode: 'Byte',
-					errorCorrectionLevel: 'L',
-					...props.qrOptions,
-				},
-			}),
+			typeof window !== 'undefined'
+				? new QRCodeStyling({
+						shape: 'square',
+						type: 'svg',
+						...props,
+						dotsOptions: {
+							type: 'extra-rounded',
+							...props.dotsOptions,
+						},
+						cornersDotOptions: {
+							type: 'dot',
+							...props.cornersDotOptions,
+						},
+						cornersSquareOptions: {
+							type: 'dot',
+							...props.cornersSquareOptions,
+						},
+						qrOptions: {
+							mode: 'Byte',
+							errorCorrectionLevel: 'L',
+							...props.qrOptions,
+						},
+					})
+				: null,
 		[],
 	);
 	const ref = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		if (ref.current) {
-			qrCode.append(ref.current);
+		if (ref.current && typeof window !== 'undefined') {
+			qrCode?.append(ref.current);
 		}
 	}, [qrCode, ref]);
 
 	useDeepCompareEffect(() => {
-		qrCode.update(props);
+		qrCode?.update(props);
 	}, [props]);
 
 	return <div ref={ref} className="qrcode" />;

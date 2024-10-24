@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import React, { useMemo } from 'react';
 
@@ -236,7 +238,7 @@ function SkillsList(): JSX.Element {
 									React.cloneElement(icon, {
 										size: 24,
 										style: { width: 24 },
-									})
+									} as unknown as Record<string, unknown>)
 								) : (
 									<span />
 								)}
