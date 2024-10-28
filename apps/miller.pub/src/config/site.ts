@@ -3,7 +3,13 @@ import { SiGithub } from '@lellimecnar/ui/icons';
 export const siteConfig: SiteConfig = {
 	name: 'Miller.pub',
 	description: 'The Online Home of Lance Miller',
-	mainNav: [{ title: 'Home', href: '/' }],
+	mainNav: [
+		{ title: 'Resume', href: '/resume' },
+		{
+			title: 'Projects',
+			items: [],
+		},
+	],
 	links: [
 		{
 			title: 'GitHub',
@@ -18,6 +24,7 @@ export interface LinkItem {
 	href?: string;
 	icon?: React.ComponentType<Record<string, unknown>>;
 	disabled?: boolean;
+	items?: LinkItem[];
 }
 
 export interface SiteConfig {

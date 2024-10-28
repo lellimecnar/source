@@ -18,6 +18,7 @@ import {
 	JestPlain,
 	JiraOriginal,
 	KubernetesOriginal,
+	Link2Icon,
 	MailIcon,
 	MaterialuiOriginal,
 	MongodbOriginal,
@@ -42,7 +43,13 @@ import {
 export default {
 	name: 'Lance Miller',
 	title: 'Software Engineer',
+	location: 'Remote – Loveland, CO',
 	contacts: [
+		{
+			icon: <Link2Icon />,
+			value: 'miller.pub',
+			href: 'http://www.miller.pub',
+		},
 		{
 			icon: <MailIcon />,
 			value: 'lance@miller.pub',

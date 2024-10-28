@@ -1,28 +1,42 @@
+'use client';
+
 import Link from 'next/link';
+import React from 'react';
 
 import { HomeIcon } from '@lellimecnar/ui/icons';
 import { cn } from '@lellimecnar/ui/lib';
+import {
+	NavigationMenu,
+	NavigationMenuContent,
+	NavigationMenuItem,
+	NavigationMenuLink,
+	NavigationMenuList,
+	NavigationMenuTrigger,
+	navigationMenuTriggerStyle,
+} from '@lellimecnar/ui/navigation-menu';
 
 import { siteConfig, type LinkItem } from '@/config/site';
 
 export function SiteHeader(): JSX.Element {
 	return (
-		<header className="bg-background sticky top-0 z-40 w-full border-b">
+		<header className="bg-background sticky top-0 z-40 w-full">
 			<div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
 				<div className="flex gap-6 md:gap-10">
 					<Link href="/" className="flex items-center space-x-2">
-						<HomeIcon className="h-6 w-6" />
-						<span className="inline-block font-bold">Miller.pub</span>
+						<HomeIcon className="size-6" />
+						<span className="inline-block font-bold">Lance Miller</span>
 					</Link>
-					<nav className="flex gap-6">
-						{siteConfig.mainNav.map((item) => (
-							<LinkItem
-								key={item.href}
-								item={item}
-								className="flex items-center text-sm font-medium text-muted-foreground"
-							/>
-						))}
-					</nav>
+					<NavigationMenu>
+						<NavigationMenuList>
+							{siteConfig.mainNav.map((item) => (
+								<NavLinkItem
+									key={item.href}
+									item={item}
+									className="text-muted-foreground flex items-center text-sm font-medium"
+								/>
+							))}
+						</NavigationMenuList>
+					</NavigationMenu>
 				</div>
 				<div className="flex flex-1 items-center justify-end space-x-4">
 					<nav className="flex items-center space-x-1">
@@ -41,10 +55,16 @@ interface LinkItemProps
 	item: LinkItem;
 }
 
-const LinkItem: React.FC<LinkItemProps> = ({ item, className, ...props }) => {
-	const content = (
+const LinkItem: React.FC<LinkItemProps> = ({
+	item,
+	className,
+	children,
+	...props
+}) => {
+	const Ico = item.icon;
+	const content: React.ReactNode = (
 		<>
-			{item.icon ? <item.icon className="h-6 w-6" /> : null}
+			{Ico ? <Ico className="size-6" /> : null}
 			{item.title ? (
 				<span className={cn(item.icon && 'sr-only')}>{item.title}</span>
 			) : null}
@@ -61,11 +81,64 @@ const LinkItem: React.FC<LinkItemProps> = ({ item, className, ...props }) => {
 			rel="noreferrer"
 			{...props}
 		>
-			{content}
+			{children && React.isValidElement(children)
+				? React.cloneElement(children, {}, content)
+				: content}
 		</Link>
 	) : (
-		<span className={className} {...props}>
+		<span
+			className={cn(navigationMenuTriggerStyle(), 'cursor-default', className)}
+			{...props}
+		>
 			{content}
 		</span>
+	);
+};
+
+const NavLinkItem: React.FC<LinkItemProps> = ({ item, children, ...props }) => {
+	const hasItems = Array.isArray(item.items) && Boolean(item.items.length);
+	const hasLink = Boolean(item.href);
+
+	if (!hasItems && !hasLink) {
+		return null;
+	}
+
+	let link = (
+		<LinkItem item={item} {...props} legacyBehavior passHref>
+			{hasLink ? (
+				<NavigationMenuLink className={navigationMenuTriggerStyle()}>
+					{children}
+				</NavigationMenuLink>
+			) : (
+				children
+			)}
+		</LinkItem>
+	);
+
+	if (hasItems) {
+		link = <NavigationMenuTrigger>{link}</NavigationMenuTrigger>;
+	}
+
+	return (
+		<NavigationMenuItem>
+			{link}
+			{hasItems ? (
+				<NavigationMenuContent>
+					<ul className="grid min-w-[200px] max-w-[200px] gap-3 p-4 md:max-w-[300px] md:grid-cols-2 lg:max-w-[400px]">
+						{item.items.map((subItem, i) => (
+							<li key={`subItem-${i}`} className="w-full">
+								{subItem.href ? (
+									<NavigationMenuLink asChild>
+										<LinkItem item={subItem} />
+									</NavigationMenuLink>
+								) : (
+									<LinkItem item={subItem} />
+								)}
+							</li>
+						))}
+					</ul>
+				</NavigationMenuContent>
+			) : null}
+		</NavigationMenuItem>
 	);
 };
