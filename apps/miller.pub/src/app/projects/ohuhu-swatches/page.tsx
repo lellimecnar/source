@@ -77,9 +77,9 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 
 	return (
 		<section className="prose prose-slate dark:prose-invert container my-8 grid items-center space-y-8 print:my-0">
-			<h2>Ohuho Honolulu Color Swatch Generator</h2>
 			<Form {...form}>
 				<form className="print:hidden">
+					<h2>Ohuho Honolulu Color Swatch Generator</h2>
 					<div className="grid w-fit gap-x-8 gap-y-4 md:grid-cols-2">
 						<div className="flex flex-col gap-y-4">
 							<FormField
@@ -196,7 +196,7 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 					Print
 				</Button>
 			</div>
-			<div className="flex w-full flex-row flex-wrap items-start bg-white p-4 print:justify-center">
+			<div className="flex w-full flex-row flex-wrap items-start print:justify-center">
 				{sections.map((items, i) => (
 					<Section
 						colors={items}
