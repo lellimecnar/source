@@ -6,12 +6,19 @@
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "lint": "eslint ."
+  },
   "exports": {
     ".": "./base.json",
     "./next.json": "./next.json",
     "./react.json": "./react.json"
   },
   "devDependencies": {
-    "@vercel/style-guide": "^6.0.0"
+    "@vercel/style-guide": "^6",
+    "typescript": "~5.5"
+  },
+  "peerDependencies": {
+    "typescript": "~5.5"
   }
 }

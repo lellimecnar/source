@@ -12,10 +12,10 @@ module.exports = {
 	],
 	plugins: ['prettier'],
 	rules: {
-		'@typescript-eslint/no-unsafe-argument': 'warn',
-		'@typescript-eslint/no-unsafe-assignment': 'warn',
-		'@typescript-eslint/no-unsafe-call': 'warn',
-		'@typescript-eslint/no-unsafe-member-access': 'warn',
+		// '@typescript-eslint/no-unsafe-argument': 'warn',
+		// '@typescript-eslint/no-unsafe-assignment': 'warn',
+		// '@typescript-eslint/no-unsafe-call': 'warn',
+		// '@typescript-eslint/no-unsafe-member-access': 'warn',
 		'no-param-reassign': 'off',
 		'prefer-named-capture-group': 'off',
 		'import/exports-last': 'off',
@@ -68,6 +68,7 @@ module.exports = {
 	},
 	parserOptions: {
 		project,
+		tsconfigRootDir: process.cwd(),
 	},
 	overrides: [
 		{

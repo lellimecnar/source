@@ -2,6 +2,9 @@
   "name": "@lellimecnar/eslint-config",
   "version": "0.0.0",
   "private": true,
+  "scripts": {
+    "lint": "eslint ."
+  },
   "exports": {
     ".": "./base.js",
     "./browser": "./browser.js",
@@ -10,21 +13,22 @@
   },
   "devDependencies": {
     "@lellimecnar/prettier-config": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^8.11.0",
-    "@typescript-eslint/parser": "^8.11.0",
-    "@vercel/style-guide": "^6.0.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-config-turbo": "^2.0.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-jest": "^28.8.3",
-    "eslint-plugin-only-warn": "^1.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-react-hooks": "^5.0.0",
-    "eslint-plugin-tailwindcss": "^3.17.5"
+    "@typescript-eslint/eslint-plugin": "^8",
+    "@typescript-eslint/parser": "^8",
+    "@vercel/style-guide": "^6",
+    "eslint-config-prettier": "^9",
+    "eslint-config-turbo": "^2",
+    "eslint-plugin-import": "^2",
+    "eslint-plugin-jest": "^28",
+    "eslint-plugin-only-warn": "^1",
+    "eslint-plugin-prettier": "^5",
+    "eslint-plugin-react": "^7",
+    "eslint-plugin-react-hooks": "^5",
+    "eslint-plugin-tailwindcss": "^3",
+    "typescript": "~5.5"
   },
   "peerDependencies": {
     "eslint": "^8",
-    "typescript": "^5"
+    "typescript": "~5.5"
   }
 }

@@ -19,7 +19,7 @@ import { siteConfig, type LinkItem } from '@/config/site';
 
 export function SiteHeader(): JSX.Element {
 	return (
-		<header className="bg-background sticky top-0 z-40 w-full">
+		<header className="sticky top-0 z-40 w-full bg-background">
 			<div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
 				<div className="flex gap-6 md:gap-10">
 					<Link href="/" className="flex items-center space-x-2">
@@ -32,7 +32,7 @@ export function SiteHeader(): JSX.Element {
 								<NavLinkItem
 									key={item.href}
 									item={item}
-									className="text-muted-foreground flex items-center text-sm font-medium"
+									className="flex items-center text-sm font-medium text-muted-foreground"
 								/>
 							))}
 						</NavigationMenuList>
@@ -125,8 +125,8 @@ const NavLinkItem: React.FC<LinkItemProps> = ({ item, children, ...props }) => {
 			{hasItems ? (
 				<NavigationMenuContent>
 					<ul className="grid min-w-[200px] max-w-[200px] gap-3 p-4 md:max-w-[300px] md:grid-cols-2 lg:max-w-[400px]">
-						{item.items.map((subItem, i) => (
-							<li key={`subItem-${i}`} className="w-full">
+						{item.items?.map((subItem, i) => (
+							<li key={`subItem-${String(i)}`} className="w-full">
 								{subItem.href ? (
 									<NavigationMenuLink asChild>
 										<LinkItem item={subItem} />

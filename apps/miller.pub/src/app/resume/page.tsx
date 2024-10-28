@@ -13,21 +13,21 @@ const QR_CODE_LINK =
 
 export default function ResumePage(): JSX.Element {
 	return (
-		<section className="container grid items-center w-full gap-6 pt-6 md:py-10">
-			<div className="flex text-black w-full mx-auto rounded-sm shadow-lg p-[0.5in] max-w-[8.5in] min-h-[11in] flex-col items-start bg-white">
-				<div className="flex w-full items-center justify-between gap-2 mb-4">
-					<h1 className="text-2xl font-bold shrink flex flex-col items-center justify-center leading-none">
-						<span className="px-2 border-b-2 border-black leading-none uppercase">
+		<section className="container grid w-full items-center gap-6 pt-6 md:py-10">
+			<div className="mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col items-start rounded-sm bg-white p-[0.5in] text-black shadow-lg">
+				<div className="mb-4 flex w-full items-center justify-between gap-2">
+					<h1 className="flex shrink flex-col items-center justify-center text-2xl font-bold leading-none">
+						<span className="border-b-2 border-black px-2 uppercase leading-none">
 							{data.name}
 						</span>
-						<span className="text-xl all-small-caps leading-none font-semibold">
+						<span className="text-xl font-semibold leading-none all-small-caps">
 							{data.title}
 						</span>
-						<span className="text-sm text-[#777] all-small-caps leading-none font-semibold">
+						<span className="text-sm font-semibold leading-none text-[#777] all-small-caps">
 							{data.location}
 						</span>
 					</h1>
-					<div className="grid grid-cols-2 gap-x-4 gap-y-1 shrink">
+					<div className="grid shrink grid-cols-2 gap-x-4 gap-y-1">
 						{data.contacts.length % 2 ? <span /> : null}
 						{data.contacts.map((contact) => (
 							<Link
@@ -41,11 +41,11 @@ export default function ResumePage(): JSX.Element {
 						))}
 					</div>
 				</div>
-				<div className="flex w-full gap-2 h-full grow">
-					<div className="flex flex-col shrink h-full min-w-36">
+				<div className="flex size-full grow gap-2">
+					<div className="flex h-full min-w-36 shrink flex-col">
 						<Link href={QR_CODE_LINK} className="mx-2 mt-2">
-							<QRCode data={QR_CODE_LINK} className="w-full h-auto" />
-							<p className="text-xs leading-none text-center p-0 mt-1 mb-4">
+							<QRCode data={QR_CODE_LINK} className="h-auto w-full" />
+							<p className="mb-4 mt-1 p-0 text-center text-xs leading-none">
 								scan to view the code for this resume on GitHub
 							</p>
 						</Link>
@@ -55,12 +55,12 @@ export default function ResumePage(): JSX.Element {
 						</Heading>
 						<SkillsList />
 					</div>
-					<div className="flex flex-col gap-2 grow min-h-full">
+					<div className="flex min-h-full grow flex-col gap-2">
 						<Heading>
 							<BriefcaseBusinessIcon />
 							Work Experience
 						</Heading>
-						<div className="flex flex-col gap-2 border-l-2 border-[#ccc] h-full ml-3 pl-3 pb-4">
+						<div className="ml-3 flex h-full flex-col gap-2 border-l-2 border-[#ccc] pb-4 pl-3">
 							{data.experience.map((experience) => (
 								<ExperienceItem key={experience.title} {...experience} />
 							))}
@@ -74,7 +74,7 @@ export default function ResumePage(): JSX.Element {
 
 function Heading({ children }: { children: React.ReactNode }): JSX.Element {
 	return (
-		<h2 className="text-xl font-bold flex items-center gap-2 uppercase">
+		<h2 className="flex items-center gap-2 text-xl font-bold uppercase">
 			{children}
 		</h2>
 	);
@@ -111,19 +111,19 @@ function ExperienceItem({
 	);
 	return (
 		<div className="flex flex-col">
-			<div className="flex items-baseline relative leading-none justify-between gap-4 border-b-2 border-[#777] -ml-3 pl-3">
-				<span className="absolute block size-[8px] rounded-full border-[#777] border-2 bg-white -left-[1px] box-content -bottom-[1px] -translate-x-1/2 translate-y-1/2" />
-				<span className="font-bold flex relative items-baseline gap-4">
+			<div className="relative -ml-3 flex items-baseline justify-between gap-4 border-b-2 border-[#777] pl-3 leading-none">
+				<span className="absolute -bottom-px -left-px box-content block size-[8px] -translate-x-1/2 translate-y-1/2 rounded-full border-2 border-[#777] bg-white" />
+				<span className="relative flex items-baseline gap-4 font-bold">
 					<span className="text-md font-semibold">{title}</span>
 					{type ? (
-						<span className="text-sm font-semibold all-small-caps text-[#777]">
+						<span className="text-sm font-semibold text-[#777] all-small-caps">
 							{type}
 						</span>
 					) : null}
 				</span>
 				<span className="text-sm">{employer}</span>
 			</div>
-			<div className="flex items-center justify-between text-base leading-none font-semibold all-small-caps text-[#777] lining-nums">
+			<div className="flex items-center justify-between text-base font-semibold lining-nums leading-none text-[#777] all-small-caps">
 				<span className="">
 					{start} – {end}
 				</span>
@@ -131,7 +131,7 @@ function ExperienceItem({
 					{city}, {state}
 				</span>
 			</div>
-			<ul className="list-ring list-outside pt-2 pr-2 pl-6 leading-tight text-xs columns-2 gap-8">
+			<ul className="list-outside list-ring columns-2 gap-8 pl-6 pr-2 pt-2 text-xs leading-tight">
 				{items.map((item) => (
 					<ExperienceItemPoint key={item} value={item} />
 				))}
@@ -228,15 +228,15 @@ function SkillsList(): JSX.Element {
 		);
 
 	return (
-		<div className="flex flex-col gap-4 w-full">
+		<div className="flex w-full flex-col gap-4">
 			{groups.map(({ title, items }) => (
-				<div className="flex flex-col gap-1.5 w-full" key={title}>
-					<div className="font-bold relative all-small-caps pl-2 text-lg text-[#777] border-b-2 border-[#ccc] leading-none whitespace-nowrap">
+				<div className="flex w-full flex-col gap-1.5" key={title}>
+					<div className="relative whitespace-nowrap border-b-2 border-[#ccc] pl-2 text-lg font-bold leading-none text-[#777] all-small-caps">
 						<span>{title}</span>
 					</div>
 					{items.map(({ name, icon, score }) => (
 						<div className="flex items-center gap-2 px-2" key={name}>
-							<div className="shrink h-full flex items-center justify-center">
+							<div className="flex h-full shrink items-center justify-center">
 								{React.isValidElement(icon) ? (
 									React.cloneElement(icon, {
 										size: 24,
@@ -246,20 +246,20 @@ function SkillsList(): JSX.Element {
 									<span />
 								)}
 							</div>
-							<div className="flex flex-col grow">
-								<span className="text-xs whitespace-nowrap pr-4">{name}</span>
-								<div className="flex items-center relative justify-between overflow-hidden bg-[#ccc] rounded-full h-1.5">
+							<div className="flex grow flex-col">
+								<span className="whitespace-nowrap pr-4 text-xs">{name}</span>
+								<div className="relative flex h-1.5 items-center justify-between overflow-hidden rounded-full bg-[#ccc]">
 									<div
-										className="absolute top-0 left-0 bottom-0 bg-[#33b5e5] border-r border-white box-content"
+										className="absolute inset-y-0 left-0 box-content border-r border-white bg-[#33b5e5]"
 										style={{
 											width: `${((score / 5) * 100).toFixed(2)}%`,
 										}}
 									/>
-									<span className=" h-full grow box-content" />
-									<span className="border-l-2 border-white h-full grow z-10 box-content" />
-									<span className="border-l-2 border-white h-full grow z-10 box-content" />
-									<span className="border-l-2 border-white h-full grow z-10 box-content" />
-									<span className="border-l-2 border-white h-full grow z-10 box-content" />
+									<span className=" box-content h-full grow" />
+									<span className="z-10 box-content h-full grow border-l-2 border-white" />
+									<span className="z-10 box-content h-full grow border-l-2 border-white" />
+									<span className="z-10 box-content h-full grow border-l-2 border-white" />
+									<span className="z-10 box-content h-full grow border-l-2 border-white" />
 								</div>
 							</div>
 						</div>
