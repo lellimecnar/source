@@ -31,7 +31,7 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
 			<head />
 			<body
 				className={cn(
-					'min-h-screen bg-background font-sans antialiased',
+					'min-h-screen bg-sky-950 font-sans antialiased',
 					fontSans.variable,
 				)}
 			>
