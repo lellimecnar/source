@@ -7,6 +7,7 @@ module.exports = {
 			'@vercel/style-guide/eslint/_base',
 			'@vercel/style-guide/eslint/typescript',
 		].map(require.resolve),
+		'plugin:tailwindcss/recommended',
 		'turbo',
 	],
 	plugins: ['prettier'],
