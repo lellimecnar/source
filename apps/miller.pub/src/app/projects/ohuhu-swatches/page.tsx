@@ -15,6 +15,7 @@ import {
 } from '@lellimecnar/ui/form';
 import { PrinterIcon } from '@lellimecnar/ui/icons';
 import { Input } from '@lellimecnar/ui/input';
+import { Page } from '@lellimecnar/ui/page';
 import { Switch } from '@lellimecnar/ui/switch';
 
 import { MAX_COLS, MIN_COLS, SWATCH_GAP, SWATCH_W } from './_const';
@@ -76,10 +77,10 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 	const sectionWidth = (SWATCH_W + SWATCH_GAP) * cols + SWATCH_GAP;
 
 	return (
-		<section className="prose prose-slate dark:prose-invert container my-8 grid items-center space-y-8 print:my-0">
+		<Page className="space-y-8 print:my-0">
+			<h2 className="print:hidden">Ohuho Honolulu Color Swatch Generator</h2>
 			<Form {...form}>
 				<form className="print:hidden">
-					<h2>Ohuho Honolulu Color Swatch Generator</h2>
 					<div className="grid w-fit gap-x-8 gap-y-4 md:grid-cols-2">
 						<div className="flex flex-col gap-y-4">
 							<FormField
@@ -182,7 +183,7 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 					</div>
 				</form>
 			</Form>
-			<div className="flex w-full items-center justify-center print:hidden">
+			<div className="mb-8 flex w-full items-center justify-center print:hidden">
 				<Button
 					className=""
 					size="lg"
@@ -196,7 +197,7 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 					Print
 				</Button>
 			</div>
-			<div className="flex w-full flex-row flex-wrap items-start print:justify-center">
+			<div className="flex w-full flex-row flex-wrap items-start gap-8 print:justify-center print:gap-0">
 				{sections.map((items, i) => (
 					<Section
 						colors={items}
@@ -209,6 +210,6 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 					/>
 				))}
 			</div>
-		</section>
+		</Page>
 	);
 }

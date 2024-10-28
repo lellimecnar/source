@@ -21,6 +21,7 @@
     "./input": "./src/components/input.tsx",
     "./label": "./src/components/label.tsx",
     "./navigation-menu": "./src/components/navigation-menu.tsx",
+    "./page": "./src/components/page.tsx",
     "./select": "./src/components/select.tsx",
     "./switch": "./src/components/switch.tsx"
   },

@@ -8,7 +8,14 @@ export const siteConfig: SiteConfig = {
 		{
 			title: 'Projects',
 			items: [
-				{title: 'Ohuhu Swatches', href: '/projects/ohuhu-swatches'},
+				{
+					title: 'Ohuhu Marker Swatch Generator',
+					href: '/projects/ohuhu-swatches',
+				},
+				{
+					title: 'Diagonal Wrapping Paper Calculator',
+					href: '/projects/diagonal-wrapping-paper',
+				},
 			],
 		},
 	],
