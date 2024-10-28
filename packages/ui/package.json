@@ -14,12 +14,19 @@
     "./icons": "./src/icons/index.ts",
     "./qrcode": "./src/qrcode/index.ts",
     "./theme": "./src/theme/index.ts",
+    "./hooks": "./src/hooks/index.ts",
     "./button": "./src/components/button.tsx",
+    "./checkbox": "./src/components/checkbox.tsx",
+    "./form": "./src/components/form.tsx",
+    "./input": "./src/components/input.tsx",
+    "./label": "./src/components/label.tsx",
     "./navigation-menu": "./src/components/navigation-menu.tsx",
-    "./hooks": "./src/hooks/index.ts"
+    "./select": "./src/components/select.tsx",
+    "./switch": "./src/components/switch.tsx"
   },
   "license": "MIT",
   "scripts": {
+    "ui": "pnpm -s dlx shadcn@latest",
     "build": "tailwindcss -i ./src/global.css -o ./dist/global.css",
     "lint": "eslint .",
     "dev": "tailwindcss -i ./src/global.css -o ./dist/global.css --watch",
@@ -40,17 +47,24 @@
     "typescript": "~5.5"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
     "@icons-pack/react-simple-icons": "^10",
+    "@radix-ui/react-checkbox": "^1.1.2",
+    "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-navigation-menu": "^1",
-    "@radix-ui/react-slot": "^1",
+    "@radix-ui/react-select": "^2.1.2",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.1",
     "class-variance-authority": "^0",
     "clsx": "^2",
     "devicons-react": "^1",
     "lucide-react": "^0",
     "next-themes": "^0",
     "qr-code-styling": "^1",
+    "react-hook-form": "^7.53.1",
     "react-qr-code": "^2.0.15",
     "react-use": "^17",
-    "tailwind-merge": "^2"
+    "tailwind-merge": "^2",
+    "zod": "^3.23.8"
   }
 }

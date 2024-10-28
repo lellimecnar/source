@@ -19,7 +19,7 @@ import { siteConfig, type LinkItem } from '@/config/site';
 
 export function SiteHeader(): JSX.Element {
 	return (
-		<header className="sticky top-0 z-40 w-full bg-sky-900 border-b-2 border-sky-800">
+		<header className="sticky top-0 z-40 w-full border-b-2 border-sky-800 bg-sky-900 print:hidden">
 			<div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
 				<div className="flex gap-6 md:gap-10">
 					<Link href="/" className="flex items-center space-x-2">
@@ -32,7 +32,7 @@ export function SiteHeader(): JSX.Element {
 								<NavLinkItem
 									key={item.href}
 									item={item}
-									className="flex items-center text-sm font-medium text-muted-foreground"
+									className="text-muted-foreground flex items-center text-sm font-medium"
 								/>
 							))}
 						</NavigationMenuList>

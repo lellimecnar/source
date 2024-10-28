@@ -7,7 +7,9 @@ export const siteConfig: SiteConfig = {
 		{ title: 'Resume', href: '/resume' },
 		{
 			title: 'Projects',
-			items: [],
+			items: [
+				{title: 'Ohuhu Swatches', href: '/projects/ohuhu-swatches'},
+			],
 		},
 	],
 	links: [

@@ -5,12 +5,30 @@ import type { Config } from 'tailwindcss';
 
 import sharedConfig from '@lellimecnar/tailwind-config';
 
-const config: Pick<Config, 'content' | 'presets'> = {
+import {
+	SWATCH_GAP,
+	SWATCH_H,
+	SWATCH_W,
+} from './src/app/projects/ohuhu-swatches/_const';
+
+const config: Config = {
 	content: [
 		resolve(__dirname, 'src/**/*.{ts,tsx}'),
 		resolve(__dirname, '../../packages/ui/src/**/*.{ts,tsx}'),
 	],
 	presets: [sharedConfig],
+	safelist: [
+		`h-${String(SWATCH_H)}`,
+
+		`w-${String(SWATCH_W)}`,
+		...['gap', 'p', 'px', 'py', 'pl', 'pr', 'pt', 'pb'].map(
+			(p) => `${p}-${String(SWATCH_GAP)}`,
+		),
+		...Array.from({ length: 24 }).flatMap((_, i) => [
+			`w-${String(i)}`,
+			`h-${String(i)}`,
+		]),
+	],
 };
 
 export default config;

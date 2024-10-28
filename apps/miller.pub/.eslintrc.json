@@ -3,9 +3,8 @@
     "@lellimecnar/eslint-config/next"
   ],
   "ignorePatterns": [
-    "!src/**",
-    "!*.ts",
-    "!*.js",
+    "!src/**/*.{ts,tsx}",
+    "!*.{js,ts}",
     ".next/**",
     "**/node_modules/**"
   ]
