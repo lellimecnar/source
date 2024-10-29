@@ -1,79 +1,55 @@
 import { useMemo } from 'react';
 
-import { XIcon } from '@lellimecnar/ui/icons';
-import { cn } from '@lellimecnar/ui/lib';
-
 import { useFormContext, useFormValues } from './_form';
 import { toFraction } from './_utils';
 
 export function Preview(): JSX.Element {
 	const form = useFormContext();
-	const { size } = useFormValues(form);
+	const { sizeW, sizeH, sizeWIN, sizeHIN, fromEdgeIN } = useFormValues(form);
+	const sizeWFr = toFraction(sizeWIN);
+	const sizeHFr = toFraction(sizeHIN);
+	const isSquare = sizeWFr === sizeHFr;
+	const centerFr = toFraction(sizeHIN / 2);
+	const fromEdgeFr = toFraction(fromEdgeIN);
 
 	return (
-		<div className="box-border flex max-h-full max-w-full grow items-center justify-center">
+		<div className="box-border flex max-h-full max-w-full grow flex-col items-center justify-center">
+			<ol className="">
+				<li>
+					Cut out a{' '}
+					<span className="font-bold">
+						{sizeWFr}&quot;&nbsp;&times;&nbsp;{sizeHFr}&quot;{' '}
+					</span>
+					{isSquare ? `square` : 'rectangle'} of wrapping paper.
+				</li>
+				<li>
+					Measure <span className="font-bold">{centerFr}&quot;</span> from the
+					top to mark the center line. (red dashed line)
+				</li>
+				<li>
+					Measure <span className="font-bold">{fromEdgeFr}&quot;</span> from the
+					left edge to mark the first corner of the box.
+				</li>
+				<li>Align the longest </li>
+			</ol>
 			<svg
-				viewBox={`0 0 ${String(size)} ${String(size)}`}
+				viewBox={`0 0 ${String(sizeW)} ${String(sizeH)}`}
 				xmlns="http://www.w3.org/2000/svg"
 				vectorEffect="non-scaling-stroke"
-				className="aspect-square max-h-full max-w-full bg-white shadow-md lg:max-w-[75%]"
+				className="max-h-full max-w-full bg-white shadow-md lg:max-w-[75%]"
 			>
 				<Grid />
 				<Folds />
 				<Box />
 				<Dimensions />
-				<Form />
+				{/* <Form /> */}
 			</svg>
 		</div>
 	);
 }
 
-// let formTimeout: NodeJS.Timeout | string | number | undefined;
-
-const inputStyle = cn(
-	'w-[60px] rounded-md border-[3px] border-sky-700 bg-white px-[8px] py-[6px] text-center text-[18px] font-bold',
-);
-function Form(): JSX.Element {
-	const form = useFormContext();
-
-	return (
-		<foreignObject width="100%" height="100%" x="0" y="0">
-			<div className="absolute inset-0 flex items-center justify-center align-middle text-[20px] leading-none text-black">
-				<div className="grid grid-cols-5 items-center justify-center text-center text-sm font-bold">
-					<span className="">width</span>
-					<span className="" />
-					<span className="">length</span>
-					<span className="" />
-					<span className="">height</span>
-					<input
-						type="text"
-						{...form.register('width')}
-						className={inputStyle}
-					/>
-					<span className="flex items-center justify-center">
-						<XIcon size={24} />
-					</span>
-					<input
-						type="text"
-						{...form.register('length')}
-						className={inputStyle}
-					/>
-					<span className="flex items-center justify-center">
-						<XIcon size={24} />
-					</span>
-					<input
-						type="text"
-						{...form.register('height')}
-						className={inputStyle}
-					/>
-				</div>
-			</div>
-		</foreignObject>
-	);
-}
-
 function Grid(): JSX.Element {
-	const { IN, center, sizeInches, size } = useFormValues();
+	const { IN, sizeInches, sizeW, sizeH } = useFormValues();
 
 	const squares = useMemo(
 		() => Array.from({ length: sizeInches }).map((_, i) => i + 1),
@@ -115,14 +91,14 @@ function Grid(): JSX.Element {
 				</pattern>
 			</defs>
 			<rect
-				width={size}
-				height={size}
+				width={sizeW}
+				height={sizeH}
 				fill="url(#grid)"
 				stroke="black"
 				strokeWidth="1"
 			/>
 			<path
-				d={`M 0 ${center} L ${size} ${center}`}
+				d={`M 0 ${sizeH / 2} L ${sizeW} ${sizeH / 2}`}
 				fill="none"
 				stroke="#b91c1c"
 				strokeWidth="2"
@@ -130,18 +106,27 @@ function Grid(): JSX.Element {
 			/>
 			{squares.map((n, i) => (
 				<>
-					<text
-						x={IN * i + IN - 6}
-						y={5}
-						dominantBaseline="hanging"
-						textAnchor="end"
-						fontSize="14"
-					>
-						{n}
-					</text>
-					<text x={5} y={IN * i + IN - 6} dominantBaseline="end" fontSize="14">
-						{n}
-					</text>
+					{Math.ceil(sizeW) / IN >= i && (
+						<text
+							x={IN * i + IN - 6}
+							y={6}
+							dominantBaseline="hanging"
+							textAnchor="end"
+							fontSize="14"
+						>
+							{n}
+						</text>
+					)}
+					{Math.ceil(sizeH / IN) >= i && (
+						<text
+							x={6}
+							y={IN * i + IN - 6}
+							dominantBaseline="end"
+							fontSize="14"
+						>
+							{n}
+						</text>
+					)}
 				</>
 			))}
 		</>
@@ -149,15 +134,15 @@ function Grid(): JSX.Element {
 }
 
 function Box(): JSX.Element {
-	const { rotate, size, width, length, center } = useFormValues();
-	const x = useMemo(() => (size - width) / 2, [size, width]);
-	const y = useMemo(() => (size - length) / 2, [size, length]);
+	const { rotate, width, sizeW, sizeH, length } = useFormValues();
+	const x = useMemo(() => (sizeW - width) / 2, [sizeW, width]);
+	const y = useMemo(() => (sizeH - length) / 2, [sizeH, length]);
 
 	return (
 		<g
-			width={size}
-			height={size}
-			transform={`rotate(${rotate} ${center} ${center})`}
+			width={sizeW}
+			height={sizeH}
+			transform={`rotate(${rotate} ${sizeW / 2} ${sizeH / 2})`}
 		>
 			<rect
 				width={width}
@@ -173,15 +158,15 @@ function Box(): JSX.Element {
 }
 
 function Folds(): JSX.Element {
-	const { size, rotate, center, width, length, height } = useFormValues();
-	const x = useMemo(() => (size - width) / 2, [size, width]);
-	const y = useMemo(() => (size - length) / 2, [size, length]);
+	const { sizeW, sizeH, rotate, width, length, height } = useFormValues();
+	const x = useMemo(() => (sizeW - width) / 2, [sizeW, width]);
+	const y = useMemo(() => (sizeH - length) / 2, [sizeH, length]);
 
 	return (
 		<g
-			width={size}
-			height={size}
-			transform={`rotate(${rotate} ${center} ${center})`}
+			width={sizeW}
+			height={sizeH}
+			transform={`rotate(${rotate} ${sizeW / 2} ${sizeH / 2})`}
 		>
 			<rect
 				width={width}
@@ -193,6 +178,26 @@ function Folds(): JSX.Element {
 				x={x}
 				y={y - height}
 			/>
+			<line
+				x1={x}
+				y1={y - height}
+				x2={x}
+				y2={y * -10}
+				stroke="#0369a1"
+				strokeWidth="2"
+				strokeDasharray="6 4"
+				opacity={0.5}
+			/>
+			<line
+				x1={x + width}
+				y1={y - height}
+				x2={x + width}
+				y2={y * -10}
+				stroke="#0369a1"
+				strokeWidth="2"
+				strokeDasharray="6 4"
+				opacity={0.5}
+			/>
 			<rect
 				width={height}
 				height={length}
@@ -202,6 +207,26 @@ function Folds(): JSX.Element {
 				fill="none"
 				x={x - height}
 				y={y}
+			/>
+			<line
+				x1={x - height}
+				y1={y}
+				x2={x * -10}
+				y2={y}
+				stroke="#0369a1"
+				opacity={0.5}
+				strokeWidth="2"
+				strokeDasharray="6 4"
+			/>
+			<line
+				x1={x - height}
+				y1={y + length}
+				x2={x * -10}
+				y2={y + length}
+				stroke="#0369a1"
+				opacity={0.5}
+				strokeWidth="2"
+				strokeDasharray="6 4"
 			/>
 			<rect
 				width={height}
@@ -213,6 +238,26 @@ function Folds(): JSX.Element {
 				x={x + width}
 				y={y}
 			/>
+			<line
+				x1={x + width + height}
+				y1={y}
+				x2={x + width * 10}
+				y2={y}
+				stroke="#0369a1"
+				opacity={0.5}
+				strokeWidth="2"
+				strokeDasharray="6 4"
+			/>
+			<line
+				x1={x + width + height}
+				y1={y + length}
+				x2={x + width * 10}
+				y2={y + length}
+				stroke="#0369a1"
+				opacity={0.5}
+				strokeWidth="2"
+				strokeDasharray="6 4"
+			/>
 			<rect
 				width={width}
 				height={height}
@@ -223,27 +268,58 @@ function Folds(): JSX.Element {
 				x={x}
 				y={y + length}
 			/>
+			<line
+				x1={x}
+				y1={y + length + height}
+				x2={x}
+				y2={y + length * 10}
+				stroke="#0369a1"
+				opacity={0.5}
+				strokeWidth="2"
+				strokeDasharray="6 4"
+			/>
+			<line
+				x1={x + width}
+				y1={y + length + height}
+				x2={x + width}
+				y2={y + length * 10}
+				stroke="#0369a1"
+				opacity={0.5}
+				strokeWidth="2"
+				strokeDasharray="6 4"
+			/>
 		</g>
 	);
 }
 
 function Dimensions(): JSX.Element {
-	const { center, diagonal, size, rotate, length } = useFormValues();
-	const _length = useMemo(() => (size - diagonal) / 2, [size, diagonal]);
+	const { diagonal, sizeW, sizeH, sizeWIN, sizeHIN, rotate, width, length } =
+		useFormValues();
+	const _length = useMemo(() => (sizeW - diagonal) / 2, [sizeW, diagonal]);
 
 	const α = (rotate * Math.PI) / 180;
-	const c = length;
-	const a = c * Math.sin(α);
-	const b = c * Math.cos(α);
+	const a = Math.abs(width * Math.cos(α));
+	const b = Math.abs(length * Math.cos(α));
 
 	const x = a + _length;
-	const len = size / 2 - b;
+	const len = sizeH / 2 - b;
 
 	return (
-		<g width={size} height={size} x={0} y={0}>
-			<Dimension start={[1, center]} length={_length} />
+		<g width={sizeW} height={sizeH} x={0} y={0}>
+			<Dimension start={[1, sizeH / 2]} length={_length} />
 			<Dimension start={[x, 1]} length={len} vertical />
-			<Dimension start={[size - _length, 1]} length={center} vertical />
+			<Dimension start={[sizeW - _length, 1]} length={sizeH / 2} vertical />
+			<text
+				x={sizeW - 24}
+				y={sizeH - 24}
+				dominantBaseline="end"
+				textAnchor="end"
+				fontSize="24"
+				fontWeight={700}
+			>
+				{toFraction(sizeWIN)}&quot;&nbsp;&times;&nbsp;{toFraction(sizeHIN)}
+				&quot;
+			</text>
 		</g>
 	);
 }
@@ -284,13 +360,13 @@ function Dimension({
 					markerHeight={capSize}
 					orient="auto"
 				>
-					<path d={`M 0 0 L 0 ${capSize}`} stroke="black" strokeWidth="1" />
+					<path d={`M 0 0 L 0 ${capSize}`} stroke="black" strokeWidth="2" />
 				</marker>
 			</defs>
 			<polyline
 				points={`${start.join(',')} ${end.join(',')}`}
 				stroke="black"
-				strokeWidth="1"
+				strokeWidth="2"
 				fill="none"
 				markerStart="url(#bracket-cap)"
 				markerEnd="url(#bracket-cap)"

@@ -1,8 +1,33 @@
 export const calcDiagonal = (width: number, length: number): number =>
 	Math.sqrt(Math.pow(width, 2) + Math.pow(length, 2));
 
-export const calcSize = (diagonal: number, height: number): number =>
-	Math.ceil(diagonal + height * 1.5);
+const calcBounds = (
+	width: number,
+	height: number,
+	rotateDeg: number,
+): [width: number, height: number] => {
+	const radians = (rotateDeg * Math.PI) / 180;
+	const w =
+		Math.abs(width * Math.cos(radians)) + Math.abs(height * Math.sin(radians));
+	const h =
+		Math.abs(width * Math.sin(radians)) + Math.abs(height * Math.cos(radians));
+	return [w, h];
+};
+
+export const calcSize = (
+	width: number,
+	length: number,
+	height: number,
+	rotateDeg: number,
+): [width: number, height: number] => {
+	const fullW = width + height * 2;
+	const fullH = length + height * 2;
+
+	const [wA, hA] = calcBounds(fullW, length, rotateDeg);
+	const [wB, hB] = calcBounds(width, fullH, rotateDeg);
+
+	return [Math.max(wA, wB), Math.max(hA, hB)];
+};
 
 export const validate = (
 	width: number,
