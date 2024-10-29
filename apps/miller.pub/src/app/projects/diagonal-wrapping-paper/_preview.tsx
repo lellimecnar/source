@@ -11,39 +11,13 @@ export function Preview(): JSX.Element {
 	const { size } = useFormValues(form);
 
 	return (
-		<div className="flex w-full items-center justify-center bg-white">
+		<div className="box-border flex max-h-full max-w-full grow items-center justify-center">
 			<svg
-				width="100%"
 				viewBox={`0 0 ${String(size)} ${String(size)}`}
 				xmlns="http://www.w3.org/2000/svg"
 				vectorEffect="non-scaling-stroke"
+				className="aspect-square max-h-full max-w-full bg-white shadow-md lg:max-w-[75%]"
 			>
-				{/* <style>{`
-                .inputs {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    bottom: 0;
-                    left: 0;
-                    vertical-align: middle;
-                    line-height: 1em;
-                    font-size: 20px;
-                    color: black;
-                }
-                input {
-                    padding: 6px;
-                    text-align: center;
-                    font-weight: bold;
-                    font-size: 14px;
-                    max-width: 50px;
-                    border: 3px solid rgb(75,175,75);
-                    background: #fff;
-                    border-radius: 2px;
-                }
-            `}</style> */}
 				<Grid />
 				<Folds />
 				<Box />
@@ -57,14 +31,13 @@ export function Preview(): JSX.Element {
 // let formTimeout: NodeJS.Timeout | string | number | undefined;
 
 const inputStyle = cn(
-	'max-w-[50px] rounded-md border-[3px] border-[rgb(75,175,75)] bg-white p-[6px] text-center text-[14px] font-bold',
+	'w-[60px] rounded-md border-[3px] border-sky-700 bg-white px-[8px] py-[6px] text-center text-[18px] font-bold',
 );
 function Form(): JSX.Element {
 	const form = useFormContext();
 
 	return (
 		<foreignObject width="100%" height="100%" x="0" y="0">
-			{/* <body xmlns="http://www.w3.org/1999/xhtml"> */}
 			<div className="absolute inset-0 flex items-center justify-center align-middle text-[20px] leading-none text-black">
 				<div className="grid grid-cols-5 items-center justify-center text-center text-sm font-bold">
 					<span className="">width</span>
@@ -95,7 +68,6 @@ function Form(): JSX.Element {
 					/>
 				</div>
 			</div>
-			{/* </body> */}
 		</foreignObject>
 	);
 }
@@ -115,7 +87,7 @@ function Grid(): JSX.Element {
 					<path
 						d={`M ${IN} 0 L 0 0 0 ${IN}`}
 						fill="none"
-						stroke="gray"
+						stroke="#94a3b8"
 						strokeWidth="1"
 						strokeDasharray="4 3"
 					/>
@@ -152,27 +124,22 @@ function Grid(): JSX.Element {
 			<path
 				d={`M 0 ${center} L ${size} ${center}`}
 				fill="none"
-				stroke="red"
-				strokeWidth="1"
+				stroke="#b91c1c"
+				strokeWidth="2"
 				strokeDasharray="4 3"
 			/>
 			{squares.map((n, i) => (
 				<>
 					<text
-						x={IN * i + IN / 2}
+						x={IN * i + IN - 6}
 						y={5}
 						dominantBaseline="hanging"
-						textAnchor="middle"
-						fontSize="8"
+						textAnchor="end"
+						fontSize="14"
 					>
 						{n}
 					</text>
-					<text
-						x={5}
-						y={IN * i + IN / 2}
-						dominantBaseline="middle"
-						fontSize="8"
-					>
+					<text x={5} y={IN * i + IN - 6} dominantBaseline="end" fontSize="14">
 						{n}
 					</text>
 				</>
@@ -195,8 +162,8 @@ function Box(): JSX.Element {
 			<rect
 				width={width}
 				height={length}
-				fill="rgba(100,200,100,0.8)"
-				stroke="rgb(75,175,75)"
+				fill="rgb(14 165 233 / 0.8)"
+				stroke="#0369a1"
 				strokeWidth="4"
 				x={x}
 				y={y}
@@ -219,7 +186,8 @@ function Folds(): JSX.Element {
 			<rect
 				width={width}
 				height={height}
-				stroke="blue"
+				stroke="#0369a1"
+				strokeWidth={2}
 				strokeDasharray="6 4"
 				fill="none"
 				x={x}
@@ -228,7 +196,8 @@ function Folds(): JSX.Element {
 			<rect
 				width={height}
 				height={length}
-				stroke="blue"
+				stroke="#0369a1"
+				strokeWidth={2}
 				strokeDasharray="6 4"
 				fill="none"
 				x={x - height}
@@ -237,7 +206,8 @@ function Folds(): JSX.Element {
 			<rect
 				width={height}
 				height={length}
-				stroke="blue"
+				stroke="#0369a1"
+				strokeWidth={2}
 				strokeDasharray="6 4"
 				fill="none"
 				x={x + width}
@@ -246,7 +216,8 @@ function Folds(): JSX.Element {
 			<rect
 				width={width}
 				height={height}
-				stroke="blue"
+				stroke="#0369a1"
+				strokeWidth={2}
 				strokeDasharray="6 4"
 				fill="none"
 				x={x}
@@ -272,11 +243,13 @@ function Dimensions(): JSX.Element {
 		<g width={size} height={size} x={0} y={0}>
 			<Dimension start={[1, center]} length={_length} />
 			<Dimension start={[x, 1]} length={len} vertical />
+			<Dimension start={[size - _length, 1]} length={center} vertical />
 		</g>
 	);
 }
 
-const capSize = 14;
+const capSize = 24;
+
 function Dimension({
 	start,
 	length,
@@ -331,7 +304,8 @@ function Dimension({
 						? `rotate(-90, ${start[0] + length / 2} ${start[1] - 9})`
 						: `translate(0, -8)`
 				}
-				fontSize="18"
+				fontSize="24"
+				fontWeight={600}
 			>
 				{label}&quot;
 			</text>

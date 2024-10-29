@@ -19,6 +19,8 @@ export interface FormValues {
 }
 
 const IN = 50;
+const BUFF = 0.5;
+
 export const defaultValues: FormValues = {
 	width: 16,
 	length: 8,
@@ -42,7 +44,7 @@ export const useFormContext = () => useUiFormContext<FormValues>();
 const calcValues = memoize(
 	({ width: _width, height: _height, length: _length }: FormValues) => {
 		const _diagonal = calcDiagonal(_width, _length);
-		const sizeInches = calcSize(_diagonal, _height);
+		const sizeInches = calcSize(_diagonal, _height) + BUFF * 2;
 		const size = sizeInches * IN;
 		const diagonal = _diagonal * IN;
 		const width = Math.max(_width, _length) * IN;

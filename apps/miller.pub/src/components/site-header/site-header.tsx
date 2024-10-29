@@ -66,17 +66,41 @@ const LinkItem: React.FC<LinkItemProps> = ({
 		<>
 			{Ico ? <Ico className="size-6" /> : null}
 			{item.title ? (
-				<span className={cn(item.icon && 'sr-only')}>{item.title}</span>
+				<div
+					className={cn(
+						'text-sm font-medium leading-none',
+						item.icon && 'sr-only',
+					)}
+				>
+					{item.title}
+				</div>
+			) : null}
+			{item.description ? (
+				<p
+					className={cn(
+						'line-clamp-2 text-sm leading-snug text-muted-foreground',
+						item.icon && 'sr-only',
+					)}
+				>
+					{item.description}
+				</p>
 			) : null}
 		</>
 	);
 
-	className = cn(className, item.disabled && 'cursor-not-allowed opacity-80');
+	className = cn(
+		'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none',
+		className,
+		item.disabled && 'cursor-not-allowed opacity-80',
+	);
 
 	return item.href ? (
 		<Link
 			href={item.href}
-			className={className}
+			className={cn(
+				className,
+				'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground transition-colors',
+			)}
 			target="_blank"
 			rel="noreferrer"
 			{...props}
@@ -87,7 +111,7 @@ const LinkItem: React.FC<LinkItemProps> = ({
 		</Link>
 	) : (
 		<span
-			className={cn(navigationMenuTriggerStyle(), 'cursor-default', className)}
+			className={cn('!bg-transparent !text-accent-foreground', className)}
 			{...props}
 		>
 			{content}
@@ -123,10 +147,10 @@ const NavLinkItem: React.FC<LinkItemProps> = ({ item, children, ...props }) => {
 		<NavigationMenuItem>
 			{link}
 			{hasItems ? (
-				<NavigationMenuContent>
-					<ul className="grid min-w-[200px] max-w-[200px] gap-3 p-4 md:max-w-[300px] md:grid-cols-2 lg:max-w-[400px]">
+				<NavigationMenuContent className="min-w-max">
+					<ul className="grid gap-3 p-4 md:grid-cols-2">
 						{item.items?.map((subItem, i) => (
-							<li key={`subItem-${String(i)}`} className="w-full">
+							<li key={`subItem-${String(i)}`} className="w-full max-w-[200px]">
 								{subItem.href ? (
 									<NavigationMenuLink asChild>
 										<LinkItem item={subItem} />

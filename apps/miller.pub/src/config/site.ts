@@ -9,11 +9,14 @@ export const siteConfig: SiteConfig = {
 			title: 'Projects',
 			items: [
 				{
-					title: 'Ohuhu Marker Swatch Generator',
+					title: 'Marker Swatch Generator',
+					description:
+						'Generate printable swatches for Ohuhu Honolulu Markers.',
 					href: '/projects/ohuhu-swatches',
 				},
 				{
-					title: 'Diagonal Wrapping Paper Calculator',
+					title: 'Wrapping Paper Calculator',
+					description: 'Calculate the most efficient method of wrapping a box.',
 					href: '/projects/diagonal-wrapping-paper',
 				},
 			],
@@ -30,6 +33,7 @@ export const siteConfig: SiteConfig = {
 
 export interface LinkItem {
 	title?: React.ReactNode;
+	description?: React.ReactNode;
 	href?: string;
 	icon?: React.ComponentType<Record<string, unknown>>;
 	disabled?: boolean;
