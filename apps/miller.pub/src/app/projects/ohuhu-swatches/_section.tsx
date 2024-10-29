@@ -110,7 +110,9 @@ function SectionMap({
 	);
 }
 
-function Swatch({ name, family, sequence }): JSX.Element {
+type SwatchProps = Color;
+
+function Swatch({ name, family, sequence }: SwatchProps): JSX.Element {
 	return (
 		<div
 			className={cn(

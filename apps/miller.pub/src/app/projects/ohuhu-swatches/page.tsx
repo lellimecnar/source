@@ -163,7 +163,7 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 																	? field.onChange([...field.value, id])
 																	: field.onChange(
 																			field.value?.filter(
-																				(value) => value !== id,
+																				(value: unknown) => value !== id,
 																			),
 																		);
 															}}

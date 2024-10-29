@@ -6,11 +6,14 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
   },
   "include": [
     "src/**/*.ts",
-    ".*.js"
+    ".*.js",
+    "src/lodash.mts"
   ],
   "exclude": [
     "dist",

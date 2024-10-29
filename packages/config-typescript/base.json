@@ -6,6 +6,7 @@
   "compilerOptions": {
     "checkJs": true,
     "allowJs": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   }
 }
