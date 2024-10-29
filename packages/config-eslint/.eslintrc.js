@@ -1,3 +1,3 @@
 module.exports = {
-	extends: ['@lellimecnar/eslint-config'],
+	extends: ['./base'],
 };

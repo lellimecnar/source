@@ -1,8 +1,8 @@
 import twTypography from '@tailwindcss/typography';
 import { type Config } from 'tailwindcss';
+import { fontFamily } from 'tailwindcss/defaultTheme';
 import twAnimate from 'tailwindcss-animate';
 import twOpenType from 'tailwindcss-opentype';
-import { fontFamily } from 'tailwindcss/defaultTheme';
 
 // We want each package to be responsible for its own content.
 const config: Omit<Config, 'content'> = {

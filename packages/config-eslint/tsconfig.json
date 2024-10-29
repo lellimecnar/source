@@ -9,12 +9,8 @@
     }
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "*.ts",
     "*.js",
-    ".*.js",
-    "*.json"
+    ".*.js"
   ],
   "exclude": [
     "dist",

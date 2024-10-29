@@ -1,7 +1,9 @@
 {
   "extends": "@lellimecnar/typescript-config",
   "include": [
-    "."
+    "*.ts",
+    "*.js",
+    ".*.js"
   ],
   "exclude": [
     "dist",

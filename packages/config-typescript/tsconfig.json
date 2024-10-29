@@ -1,5 +1,5 @@
 {
-  "extends": "@lellimecnar/typescript-config/react.json",
+  "extends": "./base.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -9,12 +9,10 @@
     }
   },
   "include": [
-    "src/**/*.ts",
-    ".*.js"
+    "*.json",
+    ".eslintrc.js"
   ],
   "exclude": [
-    "dist",
-    "build",
     "node_modules"
   ]
 }

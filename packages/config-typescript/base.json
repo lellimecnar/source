@@ -2,5 +2,10 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": [
     "@vercel/style-guide/typescript/node20"
-  ]
+  ],
+  "compilerOptions": {
+    "checkJs": true,
+    "allowJs": true,
+    "resolveJsonModule": true
+  }
 }

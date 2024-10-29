@@ -1,4 +1,7 @@
-const project = require('node:path').resolve(process.cwd(), 'tsconfig.json');
+const { resolve, dirname } = require('node:path');
+
+const project = resolve(process.cwd(), 'tsconfig.json');
+const tsconfigRootDir = dirname(project);
 
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
@@ -67,10 +70,6 @@ module.exports = {
 		],
 		'prettier/prettier': 'error',
 	},
-	parserOptions: {
-		project,
-		tsconfigRootDir: process.cwd(),
-	},
 	overrides: [
 		{
 			files: ['*.spec.[jt]s?(x)'],
@@ -79,6 +78,14 @@ module.exports = {
 		{
 			files: ['*.tsx', '*.jsx'],
 			extends: ['@vercel/style-guide/eslint/react'].map(require.resolve),
+		},
+		{
+			files: ['*.[jt]s?(x)'],
+			parser: '@typescript-eslint/parser',
+			parserOptions: {
+				project,
+				tsconfigRootDir,
+			},
 		},
 	],
 	settings: {

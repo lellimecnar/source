@@ -60,8 +60,7 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 		},
 	});
 	const values = form.watch();
-	const { sectionCount, selectedSets, showSectionGrid, numberSections } =
-		values;
+	const { sectionCount, showSectionGrid, numberSections } = values;
 	const sections = useMemo(() => createSections(values), [values]);
 	const count = useMemo(
 		() => sections.reduce((result, section) => result + section.length, 0),
@@ -190,7 +189,7 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 					onClick={(e) => {
 						e.preventDefault();
 						e.stopPropagation();
-						window?.print?.();
+						window.print();
 					}}
 				>
 					<PrinterIcon size={24} />
