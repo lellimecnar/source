@@ -2,16 +2,19 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@lellimecnar/ui/lib';
 
-export const pageVariants = cva('container grid items-center', {
-	variants: {
-		variant: {
-			default: 'my-8 print:my-0',
+export const pageVariants = cva(
+	'container flex flex-col items-center justify-center print:my-0',
+	{
+		variants: {
+			variant: {
+				default: 'my-8 gap-2',
+			},
+		},
+		defaultVariants: {
+			variant: 'default',
 		},
 	},
-	defaultVariants: {
-		variant: 'default',
-	},
-});
+);
 
 export interface PageProps
 	extends React.ComponentPropsWithoutRef<'section'>,
@@ -26,8 +29,16 @@ export function Page({
 	...props
 }: PageProps): JSX.Element {
 	return (
-		<section className={cn(pageVariants({ variant }), className)} {...props}>
-			<article className={cn(notProse && 'not-prose')}>{children}</article>
-		</section>
+		<article
+			className={cn(
+				notProse
+					? 'not-prose'
+					: 'prose prose-slate dark:prose-invert max-w-none flex-1 grow',
+			)}
+		>
+			<section className={cn(pageVariants({ variant }), className)} {...props}>
+				{children}
+			</section>
+		</article>
 	);
 }

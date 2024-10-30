@@ -579,6 +579,7 @@ export default {
 		{
 			title: 'Senior Software Engineer',
 			employer: 'CaucusRoom',
+			type: '3/21–9/21: contract',
 			city: 'Golden',
 			state: 'CO',
 			startDate: '2021/03/01',

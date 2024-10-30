@@ -38,9 +38,7 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 					<div className="relative flex min-h-screen flex-col">
 						<SiteHeader />
-						<div className="prose prose-slate dark:prose-invert max-w-none flex-1 grow items-center justify-center">
-							{children}
-						</div>
+						{children}
 					</div>
 				</ThemeProvider>
 			</body>

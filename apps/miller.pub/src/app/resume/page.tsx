@@ -3,7 +3,13 @@
 import Link from 'next/link';
 import React, { useMemo } from 'react';
 
-import { BriefcaseBusinessIcon, StarsIcon } from '@lellimecnar/ui/icons';
+import { Button } from '@lellimecnar/ui/button';
+import {
+	BriefcaseBusinessIcon,
+	PrinterIcon,
+	StarsIcon,
+} from '@lellimecnar/ui/icons';
+import { Page } from '@lellimecnar/ui/page';
 import { QRCode } from '@lellimecnar/ui/qrcode';
 
 import data from './_data';
@@ -13,8 +19,21 @@ const QR_CODE_LINK =
 
 export default function ResumePage(): JSX.Element {
 	return (
-		<section className="not-prose container grid w-full items-center gap-6 pt-6 md:py-10">
-			<div className="mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col items-start rounded-sm bg-white p-[0.5in] text-black shadow-lg">
+		<Page notProse>
+			<Button
+				size="sm"
+				variant="outline"
+				onClick={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					window?.print?.();
+				}}
+				className="max-w-fit px-12 print:hidden"
+			>
+				<PrinterIcon size={24} />
+				<span>Print Resume</span>
+			</Button>
+			<div className="mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col items-start rounded-sm bg-white p-[0.5in] text-black shadow-lg print:bg-transparent print:p-0 print:shadow-none">
 				<div className="mb-4 flex w-full items-center justify-between gap-2">
 					<h1 className="flex shrink flex-col items-center justify-center text-2xl font-bold leading-none">
 						<span className="border-b-2 border-black px-2 uppercase leading-none">
@@ -68,7 +87,7 @@ export default function ResumePage(): JSX.Element {
 					</div>
 				</div>
 			</div>
-		</section>
+		</Page>
 	);
 }
 
@@ -111,7 +130,7 @@ function ExperienceItem({
 	);
 	return (
 		<div className="flex flex-col">
-			<div className="relative -ml-3 flex items-baseline justify-between gap-4 border-b-2 border-[#777] pl-3 leading-none">
+			<div className="relative -ml-3 flex break-after-avoid-page items-baseline justify-between gap-4 border-b-2 border-[#777] pl-3 leading-none">
 				<span className="absolute -bottom-px -left-px box-content block size-[8px] -translate-x-1/2 translate-y-1/2 rounded-full border-2 border-[#777] bg-white" />
 				<span className="relative flex items-baseline gap-4 font-bold">
 					<span className="text-md font-semibold">{title}</span>
@@ -123,7 +142,7 @@ function ExperienceItem({
 				</span>
 				<span className="text-sm">{employer}</span>
 			</div>
-			<div className="all-small-caps flex items-center justify-between text-base font-semibold lining-nums leading-none text-[#777]">
+			<div className="all-small-caps flex break-before-avoid-page break-after-avoid-page items-center justify-between text-base font-semibold lining-nums leading-none text-[#777]">
 				<span className="">
 					{start} – {end}
 				</span>
@@ -131,7 +150,7 @@ function ExperienceItem({
 					{city}, {state}
 				</span>
 			</div>
-			<ul className="list-ring list-outside columns-2 gap-8 pl-6 pr-2 pt-2 text-xs leading-tight">
+			<ul className="list-ring list-outside columns-2 break-before-avoid-page gap-8 pl-6 pr-2 pt-2 text-xs leading-tight">
 				{items.map((item) => (
 					<ExperienceItemPoint key={item} value={item} />
 				))}
@@ -178,7 +197,7 @@ function ExperienceItemPoint({ value }: { value: string }): JSX.Element {
 				}),
 		[value],
 	);
-	return <li className="">{content}</li>;
+	return <li className="break-inside-avoid-page">{content}</li>;
 }
 
 function SkillsList(): JSX.Element {
@@ -235,7 +254,10 @@ function SkillsList(): JSX.Element {
 						<span>{title}</span>
 					</div>
 					{items.map(({ name, icon, score }) => (
-						<div className="flex items-center gap-2 px-2" key={name}>
+						<div
+							className="flex break-inside-avoid-page items-center gap-2 px-2"
+							key={name}
+						>
 							<div className="flex h-full shrink items-center justify-center">
 								{React.isValidElement(icon) ? (
 									React.cloneElement(icon, {
