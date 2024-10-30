@@ -26,7 +26,7 @@ export default function ResumePage(): JSX.Element {
 				onClick={(e) => {
 					e.preventDefault();
 					e.stopPropagation();
-					window?.print?.();
+					window.print();
 				}}
 				className="max-w-fit px-12 print:hidden"
 			>
