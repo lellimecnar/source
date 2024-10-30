@@ -24,7 +24,7 @@ export function Preview(): JSX.Element {
 				viewBox={`0 0 ${String(sizeW)} ${String(sizeH)}`}
 				xmlns="http://www.w3.org/2000/svg"
 				vectorEffect="non-scaling-stroke"
-				className="mb-4 max-h-full max-w-full bg-white shadow-md lg:max-w-[75%]"
+				className="mb-4 max-h-full max-w-full rounded-md border border-neutral-300 bg-white p-2 shadow-md"
 			>
 				<Grid />
 				<Box />
@@ -36,7 +36,7 @@ export function Preview(): JSX.Element {
 				<li>
 					Cut out a{' '}
 					<span className="bg-foreground text-background border-background rounded-md border px-1 font-bold">
-						{sizeWFr}&quot;&nbsp;&times;&nbsp;{sizeHFr}&quot;{' '}
+						{sizeWFr}&quot;&nbsp;&times;&nbsp;{sizeHFr}&quot;
 					</span>{' '}
 					{isSquare ? `square` : 'rectangle'} of wrapping paper.
 				</li>
@@ -537,13 +537,13 @@ function Dimension({
 					markerHeight={capSize}
 					orient="auto"
 				>
-					<path d={`M 0 0 L 0 ${capSize}`} stroke="black" strokeWidth="2" />
+					<path d={`M 0 0 L 0 ${capSize}`} stroke="black" strokeWidth="3" />
 				</marker>
 			</defs>
 			<polyline
 				points={`${start.join(',')} ${end.join(',')}`}
 				stroke="black"
-				strokeWidth="2"
+				strokeWidth="3"
 				fill="none"
 				markerStart="url(#bracket-cap)"
 				markerEnd="url(#bracket-cap)"
