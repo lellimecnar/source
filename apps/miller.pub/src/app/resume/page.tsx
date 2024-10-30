@@ -135,14 +135,14 @@ function ExperienceItem({
 				<span className="relative flex items-baseline gap-4 font-bold">
 					<span className="text-md font-semibold">{title}</span>
 					{type ? (
-						<span className="all-small-caps text-sm font-semibold text-[#777]">
+						<span className="all-small-caps text-sm font-medium text-[#777]">
 							{type}
 						</span>
 					) : null}
 				</span>
-				<span className="text-sm">{employer}</span>
+				<span className="text-sm italic">{employer}</span>
 			</div>
-			<div className="all-small-caps flex break-before-avoid-page break-after-avoid-page items-center justify-between text-base font-semibold lining-nums leading-none text-[#777]">
+			<div className="all-small-caps flex break-before-avoid-page break-after-avoid-page items-center justify-between text-sm font-medium lining-nums leading-none text-[#777]">
 				<span className="">
 					{start} – {end}
 				</span>
