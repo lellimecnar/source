@@ -3,6 +3,12 @@ import { useMemo } from 'react';
 import { useFormContext, useFormValues } from './_form';
 import { toFraction } from './_utils';
 
+declare module 'react' {
+	interface SVGAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+		transformOrigin?: string;
+	}
+}
+
 export function Preview(): JSX.Element {
 	const form = useFormContext();
 	const { sizeW, sizeH, sizeWIN, sizeHIN, fromEdgeIN } = useFormValues(form);
@@ -21,10 +27,9 @@ export function Preview(): JSX.Element {
 				className="mb-4 max-h-full max-w-full bg-white shadow-md lg:max-w-[75%]"
 			>
 				<Grid />
-				<Folds />
 				<Box />
+				<Folds />
 				<Dimensions />
-				{/* <Form /> */}
 			</svg>
 			<h3>Instructions</h3>
 			<ol className="max-w-2xl">
@@ -37,7 +42,7 @@ export function Preview(): JSX.Element {
 				</li>
 				<li>
 					Measure <span className="font-bold">{centerFr}&quot;</span> from the
-					top to mark the center line. (red dashed line)
+					top to mark the center line. (red dotted line)
 				</li>
 				<li>
 					Measure <span className="font-bold">{fromEdgeFr}&quot;</span> from the
@@ -48,8 +53,18 @@ export function Preview(): JSX.Element {
 					line) <span className="font-bold">{fromEdgeFr}&quot;</span> from the
 					left edge, as shown in the diagram above.
 				</li>
-				<li />
-				<li />
+				<li>
+					Starting at opposing edges, fold the wrapping paper over the top of
+					the box, overlapping them in the middle. (orange dotted line)
+				</li>
+				<li>
+					Fold over the other two edges, tucking the corners inward. (green
+					dash-dotted line)
+				</li>
+				<li>
+					Tape down the wrapping paper over the top of the box, in an
+					&ldquo;X&rdquo; pattern. (yellow dotted line)
+				</li>
 			</ol>
 		</div>
 	);
@@ -103,13 +118,6 @@ function Grid(): JSX.Element {
 				fill="url(#grid)"
 				stroke="black"
 				strokeWidth="1"
-			/>
-			<path
-				d={`M 0 ${sizeH / 2} L ${sizeW} ${sizeH / 2}`}
-				fill="none"
-				stroke="#b91c1c"
-				strokeWidth="2"
-				strokeDasharray="4 3"
 			/>
 			{squares.map((n, i) => (
 				<>
@@ -175,126 +183,259 @@ function Folds(): JSX.Element {
 			height={sizeH}
 			transform={`rotate(${rotate} ${sizeW / 2} ${sizeH / 2})`}
 		>
-			<rect
-				width={width}
-				height={height}
-				stroke="#0369a1"
-				strokeWidth={2}
-				strokeDasharray="6 4"
+			<defs>
+				<g id="top" width={sizeW} height={sizeH}>
+					<rect
+						width={width}
+						height={height}
+						stroke="#0369a1"
+						strokeWidth={3}
+						strokeDasharray="6 4"
+						fill="none"
+						x={x}
+						y={y + length}
+					/>
+					<line
+						x1={x}
+						y1={y + length + height}
+						x2={x}
+						y2={y + length * 10}
+						stroke="#0369a1"
+						opacity={0.5}
+						strokeWidth={3}
+						strokeDasharray="6 4"
+					/>
+					<line
+						x1={x + width}
+						y1={y + length + height}
+						x2={x + width}
+						y2={y + length * 10}
+						stroke="#0369a1"
+						opacity={0.5}
+						strokeWidth={3}
+						strokeDasharray="6 4"
+					/>
+				</g>
+				<g id="right" width={sizeW} height={sizeH}>
+					<rect
+						width={height}
+						height={length}
+						stroke="#0369a1"
+						strokeWidth={3}
+						strokeDasharray="6 4"
+						fill="none"
+						x={x - height}
+						y={y}
+					/>
+					<line
+						x1={x - height}
+						y1={y}
+						x2={x * -10}
+						y2={y}
+						stroke="#0369a1"
+						opacity={0.5}
+						strokeWidth={3}
+						strokeDasharray="6 4"
+					/>
+					<line
+						x1={x - height}
+						y1={y + length}
+						x2={x * -10}
+						y2={y + length}
+						stroke="#0369a1"
+						opacity={0.5}
+						strokeWidth={3}
+						strokeDasharray="6 4"
+					/>
+				</g>
+				<g id="bottom" width={sizeW} height={sizeH}>
+					<rect
+						width={width}
+						height={height}
+						stroke="#0369a1"
+						strokeWidth={3}
+						strokeDasharray="6 4"
+						fill="none"
+						x={x}
+						y={y - height}
+					/>
+					<line
+						x1={x}
+						y1={y - height}
+						x2={x}
+						y2={y * -10}
+						stroke="#0369a1"
+						strokeWidth={3}
+						strokeDasharray="6 4"
+						opacity={0.5}
+					/>
+					<line
+						x1={x + width}
+						y1={y - height}
+						x2={x + width}
+						y2={y * -10}
+						stroke="#0369a1"
+						strokeWidth={3}
+						strokeDasharray="6 4"
+						opacity={0.5}
+					/>
+				</g>
+				<g id="left" width={sizeW} height={sizeH}>
+					<rect
+						width={height}
+						height={length}
+						stroke="#0369a1"
+						strokeWidth={3}
+						strokeDasharray="6 4"
+						fill="none"
+						x={x + width}
+						y={y}
+					/>
+					<line
+						x1={x + width + height}
+						y1={y}
+						x2={x + width * 10}
+						y2={y}
+						stroke="#0369a1"
+						opacity={0.5}
+						strokeWidth={3}
+						strokeDasharray="6 4"
+					/>
+					<line
+						x1={x + width + height}
+						y1={y + length}
+						x2={x + width * 10}
+						y2={y + length}
+						stroke="#0369a1"
+						opacity={0.5}
+						strokeWidth={3}
+						strokeDasharray="6 4"
+					/>
+				</g>
+				<g id="corners" width={sizeW} height={sizeH}>
+					<line
+						x1={x + width}
+						y1={y + length}
+						x2={x + width}
+						y2={y + length * 10}
+						stroke="#047857"
+						opacity={0.5}
+						strokeWidth={3}
+						strokeDasharray="6 4 2 4"
+						transform={`rotate(-45 ${x + width} ${y + length})`}
+					/>
+					<line
+						x1={x}
+						y1={y + length}
+						x2={x * -10}
+						y2={y + length}
+						stroke="#047857"
+						opacity={0.5}
+						strokeWidth={3}
+						strokeDasharray="6 4 2 4"
+						transform={`rotate(-45 ${x} ${y + length})`}
+					/>
+					<line
+						x1={x + width}
+						y1={y}
+						x2={x + width}
+						y2={y * -10}
+						stroke="#047857"
+						strokeWidth={3}
+						strokeDasharray="6 4 3 4"
+						opacity={0.5}
+						transform={`rotate(45 ${x + width} ${y})`}
+					/>
+					<line
+						x1={x}
+						y1={y}
+						x2={x}
+						y2={y * -10}
+						stroke="#047857"
+						strokeWidth={3}
+						strokeDasharray="6 4 2 4"
+						opacity={0.5}
+						transform={`rotate(-45 ${x} ${y})`}
+					/>
+				</g>
+				<mask id="box">
+					<rect width={width} height={length} x={x} y={y} fill="white" />
+				</mask>
+				<mask id="paper" width={sizeW} height={sizeH}>
+					<rect
+						width={sizeW}
+						height={sizeH}
+						fill="white"
+						transform={`rotate(${-rotate} ${sizeW / 2} ${sizeH / 2})`}
+					/>
+				</mask>
+				<rect
+					id="overlap"
+					width={sizeW}
+					height={sizeH}
+					transform={`rotate(${-rotate} ${sizeW / 2} ${sizeH / 2})`}
+				/>
+				<g
+					id="overlap"
+					width={sizeW}
+					height={sizeH}
+					mask="url(#paper)"
+					maskUnits="userSpaceOnUse"
+					overflow="visible"
+				>
+					<rect x={x} y={y + length + height} width={width} height={sizeH} />
+					<rect x={x - width - height} y={y} width={width} height={length} />
+					<rect x={x} y={y - length - height} width={width} height={length} />
+					<rect x={x + width + height} y={y} width={width} height={length} />
+				</g>
+			</defs>
+			<g width={sizeW} height={sizeH}>
+				<use href="#top" />
+				<use href="#right" />
+				<use href="#bottom" />
+				<use href="#left" />
+				<use href="#corners" />
+			</g>
+			<g
+				width={sizeW}
+				height={sizeH}
+				stroke="#fde047"
+				strokeWidth={3}
+				strokeDasharray="3 3"
 				fill="none"
-				x={x}
-				y={y - height}
-			/>
-			<line
-				x1={x}
-				y1={y - height}
-				x2={x}
-				y2={y * -10}
-				stroke="#0369a1"
-				strokeWidth="2"
-				strokeDasharray="6 4"
-				opacity={0.5}
-			/>
-			<line
-				x1={x + width}
-				y1={y - height}
-				x2={x + width}
-				y2={y * -10}
-				stroke="#0369a1"
-				strokeWidth="2"
-				strokeDasharray="6 4"
-				opacity={0.5}
-			/>
-			<rect
-				width={height}
-				height={length}
-				stroke="#0369a1"
-				strokeWidth={2}
-				strokeDasharray="6 4"
+				mask="url(#box)"
+			>
+				<use
+					href="#overlap"
+					transform={`scale(1 -1) translate(0 ${-length - height})`}
+					transformOrigin={`${sizeW / 2} ${sizeH / 2}`}
+				/>
+				<use
+					href="#overlap"
+					transform={`scale(1 -1) translate(0 ${length + height})`}
+					transformOrigin={`${sizeW / 2} ${sizeH / 2}`}
+				/>
+			</g>
+			<g
+				width={sizeW}
+				height={sizeH}
+				stroke="#fdba74"
+				strokeWidth={3}
+				strokeDasharray="3 3"
 				fill="none"
-				x={x - height}
-				y={y}
-			/>
-			<line
-				x1={x - height}
-				y1={y}
-				x2={x * -10}
-				y2={y}
-				stroke="#0369a1"
-				opacity={0.5}
-				strokeWidth="2"
-				strokeDasharray="6 4"
-			/>
-			<line
-				x1={x - height}
-				y1={y + length}
-				x2={x * -10}
-				y2={y + length}
-				stroke="#0369a1"
-				opacity={0.5}
-				strokeWidth="2"
-				strokeDasharray="6 4"
-			/>
-			<rect
-				width={height}
-				height={length}
-				stroke="#0369a1"
-				strokeWidth={2}
-				strokeDasharray="6 4"
-				fill="none"
-				x={x + width}
-				y={y}
-			/>
-			<line
-				x1={x + width + height}
-				y1={y}
-				x2={x + width * 10}
-				y2={y}
-				stroke="#0369a1"
-				opacity={0.5}
-				strokeWidth="2"
-				strokeDasharray="6 4"
-			/>
-			<line
-				x1={x + width + height}
-				y1={y + length}
-				x2={x + width * 10}
-				y2={y + length}
-				stroke="#0369a1"
-				opacity={0.5}
-				strokeWidth="2"
-				strokeDasharray="6 4"
-			/>
-			<rect
-				width={width}
-				height={height}
-				stroke="#0369a1"
-				strokeWidth={2}
-				strokeDasharray="6 4"
-				fill="none"
-				x={x}
-				y={y + length}
-			/>
-			<line
-				x1={x}
-				y1={y + length + height}
-				x2={x}
-				y2={y + length * 10}
-				stroke="#0369a1"
-				opacity={0.5}
-				strokeWidth="2"
-				strokeDasharray="6 4"
-			/>
-			<line
-				x1={x + width}
-				y1={y + length + height}
-				x2={x + width}
-				y2={y + length * 10}
-				stroke="#0369a1"
-				opacity={0.5}
-				strokeWidth="2"
-				strokeDasharray="6 4"
-			/>
+				mask="url(#box)"
+			>
+				<use
+					href="#overlap"
+					transform={`scale(-1 1) translate(${-width - height} 0)`}
+					transformOrigin={`${sizeW / 2} ${sizeH / 2}`}
+				/>
+				<use
+					href="#overlap"
+					transform={`scale(-1 1) translate(${width + height} 0)`}
+					transformOrigin={`${sizeW / 2} ${sizeH / 2}`}
+				/>
+			</g>
 		</g>
 	);
 }
@@ -316,6 +457,13 @@ function Dimensions(): JSX.Element {
 			<Dimension start={[1, sizeH / 2]} length={_length} />
 			<Dimension start={[x, 1]} length={len} vertical />
 			<Dimension start={[sizeW - _length, 1]} length={sizeH / 2} vertical />
+			<path
+				d={`M 0 ${sizeH / 2} L ${sizeW} ${sizeH / 2}`}
+				fill="none"
+				stroke="#b91c1c"
+				strokeWidth="3"
+				strokeDasharray="3 3"
+			/>
 			<text
 				x={sizeW - 24}
 				y={sizeH - 24}
