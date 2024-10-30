@@ -35,35 +35,57 @@ export function Preview(): JSX.Element {
 			<ol className="max-w-2xl">
 				<li>
 					Cut out a{' '}
-					<span className="font-bold">
+					<span className="bg-foreground text-background border-background rounded-md border px-1 font-bold">
 						{sizeWFr}&quot;&nbsp;&times;&nbsp;{sizeHFr}&quot;{' '}
-					</span>
+					</span>{' '}
 					{isSquare ? `square` : 'rectangle'} of wrapping paper.
 				</li>
 				<li>
-					Measure <span className="font-bold">{centerFr}&quot;</span> from the
-					top to mark the center line. (red dotted line)
+					Measure{' '}
+					<span className="bg-foreground text-background border-background rounded-md border px-1 font-bold">
+						{centerFr}&quot;
+					</span>{' '}
+					from the top to mark the center line.{' '}
+					<span className="rounded-md border border-red-100 bg-red-700 px-1 font-semibold text-red-100">
+						(red dotted line)
+					</span>
 				</li>
 				<li>
-					Measure <span className="font-bold">{fromEdgeFr}&quot;</span> from the
-					left edge to mark the first corner of the box.
+					Measure{' '}
+					<span className="bg-foreground text-background border-background rounded-md border px-1 font-bold">
+						{fromEdgeFr}&quot;
+					</span>{' '}
+					from the left edge to mark the first corner of the box.
 				</li>
 				<li>
-					Align two opposite corners of the box to the center line (red dashed
-					line) <span className="font-bold">{fromEdgeFr}&quot;</span> from the
-					left edge, as shown in the diagram above.
+					Align two opposite corners of the box to the center line{' '}
+					<span className="rounded-md border border-red-100 bg-red-700 px-1 font-semibold text-red-100">
+						(red dotted line)
+					</span>{' '}
+					<span className="bg-foreground text-background border-background rounded-md border px-1 font-bold">
+						{fromEdgeFr}&quot;
+					</span>{' '}
+					from the left edge, as shown in the diagram above.
 				</li>
 				<li>
 					Starting at opposing edges, fold the wrapping paper over the top of
-					the box, overlapping them in the middle. (orange dotted line)
+					the box, overlapping them in the middle.{' '}
+					<span className="rounded-md border border-orange-600 bg-orange-300 px-1 font-semibold text-orange-600">
+						(orange dotted line)
+					</span>
 				</li>
 				<li>
-					Fold over the other two edges, tucking the corners inward. (green
-					dash-dotted line)
+					Fold over the other two edges, tucking the corners inward.{' '}
+					<span className="rounded-md border border-green-100 bg-green-700 px-1 font-semibold text-green-100">
+						(green dash-dotted line)
+					</span>
 				</li>
 				<li>
 					Tape down the wrapping paper over the top of the box, in an
-					&ldquo;X&rdquo; pattern. (yellow dotted line)
+					&ldquo;X&rdquo; pattern.{' '}
+					<span className="rounded-md border border-yellow-600 bg-yellow-300 px-1 font-semibold text-yellow-600">
+						(yellow dotted line)
+					</span>
 				</li>
 			</ol>
 		</div>
