@@ -13,17 +13,17 @@ const QR_CODE_LINK =
 
 export default function ResumePage(): JSX.Element {
 	return (
-		<section className="container grid w-full items-center gap-6 pt-6 md:py-10">
+		<section className="not-prose container grid w-full items-center gap-6 pt-6 md:py-10">
 			<div className="mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col items-start rounded-sm bg-white p-[0.5in] text-black shadow-lg">
 				<div className="mb-4 flex w-full items-center justify-between gap-2">
 					<h1 className="flex shrink flex-col items-center justify-center text-2xl font-bold leading-none">
 						<span className="border-b-2 border-black px-2 uppercase leading-none">
 							{data.name}
 						</span>
-						<span className="text-xl font-semibold leading-none all-small-caps">
+						<span className="all-small-caps text-xl font-semibold leading-none">
 							{data.title}
 						</span>
-						<span className="text-sm font-semibold leading-none text-[#777] all-small-caps">
+						<span className="all-small-caps text-sm font-semibold leading-none text-[#777]">
 							{data.location}
 						</span>
 					</h1>
@@ -116,14 +116,14 @@ function ExperienceItem({
 				<span className="relative flex items-baseline gap-4 font-bold">
 					<span className="text-md font-semibold">{title}</span>
 					{type ? (
-						<span className="text-sm font-semibold text-[#777] all-small-caps">
+						<span className="all-small-caps text-sm font-semibold text-[#777]">
 							{type}
 						</span>
 					) : null}
 				</span>
 				<span className="text-sm">{employer}</span>
 			</div>
-			<div className="flex items-center justify-between text-base font-semibold lining-nums leading-none text-[#777] all-small-caps">
+			<div className="all-small-caps flex items-center justify-between text-base font-semibold lining-nums leading-none text-[#777]">
 				<span className="">
 					{start} – {end}
 				</span>
@@ -131,7 +131,7 @@ function ExperienceItem({
 					{city}, {state}
 				</span>
 			</div>
-			<ul className="list-outside list-ring columns-2 gap-8 pl-6 pr-2 pt-2 text-xs leading-tight">
+			<ul className="list-ring list-outside columns-2 gap-8 pl-6 pr-2 pt-2 text-xs leading-tight">
 				{items.map((item) => (
 					<ExperienceItemPoint key={item} value={item} />
 				))}
@@ -231,7 +231,7 @@ function SkillsList(): JSX.Element {
 		<div className="flex w-full flex-col gap-4">
 			{groups.map(({ title, items }) => (
 				<div className="flex w-full flex-col gap-1.5" key={title}>
-					<div className="relative whitespace-nowrap border-b-2 border-[#ccc] pl-2 text-lg font-bold leading-none text-[#777] all-small-caps">
+					<div className="all-small-caps relative whitespace-nowrap border-b-2 border-[#ccc] pl-2 text-lg font-bold leading-none text-[#777]">
 						<span>{title}</span>
 					</div>
 					{items.map(({ name, icon, score }) => (
