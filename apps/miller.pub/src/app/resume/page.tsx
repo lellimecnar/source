@@ -33,7 +33,7 @@ export default function ResumePage(): JSX.Element {
 				<PrinterIcon size={24} />
 				<span>Print Resume</span>
 			</Button>
-			<div className="mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col items-start rounded-sm bg-white p-[0.5in] text-black shadow-lg print:bg-transparent print:p-0 print:shadow-none">
+			<div className="mx-auto flex min-h-[11in] w-full max-w-[8.5in] flex-col items-start rounded-sm border border-neutral-400 bg-white p-[0.5in] text-black shadow-2xl print:border-none print:bg-transparent print:p-0 print:shadow-none">
 				<div className="mb-4 flex w-full items-center justify-between gap-2">
 					<h1 className="flex shrink flex-col items-center justify-center text-2xl font-bold leading-none">
 						<span className="border-b-2 border-black px-2 uppercase leading-none">

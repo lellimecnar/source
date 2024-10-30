@@ -19,7 +19,7 @@ import { siteConfig, type LinkItem } from '@/config/site';
 
 export function SiteHeader(): JSX.Element {
 	return (
-		<header className="sticky top-0 z-40 w-full border-b-2 border-sky-800 bg-sky-900 print:hidden">
+		<header className="sticky top-0 z-40 w-full border-b-2 border-sky-50 bg-sky-200 text-sky-800 dark:border-sky-800 dark:bg-sky-900 dark:text-sky-300 print:hidden">
 			<div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
 				<div className="flex gap-6 md:gap-10">
 					<Link href="/" className="flex items-center space-x-2">
@@ -111,7 +111,10 @@ const LinkItem: React.FC<LinkItemProps> = ({
 		</Link>
 	) : (
 		<span
-			className={cn('!bg-transparent !text-accent-foreground', className)}
+			className={cn(
+				'!bg-transparent !text-sky-800 dark:!text-sky-300',
+				className,
+			)}
 			{...props}
 		>
 			{content}

@@ -25,9 +25,9 @@ export function Section({
 	return (
 		<div
 			className={cn(
-				'box-content text-black print:border border-neutral-400 border-dashed bg-white',
 				'break-inside-avoid-page',
-				'print:mr-[-1px] print:mb-[-1px] shadow-md print:shadow-none',
+				'box-content text-black bg-white shadow-lg border border-neutral-400 rounded-sm',
+				'print:mr-[-1px] print:mb-[-1px]print:border print:border-neutral-400 print:border-dashed print:shadow-none print:rounded-none',
 			)}
 			style={{
 				minWidth: tw.w(width, true),

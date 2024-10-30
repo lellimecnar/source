@@ -14,7 +14,20 @@ export function Preview(): JSX.Element {
 
 	return (
 		<div className="box-border flex max-h-full max-w-full grow flex-col items-center justify-center">
-			<ol className="">
+			<svg
+				viewBox={`0 0 ${String(sizeW)} ${String(sizeH)}`}
+				xmlns="http://www.w3.org/2000/svg"
+				vectorEffect="non-scaling-stroke"
+				className="mb-4 max-h-full max-w-full bg-white shadow-md lg:max-w-[75%]"
+			>
+				<Grid />
+				<Folds />
+				<Box />
+				<Dimensions />
+				{/* <Form /> */}
+			</svg>
+			<h3>Instructions</h3>
+			<ol className="max-w-2xl">
 				<li>
 					Cut out a{' '}
 					<span className="font-bold">
@@ -30,20 +43,14 @@ export function Preview(): JSX.Element {
 					Measure <span className="font-bold">{fromEdgeFr}&quot;</span> from the
 					left edge to mark the first corner of the box.
 				</li>
-				<li>Align the longest </li>
+				<li>
+					Align two opposite corners of the box to the center line (red dashed
+					line) <span className="font-bold">{fromEdgeFr}&quot;</span> from the
+					left edge, as shown in the diagram above.
+				</li>
+				<li />
+				<li />
 			</ol>
-			<svg
-				viewBox={`0 0 ${String(sizeW)} ${String(sizeH)}`}
-				xmlns="http://www.w3.org/2000/svg"
-				vectorEffect="non-scaling-stroke"
-				className="max-h-full max-w-full bg-white shadow-md lg:max-w-[75%]"
-			>
-				<Grid />
-				<Folds />
-				<Box />
-				<Dimensions />
-				{/* <Form /> */}
-			</svg>
 		</div>
 	);
 }
