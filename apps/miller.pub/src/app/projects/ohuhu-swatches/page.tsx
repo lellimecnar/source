@@ -184,8 +184,9 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 			</Form>
 			<div className="mb-8 flex w-full items-center justify-center print:hidden">
 				<Button
-					className=""
-					size="lg"
+					className="max-w-fit px-12 print:hidden"
+					size="sm"
+					variant="outline"
 					onClick={(e) => {
 						e.preventDefault();
 						e.stopPropagation();
@@ -196,7 +197,7 @@ export default function OhuhuSwatchesPage(): JSX.Element {
 					Print
 				</Button>
 			</div>
-			<div className="flex w-full flex-row flex-wrap items-start gap-8 print:justify-center print:gap-0">
+			<div className="flex w-full flex-row flex-wrap items-start justify-center gap-8 print:gap-0">
 				{sections.map((items, i) => (
 					<Section
 						colors={items}
