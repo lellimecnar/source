@@ -23,7 +23,9 @@
     "./navigation-menu": "./src/components/navigation-menu.tsx",
     "./page": "./src/components/page.tsx",
     "./select": "./src/components/select.tsx",
-    "./switch": "./src/components/switch.tsx"
+    "./switch": "./src/components/switch.tsx",
+    "./textarea": "./src/components/textarea.tsx",
+    "./toggle": "./src/components/toggle.tsx"
   },
   "license": "MIT",
   "scripts": {
@@ -48,24 +50,25 @@
     "typescript": "~5.5"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.9.0",
+    "@hookform/resolvers": "^3",
     "@icons-pack/react-simple-icons": "^10",
-    "@radix-ui/react-checkbox": "^1.1.2",
-    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-checkbox": "^1",
+    "@radix-ui/react-label": "^2",
     "@radix-ui/react-navigation-menu": "^1",
-    "@radix-ui/react-select": "^2.1.2",
-    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-select": "^2",
+    "@radix-ui/react-slot": "^1",
     "@radix-ui/react-switch": "^1.1.1",
+    "@radix-ui/react-toggle": "^1",
     "class-variance-authority": "^0",
     "clsx": "^2",
     "devicons-react": "^1",
     "lucide-react": "^0",
     "next-themes": "^0",
     "qr-code-styling": "^1",
-    "react-hook-form": "^7.53.1",
-    "react-qr-code": "^2.0.15",
+    "react-hook-form": "^7",
+    "react-qr-code": "^2",
     "react-use": "^17",
     "tailwind-merge": "^2",
-    "zod": "^3.23.8"
+    "zod": "^3"
   }
 }

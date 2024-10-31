@@ -19,6 +19,11 @@ export const siteConfig: SiteConfig = {
 					description: 'Calculate the most efficient method of wrapping a box.',
 					href: '/projects/diagonal-wrapping-paper',
 				},
+				{
+					title: 'Lellimizer',
+					description: 'Convert text like "Lance Miller" to "Lellimecnar."',
+					href: '/projects/lellimizer',
+				},
 			],
 		},
 	],
