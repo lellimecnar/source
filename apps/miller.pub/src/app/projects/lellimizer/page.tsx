@@ -19,6 +19,20 @@ export default function LellimizerPage(): JSX.Element {
 			<Form className="mx-auto w-full max-w-2xl">
 				<div className="mx-auto flex w-fit flex-col items-start justify-start gap-x-8 gap-y-4">
 					<FormField
+						name="transformCharacters"
+						render={({ field }) => (
+							<FormItem className="flex flex-row items-center gap-x-2">
+								<FormControl>
+									<Switch
+										checked={field.value}
+										onCheckedChange={field.onChange}
+									/>
+								</FormControl>
+								<FormLabel>Lellimize Characters</FormLabel>
+							</FormItem>
+						)}
+					/>
+					<FormField
 						name="transformAlphabet"
 						render={({ field }) => (
 							<FormItem className="flex flex-row items-center gap-x-2">

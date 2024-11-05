@@ -17,8 +17,8 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
     ".next/types/**/*.ts",
     "../../packages/ui/src/components/page.tsx",
     ".*.js",

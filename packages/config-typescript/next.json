@@ -7,7 +7,6 @@
         "name": "next"
       }
     ],
-    "allowJs": true,
     "declaration": false,
     "declarationMap": false,
     "incremental": true,
@@ -16,10 +15,7 @@
       "dom",
       "dom.iterable",
       "esnext"
-    ],
-    "resolveJsonModule": true,
-    "strict": true,
-    "target": "es5"
+    ]
   },
   "include": [
     "src",

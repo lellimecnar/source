@@ -4,6 +4,11 @@
     "@vercel/style-guide/typescript/node20"
   ],
   "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "lib": [
+      "ESNext"
+    ],
     "checkJs": true,
     "allowJs": true,
     "resolveJsonModule": true,

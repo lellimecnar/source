@@ -15,6 +15,7 @@ module.exports = {
 	],
 	plugins: ['prettier'],
 	rules: {
+		'@typescript-eslint/no-non-null-assertion': 'warn',
 		'@typescript-eslint/no-unsafe-argument': 'warn',
 		'@typescript-eslint/no-unsafe-assignment': 'warn',
 		'@typescript-eslint/no-unsafe-call': 'warn',
