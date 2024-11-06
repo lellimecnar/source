@@ -24,6 +24,11 @@ export const siteConfig: SiteConfig = {
 					description: 'Convert text like "Lance Miller" to "Lellimecnar."',
 					href: '/projects/lellimizer',
 				},
+				{
+					title: 'Math Bot',
+					description: 'Practice elementary math.',
+					href: '/projects/math-bot',
+				},
 			],
 		},
 	],

@@ -28,6 +28,10 @@ const config: Config = {
 			`w-${String(i)}`,
 			`h-${String(i)}`,
 		]),
+		...Array.from({ length: 100 }).flatMap((_, i) => [
+			`grid-cols-${String(i)}`,
+			`columns-${String(i)}`,
+		]),
 	],
 };
 
