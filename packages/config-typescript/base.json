@@ -7,7 +7,9 @@
     "strict": true,
     "target": "ESNext",
     "lib": [
-      "ESNext"
+      "ESNext",
+      "DOM",
+      "Decorators"
     ],
     "checkJs": true,
     "allowJs": true,

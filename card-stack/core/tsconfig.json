@@ -1,0 +1,25 @@
+{
+    "extends": "@lellimecnar/typescript-config",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        },
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
+    },
+    "include": [
+        "src/**/*.ts",
+        "*.js",
+        ".*.js"
+    ],
+    "exclude": [
+        "dist",
+        "build",
+        "node_modules"
+    ]
+}

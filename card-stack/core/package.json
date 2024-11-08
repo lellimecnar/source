@@ -1,0 +1,28 @@
+{
+    "name": "@card-stack/core",
+    "version": "0.0.0",
+    "license": "MIT",
+    "scripts": {
+        "lint": "eslint .",
+        "test": "jest",
+        "test:watch": "jest --watch"
+    },
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "devDependencies": {
+        "@lellimecnar/eslint-config": "workspace:*",
+        "@lellimecnar/jest-config": "workspace:*",
+        "@lellimecnar/typescript-config": "workspace:*",
+        "@types/jest": "^29.5.14",
+        "jest": "^29",
+        "typescript": "~5.5"
+    },
+    "peerDependencies": {
+        "typescript": "~5.5"
+    },
+    "dependencies": {
+        "@lellimecnar/utils": "workspace:*",
+        "ts-mixer": "^6.0.4"
+    }
+}

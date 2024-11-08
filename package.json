@@ -5,9 +5,11 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
+    "test": "turbo test",
+    "test:watch": "turbo test:watch",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
-    "format": "turbo lint -- --fix --fix-type=directive,problem,suggestion,layout --quiet",
+    "format": "turbo lint -- --fix --fix-type=directive,problem,suggestion,layout",
     "ui": "turbo ui --"
   },
   "packageManager": "pnpm@9.12.2",
