@@ -1,5 +1,6 @@
-import { type Card, isCard } from '.';
-import { type EnumType, hasMixin } from '..';
+import { type EnumType } from '../types';
+import { hasMixin } from '../utils';
+import { isCard, type Card } from './card';
 
 export interface Suitable extends Card {}
 export class Suitable {

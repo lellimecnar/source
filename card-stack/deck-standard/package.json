@@ -1,0 +1,19 @@
+{
+    "name": "@card-stack/standard-deck",
+    "version": "0.0.0",
+    "license": "MIT",
+    "scripts": {
+        "lint": "eslint .",
+        "test": "jest",
+        "test:watch": "jest --watch"
+    },
+    "dependencies": {
+        "@card-stack/core": "workspace:*"
+    },
+    "devDependencies": {
+        "@lellimecnar/eslint-config": "workspace:*",
+        "@lellimecnar/jest-config": "workspace:*",
+        "@lellimecnar/typescript-config": "workspace:*",
+        "@types/jest": "^29.5.14"
+    }
+}

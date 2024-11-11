@@ -2,6 +2,8 @@ import { hasMixin as _hasMixin, settings } from 'ts-mixer';
 
 import { type EnumType, type HexByte } from './types';
 
+export { Mixin as Mix, mix } from 'ts-mixer';
+
 Object.assign(settings, {
 	initFunction: 'init',
 	prototypeStrategy: 'copy',

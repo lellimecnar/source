@@ -1,17 +1,20 @@
-import { type Card, isCard } from '.';
-import { type EnumType, hasMixin } from '..';
+import { type EnumType } from '../types';
+import { hasMixin } from '../utils';
+import { type Card, isCard } from './card';
 
-export interface Rankable extends Card {}
+export interface Rankable extends Card {
+	//
+}
 export class Rankable {
-	static RANK: EnumType<any, any>;
+	static RANK: EnumType;
 
 	readonly rank!: number;
 
-	get rankName() {
-		return (this.constructor as typeof Rankable).RANK[this.rank] as string;
+	get rankName(): string {
+		return (this.constructor as typeof Rankable).RANK[this.rank]!;
 	}
 
-	init(...args: unknown[]) {
+	init(...args: unknown[]): void {
 		if (!isCard(this)) {
 			throw new Error(`Rankable must be mixed with Card`);
 		}

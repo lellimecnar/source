@@ -2,13 +2,18 @@
     "extends": "@lellimecnar/typescript-config",
     "compilerOptions": {
         "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        },
         "module": "NodeNext",
         "moduleResolution": "NodeNext",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true
     },
     "include": [
-        "**/*.ts",
+        "src/**/*.ts",
         "*.js",
         ".*.js"
     ],

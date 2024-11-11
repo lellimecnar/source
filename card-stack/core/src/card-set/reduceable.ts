@@ -1,14 +1,20 @@
-import { CardSetUtils, type CardSet } from '.';
-import { hasMixin, type Card } from '..';
+import { reduceRight } from '@lellimecnar/utils';
+
+import { type Card } from '../card';
+import { hasMixin } from '../utils';
+import { type CardSet } from './card-set';
 
 export interface Reduceable extends CardSet {}
 export class Reduceable {
-	reduce<T>(callback: (accumulator: T, card: Card) => T, initialValue: T) {
-		return CardSetUtils.reduce<T>(this.cards, callback, initialValue);
+	reduce<T>(callback: (accumulator: T, card: Card) => T, initialValue: T): T {
+		return [...this.cards].reduce<T>(callback, initialValue);
 	}
 
-	reduceRight<T>(callback: (accumulator: T, card: Card) => T, initialValue: T) {
-		return CardSetUtils.reduceRight(this.cards, callback, initialValue);
+	reduceRight<T>(
+		callback: (accumulator: T, card: Card) => T,
+		initialValue: T,
+	): T {
+		return reduceRight([...this.cards], callback, initialValue);
 	}
 }
 

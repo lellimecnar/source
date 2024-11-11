@@ -1,14 +1,9 @@
-import { CardUtils } from '.';
-import {
-	type CardSet,
-	HexByte,
-	Indexable,
-	Mix,
-	Parentable,
-	hasMixin,
-	isCardSet,
-	toHex,
-} from '..';
+// import { HexByte, Indexable, Mix, Parentable, hasMixin, toHex } from '..';
+import type { CardSet } from '../card-set';
+import { Indexable } from '../shared/indexable';
+import { Parentable } from '../shared/parentable';
+import { HexByte } from '../types';
+import { Mix, hasMixin, toHex } from '../utils';
 
 export class Card extends Mix(Indexable, Parentable<CardSet>) {
 	static getCard(id: HexByte | Card): Card | undefined {
@@ -22,33 +17,44 @@ export class Card extends Mix(Indexable, Parentable<CardSet>) {
 		this.index ??= (this.constructor as typeof Card).getIndex(1);
 
 		let id = this.index;
-		// console.dir({ id, this: this });
 
-		if (CardUtils.hasRank(this)) {
+		if ('rank' in this && typeof this.rank === 'number') {
 			id += this.rank;
 		}
 
-		if (CardUtils.hasSuit(this)) {
+		if ('suit' in this && typeof this.suit === 'number') {
 			id += this.suit;
 		}
 
-		if (CardUtils.hasDeck(this)) {
+		if (
+			'deck' in this &&
+			this.deck &&
+			typeof this.deck === 'object' &&
+			'index' in this.deck &&
+			typeof this.deck.index === 'number'
+		) {
 			id += this.deck.index;
 		}
 
-		if (CardUtils.hasParent(this)) {
+		if (
+			'parent' in this &&
+			this.parent &&
+			typeof this.parent === 'object' &&
+			'index' in this.parent &&
+			typeof this.parent.index === 'number'
+		) {
 			id += this.parent.index;
 		}
 
 		return id;
 	}
 
-	[Symbol.for('nodejs.util.inspect.custom')]() {
+	[Symbol.for('nodejs.util.inspect.custom')](): string {
 		const ctor = this.constructor as unknown as typeof Card;
 		return `${ctor.name}<${toHex(this.id)}>`;
 	}
 
-	[Symbol.toPrimitive](hint: unknown) {
+	[Symbol.toPrimitive](hint: unknown): string | number | null | undefined {
 		switch (hint) {
 			case 'number':
 				return this.id;
@@ -63,16 +69,9 @@ export class Card extends Mix(Indexable, Parentable<CardSet>) {
 		super(...(args as []));
 	}
 
-	init(...args: unknown[]) {
+	init(..._args: unknown[]): void {
 		// @ts-expect-error: index is readonly
-		this.index = this.constructor.getIndex(1);
-
-		for (const arg of args) {
-			if (isCardSet(arg)) {
-				this.parent ??= arg;
-				break;
-			}
-		}
+		this.index = (this.constructor as Card).getIndex(1);
 	}
 }
 

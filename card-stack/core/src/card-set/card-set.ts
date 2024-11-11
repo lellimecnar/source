@@ -1,44 +1,29 @@
-import { type Card, hasMixin, Indexable, isCard, Mix, Parentable } from '..';
+import { flatten } from '@lellimecnar/utils';
 
-export class CardSet<T extends Card = Card> extends Mix(
-	Indexable,
-	Parentable<CardSet>,
-) {
+import { type Card, isCard } from '../card/card';
+import { hasMixin } from '../utils';
+
+export class CardSet<T extends Card = Card> {
 	protected readonly cards = [] as T[];
 
-	get size() {
+	get size(): number {
 		return this.cards.length;
 	}
 
-	constructor(cards?: T[], parent?: CardSet<T>);
-	constructor(parent?: CardSet<T>);
-	constructor(...args: unknown[]) {
-		super(...(args as []));
-	}
-
-	init(...args: unknown[]) {
-		// @ts-expect-error: cards is readonly
-		this.cards ??= [];
-
-		for (const arg of args) {
-			if (
-				arg &&
-				Array.isArray(arg) &&
-				arg.length &&
-				arg.some((item) => item && isCard(item))
-			) {
-				this.cards.push(...arg);
-				continue;
-			}
-
-			if (arg && isCardSet(arg)) {
-				this.parent ??= arg;
-				continue;
+	protected push(...cards: (T | T[])[]): void {
+		for (const card of flatten(cards)) {
+			if (typeof card === 'object' && isCard(card)) {
+				this.cards.push(card);
 			}
 		}
 	}
 
-	*[Symbol.iterator]() {
+	init(): void {
+		// @ts-expect-error: cards is readonly
+		this.cards ??= [];
+	}
+
+	*[Symbol.iterator](): Generator<T, void> {
 		for (const card of this.cards) {
 			yield card;
 		}

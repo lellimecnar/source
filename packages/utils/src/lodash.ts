@@ -4,6 +4,7 @@ import find from 'lodash/find';
 import findIndex from 'lodash/findIndex';
 import findLast from 'lodash/findLast';
 import findLastIndex from 'lodash/findLastIndex';
+import flatten from 'lodash/flatten';
 import flow from 'lodash/flow';
 import forEachRight from 'lodash/forEachRight';
 import groupBy from 'lodash/groupBy';
@@ -23,6 +24,9 @@ export { default as memoize } from 'lodash/memoize';
 
 export const pascalCase = flow(camelCase, upperFirst);
 
+export const randomIndexes = (array: Iterable<any>, count = 1) =>
+	sampleSize(Array.from([...array].keys()), count);
+
 export {
 	camelCase,
 	chunk,
@@ -30,6 +34,7 @@ export {
 	findIndex,
 	findLast,
 	findLastIndex,
+	flatten,
 	flow,
 	forEachRight,
 	groupBy,
@@ -45,3 +50,5 @@ export {
 	takeRight,
 	upperFirst,
 };
+
+export type { List, ListIterateeCustom, ListIterator } from 'lodash';

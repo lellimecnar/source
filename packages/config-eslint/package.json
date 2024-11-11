@@ -13,6 +13,8 @@
   },
   "devDependencies": {
     "@lellimecnar/prettier-config": "workspace:*",
+    "@types/eslint": "^9.6.1",
+    "@types/node": "^20.11.24",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "@vercel/style-guide": "^6",

@@ -1,21 +1,21 @@
-import { type Player } from '.';
-import { hasMixin } from '..';
+import { hasMixin } from '../utils';
+import { type Player } from './player';
 
 export interface Scoreable extends Player {}
 export class Scoreable {
 	protected _score = 0;
 
-	get score() {
+	get score(): number {
 		return this._score;
 	}
 
-	addScore(score = 1) {
+	addScore(score = 1): this {
 		this._score += score;
 
 		return this;
 	}
 
-	subScore(score = 1) {
+	subScore(score = 1): this {
 		this._score -= score;
 
 		return this;

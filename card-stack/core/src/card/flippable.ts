@@ -1,5 +1,5 @@
-import { type Card, isCard } from '.';
-import { hasMixin } from '..';
+import { hasMixin } from '../utils';
+import { isCard, type Card } from './card';
 
 export interface Flippable extends Card {}
 export class Flippable {

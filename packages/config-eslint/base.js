@@ -9,7 +9,7 @@ module.exports = {
 		...[
 			'@vercel/style-guide/eslint/_base',
 			'@vercel/style-guide/eslint/typescript',
-		].map(require.resolve),
+		].map((p) => require.resolve(p)),
 		'plugin:tailwindcss/recommended',
 		'turbo',
 	],
@@ -19,7 +19,7 @@ module.exports = {
 		'@typescript-eslint/no-empty-interface': 'warn',
 		'@typescript-eslint/no-non-null-assertion': 'warn',
 		'@typescript-eslint/no-unsafe-argument': 'warn',
-		'@typescript-eslint/no-unsafe-assignment': 'warn',
+		'@typescript-eslint/no-unsafe-assignment': 'off',
 		'@typescript-eslint/no-unsafe-call': 'warn',
 		'@typescript-eslint/no-unsafe-member-access': 'warn',
 		'@typescript-eslint/restrict-template-expressions': 'warn',
@@ -29,7 +29,6 @@ module.exports = {
 		'no-bitwise': 'off',
 		'import/exports-last': 'off',
 		'import/first': 'error',
-		'import/no-cycle': 'warn',
 		'import/no-deprecated': 'error',
 		'import/no-default-export': 'off',
 		// 'import/consistent-type-specifier-style': ['error', 'prefer-inline'],
@@ -79,11 +78,15 @@ module.exports = {
 	overrides: [
 		{
 			files: ['*.spec.[jt]s?(x)'],
-			extends: ['@vercel/style-guide/eslint/jest'].map(require.resolve),
+			extends: ['@vercel/style-guide/eslint/jest'].map((p) =>
+				require.resolve(p),
+			),
 		},
 		{
 			files: ['*.tsx', '*.jsx'],
-			extends: ['@vercel/style-guide/eslint/react'].map(require.resolve),
+			extends: ['@vercel/style-guide/eslint/react'].map((p) =>
+				require.resolve(p),
+			),
 		},
 		{
 			files: ['*.[jt]s?(x)'],

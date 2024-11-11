@@ -1,4 +1,5 @@
-import { hasMixin, type Player } from '..';
+import { type Player } from '../player/player';
+import { hasMixin } from '../utils';
 
 export class Ownable<T extends Player = Player> {
 	owner?: T;

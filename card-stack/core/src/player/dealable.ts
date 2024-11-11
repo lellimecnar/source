@@ -1,29 +1,34 @@
-import { type Player } from '.';
-import { CardSetUtils, hasMixin, type Card, type CardSet } from '..';
+import { type Card } from '../card';
+import { type CardSet, isCardSet } from '../card-set/card-set';
+import { isGiveable } from '../card-set/giveable';
+import { isTakeable } from '../card-set/takeable';
+import { hasMixin } from '../utils';
+import { type Player } from './player';
 
 export interface Dealable extends Player {}
 export class Dealable {
 	static Hand: typeof CardSet;
 
-	protected hand?: InstanceType<typeof Dealable.Hand>;
+	protected hand?: CardSet;
 
-	init(...args: any[]) {
-		const ctor = this.constructor as typeof Dealable;
-
-		if (CardSetUtils.isCardSet(ctor.Hand)) {
-			this.hand = new ctor.Hand(...args);
-		}
-	}
-
-	draw(source: Card[] | CardSet, count?: number, fromIndex?: number) {
-		if (
-			!CardSetUtils.isCardSet(this.hand) ||
-			!CardSetUtils.isGiveable(this.hand)
-		) {
+	draw(source: Card[] | CardSet, count?: number, fromIndex = 0): this {
+		if (!isCardSet(this.hand) || !isGiveable(this.hand)) {
 			throw new TypeError('Cannot draw to non-giveable hand');
 		}
 
-		this.hand.give(CardSetUtils.take(source, count, fromIndex));
+		if (isCardSet(source) && isTakeable(source)) {
+			count ??= source.size;
+			source = source.take(count, fromIndex);
+		} else if (Array.isArray(source)) {
+			count ??= source.length;
+			source = source.slice(fromIndex, fromIndex + count);
+		}
+
+		if (Array.isArray(source) && source.length) {
+			this.hand.give(source);
+		}
+
+		return this;
 	}
 }
 

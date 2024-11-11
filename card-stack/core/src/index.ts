@@ -1,8 +1,4 @@
-export { Mixin as Mix, mix } from 'ts-mixer';
-
-export * from './types';
-
-export * from './utils';
+export * from './card';
 
 export * from './shared';
 
@@ -10,6 +6,8 @@ export * from './card-set';
 
 export * from './card-deck';
 
-export * from './card';
-
 export * from './player';
+
+export * from './types';
+
+export * from './utils';

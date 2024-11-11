@@ -1,16 +1,17 @@
-import { CardSetUtils, type CardSet } from '.';
-import { hasMixin } from '..';
+import { type Card } from '../card';
+import { hasMixin } from '../utils';
+import { type CardSet } from './card-set';
 
 export interface Reversible extends CardSet {}
 export class Reversible {
-	reverse() {
-		CardSetUtils.reverse(this.cards);
+	reverse(): this {
+		this.cards.reverse();
 
 		return this;
 	}
 
-	toReverse() {
-		return CardSetUtils.toReverse(this.cards);
+	toReverse(): Card[] {
+		return this.cards.toReversed();
 	}
 }
 

@@ -1,14 +1,15 @@
-import { CardSetUtils, type CardSet } from '.';
-import { hasMixin, type Card } from '..';
+import { type Card } from '../card';
+import { hasMixin } from '../utils';
+import { type CardSet } from './card-set';
 
 export interface Mappable extends CardSet {}
 export class Mappable {
-	map<T>(callback: (card: Card, index: number, cards: Card[]) => T) {
-		return CardSetUtils.map<T>(this.cards, callback);
+	map<T>(callback: (card: Card, index: number, cards: Card[]) => T): T[] {
+		return [...this.cards].map<T>(callback);
 	}
 
-	mapRight<T>(callback: (card: Card, index: number, cards: Card[]) => T) {
-		return CardSetUtils.mapRight<T>(this.cards, callback);
+	mapRight<T>(callback: (card: Card, index: number, cards: Card[]) => T): T[] {
+		return this.cards.toReversed().map<T>(callback);
 	}
 }
 

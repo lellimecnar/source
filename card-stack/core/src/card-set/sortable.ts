@@ -1,19 +1,26 @@
-import { CardSetUtils, type CardSet } from '.';
-import { CardSortKey, CardSortOrder, hasMixin } from '..';
+import { orderBy } from '@lellimecnar/utils';
+
+import { CardSortKey, CardSortOrder } from '../card/types';
+import { hasMixin } from '../utils';
+import { type CardSet } from './card-set';
 
 export interface Sortable extends CardSet {}
 export class Sortable {
 	sortBy(
 		keys: CardSortKey | CardSortKey[],
 		orders?: CardSortOrder | CardSortOrder[],
-	) {
-		CardSetUtils.sortBy(this.cards, keys, orders, true);
+	): this {
+		const result = orderBy(this.cards, keys, orders);
+
+		this.cards.splice(0, this.size, ...result);
 
 		return this;
 	}
 
-	sort() {
-		CardSetUtils.sortBy(this.cards, CardSortKey.INDEX, CardSortOrder.ASC, true);
+	sort(): this {
+		const result = orderBy(this.cards, CardSortKey.INDEX, CardSortOrder.ASC);
+
+		this.cards.splice(0, this.size, ...result);
 
 		return this;
 	}

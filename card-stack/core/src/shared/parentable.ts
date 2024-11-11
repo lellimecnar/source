@@ -1,4 +1,4 @@
-import { hasMixin } from '..';
+import { hasMixin } from '../utils';
 
 export class Parentable<T> {
 	parent?: T;
