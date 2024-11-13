@@ -54,7 +54,10 @@ export {
 export type {
 	Dictionary,
 	List,
+	ListIteratee,
 	ListIterateeCustom,
 	ListIterator,
+	Many,
+	NotVoid,
 	ValueIteratee,
 } from 'lodash';
