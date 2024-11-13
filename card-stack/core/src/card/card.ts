@@ -1,8 +1,8 @@
-import { type CardSet, isCardSet } from '../card-set';
+import { type CardSet } from '../card-set';
 import { Indexable } from '../shared/indexable';
 import { Parentable } from '../shared/parentable';
 import { HexByte } from '../types';
-import { Mix, hasMixin, toHex } from '../utils';
+import { isCardSet, Mix, toHex } from '../utils';
 
 export class Card extends Mix(Indexable, Parentable<CardSet>) {
 	static getCard(id: number): Card | undefined {
@@ -74,5 +74,3 @@ export class Card extends Mix(Indexable, Parentable<CardSet>) {
 		this.parent = args.find((arg) => isCardSet(arg));
 	}
 }
-
-export const isCard = (obj: unknown): obj is Card => hasMixin(obj, Card);

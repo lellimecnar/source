@@ -6,7 +6,7 @@ describe('findable', () => {
 			this.instances.clear();
 		}
 	}
-	class TestFindable extends Mix(CardSet<TestCard>, Findable) {}
+	class TestFindable extends Mix(CardSet<TestCard>, Findable<TestCard>) {}
 
 	const makeFindable = () => {
 		TestCard.__reset();

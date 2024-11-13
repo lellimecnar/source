@@ -1,4 +1,4 @@
 module.exports = {
 	extends: ['@lellimecnar/eslint-config'],
-	ignorePatterns: ['!./*.json', '!./*.js', '!./src/**/*'],
+	ignorePatterns: ['!./*.json', '!./*.js', '!./src/**/*', '.eslintrc.js'],
 };

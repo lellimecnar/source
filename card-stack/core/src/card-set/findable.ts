@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
+
 import {
 	find,
 	findIndex,
@@ -6,53 +8,57 @@ import {
 	type ListIterator,
 } from '@lellimecnar/utils';
 
-import { type Card, isCard } from '../card/card';
-import { hasMixin } from '../utils';
+import { type Card } from '../card/card';
+import { isCard, isCardSet } from '../utils';
 import { type CardSet } from './card-set';
 
-export interface Findable extends CardSet {}
-export class Findable {
+// eslint-disable-next-line -- use interface, not type
+export interface Findable<C extends Card> extends CardSet<C> {}
+export class Findable<C extends Card> {
 	find(
-		predicate: number | ListIterator<Card, boolean>,
+		predicate: number | ListIterator<C, boolean>,
 		fromIndex?: number,
-	): Card | undefined {
+	): C | undefined {
 		return find(this.cards, findCard(predicate), fromIndex);
 	}
 
 	findIndex(
-		predicate: number | ListIterator<Card, boolean>,
+		predicate: number | ListIterator<C, boolean>,
 		fromIndex?: number,
 	): number {
 		return findIndex(this.cards, findCard(predicate), fromIndex);
 	}
 
 	findRight(
-		predicate: number | ListIterator<Card, boolean>,
+		predicate: number | ListIterator<C, boolean>,
 		fromIndex?: number,
-	): Card | undefined {
+	): C | undefined {
 		return findLast(this.cards, findCard(predicate), fromIndex);
 	}
 
 	findIndexRight(
-		predicate: number | ListIterator<Card, boolean>,
+		predicate: number | ListIterator<C, boolean>,
 		fromIndex?: number,
 	): number {
 		return findLastIndex(this.cards, findCard(predicate), fromIndex);
 	}
+
+	init(..._args: unknown[]): void {
+		if (!isCardSet(this)) {
+			throw new Error('Findable must be mixed with CardSet');
+		}
+	}
 }
 
-export const isFindable = (obj: unknown): obj is Findable =>
-	hasMixin(obj, Findable);
-
-const findCard = (
-	predicate: number | Card | ListIterator<Card, boolean>,
-): ListIterator<Card, boolean> => {
+const findCard = <C extends Card>(
+	predicate: number | C | ListIterator<C, boolean>,
+): ListIterator<C, boolean> => {
 	if (isCard(predicate)) {
-		return (card: Card) => card === predicate;
+		return (card: C) => card === predicate;
 	}
 
 	if (typeof predicate === 'number') {
-		return (card: Card): boolean =>
+		return (card: C): boolean =>
 			Boolean(
 				card.id === predicate ||
 					card.index === predicate ||

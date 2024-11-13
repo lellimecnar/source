@@ -49,4 +49,14 @@ describe('indexable', () => {
 			expect(TestIndexable.getIndex(3)).toBe(index + hexByte * 3);
 		});
 	});
+
+	describe('getNextIndex', () => {
+		it('returns next index', () => {
+			const index = TestIndexable.getIndex(0);
+			const next = TestIndexable.getNextIndex();
+
+			expect(next).toBeGreaterThan(index);
+			expect(next).toBe(index + hexByte);
+		});
+	});
 });

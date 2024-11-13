@@ -11,10 +11,12 @@
         ".": "./src/index.ts"
     },
     "devDependencies": {
+        "@faker-js/faker": "^9.2.0",
         "@lellimecnar/eslint-config": "workspace:*",
         "@lellimecnar/jest-config": "workspace:*",
         "@lellimecnar/typescript-config": "workspace:*",
         "@types/jest": "^29.5.14",
+        "@types/node": "^20.11.24",
         "jest": "^29",
         "typescript": "~5.5"
     },

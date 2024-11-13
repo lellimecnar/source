@@ -1,29 +1,56 @@
-import { flatten, randomIndexes, take, takeRight } from '@lellimecnar/utils';
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
+import { pullAt } from '@lellimecnar/utils';
 
-import { type Card } from '../card';
-import { hasMixin } from '../utils';
+import { type Card } from '../card/card';
+import { isCard } from '../utils';
 import { type CardSet } from './card-set';
 
-export interface Takeable extends CardSet {}
-export class Takeable {
-	take(count = 1, fromIndex?: number): Card[] {
-		return take(this.cards.slice(fromIndex), count);
-	}
+// eslint-disable-next-line -- use interface, not type
+export interface Takeable<C extends Card> extends CardSet<C> {}
+export class Takeable<C extends Card> {
+	take(count = 1, fromIndex = 0): C[] {
+		const start = Math.max(fromIndex, 0);
+		const cards = this.cards.splice(start, count);
 
-	takeRight(count = 1, fromIndex?: number): Card[] {
-		return takeRight(this.cards.slice(0, fromIndex), count);
-	}
+		return cards.map((card) => {
+			if (isCard(card)) {
+				card.parent = undefined;
+			}
 
-	takeAt(...indexes: (number | number[])[]): Card[] {
-		return flatten(indexes).flatMap((index: number) => {
-			return this.take(1, index);
+			return card;
 		});
 	}
 
-	takeRandom(count = 1): Card[] {
-		return this.takeAt(randomIndexes(this.cards, count));
+	takeRight(count = 1, fromIndex = 0): C[] {
+		const start = Math.max(0, this.size - count - fromIndex);
+		const cards = this.cards.splice(start, count);
+
+		return cards.map((card) => {
+			if (isCard(card)) {
+				card.parent = undefined;
+			}
+
+			return card;
+		});
+	}
+
+	takeAt(...indexes: number[]): C[] {
+		return pullAt(this.cards, indexes).map((card) => {
+			if (isCard(card)) {
+				card.parent = undefined;
+			}
+			return card;
+		});
+	}
+
+	takeRandom(count = 1): C[] {
+		const indexes = new Set<number>();
+
+		while (indexes.size < Math.min(this.size, count)) {
+			const index = Math.floor(Math.random() * this.size);
+			indexes.add(index);
+		}
+
+		return this.takeAt(...indexes);
 	}
 }
-
-export const isTakeable = (obj: unknown): obj is Takeable =>
-	hasMixin(obj, Takeable);

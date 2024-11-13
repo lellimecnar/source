@@ -2,7 +2,7 @@ import { Card, CardSet, Chunkable, isChunkable, Mix } from '..';
 
 describe('chunkable', () => {
 	class TestCard extends Mix(Card) {}
-	class TestChunkable extends Mix(CardSet<TestCard>, Chunkable) {}
+	class TestChunkable extends Mix(CardSet<TestCard>, Chunkable<TestCard>) {}
 
 	it('is Chunkable', () => {
 		const chunkable = new TestChunkable();

@@ -1,4 +1,4 @@
-import { hasMixin } from '../utils';
+import { isParentable } from '../utils';
 
 export class Parentable<T> {
 	parent?: T;
@@ -13,12 +13,7 @@ export class Parentable<T> {
 		// eslint-disable-next-line @typescript-eslint/no-this-alias -- ignore
 		let curr: unknown = this;
 
-		while (
-			curr &&
-			typeof curr === 'object' &&
-			'parent' in curr &&
-			curr.parent
-		) {
+		while (isParentable(curr)) {
 			curr = curr.parent;
 
 			if (curr === obj) {
@@ -29,6 +24,3 @@ export class Parentable<T> {
 		return false;
 	}
 }
-
-export const isParentable = (obj: unknown): obj is Parentable<unknown> =>
-	Boolean(obj?.constructor && hasMixin(obj, Parentable));

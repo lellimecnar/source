@@ -2,6 +2,9 @@
     "name": "@card-stack/standard-deck",
     "version": "0.0.0",
     "license": "MIT",
+    "exports": {
+        ".": "./src/index.ts"
+    },
     "scripts": {
         "lint": "eslint .",
         "test": "jest",
@@ -14,6 +17,8 @@
         "@lellimecnar/eslint-config": "workspace:*",
         "@lellimecnar/jest-config": "workspace:*",
         "@lellimecnar/typescript-config": "workspace:*",
-        "@types/jest": "^29.5.14"
+        "@types/jest": "^29",
+        "@types/node": "^20",
+        "jest": "^29"
     }
 }

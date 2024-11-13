@@ -2,7 +2,7 @@ import { Atable, Card, CardSet, isAtable, Mix } from '..';
 
 describe('atable', () => {
 	class TestCard extends Mix(Card) {}
-	class TestAtable extends Mix(CardSet<TestCard>, Atable) {}
+	class TestAtable extends Mix(CardSet<TestCard>, Atable<TestCard>) {}
 
 	it('is Atable', () => {
 		const atable = new TestAtable();

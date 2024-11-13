@@ -6,7 +6,7 @@ describe('giveable', () => {
 			this.instances.clear();
 		}
 	}
-	class TestGiveable extends Mix(CardSet<TestCard>, Giveable) {}
+	class TestGiveable extends Mix(CardSet<TestCard>, Giveable<TestCard>) {}
 
 	const makeGiveable = () => {
 		TestCard.__reset();

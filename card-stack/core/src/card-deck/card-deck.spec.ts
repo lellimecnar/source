@@ -1,15 +1,8 @@
-import {
-	CardDeck,
-	isCardDeck,
-	isCardSet,
-	isIndexable,
-	isOwnable,
-	isTakeable,
-	Mix,
-} from '..';
+import { Card, CardDeck, isCardDeck, isCardSet, isIndexable, Mix } from '..';
 
 describe('cardDeck', () => {
-	class TestCardDeck extends Mix(CardDeck) {}
+	class TestCard extends Mix(Card) {}
+	class TestCardDeck extends Mix(CardDeck<TestCard>) {}
 
 	it('is CardDeck', () => {
 		const deck = new TestCardDeck();
@@ -24,15 +17,5 @@ describe('cardDeck', () => {
 	it('is Indexable', () => {
 		const deck = new TestCardDeck();
 		expect(isIndexable(deck)).toBe(true);
-	});
-
-	it('is Takeable', () => {
-		const deck = new TestCardDeck();
-		expect(isTakeable(deck)).toBe(true);
-	});
-
-	it('is Ownable', () => {
-		const deck = new TestCardDeck();
-		expect(isOwnable(deck)).toBe(true);
 	});
 });

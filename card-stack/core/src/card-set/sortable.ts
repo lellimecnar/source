@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
 import {
+	orderBy,
 	type ListIteratee,
 	type ListIterator,
 	type Many,
 	type NotVoid,
-	orderBy,
 } from '@lellimecnar/utils';
 
 import { type Card } from '../card/card';
 import { CardSortKey, CardSortOrder } from '../card/types';
-import { hasMixin } from '../utils';
+import { isCardSet } from '../utils';
 import { type CardSet } from './card-set';
 
 type Iteratees<C extends Card> = Many<
@@ -17,8 +18,8 @@ type Iteratees<C extends Card> = Many<
 type Orders = Many<boolean | 'asc' | 'desc'>;
 
 // eslint-disable-next-line -- use interface, not type
-export interface Sortable<C extends Card = Card> extends CardSet<C> {}
-export class Sortable<C extends Card = Card> {
+export interface Sortable<C extends Card> extends CardSet<C> {}
+export class Sortable<C extends Card> {
 	sortBy(
 		iteratees: Iteratees<C> = CardSortKey.INDEX,
 		orders: Orders = CardSortOrder.ASC,
@@ -43,7 +44,10 @@ export class Sortable<C extends Card = Card> {
 	): C[] {
 		return orderBy(this.cards, iteratees, orders);
 	}
-}
 
-export const isSortable = (obj: unknown): obj is Sortable =>
-	hasMixin(obj, Sortable);
+	init(..._args: unknown[]): void {
+		if (!isCardSet(this)) {
+			throw new Error('Sortable must be mixed with CardSet');
+		}
+	}
+}

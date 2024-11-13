@@ -1,5 +1,5 @@
-import { hasMixin } from '../utils';
-import { isCard, type Card } from './card';
+import { isCard } from '../utils';
+import { type Card } from './card';
 
 export interface Flippable extends Card {}
 export class Flippable {
@@ -22,6 +22,3 @@ export class Flippable {
 		}
 	}
 }
-
-export const isFlippable = (obj: unknown): obj is Flippable =>
-	hasMixin(obj, Flippable);

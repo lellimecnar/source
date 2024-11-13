@@ -1,6 +1,6 @@
 import { type EnumType, HexByte } from '../types';
-import { createEnum, hasMixin } from '../utils';
-import { type Card, isCard } from './card';
+import { createEnum, isCard } from '../utils';
+import { type Card } from './card';
 
 export interface Rankable extends Card {
 	//
@@ -37,9 +37,6 @@ export class Rankable {
 		this.rank = rank;
 	}
 }
-
-export const isRankable = (obj: unknown): obj is Rankable =>
-	hasMixin(obj, Rankable);
 
 const RankBrand = Symbol('RankBrand');
 

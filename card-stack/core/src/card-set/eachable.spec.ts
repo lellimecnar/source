@@ -2,7 +2,7 @@ import { Card, CardSet, Eachable, isEachable, Mix } from '..';
 
 describe('eachable', () => {
 	class TestCard extends Mix(Card) {}
-	class TestEachable extends Mix(CardSet<TestCard>, Eachable) {}
+	class TestEachable extends Mix(CardSet<TestCard>, Eachable<TestCard>) {}
 
 	it('is Eachable', () => {
 		const cardSet = new TestEachable();

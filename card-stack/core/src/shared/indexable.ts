@@ -1,5 +1,5 @@
 import { type HexByte } from '../types';
-import { extractIndex, hasMixin } from '../utils';
+import { extractIndex } from '../utils';
 
 const indexes = new Set<typeof Indexable>();
 export class Indexable {
@@ -61,6 +61,3 @@ export class Indexable {
 		indexes.add(this.constructor as typeof Indexable);
 	}
 }
-
-export const isIndexable = (obj: unknown): obj is Indexable =>
-	hasMixin(obj, Indexable);

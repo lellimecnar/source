@@ -1,17 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
-/* eslint-disable @typescript-eslint/no-extraneous-class -- ignore */
-import { CardSet } from '../card-set/card-set';
-import { Takeable } from '../card-set/takeable';
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-unsafe-declaration-merging -- ignore */
+
+import { type Card } from '../card';
+import { CardSet } from '../card-set';
 import { Indexable } from '../shared/indexable';
-import { Ownable } from '../shared/ownable';
 import { HexByte } from '../types';
-import { hasMixin, mix } from '../utils';
+import { mix } from '../utils';
 
-export interface CardDeck extends CardSet, Indexable, Takeable, Ownable {}
-@mix(CardSet, Indexable, Takeable, Ownable)
-export class CardDeck {
+// eslint-disable-next-line -- use interface, not type
+export interface CardDeck<C extends Card> extends CardSet<C>, Indexable  {}
+
+@mix(CardSet, Indexable)
+export class CardDeck<C extends Card> {
 	static HexByte = HexByte.DeckIndex;
-}
 
-export const isCardDeck = (obj: unknown): obj is CardDeck =>
-	hasMixin(obj, CardDeck);
+	init(..._args: unknown[]): void {
+		//
+	}
+}

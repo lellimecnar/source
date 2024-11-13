@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-empty-interface -- ignore */
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
 import { HexByte, type EnumType } from '../types';
-import { createEnum, hasMixin } from '../utils';
-import { isCard, type Card } from './card';
+import { createEnum, isCard } from '../utils';
+import { type Card } from './card';
 
 export interface Suitable extends Card {}
 export class Suitable {
@@ -37,9 +37,6 @@ export class Suitable {
 		this.suit = suit;
 	}
 }
-
-export const isSuitable = (obj: unknown): obj is Suitable =>
-	hasMixin(obj, Suitable);
 
 const SuitBrand = Symbol('SuitBrand');
 

@@ -1,7 +1,7 @@
 import { flatten } from '@lellimecnar/utils';
 
-import { type Card, isCard } from '../card/card';
-import { hasMixin } from '../utils';
+import { type Card } from '../card/card';
+import { isCard } from '../utils';
 
 export class CardSet<T extends Card = Card> {
 	// @ts-expect-error: cards defined in init
@@ -42,6 +42,3 @@ export class CardSet<T extends Card = Card> {
 		}
 	}
 }
-
-export const isCardSet = (obj: unknown): obj is CardSet =>
-	Boolean(obj && hasMixin(obj, CardSet));

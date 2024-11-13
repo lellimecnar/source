@@ -1,20 +1,22 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
 import { nth } from '@lellimecnar/utils';
 
-import { type Card, isCard } from '../card/card';
-import { hasMixin } from '../utils';
-import { type CardSet, isCardSet } from './card-set';
+import { type Card } from '..';
+import { isCard, isCardSet } from '../utils';
+import { type CardSet } from './card-set';
 
-export interface Atable extends CardSet {}
-export class Atable {
-	at(index: number): Card | undefined;
-	at(...indexes: [number, number, ...number[]]): Card[];
-	at(...indexes: number[]): Card | undefined | Card[] {
+// eslint-disable-next-line -- use interface, not type
+export interface Atable<C extends Card> extends CardSet<C> {}
+export class Atable<C extends Card> {
+	at(index: number): C | undefined;
+	at(...indexes: [number, number, ...number[]]): C[];
+	at(...indexes: number[]): C | undefined | C[] {
 		if (indexes.length === 1 && typeof indexes[0] === 'number') {
 			return nth(this.cards, indexes[0]);
 		}
 
-		const result: Card[] = indexes.flatMap<Card>((index: number): Card[] => {
-			const card: Card | undefined = nth(this.cards, index);
+		const result: C[] = indexes.flatMap<C>((index: number): C[] => {
+			const card: C | undefined = nth(this.cards, index);
 
 			if (card && isCard(card)) {
 				return [card];
@@ -32,5 +34,3 @@ export class Atable {
 		}
 	}
 }
-
-export const isAtable = (obj: unknown): obj is Atable => hasMixin(obj, Atable);

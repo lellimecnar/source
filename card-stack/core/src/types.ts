@@ -1,7 +1,10 @@
 export type EnumType<
 	Key extends string = string,
 	Val extends number = number,
-> = Record<Key & string, Val & number> & Record<Val & number, Key & string>;
+> = Record<Key & string, Val & number> &
+	Record<Val & number, Key & string> & {
+		[Symbol.iterator]: () => Generator<Val>;
+	};
 
 export type EnumKey<Enum extends EnumType> = keyof Enum & string;
 export type EnumValue<Enum extends EnumType> = Enum[EnumKey<Enum>] & number;

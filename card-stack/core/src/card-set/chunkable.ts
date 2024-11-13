@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
 import { chunk } from '@lellimecnar/utils';
 
-import { type Card } from '../card';
-import { hasMixin } from '../utils';
-import { isCardSet, type CardSet } from './card-set';
+import { type Card } from '../card/card';
+import { isCardSet } from '../utils';
+import { type CardSet } from './card-set';
 
-export interface Chunkable extends CardSet {}
-export class Chunkable {
-	chunk(size: number): Card[][] {
+// eslint-disable-next-line -- use interface, not type
+export interface Chunkable<C extends Card> extends CardSet<C> {}
+export class Chunkable<C extends Card> {
+	chunk(size: number): C[][] {
 		return chunk(this.cards, size);
 	}
 
@@ -16,6 +18,3 @@ export class Chunkable {
 		}
 	}
 }
-
-export const isChunkable = (obj: unknown): obj is Chunkable =>
-	hasMixin(obj, Chunkable);
