@@ -1,17 +1,17 @@
-import { type EnumType } from '../types';
-import { hasMixin } from '../utils';
+import { type EnumType, HexByte } from '../types';
+import { createEnum, hasMixin } from '../utils';
 import { type Card, isCard } from './card';
 
 export interface Rankable extends Card {
 	//
 }
 export class Rankable {
-	static RANK: EnumType;
+	static RANK: RankEnumType<any>;
 
 	readonly rank!: number;
 
 	get rankName(): string {
-		return (this.constructor as typeof Rankable).RANK[this.rank]!;
+		return (this.constructor as typeof Rankable).RANK[this.rank] as string;
 	}
 
 	init(...args: unknown[]): void {
@@ -25,20 +25,28 @@ export class Rankable {
 			throw new Error(`RANK is not defined in ${(ctor as any).name}`);
 		}
 
-		for (let arg of args) {
-			if (typeof arg === 'string' && typeof ctor.RANK[arg] === 'number') {
-				arg = ctor.RANK[arg];
-			}
+		const rank = args.find(
+			(arg) =>
+				typeof arg === 'number' &&
+				arg in ctor.RANK &&
+				ctor.RANK[arg] &&
+				typeof ctor.RANK[arg] === 'string',
+		);
 
-			if (typeof arg === 'number' && typeof ctor.RANK[arg] === 'string') {
-				// @ts-expect-error: rank is readonly
-				this.rank = arg;
-
-				break;
-			}
-		}
+		// @ts-expect-error: rank is readonly
+		this.rank = rank;
 	}
 }
 
 export const isRankable = (obj: unknown): obj is Rankable =>
 	hasMixin(obj, Rankable);
+
+const RankBrand = Symbol('RankBrand');
+
+export type RankEnumType<K extends string = string> = EnumType<K> & {
+	readonly [RankBrand]: unique symbol;
+};
+
+export const createRankEnum = <K extends string>(
+	keys: readonly K[],
+): RankEnumType<K> => createEnum(keys, HexByte.CardRank) as RankEnumType<K>;

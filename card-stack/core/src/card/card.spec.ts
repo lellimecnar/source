@@ -1,7 +1,19 @@
 import { Card, CardSet, isIndexable, isParentable, Mix } from '..';
 
 describe('card', () => {
-	class TestCard extends Mix(Card) {}
+	class TestCard extends Mix(Card) {
+		static __reset(): void {
+			this.instances.clear();
+		}
+	}
+
+	beforeEach(() => {
+		TestCard.__reset();
+	});
+
+	afterEach(() => {
+		TestCard.__reset();
+	});
 
 	it('is Indexable', () => {
 		const card = new TestCard();
@@ -31,6 +43,14 @@ describe('card', () => {
 			expect(typeof id).toBe('number');
 			expect(id).toBeGreaterThan(0);
 			expect(id).toBe(card.index);
+		});
+	});
+
+	describe('getCard', () => {
+		it('takes an id', () => {
+			const card = new TestCard();
+
+			expect(TestCard.getCard(card.id)).toBe(card);
 		});
 	});
 });

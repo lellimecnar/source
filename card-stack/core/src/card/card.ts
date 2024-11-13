@@ -1,20 +1,19 @@
-// import { HexByte, Indexable, Mix, Parentable, hasMixin, toHex } from '..';
-import type { CardSet } from '../card-set';
+import { type CardSet, isCardSet } from '../card-set';
 import { Indexable } from '../shared/indexable';
 import { Parentable } from '../shared/parentable';
 import { HexByte } from '../types';
 import { Mix, hasMixin, toHex } from '../utils';
 
 export class Card extends Mix(Indexable, Parentable<CardSet>) {
-	static getCard(id: HexByte | Card): Card | undefined {
-		return (this as unknown as typeof Card).getInstance(id) as Card | undefined;
+	static getCard(id: number): Card | undefined {
+		return this.getInstance(id) as Card | undefined;
 	}
 
 	static HexByte = HexByte.CardIndex;
 
 	get id(): number {
-		// @ts-expect-error: index is readonly
-		this.index ??= (this.constructor as typeof Card).getIndex(1);
+		// // @ts-expect-error: index is readonly
+		// this.index ??= (this.constructor as typeof Card).getIndex(1);
 
 		let id = this.index;
 
@@ -46,12 +45,12 @@ export class Card extends Mix(Indexable, Parentable<CardSet>) {
 			id += this.parent.index;
 		}
 
+		// console.dir({ fn: 'get id()', index: toHex(this.index), id: toHex(id) });
 		return id;
 	}
 
 	[Symbol.for('nodejs.util.inspect.custom')](): string {
-		const ctor = this.constructor as unknown as typeof Card;
-		return `${ctor.name}<${toHex(this.id)}>`;
+		return `${(this.constructor as typeof Card).name}<${toHex(this.id) ?? this.id}>`;
 	}
 
 	[Symbol.toPrimitive](hint: unknown): string | number | null | undefined {
@@ -69,9 +68,10 @@ export class Card extends Mix(Indexable, Parentable<CardSet>) {
 		super(...(args as []));
 	}
 
-	init(..._args: unknown[]): void {
-		// @ts-expect-error: index is readonly
-		this.index = (this.constructor as Card).getIndex(1);
+	init(...args: unknown[]): void {
+		super.init(...args);
+
+		this.parent = args.find((arg) => isCardSet(arg));
 	}
 }
 

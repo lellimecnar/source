@@ -1,10 +1,18 @@
 import { Indexable, isIndexable, Mix } from '..';
 
 describe('indexable', () => {
-	const hexByte = 1;
+	const hexByte = 0x1000;
 	class TestIndexable extends Mix(Indexable) {
+		static __reset() {
+			this.instances.clear();
+		}
+
 		static HexByte = hexByte;
 	}
+
+	beforeEach(() => {
+		TestIndexable.__reset();
+	});
 
 	it('is Indexable', () => {
 		const indexable = new TestIndexable();
@@ -12,26 +20,19 @@ describe('indexable', () => {
 	});
 
 	it('has incremented index', () => {
-		const indexable = new TestIndexable();
 		let index = TestIndexable.getIndex();
 
-		expect(indexable.index).toBe(index);
-		expect(new TestIndexable().index).toBe(++index);
-		expect(new TestIndexable().index).toBe(++index);
-		expect(new TestIndexable().index).toBe(++index);
-		expect(new TestIndexable().index).toBe(++index);
+		Array.from({ length: 6 }).forEach(() => {
+			index += TestIndexable.HexByte;
+			expect(new TestIndexable().index).toBe(index);
+		});
 	});
 
 	describe('getInstance', () => {
 		it('by id', () => {
 			const indexable = new TestIndexable();
-			const index = indexable.index;
-			expect(TestIndexable.getInstance(index)).toBe(indexable);
-		});
-
-		it('by instance', () => {
-			const indexable = new TestIndexable();
-			expect(TestIndexable.getInstance(indexable)).toBe(indexable);
+			const id = indexable.index + 0x10;
+			expect(TestIndexable.getInstance(id)).toBe(indexable);
 		});
 	});
 

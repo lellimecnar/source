@@ -51,4 +51,10 @@ export {
 	upperFirst,
 };
 
-export type { List, ListIterateeCustom, ListIterator } from 'lodash';
+export type {
+	Dictionary,
+	List,
+	ListIterateeCustom,
+	ListIterator,
+	ValueIteratee,
+} from 'lodash';

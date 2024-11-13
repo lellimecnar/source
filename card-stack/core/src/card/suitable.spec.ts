@@ -1,6 +1,7 @@
 import {
 	Card,
-	createEnum,
+	createRankEnum,
+	createSuitEnum,
 	isRankable,
 	isSuitable,
 	Mix,
@@ -11,7 +12,7 @@ import {
 describe('card', () => {
 	describe('suitable', () => {
 		class SuitableCard extends Mix(Card, Suitable) {
-			static SUIT = createEnum(['HEARTS', 'DIAMONDS', 'SPADES', 'CLUBS']);
+			static SUIT = createSuitEnum(['HEARTS', 'DIAMONDS', 'SPADES', 'CLUBS']);
 		}
 
 		it('is Suitable', () => {
@@ -35,8 +36,8 @@ describe('card', () => {
 
 		describe('rankable', () => {
 			class SuitableRankableCard extends Mix(Card, Suitable, Rankable) {
-				static RANK = createEnum(['ACE', 'TWO', 'THREE']);
-				static SUIT = createEnum(['HEARTS', 'DIAMONDS', 'SPADES', 'CLUBS']);
+				static RANK = createRankEnum(['ACE', 'TWO', 'THREE']);
+				static SUIT = createSuitEnum(['HEARTS', 'DIAMONDS', 'SPADES', 'CLUBS']);
 			}
 
 			it('is Suitable', () => {

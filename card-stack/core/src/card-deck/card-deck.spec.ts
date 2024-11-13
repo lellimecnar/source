@@ -1,4 +1,12 @@
-import { CardDeck, isCardDeck, isCardSet, isIndexable, isOwnable, isTakeable, Mix } from '..';
+import {
+	CardDeck,
+	isCardDeck,
+	isCardSet,
+	isIndexable,
+	isOwnable,
+	isTakeable,
+	Mix,
+} from '..';
 
 describe('cardDeck', () => {
 	class TestCardDeck extends Mix(CardDeck) {}

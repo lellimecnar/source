@@ -1,5 +1,3 @@
-export * from './card-set';
-
 export * from './atable';
 export * from './chunkable';
 export * from './eachable';
@@ -13,5 +11,7 @@ export * from './reversible';
 export * from './shuffleable';
 export * from './sortable';
 export * from './takeable';
+
+export * from './card-set';
 
 export * from './types';

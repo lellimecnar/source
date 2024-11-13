@@ -4,7 +4,8 @@ import { type Card, isCard } from '../card/card';
 import { hasMixin } from '../utils';
 
 export class CardSet<T extends Card = Card> {
-	protected readonly cards = [] as T[];
+	// @ts-expect-error: cards defined in init
+	protected readonly cards: T[];
 
 	get size(): number {
 		return this.cards.length;
@@ -18,9 +19,21 @@ export class CardSet<T extends Card = Card> {
 		}
 	}
 
-	init(): void {
+	// eslint-disable-next-line @typescript-eslint/no-useless-constructor, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function -- typing only
+	constructor(...args: unknown[]) {}
+
+	init(...args: unknown[]): void {
+		const cards: T[] =
+			args
+				.find(
+					(arg): arg is unknown[] =>
+						Array.isArray(arg) &&
+						(!arg.length || arg.some((item) => isCard(item))),
+				)
+				?.filter((item): item is T => isCard(item)) ?? [];
+
 		// @ts-expect-error: cards is readonly
-		this.cards ??= [];
+		this.cards ??= cards;
 	}
 
 	*[Symbol.iterator](): Generator<T, void> {
