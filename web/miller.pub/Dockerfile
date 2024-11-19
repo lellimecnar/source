@@ -35,8 +35,8 @@ USER nextjs
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=installer --chown=nextjs:nodejs /app/apps/miller.pub/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/apps/miller.pub/.next/static ./apps/miller.pub/.next/static
-COPY --from=installer --chown=nextjs:nodejs /app/apps/miller.pub/public ./apps/miller.pub/public
+COPY --from=installer --chown=nextjs:nodejs /app/web/miller.pub/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/web/miller.pub/.next/static ./web/miller.pub/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/web/miller.pub/public ./web/miller.pub/public
 
-CMD node apps/miller.pub/server.js
+CMD node web/miller.pub/server.js

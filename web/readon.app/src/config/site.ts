@@ -7,7 +7,7 @@ export const siteConfig: SiteConfig = {
 	links: [
 		{
 			title: 'GitHub',
-			href: 'https://github.com/lellimecnar/source/tree/master/apps/readon.app',
+			href: 'https://github.com/lellimecnar/source/tree/master/web/readon.app',
 			icon: SiGithub,
 		},
 	],

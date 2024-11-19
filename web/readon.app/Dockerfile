@@ -35,8 +35,8 @@ USER nextjs
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=installer --chown=nextjs:nodejs /app/apps/readon.app/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/apps/readon.app/.next/static ./apps/readon.app/.next/static
-COPY --from=installer --chown=nextjs:nodejs /app/apps/readon.app/public ./apps/readon.app/public
+COPY --from=installer --chown=nextjs:nodejs /app/web/readon.app/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/web/readon.app/.next/static ./web/readon.app/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/web/readon.app/public ./web/readon.app/public
 
-CMD node apps/readon.app/server.js
+CMD node web/readon.app/server.js

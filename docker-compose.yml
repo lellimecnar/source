@@ -5,10 +5,20 @@ services:
     container_name: miller.pub
     build:
       context: .
-      dockerfile: ./apps/miller.pub/Dockerfile
+      dockerfile: ./web/miller.pub/Dockerfile
     restart: always
     ports:
       - "3000:3000"
+    networks:
+      - app_network
+  readon.app:
+    container_name: readon.app
+    build:
+      context: .
+      dockerfile: ./web/readon.app/Dockerfile
+    restart: always
+    ports:
+      - "3030:3000"
     networks:
       - app_network
 

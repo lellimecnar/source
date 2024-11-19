@@ -15,7 +15,7 @@ import { QRCode } from '@lellimecnar/ui/qrcode';
 import data from './_data';
 
 const QR_CODE_LINK =
-	'https://github.com/lellimecnar/source/tree/master/apps/miller.pub/src/app/resume';
+	'https://github.com/lellimecnar/source/tree/master/web/miller.pub/src/app/resume';
 
 export default function ResumePage(): JSX.Element {
 	return (
