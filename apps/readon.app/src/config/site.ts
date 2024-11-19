@@ -3,8 +3,7 @@ import { SiGithub } from '@lellimecnar/ui/icons';
 export const siteConfig: SiteConfig = {
 	name: 'Read On',
 	description: 'Reading Plan Tracker',
-	mainNav: [
-	],
+	mainNav: [],
 	links: [
 		{
 			title: 'GitHub',
