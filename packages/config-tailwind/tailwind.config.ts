@@ -83,5 +83,15 @@ const config: Omit<Config, 'content'> = {
 		},
 	},
 	plugins: [twAnimate, twOpenType, twTypography],
+	safelist: [
+		...Array.from({ length: 24 }).flatMap((_, i) => [
+			`w-${String(i)}`,
+			`h-${String(i)}`,
+		]),
+		...Array.from({ length: 100 }).flatMap((_, i) => [
+			`grid-cols-${String(i)}`,
+			`columns-${String(i)}`,
+		]),
+	],
 };
 export default config;

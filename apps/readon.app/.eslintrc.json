@@ -1,0 +1,11 @@
+{
+  "extends": [
+    "@lellimecnar/eslint-config/next"
+  ],
+  "ignorePatterns": [
+    "!src/**/*.{ts,tsx}",
+    "!*.{js,ts}",
+    ".next/**",
+    "**/node_modules/**"
+  ]
+}
