@@ -6,6 +6,10 @@
 
 @layer components {
     .container {
-        @apply flex-1 items-center justify-center;
+        @apply flex-1 items-center justify-center p-2 gap-2;
+    }
+
+    .card {
+        @apply rounded bg-white p-4 shadow;
     }
 }
