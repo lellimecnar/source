@@ -1,6 +1,6 @@
 import twTypography from '@tailwindcss/typography';
 import { type Config } from 'tailwindcss';
-import { fontFamily } from 'tailwindcss/defaultTheme';
+import { colors, fontFamily } from 'tailwindcss/defaultTheme';
 import twAnimate from 'tailwindcss-animate';
 import twOpenType from 'tailwindcss-opentype';
 
@@ -20,6 +20,7 @@ const config: Omit<Config, 'content'> = {
 				ring: "'\\2b58\\2001' !important",
 			},
 			colors: {
+				...colors,
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

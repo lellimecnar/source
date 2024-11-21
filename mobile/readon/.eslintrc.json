@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "@lellimecnar/eslint-config"
+  ],
+  "rules": {
+    "unicorn/filename-case": "off"
+  },
+  "ignorePatterns": [
+    "!app/**/*.{ts,tsx}",
+    "!assets/**/*.{ts,tsx}",
+    "!components/**/*.{ts,tsx}",
+    "!constants/**/*.{ts,tsx}",
+    "!*.{js,ts}",
+    "**/node_modules/**"
+  ]
+}

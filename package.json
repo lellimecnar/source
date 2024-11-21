@@ -2,6 +2,9 @@
   "name": "@lellimecnar/source",
   "private": true,
   "scripts": {
+    "miller.pub": "pnpm --filter miller.pub",
+    "readon": "pnpm --filter readon",
+    "readon.app": "pnpm --filter readon.app",
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
