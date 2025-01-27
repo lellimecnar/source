@@ -11,9 +11,9 @@
     "test": "turbo test",
     "test:watch": "turbo test:watch",
     "type-check": "turbo type-check",
-    "clean": "turbo clean",
+    "clean": "turbo clean; git clean -xdf node_modules .turbo .next .expo",
     "format": "turbo lint -- --fix --fix-type=directive,problem,suggestion,layout",
-    "ui": "turbo ui --"
+    "ui": "pnpm --filter @lellimecnar/ui"
   },
   "packageManager": "pnpm@9.12.2",
   "engines": {
@@ -28,7 +28,7 @@
     "jest": "^29",
     "next": "^15",
     "prettier": "^3",
-    "turbo": "^2",
+    "turbo": "^2.3.1",
     "typescript": "~5.5"
   },
   "overrides": {

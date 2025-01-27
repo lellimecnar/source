@@ -38,10 +38,10 @@ export default (): ExpoConfig => ({
 	experiments: {
 		typedRoutes: true,
 	},
-	androidStatusBar: {
-		backgroundColor: headerBackgroundColor,
-	},
-	androidNavigationBar: {
-		backgroundColor: headerBackgroundColor,
-	},
+	// androidStatusBar: {
+	// 	backgroundColor: headerBackgroundColor,
+	// },
+	// androidNavigationBar: {
+	// 	backgroundColor: headerBackgroundColor,
+	// },
 });

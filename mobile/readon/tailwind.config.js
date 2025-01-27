@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-	darkMode: ['class'],
+	darkMode: ['media'],
 	content: [
 		'./app/**/*.{js,jsx,ts,tsx}',
 		'./app/(tabs)/**/*.{js,jsx,ts,tsx}',
@@ -8,7 +8,11 @@ module.exports = {
 		'./hooks/**/*.{js,jsx,ts,tsx}',
 	],
 	theme: {
-		extend: {},
+		extend: {
+			container: {
+				padding: '0.5rem',
+			},
+		},
 	},
 	presets: [
 		require('@lellimecnar/tailwind-config'),
