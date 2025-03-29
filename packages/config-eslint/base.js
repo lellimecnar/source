@@ -15,6 +15,7 @@ module.exports = {
 	],
 	plugins: ['prettier'],
 	rules: {
+		'no-console': ['error', { allow: ['warn', 'error'] }],
 		'@typescript-eslint/no-unsafe-declaration-merging': 'warn',
 		'@typescript-eslint/no-empty-interface': 'warn',
 		'@typescript-eslint/no-non-null-assertion': 'warn',
