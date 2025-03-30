@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@lellimecnar/ui/button';
-// import { useForm } from '@lellimecnar/ui/form';
 import { ArrowRight } from '@lellimecnar/ui/icons';
 import { Page } from '@lellimecnar/ui/page';
 
@@ -15,6 +14,8 @@ import {
 	type Pokemon,
 	type PokemonType,
 } from './_data';
+
+// import { useForm } from '@lellimecnar/ui/form';
 
 const getPokemon = (): Pokemon =>
 	POKEMON[Math.floor(Math.random() * POKEMON.length)]!;
