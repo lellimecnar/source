@@ -13,7 +13,7 @@ import {
 	FormLabel,
 	useForm,
 } from '@lellimecnar/ui/form';
-import { ArrowRight } from '@lellimecnar/ui/icons';
+import { ArrowDown } from '@lellimecnar/ui/icons';
 import { Page } from '@lellimecnar/ui/page';
 
 import { PokemonCard } from './_card';
@@ -118,9 +118,13 @@ export default function PokeMasherPage(): JSX.Element {
 					</Button>
 				</div>
 				{pokemon && type ? (
-					<div className="flex flex-row items-center justify-between space-x-6">
+					<div className="flex flex-col items-center justify-center space-y-8 md:flex-row md:justify-between md:space-x-6 md:space-y-0">
 						<PokemonCard pokemon={pokemon} />
-						<ArrowRight size={64} strokeWidth={3} className="text-white" />
+						<ArrowDown
+							size={64}
+							strokeWidth={3}
+							className="text-white md:-rotate-90"
+						/>
 						<PokemonCard
 							unknown
 							pokemon={{
@@ -199,7 +203,7 @@ export default function PokeMasherPage(): JSX.Element {
 							render={() => (
 								<FormItem>
 									<FormLabel>Start Types</FormLabel>
-									<div className="columns-4 gap-4 space-y-2">
+									<div className="columns-2 gap-4 space-y-2 md:columns-4">
 										{POKEMON_TYPES.map((val, i) => (
 											<FormField
 												key={`type_${i + 1}`}
@@ -253,7 +257,7 @@ export default function PokeMasherPage(): JSX.Element {
 							render={() => (
 								<FormItem>
 									<FormLabel>Result Types</FormLabel>
-									<div className="columns-4 gap-4 space-y-2">
+									<div className="columns-2 gap-4 space-y-2 md:columns-4">
 										{POKEMON_TYPES.map((val, i) => (
 											<FormField
 												key={`resultType_${i + 1}`}
