@@ -1,4 +1,4 @@
-import { shade } from '@lellimecnar/ui/lib';
+import { RGB, shade } from '@lellimecnar/ui/lib';
 
 export enum PokemonType {
 	Normal = 'Normal',
@@ -87,26 +87,15 @@ export const getPokemonTypeNumber = (type: PokemonType): number =>
 export const getPokemonTypeIcon = (type: PokemonType): string =>
 	`https://raw.githubusercontent.com/PokeAPI/sprites/refs/heads/master/sprites/types/generation-ix/scarlet-violet/${getPokemonTypeNumber(type)}.png`;
 
-export const getPokemonTypeColor = (
-	type: PokemonType,
-	shadeAmount = 1,
-	asRGB?: boolean,
-): string =>
+export const getPokemonTypeColor: {
+	(type: PokemonType, shadeAmount?: number, asRGB?: boolean): string;
+	(type: PokemonType, shadeAmount: number, asRGB: true): RGB;
+} = (type: PokemonType, shadeAmount = 1, asRGB?: boolean): any =>
 	shade(
 		POKEMON_TYPE_COLORS[getPokemonTypeNumber(type) - 1]!,
 		shadeAmount,
 		asRGB,
 	);
-
-export const getPokemonTypeBgColor = (
-	type: PokemonType,
-	shadeAmount = 1.65,
-): string => getPokemonTypeColor(type, shadeAmount);
-
-export const getPokemonTypeBorderColor = (
-	type: PokemonType,
-	shadeAmount = 0.35,
-): string => getPokemonTypeColor(type, shadeAmount);
 
 export const getRandomPokemonType = (
 	...exclude: (PokemonType | undefined)[]

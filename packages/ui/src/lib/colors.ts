@@ -25,22 +25,19 @@ export const hex2rgb = (hex: string): RGB => {
 	return [r, g, b] as const;
 };
 
-export function shade(
-	color: string | RGB,
-	amount: number,
-	asRGB?: boolean,
-): string;
-export function shade(color: string | RGB, amount: number, asRGB: true): RGB;
-export function shade(color: string | RGB, amount: number, asRGB?: boolean) {
+export const shade: {
+	(color: string | RGB, amount: number, asRGB?: boolean): string;
+	(color: string | RGB, amount: number, asRGB: true): RGB;
+} = (color: string | RGB, amount: number, asRGB?: boolean): any => {
 	let [r, g, b] = typeof color === 'string' ? hex2rgb(color) : color;
 
 	r = clamp(Math.round(amount * r), 0, 255);
 	g = clamp(Math.round(amount * g), 0, 255);
 	b = clamp(Math.round(amount * b), 0, 255);
 
-	if (asRGB) {
-		return [r, g, b] as RGB;
+	if (asRGB === true) {
+		return [r, g, b];
 	}
 
 	return rgb2hex(r, g, b);
-}
+};
