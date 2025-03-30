@@ -14,7 +14,7 @@ import {
 	getPokemonTypeColor,
 	POKEMON_TYPES,
 	PokemonType,
-} from './src/app/projects/pokemon-mashup-maker/_data';
+} from './src/app/projects/pokemasher/_data';
 
 const config: Config = {
 	content: [
