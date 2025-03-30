@@ -12,31 +12,32 @@ interface TypeIconProps
 	type: PokemonType;
 }
 
-const TypeIcon = ({
-	type,
-	className,
-	...props
-}: TypeIconProps): JSX.Element => {
+function TypeIcon({ type, className, ...props }: TypeIconProps): JSX.Element {
 	return (
 		<div className="flex flex-row items-center space-x-2 px-4">
 			<img
 				src={getPokemonTypeIcon(type)}
 				alt={type}
-				className={`m-0 w-full rounded-full border-2 border-poke-${type.toLowerCase()}-700 ${className}`}
+				className={cn(
+					`border-white border-[3px]`,
+					`w-full rounded-full m-0`,
+					`shadow-[2px_2px_4px_2px_rgba(0,0,0,0.15),0_0_2px_2px_rgba(0,0,0,0.1)]`,
+					className,
+				)}
 				{...props}
 			/>
 		</div>
 	);
-};
+}
 
 export interface PokemonCardProps {
 	pokemon: Pokemon;
 	unknown?: boolean;
 }
-export const PokemonCard = ({
+export function PokemonCard({
 	pokemon: { name, num, type, type2 },
 	unknown,
-}: PokemonCardProps): JSX.Element => {
+}: PokemonCardProps): JSX.Element {
 	return (
 		<div
 			className={cn(
@@ -44,12 +45,12 @@ export const PokemonCard = ({
 				`shadow-poke-card-${type.toLowerCase()} bg-gradient-to-br from-poke-${type.toLowerCase()}-200 to-poke-${(type2 ?? type).toLowerCase()}-50`,
 			)}
 		>
-			<div className="flex flex-row items-center justify-between space-x-4 z-0 w-full">
-				<h3 className="text-xl font-semibold m-0 text-black">{name}</h3>
+			<div className="z-0 flex w-full flex-row items-center justify-between space-x-4">
+				<h3 className="m-0 text-lg font-medium text-black">{name}</h3>
 			</div>
 			<div
 				className={cn(
-					'relative !min-h-[150px] !max-h-[150px] w-full overflow-hidden shadow-[3px_3px_6px_0_rgba(0,0,0,0.4)] p-[3px] flex items-center justify-center m-0',
+					'relative !min-h-[150px] !max-h-[150px] w-full shadow-[2px_2px_5px_2px_rgba(0,0,0,0.45)] p-[3px] flex items-center justify-center m-0',
 					// `bg-conic-[from_315deg_at_50%_50%,#9C5C05_0%,#FDD855_12%,#FDD855_19%,#D0900B_25%,#FED104_30%,#FDD855_40%,#D4A707_49%,#E7BA07_50%,#F7DF8B_56%,#E7AE0A_72%,#9C5C05_75%,#F7DF8B_76%,#FED104_90%,#9C5C05_100%]`,
 					// `backdrop-hue-rotate-[-45deg] backdrop-brightness-[0.7] backdrop-saturate-[1.4]`,
 				)}
@@ -84,11 +85,19 @@ export const PokemonCard = ({
 						?
 					</div>
 				) : null}
+				<div
+					className="absolute bottom-0 right-[10%] flex h-[16px] w-[65px] translate-y-1/2 items-center justify-center rounded-full text-[12px] font-semibold leading-none text-black shadow-[1px_1px_3px_2px_rgba(0,0,0,0.3)]"
+					style={{
+						backgroundImage: `linear-gradient(-45deg, #9C5C05 0%, #FDD855 10%, #FDD855 30%, #D4A707 40%, #FED104 60%, #FDD855 70%, #D4A707 100%)`,
+					}}
+				>
+					No. {`0000${num}`.slice(-4)}
+				</div>
 			</div>
-			<div className="flex flex-col justify-between h-full space-y-4 z-0 w-full py-4">
+			<div className="z-0 flex size-full flex-col justify-between space-y-4 py-4">
 				<TypeIcon type={type} />
 				{type2 ? <TypeIcon type={type2} /> : null}
 			</div>
 		</div>
 	);
-};
+}
