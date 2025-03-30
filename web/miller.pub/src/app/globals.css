@@ -2,6 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+/* @theme {
+  --color-poke-type-normal: oklch(0.71 0.0031 128.51);
+  --color-poke-type-normal-bg: oklch(0.81 0.0031 128.51);
+  --color-poke-type-normal-border: oklch(0.61 0.0031 128.51);
+  --color-poke-type-fighting: oklch(0.73 0.1858 52.98);
+  --color-poke-type-fighting-bg: oklch(0.83 0.1858 52.98);
+  --color-poke-type-fighting-border: oklch(0.63 0.1858 52.98);
+  --color-poke-type-flying: oklch(0.77 0.0969 248.74);
+  --color-poke-type-flying-bg: oklch(0.87 0.0969 248.74);
+  --color-poke-type-flying-border: oklch(0.67 0.0969 248.74);
+  --color-poke-type-poison: oklch(0.54 0.2088 306.89);
+  --color-poke-type-poison-bg: oklch(0.64 0.2088 306.89);
+  --color-poke-type-poison-border: oklch(0.44 0.2088 306.89);
+  --color-poke-type-ground: oklch(0.5 0.1055 54.44);
+  --color-poke-type-ground-bg: oklch(0.6 0.1055 54.44);
+  --color-poke-type-ground-border: oklch(0.4 0.1055 54.44);
+  --color-poke-type-rock: oklch(0.73 0.0564 101.85);
+  --color-poke-type-rock-bg: oklch(0.83 0.0564 101.85);
+  --color-poke-type-rock-border: oklch(0.63 0.0564 101.85);
+  --color-poke-type-bug: oklch(0.67 0.1483 117.23);
+  --color-poke-type-bug-bg: oklch(0.77 0.1483 117.23);
+  --color-poke-type-bug-border: oklch(0.57 0.1483 117.23);
+  --color-poke-type-ghost: oklch(0.45 0.0934 328.48);
+  --color-poke-type-ghost-bg: oklch(0.55 0.0934 328.48);
+  --color-poke-type-ghost-border: oklch(0.35 0.0934 328.48);
+  --color-poke-type-steel: oklch(0.67 0.0753 222.49);
+  --color-poke-type-steel-bg: oklch(0.77 0.0753 222.49);
+  --color-poke-type-steel-border: oklch(0.57 0.0753 222.49);
+  --color-poke-type-fire: oklch(0.6 0.2231 27.02);
+  --color-poke-type-fire-bg: oklch(0.7 0.2231 27.02);
+  --color-poke-type-fire-border: oklch(0.5 0.2231 27.02);
+  --color-poke-type-water: oklch(0.61 0.186 256.63);
+  --color-poke-type-water-bg: oklch(0.71 0.186 256.63);
+  --color-poke-type-water-border: oklch(0.51 0.186 256.63);
+  --color-poke-type-grass: oklch(0.63 0.1797 140.04);
+  --color-poke-type-grass-bg: oklch(0.73 0.1797 140.04);
+  --color-poke-type-grass-border: oklch(0.53 0.1797 140.04);
+  --color-poke-type-electric: oklch(0.84 0.1712 86.5);
+  --color-poke-type-electric-bg: oklch(0.94 0.1712 86.5);
+  --color-poke-type-electric-border: oklch(0.74 0.1712 86.5);
+  --color-poke-type-psychic: oklch(0.64 0.2099 6.27);
+  --color-poke-type-psychic-bg: oklch(0.74 0.2099 6.27);
+  --color-poke-type-psychic-border: oklch(0.54 0.2099 6.27);
+  --color-poke-type-ice: oklch(0.82 0.1337 219.33);
+  --color-poke-type-ice-bg: oklch(0.92 0.1337 219.33);
+  --color-poke-type-ice-border: oklch(0.72 0.1337 219.33);
+  --color-poke-type-dragon: oklch(0.55 0.194 272.32);
+  --color-poke-type-dragon-bg: oklch(0.65 0.194 272.32);
+  --color-poke-type-dragon-border: oklch(0.45 0.194 272.32);
+  --color-poke-type-dark: oklch(0.39 0.0215 31.25);
+  --color-poke-type-dark-bg: oklch(0.49 0.0215 31.25);
+  --color-poke-type-dark-border: oklch(0.29 0.0215 31.25);
+  --color-poke-type-fairy: oklch(0.74 0.2168 327.48);
+  --color-poke-type-fairy-bg: oklch(0.84 0.2168 327.48);
+  --color-poke-type-fairy-border: oklch(0.64 0.2168 327.48);
+} */
+
 @layer base {
   :root {
     --background: 0 0% 100%;

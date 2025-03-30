@@ -29,6 +29,11 @@ export const siteConfig: SiteConfig = {
 					description: 'Practice elementary math.',
 					href: '/projects/math-bot',
 				},
+				{
+					title: 'PokeMasher',
+					description: 'Randomly generate Pokemon Mash-Ups.',
+					href: '/projects/pokemasher',
+				},
 			],
 		},
 	],
