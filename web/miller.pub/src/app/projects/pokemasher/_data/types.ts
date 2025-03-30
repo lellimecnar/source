@@ -1,4 +1,4 @@
-import { RGB, shade } from '@lellimecnar/ui/lib';
+import { type RGB, shade } from '@lellimecnar/ui/lib';
 
 export enum PokemonType {
 	Normal = 'Normal',
@@ -100,10 +100,9 @@ export const getPokemonTypeColor: {
 export const getRandomPokemonType = (
 	...exclude: (PokemonType | undefined)[]
 ): PokemonType => {
-	const types =
-		Array.isArray(exclude) && exclude.length
-			? POKEMON_TYPES.filter((type) => type && !exclude.includes(type))
-			: POKEMON_TYPES;
+	const types = exclude.length
+		? POKEMON_TYPES.filter((type) => !exclude.includes(type))
+		: POKEMON_TYPES;
 
 	return types[Math.floor(Math.random() * types.length)]!;
 };

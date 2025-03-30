@@ -3,14 +3,14 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@lellimecnar/ui/button';
-import { useForm } from '@lellimecnar/ui/form';
+// import { useForm } from '@lellimecnar/ui/form';
 import { ArrowRight } from '@lellimecnar/ui/icons';
 import { Page } from '@lellimecnar/ui/page';
 
 import { PokemonCard } from './_card';
 import {
 	POKEMON,
-	POKEMON_GENS,
+	// POKEMON_GENS,
 	getRandomPokemonType,
 	type Pokemon,
 	type PokemonType,
@@ -42,14 +42,14 @@ const usePokemonMashup = (): [mashup: PokemonMashup, update: () => void] => {
 	return [mashup, update];
 };
 
-const ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
-const defaultGenerations = POKEMON_GENS.map((_, i) => i + 1);
+// const ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
+// const defaultGenerations = POKEMON_GENS.map((_, i) => i + 1);
 export default function PokeMasherPage(): JSX.Element {
-	const form = useForm({
-		defaultValues: {
-			generations: defaultGenerations,
-		},
-	});
+	// const form = useForm({
+	// 	defaultValues: {
+	// 		generations: defaultGenerations,
+	// 	},
+	// });
 	const [{ pokemon, type }, update] = usePokemonMashup();
 
 	return (

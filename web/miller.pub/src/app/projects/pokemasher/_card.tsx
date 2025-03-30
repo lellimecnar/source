@@ -1,9 +1,10 @@
 import { cn } from '@lellimecnar/ui/lib';
+
 import {
-	PokemonType,
 	getPokemonImg,
 	getPokemonTypeIcon,
 	type Pokemon,
+	type PokemonType,
 } from './_data';
 
 interface TypeIconProps
@@ -60,19 +61,26 @@ export const PokemonCard = ({
 					className={cn(
 						'absolute inset-[4px] overflow-hidden flex items-center justify-center',
 						`bg-gradient-to-b to-poke-${type.toLowerCase()}-800 from-poke-${(type2 ?? type).toLowerCase()}-600`,
+						`shadow-poke-img-${type.toLowerCase()}-inner`,
 					)}
 				>
 					<img
 						className={cn(
-							'size-[140px] drop-shadow-[0_0_20px_rgba(255,255,255,0.6)]',
-							unknown && 'brightness-0 opacity-40 blur-[2px] scale-150',
+							'size-[140px]',
+							`drop-shadow-poke-img-${type.toLowerCase()}`,
+							unknown && 'brightness-0 opacity-30 blur-[3px] scale-150',
 						)}
 						src={getPokemonImg(num)}
 						alt={name}
 					/>
 				</div>
 				{unknown ? (
-					<div className="absolute text-[80px] font-bold drop-shadow-[0_0_4px_black]">
+					<div
+						className={cn(
+							'absolute text-[80px] font-bold',
+							`drop-shadow-poke-img-${type.toLowerCase()}-unknown`,
+						)}
+					>
 						?
 					</div>
 				) : null}

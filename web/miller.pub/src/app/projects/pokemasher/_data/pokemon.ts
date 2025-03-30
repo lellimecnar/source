@@ -6700,17 +6700,15 @@ export const POKEMON_GENS = [
 	],
 ] as const;
 
-export type Pokemon = {
-	readonly gen: (typeof POKEMON_GENS)[number][number]['gen'];
-	readonly num: (typeof POKEMON_GENS)[number][number]['num'];
-	readonly name: (typeof POKEMON_GENS)[number][number]['name'];
-	readonly type: (typeof POKEMON_GENS)[number][number]['type'];
-	readonly type2?: (typeof POKEMON_GENS)[number][number] extends {
-		type2: infer T;
-	}
-		? T
-		: undefined;
-};
+type PokemonObj = (typeof POKEMON_GENS)[number][number];
+
+export interface Pokemon {
+	readonly gen: PokemonObj['gen'];
+	readonly num: PokemonObj['num'];
+	readonly name: PokemonObj['name'];
+	readonly type: PokemonObj['type'];
+	readonly type2?: PokemonObj['type'];
+}
 
 export const POKEMON: Pokemon[] = POKEMON_GENS.flat() as Pokemon[];
 
