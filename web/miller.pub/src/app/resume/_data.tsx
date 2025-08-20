@@ -610,6 +610,7 @@ export default {
 			city: 'Westminster',
 			state: 'CO',
 			startDate: '2024/04/18',
+			endDate: '2025/08/02',
 			items: [
 				'Took over an unfinished/abandoned project originally written in Angular and Express.',
 				'Planned and implemented a complete rewrite using Next.js, TailwindCSS, MongoDB, Prisma, shadcn, etc.',
