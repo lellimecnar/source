@@ -1,0 +1,249 @@
+---
+description: TypeScript conventions and best practices for the monorepo
+alwaysApply: false
+---
+# Persona
+
+You are an expert TypeScript developer working in a pnpm + Turborepo monorepo with strict type checking and modern TypeScript patterns.
+
+# TypeScript Version
+
+- All packages use TypeScript ~5.5
+- Use shared TypeScript configs from `@lellimecnar/typescript-config`
+- Extend appropriate preset: `base.json`, `next.json`, or `react.json`
+
+# Configuration
+
+## Using Shared Configs
+
+```json
+// For Next.js apps
+{
+  "extends": "@lellimecnar/typescript-config/next.json"
+}
+
+// For React packages
+{
+  "extends": "@lellimecnar/typescript-config/react.json"
+}
+
+// For Node.js/utility packages
+{
+  "extends": "@lellimecnar/typescript-config/base.json"
+}
+```
+
+## Strict Mode
+
+- All configs use strict mode
+- `strict: true` enables all strict checks
+- `checkJs: true` - Type-check JavaScript files
+- `allowJs: true` - Allow JavaScript files alongside TypeScript
+
+# Type Definitions
+
+## Interfaces vs Types
+
+- **Prefer interfaces** for object shapes and extensible types
+- **Use types** for unions, intersections, and computed types
+- **Avoid enums** - use const objects or string literal unions instead
+
+```typescript
+// ✅ Good: Interface for object shape
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+// ✅ Good: Type for union
+type Status = 'pending' | 'approved' | 'rejected';
+
+// ✅ Good: Const object instead of enum
+const Status = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+} as const;
+
+// ❌ Avoid: Enums
+enum Status {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+}
+```
+
+## Type Exports
+
+- Export types alongside implementations
+- Use `export type` for type-only exports when appropriate
+- Group related types in `types.ts` files
+
+```typescript
+// ✅ Good: Export type with implementation
+export interface ButtonProps {
+  variant?: 'default' | 'destructive';
+  size?: 'sm' | 'md' | 'lg';
+}
+
+export function Button(props: ButtonProps) {
+  // ...
+}
+
+// ✅ Good: Type-only export
+export type { ButtonProps };
+
+// ✅ Good: Separate types file
+// types.ts
+export interface Card {
+  id: number;
+  suit: string;
+  rank: string;
+}
+```
+
+# Mixin Patterns (ts-mixer)
+
+For packages using `ts-mixer` (like `@card-stack/core`):
+
+```typescript
+import { Mix } from 'ts-mixer';
+
+// Define mixin interface
+export interface Suitable extends Card {}
+export class Suitable {
+  suit!: string;
+  
+  setSuit(suit: string): void {
+    this.suit = suit;
+  }
+}
+
+// Use Mix() to compose classes
+class StandardCard extends Mix(Card, Suitable, Rankable) {
+  // ...
+}
+
+// Type checking for mixins
+import { hasMixin } from '@card-stack/core';
+
+if (hasMixin(card, Suitable)) {
+  // TypeScript knows card has suit property
+  console.log(card.suit);
+}
+```
+
+# Type Organization
+
+## File Structure
+
+- Co-locate types with implementations when closely related
+- Use separate `types.ts` files for shared types
+- Export types from index files
+
+```typescript
+// ✅ Good: Types with implementation
+// card.ts
+export interface Card {
+  id: number;
+}
+
+export class Card {
+  id: number;
+  // ...
+}
+
+// ✅ Good: Separate types file
+// types.ts
+export interface CardConfig {
+  suits: string[];
+  ranks: string[];
+}
+
+// index.ts
+export * from './card';
+export * from './types';
+```
+
+# Generic Types
+
+- Use descriptive generic parameter names
+- Provide constraints when appropriate
+- Document complex generics
+
+```typescript
+// ✅ Good: Descriptive generic names
+function map<TItem, TResult>(
+  items: TItem[],
+  mapper: (item: TItem) => TResult
+): TResult[] {
+  return items.map(mapper);
+}
+
+// ✅ Good: Generic with constraint
+interface Serializable {
+  serialize(): string;
+}
+
+function save<T extends Serializable>(item: T): void {
+  // ...
+}
+```
+
+# Utility Types
+
+- Use built-in utility types: `Partial`, `Pick`, `Omit`, `Record`
+- Create custom utility types when needed
+- Document complex utility types
+
+```typescript
+// ✅ Good: Built-in utilities
+type PartialUser = Partial<User>;
+type UserEmail = Pick<User, 'email'>;
+type UserWithoutId = Omit<User, 'id'>;
+
+// ✅ Good: Custom utility
+type Nullable<T> = T | null;
+type Optional<T> = T | undefined;
+```
+
+# Error Handling
+
+- Use typed error classes
+- Document thrown errors in JSDoc
+- Use discriminated unions for error states
+
+```typescript
+// ✅ Good: Typed error
+class ValidationError extends Error {
+  constructor(
+    public field: string,
+    public message: string
+  ) {
+    super(`Validation error in ${field}: ${message}`);
+    this.name = 'ValidationError';
+  }
+}
+
+// ✅ Good: Discriminated union
+type Result<T> =
+  | { success: true; data: T }
+  | { success: false; error: string };
+```
+
+# Best Practices
+
+1. **Always use TypeScript** - No `any` types without justification
+2. **Strict null checks** - Handle `null` and `undefined` explicitly
+3. **Type inference** - Let TypeScript infer types when clear
+4. **Explicit return types** - Use for public APIs and complex functions
+5. **JSDoc comments** - Document public APIs with `@param` and `@returns`
+6. **Avoid type assertions** - Use type guards instead when possible
+7. **Consistent naming** - Use PascalCase for types/interfaces, camelCase for values
+
+# Monorepo Considerations
+
+- Use workspace package names in imports: `import { format } from '@lellimecnar/utils'`
+- Type-check across packages: `pnpm type-check`
+- Shared types should be in appropriate packages, not duplicated
+- Use `@lellimecnar/typescript-config` for consistency

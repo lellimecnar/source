@@ -1,0 +1,244 @@
+---
+description: Monorepo patterns and workspace conventions
+alwaysApply: false
+---
+# Persona
+
+You are an expert developer working in a pnpm + Turborepo monorepo, ensuring consistency, proper dependencies, and efficient builds across workspaces.
+
+# Monorepo Structure
+
+This is a **pnpm + Turborepo** monorepo with the following workspace organization:
+
+- `web/*` - Next.js web applications
+- `mobile/*` - Mobile applications (Expo/React Native)
+- `packages/*` - Shared packages and configurations
+- `card-stack/*` - Card game engine packages
+
+# Workspace Dependencies
+
+## Using Workspace Packages
+
+- Reference workspace packages by their package name: `@lellimecnar/ui`, `@card-stack/core`
+- Use workspace protocol in package.json: `"@lellimecnar/ui": "workspace:*"`
+- pnpm automatically resolves workspace dependencies
+
+```json
+{
+  "dependencies": {
+    "@lellimecnar/ui": "workspace:*",
+    "@lellimecnar/utils": "workspace:*"
+  }
+}
+```
+
+## Dependency Rules
+
+- **Apps** (web/*, mobile/*) can depend on packages/*
+- **Packages** can depend on other packages/* and config-* packages
+- **Config packages** should be independent (no dependencies on other packages)
+- **Card-stack packages** are independent (no dependencies on web/mobile apps)
+- Avoid circular dependencies between packages
+
+# Package Exports
+
+## Granular Exports (Preferred)
+
+Use granular exports for better tree-shaking (like `@lellimecnar/ui`):
+
+```json
+{
+  "exports": {
+    "./button": "./src/components/button.tsx",
+    "./input": "./src/components/input.tsx",
+    "./lib/utils": "./src/lib/utils.ts"
+  }
+}
+```
+
+Usage:
+```typescript
+import { Button } from '@lellimecnar/ui/button'
+import { cn } from '@lellimecnar/ui/lib/utils'
+```
+
+## Barrel Exports (When Appropriate)
+
+Use barrel exports for simple utility packages:
+
+```json
+{
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
+```
+
+Usage:
+```typescript
+import { format, parseISO } from '@lellimecnar/utils'
+```
+
+# Turborepo Tasks
+
+## Task Dependencies
+
+Tasks in `turbo.json` define build pipeline:
+
+```json
+{
+  "build": {
+    "dependsOn": ["^build"],  // Wait for upstream builds
+    "outputs": ["dist/**", ".next/**"]
+  },
+  "lint": {
+    "dependsOn": ["^build"],  // Lint after builds
+    "outputs": []
+  },
+  "test": {
+    "dependsOn": [],  // Tests can run independently
+    "outputs": ["coverage/**"]
+  }
+}
+```
+
+## Running Tasks
+
+```bash
+# Run task across all workspaces
+pnpm build
+pnpm lint
+pnpm test
+
+# Run task for specific workspace
+pnpm --filter @card-stack/core test
+pnpm --filter @lellimecnar/ui build
+
+# Run task with workspace alias
+pnpm ui dev
+pnpm miller.pub build
+```
+
+# Version Consistency
+
+## Dependency Versions
+
+- Use consistent versions across workspaces
+- Root `package.json` has `overrides` for critical dependencies
+- All packages use TypeScript ~5.5
+- All packages use React ^18.3.1 (where applicable)
+- All packages use Jest ^29 (where applicable)
+
+## Shared Configs
+
+Use shared configuration packages:
+
+- `@lellimecnar/typescript-config` - TypeScript configs
+- `@lellimecnar/eslint-config` - ESLint config
+- `@lellimecnar/prettier-config` - Prettier config
+- `@lellimecnar/jest-config` - Jest config
+- `@lellimecnar/tailwind-config` - Tailwind config
+- `@lellimecnar/babel-preset` - Babel config
+
+# Cross-Package Imports
+
+## Import Patterns
+
+```typescript
+// ✅ Good: Import from workspace package
+import { Button } from '@lellimecnar/ui/button'
+import { format } from '@lellimecnar/utils'
+
+// ✅ Good: Import from shared config
+import { cn } from '@lellimecnar/ui/lib/utils'
+
+// ❌ Avoid: Relative imports across packages
+import { something } from '../../../packages/utils'
+```
+
+## Type Imports
+
+- Use `import type` for type-only imports when appropriate
+- Types are automatically available from workspace packages
+
+```typescript
+import type { ButtonProps } from '@lellimecnar/ui/button'
+```
+
+# Build Optimization
+
+## Turborepo Caching
+
+- Turborepo caches task outputs based on inputs
+- Build outputs: `dist/**`, `.next/**` (excluding `.next/cache`)
+- Test outputs: `coverage/**`
+- Use `.env*` files as inputs when needed
+
+## Remote Caching
+
+- Configured via `TURBO_TOKEN` in `.env`
+- Speeds up CI/CD builds
+- Shares cache across team members
+
+# Package Scripts
+
+## Standard Scripts
+
+All packages should have consistent scripts:
+
+```json
+{
+  "scripts": {
+    "build": "...",
+    "dev": "...",
+    "lint": "eslint .",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --noEmit"
+  }
+}
+```
+
+## Workspace-Specific Scripts
+
+- Next.js apps: `dev`, `build`, `start`
+- Expo apps: `dev`, `dev:ios`, `dev:web`
+- UI packages: `dev` (watch mode), `ui` (shadcn CLI)
+
+# Best Practices
+
+1. **Consistent naming** - Use `@lellimecnar/*` for shared packages
+2. **No circular dependencies** - Keep dependency graph acyclic
+3. **Shared configs** - Use config packages instead of duplicating configs
+4. **Tree-shaking** - Use granular exports for better bundle sizes
+5. **Type-checking** - Run `pnpm type-check` to verify across packages
+6. **Documentation** - Keep AGENTS.md files up to date when dependencies change
+
+# Troubleshooting
+
+## Dependency Issues
+
+```bash
+# Check dependency tree
+pnpm list --depth=0
+
+# Check for outdated packages
+pnpm outdated
+
+# Clean and reinstall
+pnpm clean
+pnpm install
+```
+
+## Build Issues
+
+```bash
+# Clear Turborepo cache
+pnpm clean
+
+# Build specific package
+pnpm --filter @package-name build
+
+# Check task dependencies
+cat turbo.json
+```

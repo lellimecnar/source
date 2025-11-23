@@ -1,0 +1,332 @@
+---
+description: Package export patterns and conventions
+alwaysApply: false
+---
+# Persona
+
+You are an expert package maintainer ensuring optimal export patterns for tree-shaking, type safety, and developer experience.
+
+# Export Strategies
+
+## Granular Exports (Preferred)
+
+Use granular exports for better tree-shaking and smaller bundle sizes. This is the pattern used by `@lellimecnar/ui`.
+
+### Structure
+
+```json
+{
+  "exports": {
+    "./button": "./src/components/button.tsx",
+    "./input": "./src/components/input.tsx",
+    "./lib/utils": "./src/lib/utils.ts",
+    "./theme": "./src/theme/index.ts"
+  }
+}
+```
+
+### Usage
+
+```typescript
+// ✅ Good: Import only what you need
+import { Button } from '@lellimecnar/ui/button'
+import { Input } from '@lellimecnar/ui/input'
+import { cn } from '@lellimecnar/ui/lib/utils'
+```
+
+### Benefits
+
+- Better tree-shaking - unused exports are eliminated
+- Smaller bundle sizes
+- Clear import paths
+- Better IDE autocomplete
+
+## Barrel Exports (When Appropriate)
+
+Use barrel exports for simple utility packages or when granularity isn't needed.
+
+### Structure
+
+```json
+{
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
+```
+
+### Usage
+
+```typescript
+import { format, parseISO, addDays } from '@lellimecnar/utils'
+```
+
+### When to Use
+
+- Simple utility packages
+- Small number of exports
+- All exports are commonly used together
+- Tree-shaking not critical
+
+# Package.json Exports Field
+
+## Basic Structure
+
+```json
+{
+  "name": "@lellimecnar/package-name",
+  "exports": {
+    ".": "./src/index.ts",
+    "./component": "./src/components/component.tsx",
+    "./utils": "./src/utils/index.ts"
+  }
+}
+```
+
+## Conditional Exports
+
+```json
+{
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./component": {
+      "types": "./dist/components/component.d.ts",
+      "default": "./dist/components/component.js"
+    }
+  }
+}
+```
+
+## Subpath Exports
+
+```json
+{
+  "exports": {
+    "./button": "./src/components/button.tsx",
+    "./input": "./src/components/input.tsx",
+    "./lib/*": "./src/lib/*.ts"
+  }
+}
+```
+
+# Type Exports
+
+## Type-Only Exports
+
+```typescript
+// component.tsx
+export interface ComponentProps {
+  variant?: 'default' | 'destructive';
+}
+
+export function Component(props: ComponentProps) {
+  // ...
+}
+
+// Types are automatically available
+import type { ComponentProps } from '@package/component'
+```
+
+## Separate Type Exports
+
+```json
+{
+  "exports": {
+    "./component": "./src/components/component.tsx",
+    "./types": "./src/types/index.ts"
+  }
+}
+```
+
+# Side Effects
+
+## CSS Files
+
+Mark CSS files as side effects:
+
+```json
+{
+  "sideEffects": [
+    "**/*.css",
+    "dist/global.css"
+  ]
+}
+```
+
+## No Side Effects
+
+For pure JavaScript/TypeScript packages:
+
+```json
+{
+  "sideEffects": false
+}
+```
+
+# Tree-Shaking Considerations
+
+## Named Exports
+
+Use named exports for better tree-shaking:
+
+```typescript
+// ✅ Good: Named exports
+export function formatDate(date: Date): string {
+  // ...
+}
+
+export function parseDate(dateString: string): Date {
+  // ...
+}
+
+// ❌ Avoid: Default exports (harder to tree-shake)
+export default {
+  formatDate,
+  parseDate,
+};
+```
+
+## Avoid Barrel Re-exports
+
+Minimize re-exports in index files:
+
+```typescript
+// ❌ Avoid: Re-exporting everything
+export * from './button';
+export * from './input';
+export * from './card';
+
+// ✅ Better: Direct imports
+// Import directly from component files
+```
+
+# Export Patterns by Package Type
+
+## UI Component Library
+
+```json
+{
+  "exports": {
+    "./button": "./src/components/button.tsx",
+    "./input": "./src/components/input.tsx",
+    "./global.css": "./dist/global.css",
+    "./lib/utils": "./src/lib/utils.ts",
+    "./theme": "./src/theme/index.ts"
+  },
+  "sideEffects": ["**/*.css"]
+}
+```
+
+## Utility Package
+
+```json
+{
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "sideEffects": false
+}
+```
+
+## Config Package
+
+```json
+{
+  "exports": {
+    "./base": "./base.json",
+    "./next": "./next.json",
+    "./react": "./react.json"
+  }
+}
+```
+
+# TypeScript Support
+
+## Type Definitions
+
+- TypeScript automatically infers types from exports
+- No need for separate `.d.ts` files for source TypeScript
+- Types are available to consumers automatically
+
+## Type-Only Imports
+
+```typescript
+// ✅ Good: Type-only import
+import type { ComponentProps } from '@package/component'
+
+// ✅ Good: Value and type import
+import { Component, type ComponentProps } from '@package/component'
+```
+
+# Best Practices
+
+1. **Granular exports** - Use for component libraries and large packages
+2. **Barrel exports** - Use for simple utility packages
+3. **Named exports** - Prefer over default exports
+4. **Side effects** - Declare CSS and other side-effectful files
+5. **Type exports** - Export types alongside implementations
+6. **Consistent paths** - Use consistent export path patterns
+7. **Document exports** - Document in AGENTS.md
+
+# Migration Guide
+
+## From Barrel to Granular
+
+1. Identify main exports
+2. Create individual export paths
+3. Update package.json exports field
+4. Update documentation
+5. Test imports still work
+
+## Adding New Exports
+
+1. Add export path to package.json
+2. Ensure file exists at path
+3. Export types if applicable
+4. Update AGENTS.md
+5. Test import works
+
+# Common Patterns
+
+## Component Export
+
+```json
+"./button": "./src/components/button.tsx"
+```
+
+## Utility Export
+
+```json
+"./lib/utils": "./src/lib/utils.ts"
+```
+
+## Theme Export
+
+```json
+"./theme": "./src/theme/index.ts"
+```
+
+## CSS Export
+
+```json
+"./global.css": "./dist/global.css"
+```
+
+# Verification
+
+## Test Imports
+
+```typescript
+// Test that exports work
+import { Button } from '@package/button'
+import { format } from '@package/utils'
+```
+
+## Check Bundle Size
+
+- Use bundle analyzer to verify tree-shaking
+- Check that unused exports are eliminated
+- Verify bundle size improvements

@@ -2,7 +2,7 @@
 globs: web/*/**
 alwaysApply: false
 ---
-- You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, and Tailwind and Framer Motion.
+- You are an expert in TypeScript, Node.js, Next.js 15 App Router, React, Shadcn UI, Tailwind CSS, and Turborepo monorepo patterns.
 
 - Code Style and Structure
 
@@ -42,6 +42,38 @@ alwaysApply: false
   - Use dynamic loading for non-critical components.
   - Optimize images: use WebP format, include size data, implement lazy loading.
 
+- Monorepo Context
+
+  - This is a pnpm + Turborepo monorepo
+  - Use workspace packages: `@lellimecnar/ui`, `@lellimecnar/utils`
+  - Next.js apps must transpile `@lellimecnar/ui` in `next.config.js`:
+    ```javascript
+    module.exports = {
+      reactStrictMode: true,
+      transpilePackages: ['@lellimecnar/ui'],
+    };
+    ```
+  - Turborepo handles build dependencies - `build` tasks depend on `^build`
+  - Use shared configs: `@lellimecnar/typescript-config/next.json`, `@lellimecnar/tailwind-config`
+
+- UI Component Library
+
+  - Use `@lellimecnar/ui` for all base UI components
+  - Import components using granular exports for tree-shaking:
+    ```typescript
+    import { Button } from '@lellimecnar/ui/button'
+    import { Input } from '@lellimecnar/ui/input'
+    import { Page } from '@lellimecnar/ui/page'
+    ```
+  - Always import global CSS in root layout:
+    ```typescript
+    import '@lellimecnar/ui/global.css'
+    ```
+  - Use ThemeProvider for dark mode support:
+    ```typescript
+    import { ThemeProvider } from '@lellimecnar/ui/theme'
+    ```
+
 - Key Conventions
 
   - Use 'nuqs' for URL search parameter state management.
@@ -50,7 +82,7 @@ alwaysApply: false
     - Favor server components and Next.js SSR.
     - Use only for Web API access in small components.
     - Avoid for data fetching or state management.
-  - Follow Next.js docs for Data Fetching, Rendering, and Routing.
+  - Follow Next.js 15 docs for Data Fetching, Rendering, and Routing.
   - While creating placeholder images as a part of your seed data, use https://placekitten.com/
   - Place both the /app and /components folders under a /src directory. This organization offers several benefits:
     - It helps maintain a clean and organized project structure.
@@ -88,3 +120,17 @@ For example:
 - Shared Components: The /src/components folder should contain reusable components used across multiple pages or features.
 
 - Modular Approach: As your project grows, consider adopting a more modular structure, where each feature or domain has its own folder containing components, hooks, and utilities specific to that feature.
+
+- Documentation Requirements
+
+  - Update AGENTS.md when adding new major features or changing architecture
+  - Document new routes in AGENTS.md
+  - Keep package.json dependencies in sync with AGENTS.md
+  - Document any deviations from standard patterns
+
+- Package Exports
+
+  - When creating shared utilities, consider if they belong in `@lellimecnar/utils`
+  - When creating reusable UI components, consider if they belong in `@lellimecnar/ui`
+  - Use granular exports for better tree-shaking
+  - Document exports in package AGENTS.md files

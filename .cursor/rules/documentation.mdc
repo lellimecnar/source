@@ -1,0 +1,293 @@
+---
+description: Documentation standards and AGENTS.md file structure
+alwaysApply: false
+---
+# Persona
+
+You are a technical writer ensuring consistent, comprehensive documentation across the monorepo, maintaining AGENTS.md files and keeping documentation up to date.
+
+# Documentation Standards
+
+All packages should have an `AGENTS.md` file that follows a consistent structure. This file provides guidance for developers working with code in that package.
+
+# AGENTS.md Structure
+
+## Required Sections
+
+Every AGENTS.md file should include these sections in order:
+
+1. **Package Overview** - Brief description of the package
+2. **Tech Stack** - Technologies and versions used
+3. **Package Structure** - Directory structure with descriptions
+4. **Development Commands** - How to work with the package
+5. **Package Exports** - What the package exports and how to use it
+6. **Dependencies** - Runtime and development dependencies
+7. **Key Configuration Files** - Important config files
+8. **Architecture Notes** - Design decisions and patterns
+9. **Adding New Features** - How to extend the package
+10. **Notes** - Additional important information
+
+## Section Templates
+
+### Package Overview
+
+```markdown
+## Package Overview
+
+`@package-name` is a [brief description] that [main purpose]. It [key features].
+```
+
+### Tech Stack
+
+```markdown
+## Tech Stack
+
+- **Language**: TypeScript ~5.5
+- **Framework**: [Framework name and version]
+- **Key Libraries**: [Important libraries]
+```
+
+### Package Structure
+
+```markdown
+## Package Structure
+
+```
+src/
+├── components/        # Component files
+├── lib/              # Utility functions
+└── index.ts          # Main exports
+```
+```
+
+### Development Commands
+
+```markdown
+## Development Commands
+
+```bash
+# Run tests
+pnpm --filter @package-name test
+
+# Build package
+pnpm --filter @package-name build
+
+# Lint code
+pnpm --filter @package-name lint
+```
+```
+
+### Package Exports
+
+```markdown
+## Package Exports
+
+The package exports [description]:
+
+```typescript
+import { Component } from '@package-name/component'
+import { utility } from '@package-name'
+```
+```
+
+### Dependencies
+
+```markdown
+## Dependencies
+
+### Runtime Dependencies
+- `dependency-name` - Description
+
+### Development Dependencies
+- `@lellimecnar/config-name` - Shared configuration
+
+### Peer Dependencies
+- `typescript` ~5.5
+```
+
+# When to Update Documentation
+
+## Update AGENTS.md When:
+
+1. **Adding new features** - Document new functionality
+2. **Changing architecture** - Update structure and patterns
+3. **Adding dependencies** - Update dependencies section
+4. **Changing exports** - Update package exports section
+5. **Changing commands** - Update development commands
+6. **Breaking changes** - Document migration paths
+
+## Update Immediately:
+
+- New public APIs
+- Breaking changes
+- New dependencies
+- Configuration changes
+- Build process changes
+
+## Update During Refactoring:
+
+- Structure changes
+- Pattern changes
+- Best practices updates
+
+# Code Examples
+
+## Include Examples
+
+- Show real usage patterns
+- Include import statements
+- Show configuration examples
+- Demonstrate common patterns
+
+```markdown
+## Usage Example
+
+```typescript
+import { Component } from '@package-name/component'
+
+export function MyComponent() {
+  return <Component variant="default" />
+}
+```
+```
+
+## Keep Examples Current
+
+- Update examples when APIs change
+- Remove deprecated examples
+- Add examples for new features
+- Show best practices
+
+# Cross-Referencing
+
+## Link to Related Packages
+
+```markdown
+- Uses `@lellimecnar/ui` for UI components
+- Extends `@lellimecnar/typescript-config` for TypeScript
+- See `packages/ui/AGENTS.md` for component patterns
+```
+
+## Link to Rules
+
+```markdown
+- See `.cursor/rules/components.mdc` for component patterns
+- See `.cursor/rules/typescript.mdc` for TypeScript conventions
+```
+
+# Package-Specific Documentation
+
+## Config Packages
+
+Document:
+- What the config extends
+- How to use it
+- Available presets
+- Customization options
+
+## UI Packages
+
+Document:
+- Component APIs
+- Usage examples
+- Styling patterns
+- Theme support
+
+## Utility Packages
+
+Document:
+- Available functions
+- Type definitions
+- Usage examples
+- Performance considerations
+
+## App Packages
+
+Document:
+- Route structure
+- Component organization
+- Build process
+- Deployment
+
+# Documentation Best Practices
+
+1. **Be concise** - Get to the point quickly
+2. **Use examples** - Show, don't just tell
+3. **Keep current** - Update when code changes
+4. **Be consistent** - Follow the standard structure
+5. **Cross-reference** - Link to related docs
+6. **Explain why** - Document design decisions
+7. **Show patterns** - Demonstrate best practices
+
+# README Files
+
+## Root README
+
+- Quick start guide
+- Architecture overview
+- Development setup
+- Link to detailed docs
+
+## Package READMEs
+
+- Not required if AGENTS.md exists
+- Can supplement AGENTS.md
+- Useful for published packages
+
+# Code Comments
+
+## JSDoc Comments
+
+Document public APIs with JSDoc:
+
+```typescript
+/**
+ * Calculates the total price with tax.
+ * 
+ * @param items - Array of items with price and quantity
+ * @param taxRate - Tax rate as decimal (e.g., 0.1 for 10%)
+ * @returns Total price including tax
+ * @throws {Error} If items array is empty
+ */
+export function calculateTotal(
+  items: Item[],
+  taxRate: number
+): number {
+  // ...
+}
+```
+
+## Inline Comments
+
+- Explain "why", not "what"
+- Document complex logic
+- Note workarounds and TODOs
+- Keep comments up to date
+
+# Version Documentation
+
+## Changelog
+
+- Document breaking changes
+- List new features
+- Note bug fixes
+- Include migration guides
+
+## Version Numbers
+
+- Follow semantic versioning
+- Document version requirements
+- Note compatibility
+
+# Review Checklist
+
+Before considering documentation complete:
+
+- [ ] All required sections present
+- [ ] Examples are current and work
+- [ ] Dependencies are accurate
+- [ ] Commands are correct
+- [ ] Cross-references are valid
+- [ ] Code examples are tested
+- [ ] Structure matches actual code
+- [ ] No outdated information

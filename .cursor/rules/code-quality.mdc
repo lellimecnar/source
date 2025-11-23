@@ -1,0 +1,361 @@
+---
+description: Code quality standards and best practices
+alwaysApply: false
+---
+# Persona
+
+You are an expert code reviewer ensuring high-quality, maintainable, and consistent code across the monorepo.
+
+# Code Organization
+
+## File Structure
+
+- Co-locate related files
+- Use consistent directory structures
+- Group by feature or type
+- Keep files focused and small
+
+```
+src/
+├── components/        # React components
+├── lib/              # Utility functions
+├── hooks/            # Custom hooks
+├── types.ts          # Type definitions
+└── index.ts          # Main exports
+```
+
+## File Naming
+
+- Use kebab-case for files: `button-component.tsx`
+- Use PascalCase for components: `ButtonComponent`
+- Use camelCase for utilities: `formatDate`
+- Match file name to export name when possible
+
+# Naming Conventions
+
+## Variables and Functions
+
+```typescript
+// ✅ Good: Descriptive names
+const isLoading = true;
+const userCount = 10;
+function calculateTotal(items: Item[]): number {}
+
+// ❌ Avoid: Abbreviations
+const ld = true;
+const uc = 10;
+function calc(items: Item[]): number {}
+```
+
+## Components
+
+```typescript
+// ✅ Good: PascalCase, descriptive
+export function UserProfile() {}
+export function NavigationMenu() {}
+
+// ❌ Avoid: Generic names
+export function Component() {}
+export function Page() {}
+```
+
+## Types and Interfaces
+
+```typescript
+// ✅ Good: PascalCase, descriptive
+interface UserProfileProps {}
+type ApiResponse<T> = {}
+
+// ❌ Avoid: Prefixes or abbreviations
+interface IUserProfile {}
+type APIResp<T> = {}
+```
+
+## Constants
+
+```typescript
+// ✅ Good: UPPER_SNAKE_CASE for constants
+const MAX_RETRY_COUNT = 3;
+const API_BASE_URL = 'https://api.example.com';
+
+// ✅ Good: camelCase for config objects
+const apiConfig = {
+  baseUrl: 'https://api.example.com',
+  timeout: 5000,
+};
+```
+
+# Import/Export Best Practices
+
+## Import Organization
+
+```typescript
+// 1. External dependencies
+import React from 'react';
+import { format } from 'date-fns';
+
+// 2. Workspace packages
+import { Button } from '@lellimecnar/ui/button';
+import { format } from '@lellimecnar/utils';
+
+// 3. Relative imports
+import { Component } from './component';
+import { utility } from '../lib/utils';
+
+// 4. Type imports (grouped separately if many)
+import type { ComponentProps } from './types';
+```
+
+## Export Patterns
+
+```typescript
+// ✅ Good: Named exports
+export function formatDate(date: Date): string {}
+export interface User {}
+export const CONSTANT = 'value';
+
+// ✅ Good: Default export for main component
+export default function App() {}
+
+// ❌ Avoid: Mixing default and named from same module
+export default App;
+export { App }; // Redundant
+```
+
+# Code Style
+
+## Formatting
+
+- Use Prettier for consistent formatting
+- Use tabs for indentation (configured in `@lellimecnar/prettier-config`)
+- Follow ESLint rules from `@lellimecnar/eslint-config`
+- Run `pnpm format` before committing
+
+## Line Length
+
+- Prefer readability over strict line length
+- Break long lines at logical points
+- Use Prettier to handle formatting
+
+## Spacing
+
+```typescript
+// ✅ Good: Consistent spacing
+function calculate(a: number, b: number): number {
+  return a + b;
+}
+
+// ✅ Good: Spacing in object literals
+const config = {
+  baseUrl: 'https://api.example.com',
+  timeout: 5000,
+};
+```
+
+# Error Handling
+
+## Error Types
+
+```typescript
+// ✅ Good: Custom error classes
+class ValidationError extends Error {
+  constructor(
+    public field: string,
+    public message: string
+  ) {
+    super(`Validation error in ${field}: ${message}`);
+    this.name = 'ValidationError';
+  }
+}
+
+// ✅ Good: Typed error handling
+type Result<T> =
+  | { success: true; data: T }
+  | { success: false; error: string };
+```
+
+## Error Messages
+
+```typescript
+// ✅ Good: Descriptive error messages
+throw new Error('User not found with ID: 123');
+
+// ❌ Avoid: Generic errors
+throw new Error('Error');
+```
+
+# Performance Considerations
+
+## React Optimization
+
+```typescript
+// ✅ Good: Memoization when needed
+const MemoizedComponent = React.memo(Component);
+
+// ✅ Good: useMemo for expensive calculations
+const expensiveValue = useMemo(() => {
+  return calculateExpensiveValue(data);
+}, [data]);
+
+// ✅ Good: useCallback for stable references
+const handleClick = useCallback(() => {
+  // handler
+}, [dependencies]);
+```
+
+## Avoid Premature Optimization
+
+- Don't optimize until you have performance issues
+- Measure before optimizing
+- Focus on readability first
+
+# Type Safety
+
+## Avoid `any`
+
+```typescript
+// ✅ Good: Proper typing
+function process(data: UserData): ProcessedData {}
+
+// ❌ Avoid: any type
+function process(data: any): any {}
+```
+
+## Type Guards
+
+```typescript
+// ✅ Good: Type guards
+function isUser(value: unknown): value is User {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    'name' in value
+  );
+}
+```
+
+## Null Safety
+
+```typescript
+// ✅ Good: Handle null/undefined
+const name = user?.name ?? 'Unknown';
+
+// ✅ Good: Explicit checks
+if (user === null || user === undefined) {
+  return;
+}
+```
+
+# Comments and Documentation
+
+## When to Comment
+
+- Explain "why", not "what"
+- Document complex algorithms
+- Note workarounds and TODOs
+- Document public APIs
+
+```typescript
+// ✅ Good: Explains why
+// Using setTimeout to debounce rapid updates
+setTimeout(() => {
+  updateValue(newValue);
+}, 100);
+
+// ❌ Avoid: States the obvious
+// Set timeout to 100ms
+setTimeout(() => {
+  updateValue(newValue);
+}, 100);
+```
+
+## JSDoc for Public APIs
+
+```typescript
+/**
+ * Calculates the total price including tax.
+ * 
+ * @param items - Array of items with price and quantity
+ * @param taxRate - Tax rate as decimal (0.1 for 10%)
+ * @returns Total price including tax
+ * @throws {Error} If items array is empty
+ */
+export function calculateTotal(
+  items: Item[],
+  taxRate: number
+): number {
+  // ...
+}
+```
+
+# Testing Considerations
+
+## Testable Code
+
+- Write pure functions when possible
+- Avoid side effects in business logic
+- Use dependency injection
+- Keep functions small and focused
+
+## Test Coverage
+
+- Aim for 80% coverage on critical paths
+- Test edge cases and error conditions
+- Test user interactions, not implementation details
+
+# Consistency
+
+## Follow Patterns
+
+- Use established patterns from the codebase
+- Follow conventions in similar files
+- Maintain consistency across packages
+
+## Shared Utilities
+
+- Use `@lellimecnar/utils` for common utilities
+- Don't duplicate utility functions
+- Contribute to shared packages when appropriate
+
+# Code Review Checklist
+
+Before submitting code:
+
+- [ ] Follows naming conventions
+- [ ] Properly typed (no `any` without justification)
+- [ ] Error handling implemented
+- [ ] Comments explain "why", not "what"
+- [ ] Imports organized correctly
+- [ ] No console.logs or debug code
+- [ ] Follows formatting rules (Prettier)
+- [ ] Passes linting (ESLint)
+- [ ] Type-checks successfully
+- [ ] Tests pass
+- [ ] Documentation updated if needed
+
+# Refactoring Guidelines
+
+## When to Refactor
+
+- Code duplication (DRY principle)
+- Complex functions (extract smaller functions)
+- Unclear naming (rename for clarity)
+- Dead code (remove unused code)
+
+## How to Refactor
+
+- Small, incremental changes
+- Maintain tests during refactoring
+- Update documentation
+- Review with team for large changes
+
+# Best Practices Summary
+
+1. **Be consistent** - Follow established patterns
+2. **Be clear** - Use descriptive names
+3. **Be safe** - Handle errors and edge cases
+4. **Be documented** - Comment complex logic
+5. **Be tested** - Write tests for critical paths
+6. **Be performant** - But don't optimize prematurely
+7. **Be maintainable** - Write code for future developers
