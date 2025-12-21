@@ -1,144 +1,167 @@
-This file provides guidance when working with code in this repository.
+# AGENTS.md - Developer Guide & AI Instructions
 
-## Monorepo Structure
+This file serves as the primary entry point for AI agents and developers working on the `@lellimecnar/source` monorepo. It consolidates critical information about the project structure, workflows, and commands.
 
-This is a **pnpm + Turborepo** monorepo with the following workspace organization:
+## 1. Project Overview
 
-- `web/*` - Next.js web applications
-  - `miller.pub` - Personal portfolio/website using Next.js App Router
-  - `readon.app` - Reading app web interface using Next.js App Router
-- `mobile/*` - Mobile applications
-  - `readon` - Expo/React Native mobile app using Expo Router
-- `packages/*` - Shared packages and configurations
-  - `ui` - Web UI component library (React, Radix UI, Tailwind, shadcn/ui)
-  - `ui-nativewind` - React Native UI component library (NativeWind)
-  - `utils` - Shared utilities (date-fns, lodash)
-  - `config-*` - Shared configurations (eslint, jest, prettier, tailwind, typescript, babel)
-- `card-stack/*` - Card game engine packages
-  - `core` - Core card game logic and abstractions
-  - `deck-standard` - Standard 52-card deck implementation
+This is a **pnpm + Turborepo** monorepo containing web applications, mobile applications, shared UI libraries, and a card game engine.
 
-## Development Commands
+**Key Documentation Blueprints:**
+- [Folder Structure](./Project_Folders_Structure_Blueprint.md) - Detailed directory hierarchy.
+- [Tech Stack](./Technology_Stack_Blueprint.md) - Comprehensive list of technologies and versions.
+- [Architecture](./Project_Architecture_Blueprint.md) - System design and data flow.
+- [Workflows](./Project_Workflow_Documentation.md) - Common development scenarios and code paths.
 
-### Root-level Commands
+## 2. Monorepo Structure
+
+The repository is organized into the following workspaces:
+
+- **`web/*`**: Next.js 14+ App Router applications.
+  - `miller.pub`: Personal portfolio/website.
+  - `readon.app`: Reading application web interface.
+- **`mobile/*`**: Expo/React Native applications.
+  - `readon`: Mobile reading app using Expo Router.
+- **`packages/*`**: Shared libraries and configurations.
+  - `ui`: Web UI component library (React, Radix UI, Tailwind, shadcn/ui).
+  - `ui-nativewind`: Mobile UI component library (NativeWind).
+  - `utils`: Shared utilities (date-fns, lodash).
+  - `config-*`: Shared configs (eslint, jest, prettier, tailwind, typescript).
+- **`card-stack/*`**: Domain logic packages.
+  - `core`: Core card game engine using TypeScript mixins.
+  - `deck-standard`: Standard 52-card deck implementation.
+
+## 3. Tech Stack Summary
+
+- **Package Manager**: pnpm (v9.12.2)
+- **Build System**: Turborepo
+- **Web Framework**: Next.js 14 (App Router)
+- **Mobile Framework**: Expo 52 (Expo Router)
+- **Styling**: Tailwind CSS (Web) / NativeWind (Mobile)
+- **Language**: TypeScript 5.5
+- **Testing**: Jest
+
+## 4. Setup & Installation
+
+**Prerequisites:**
+- Node.js ^20
+- pnpm ^9 (Enforced via `packageManager` in `package.json`)
+
+**Installation:**
 ```bash
-# Run all dev servers across workspaces
+pnpm install
+```
+
+## 5. Development Commands
+
+### Root Level
+Run these commands from the repository root:
+
+```bash
+# Start all development servers
 pnpm dev
 
 # Build all packages and apps
 pnpm build
 
-# Lint all packages
+# Lint all workspaces
 pnpm lint
 
 # Run all tests
 pnpm test
 
-# Run tests in watch mode
-pnpm test:watch
-
-# Type-check all packages
+# Type-check all workspaces
 pnpm type-check
 
-# Format code (auto-fix lint issues)
-pnpm format
-
-# Deep clean (removes all node_modules, .turbo, .next, .expo)
+# Deep clean (removes node_modules, .turbo, .next, .expo)
 pnpm clean
 ```
 
-### Working with Specific Workspaces
+### Workspace Specific
+Use `pnpm --filter <workspace>` or the specific scripts defined in root `package.json`:
+
+**Web Apps:**
 ```bash
-# miller.pub workspace
+# miller.pub
 pnpm miller.pub dev
 pnpm miller.pub build
 
-# readon.app workspace
+# readon.app
 pnpm readon.app dev
 pnpm readon.app build
-
-# readon mobile workspace
-pnpm readon dev              # Android dev
-pnpm readon dev:ios          # iOS dev
-pnpm readon dev:web          # Web dev
-
-# UI package
-pnpm ui dev                  # Watch mode for Tailwind CSS
-pnpm ui ui                   # Run shadcn CLI for adding components
 ```
 
-### Testing
+**Mobile App (readon):**
 ```bash
-# Run all tests
-pnpm test
+pnpm readon dev              # Start Metro bundler (Android)
+pnpm readon dev:ios          # Start for iOS
+pnpm readon dev:web          # Start for Web
+```
 
-# Run tests for card-stack packages
+**Packages:**
+```bash
+# UI Package (Watch mode for Tailwind)
+pnpm ui dev
+
+# Add shadcn/ui component
+pnpm ui ui
+```
+
+**Card Stack (Testing):**
+```bash
 pnpm --filter @card-stack/core test
 pnpm --filter @card-stack/core test:watch
 ```
 
-## Tech Stack
-
-### Web Applications (Next.js)
-- **Framework**: Next.js 14+ with App Router
-- **Styling**: Tailwind CSS
-- **UI Components**: Custom component library (`@lellimecnar/ui`) built on Radix UI and shadcn/ui
-- **TypeScript**: Version 5.5
-- **Config**: Both apps transpile `@lellimecnar/ui` package (see `next.config.js`)
-
-### Mobile Application (Expo)
-- **Framework**: Expo 52 with Expo Router
-- **Navigation**: Expo Router with file-based routing
-- **Styling**: NativeWind (Tailwind for React Native)
-- **UI Components**: Custom NativeWind component library (`@lellimecnar/ui-nativewind`)
-- **React Native**: Version 0.76.3
-
-### Shared Packages
-- **@lellimecnar/ui**: Web component library with modular exports (buttons, forms, inputs, etc.)
-  - Built with Radix UI primitives
-  - Styled with Tailwind CSS
-  - Uses shadcn/ui pattern
-  - Build command compiles Tailwind CSS
-- **@lellimecnar/ui-nativewind**: React Native component library
-- **@lellimecnar/utils**: Shared utilities with date-fns and lodash
-- **@card-stack/core**: Card game engine core with TypeScript mixins (ts-mixer)
-- **@card-stack/standard-deck**: Standard 52-card deck implementation
-
-## Architecture Notes
-
-### Workspace Dependencies
-- Next.js apps depend on `@lellimecnar/ui` (web components)
-- Expo app depends on `@lellimecnar/ui-nativewind` (mobile components)
-- All workspaces use shared config packages (`config-eslint`, `config-typescript`, etc.)
-- Card-stack packages are independent and use Jest for testing
+## 6. Architecture & Patterns
 
 ### Package Exports
-The `@lellimecnar/ui` package uses granular exports to allow tree-shaking:
-```typescript
-import { Button } from '@lellimecnar/ui/button'
-import { useTheme } from '@lellimecnar/ui/hooks'
-import '@lellimecnar/ui/global.css'
-```
+- **`@lellimecnar/ui`**: Uses granular exports for tree-shaking.
+  ```typescript
+  // ?Correct
+  import { Button } from '@lellimecnar/ui/button';
+  
+  // ❌ Incorre
+  import { Button } from '@lellimecnar/ui';
+  ```
 
-### Turborepo Pipeline
-- `build` tasks depend on upstream `^build` completion
-- `lint` tasks depend on upstream builds
-- `dev` and `test:watch` are persistent tasks (non-cacheable)
-- Build outputs: `dist/**`, `.next/**` (excluding `.next/cache`)
+### TypeScript Mixins (Card Stack)
+- The `@card-stack/core` package uses `ts-mixer` for composition over inheritance.
+- Classes like `StandardCard` mix behaviors (`Flippable`, `Rankable`, `Suitable`).
 
-### Mobile App Structure
-- Uses Expo Router file-based routing
-- App entry point: `expo-router/entry`
-- Layout structure: `app/_layout.tsx`, `app/(tabs)/`, modal routes
-- Development scripts target different platforms (Android, iOS, Web)
+### Next.js Configuration
+- Web apps must transpile the UI package in `next.config.js`:
+  ```javascript
+  transpilePackages: ['@lellimecnar/ui']
+  ```
 
-## Key Configuration Files
-- `turbo.json` - Turborepo task pipeline configuration
-- `pnpm-workspace.yaml` - Workspace package definitions
-- `.env` - Contains `TURBO_TOKEN` for remote caching
-- `components.json` - shadcn/ui configuration in `packages/ui`
+### Mobile Routing
+- Uses **Expo Router** with file-based routing in `app/`.
+- `_layout.tsx` defines the layout structure.
+- `(tabs)` group defines tab navigation.
 
-## Node & Package Manager Requirements
-- **Node**: ^20
-- **pnpm**: ^9 (specifically 9.12.2)
-- Package manager is enforced via `packageManager` field
+## 7. Testing Strategy
+
+- **Unit Tests**: Jest is configured per-package.
+- **Running Tests**:
+  - Root: `pnpm test` (runs all)
+  - Package: `pnpm --filter <package-name> test`
+- **Test Location**: Co-located with source files (e.g., `src/utils.spec.ts`).
+
+## 8. Pull Request Guidelines
+
+1.  **Scope**: Keep changes focused on a single task or feature.
+2.  **Tests**: Ensure all tests pass (`pnpm test`) before submitting.
+3.  **Linting**: Run `pnpm lint` to verify code style.
+4.  **Type Check**: Run `pnpm type-check` to ensure no TypeScript errors.
+5.  **Documentation**: Update relevant blueprints or `AGENTS.md` if architectural changes are made.
+
+## 9. Troubleshooting
+
+**Issue: Build failures or weird caching issues.**
+*   **Fix**: Run `pnpm clean` to remove all artifacts and `node_modules`, then reinstall with `pnpm install`.
+
+**Issue: Tailwind styles not applying in UI package.**
+*   **Fix**: Ensure `pnpm ui build` has been run or `pnpm ui dev` is running to generate the CSS.
+
+**Issue: "Module not found" for workspace packages.**
+*   **Fix**: Verify `pnpm-workspace.yaml` includes the package path and that `package.json` name matches the import.

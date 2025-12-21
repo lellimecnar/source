@@ -1,0 +1,24 @@
+# @lellimecnar/source
+
+> A pnpm + Turborepo monorepo containing web applications (Next.js), mobile applications (Expo), shared UI libraries, and a card game engine.
+
+## Core Documentation
+
+- [Developer Guide & AI Instructions](AGENTS.md): The primary entry point for developers and AI agents, detailing project structure, commands, and patterns.
+- [Project README](README.md): General project overview and entry point.
+
+## Architecture & Blueprints
+
+- [Architecture Blueprint](Project_Architecture_Blueprint.md): High-level system design, data flow, and architectural decisions.
+- [Folder Structure Blueprint](Project_Folders_Structure_Blueprint.md): Detailed breakdown of the directory hierarchy and organization principles.
+- [Technology Stack Blueprint](Technology_Stack_Blueprint.md): Comprehensive list of technologies, frameworks, and versions used.
+
+## Workflows
+
+- [Workflow Documentation](Project_Workflow_Documentation.md): Common development scenarios, code paths, and standard operating procedures.
+
+## Configuration
+
+- [Workspace Configuration](pnpm-workspace.yaml): Defines the monorepo workspace structure.
+- [Turborepo Config](turbo.json): Configuration for the build system and task pipeline.
+- [Root Package Config](package.json): Root-level scripts and dependencies.
