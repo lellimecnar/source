@@ -1,0 +1,7 @@
+# Security Configuration - Require review for security-sensitive files
+/.env.example @lellimecnar
+/web/*/.env.example @lellimecnar
+/mobile/*/.env.example @lellimecnar
+/.github/workflows/security.yml @lellimecnar
+/.gitleaks.toml @lellimecnar
+/SECURITY.md @lellimecnar
