@@ -1,225 +1,303 @@
 {
-	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": [
-		"config:recommended",
-		":preserveSemverRanges"
-	],
-	"rangeStrategy": "bump",
-	"schedule": [
-		"after 10pm every weekday",
-		"before 5am every weekday"
-	],
-	"timezone": "America/Los_Angeles",
-	"dependencyDashboard": true,
-	"dependencyDashboardTitle": "🤖 Dependency Updates Dashboard",
-	"prHourlyLimit": 2,
-	"prConcurrentLimit": 10,
-	"labels": ["dependencies"],
-	"vulnerabilityAlerts": {
-		"enabled": true,
-		"labels": ["security", "dependencies"]
-	},
-	"lockFileMaintenance": {
-		"enabled": true,
-		"schedule": ["before 3am on Monday"]
-	},
-	"packageRules": [
-		{
-			"description": "Group React ecosystem updates",
-			"groupName": "React ecosystem",
-			"matchPackagePatterns": [
-				"^react",
-				"^@types/react"
-			],
-			"schedule": ["every weekend"],
-			"labels": ["dependencies", "react"]
-		},
-		{
-			"description": "Group Next.js updates",
-			"groupName": "Next.js",
-			"matchPackageNames": [
-				"next",
-				"@next/eslint-plugin-next"
-			],
-			"matchPackagePatterns": [
-				"^@next/"
-			],
-			"schedule": ["every weekend"],
-			"labels": ["dependencies", "nextjs"]
-		},
-		{
-			"description": "Group Expo SDK updates (must stay in sync)",
-			"groupName": "Expo SDK",
-			"matchPackagePatterns": [
-				"^expo",
-				"^@expo/"
-			],
-			"matchPackageNames": [
-				"react-native",
-				"jest-expo"
-			],
-			"schedule": ["every weekend"],
-			"labels": ["dependencies", "expo"],
-			"rangeStrategy": "replace"
-		},
-		{
-			"description": "Group TypeScript and related tooling",
-			"groupName": "TypeScript",
-			"matchPackageNames": [
-				"typescript",
-				"ts-jest",
-				"ts-mixer",
-				"@typescript-eslint/eslint-plugin",
-				"@typescript-eslint/parser"
-			],
-			"matchPackagePatterns": [
-				"^@types/"
-			],
-			"schedule": ["every weekend"],
-			"labels": ["dependencies", "typescript"]
-		},
-		{
-			"description": "Group Jest and testing utilities",
-			"groupName": "Testing",
-			"matchPackageNames": [
-				"jest",
-				"jest-expo",
-				"ts-jest",
-				"@types/jest",
-				"@faker-js/faker"
-			],
-			"schedule": ["every weekend"],
-			"labels": ["dependencies", "testing"]
-		},
-		{
-			"description": "Group ESLint and plugins",
-			"groupName": "ESLint",
-			"matchPackageNames": [
-				"eslint",
-				"eslint-config-prettier",
-				"eslint-config-turbo"
-			],
-			"matchPackagePatterns": [
-				"^eslint-plugin-",
-				"^@typescript-eslint/"
-			],
-			"schedule": ["every weekend"],
-			"labels": ["dependencies", "linting"]
-		},
-		{
-			"description": "Group Tailwind CSS and related packages",
-			"groupName": "Tailwind CSS",
-			"matchPackageNames": [
-				"tailwindcss",
-				"postcss",
-				"autoprefixer",
-				"nativewind",
-				"@tailwindcss/typography",
-				"tailwindcss-animate",
-				"tailwindcss-opentype"
-			],
-			"matchPackagePatterns": [
-				"^tailwindcss-",
-				"^@tailwindcss/"
-			],
-			"schedule": ["every weekend"],
-			"labels": ["dependencies", "styling"]
-		},
-		{
-			"description": "Group Radix UI primitives",
-			"groupName": "Radix UI",
-			"matchPackagePatterns": [
-				"^@radix-ui/"
-			],
-			"schedule": ["every weekend"],
-			"labels": ["dependencies", "ui"]
-		},
-		{
-			"description": "Group build tools",
-			"groupName": "Build tools",
-			"matchPackageNames": [
-				"turbo",
-				"prettier"
-			],
-			"schedule": ["every weekend"],
-			"labels": ["dependencies", "tooling"]
-		},
-		{
-			"description": "Auto-merge patch updates to devDependencies",
-			"matchDepTypes": ["devDependencies"],
-			"matchUpdateTypes": ["patch"],
-			"automerge": true,
-			"automergeType": "pr",
-			"automergeStrategy": "squash",
-			"labels": ["dependencies", "automerge"]
-		},
-		{
-			"description": "Auto-merge minor updates to trusted tooling",
-			"matchPackageNames": [
-				"prettier",
-				"@lellimecnar/prettier-config"
-			],
-			"matchPackagePatterns": [
-				"^eslint-plugin-",
-				"^@types/"
-			],
-			"matchUpdateTypes": ["minor", "patch"],
-			"matchDepTypes": ["devDependencies"],
-			"automerge": true,
-			"automergeType": "pr",
-			"automergeStrategy": "squash",
-			"labels": ["dependencies", "automerge"]
-		},
-		{
-			"description": "Never auto-merge major version updates",
-			"matchUpdateTypes": ["major"],
-			"automerge": false,
-			"labels": ["dependencies", "major-update"]
-		},
-		{
-			"description": "Never auto-merge production dependencies",
-			"matchDepTypes": ["dependencies"],
-			"automerge": false
-		},
-		{
-			"description": "Update overrides field in root package.json",
-			"matchFiles": ["package.json"],
-			"matchDepTypes": ["overrides"],
-			"enabled": true
-		}
-	],
-	"ignorePaths": [
-		"**/node_modules/**",
-		"**/dist/**",
-		"**/build/**",
-		"**/.next/**",
-		"**/.expo/**",
-		"**/.turbo/**"
-	],
-	"prBodyTemplate": "{{{header}}}{{{table}}}{{{notes}}}{{{changelogs}}}{{{configDescription}}}{{{controls}}}{{{footer}}}",
-	"prBodyColumns": [
-		"Package",
-		"Change",
-		"Age",
-		"Adoption",
-		"Passing",
-		"Confidence"
-	],
-	"prBodyNotes": [
-		"This PR was automatically generated by Renovate Bot.",
-		"",
-		"**Testing Checklist:**",
-		"- [ ] All CI checks pass",
-		"- [ ] `pnpm install` completes without errors",
-		"- [ ] `pnpm build` succeeds for all workspaces",
-		"- [ ] `pnpm test` passes for all workspaces",
-		"- [ ] `pnpm lint` passes with no errors",
-		"- [ ] Manual smoke testing of affected applications",
-		"",
-		"**Auto-merge Criteria:**",
-		"- ✅ Patch updates to devDependencies (if all checks pass)",
-		"- ✅ Minor updates to ESLint plugins and type definitions (if all checks pass)",
-		"- ⛔ Major version updates (always require manual review)",
-		"- ⛔ Production dependencies (always require manual review)"
-	]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended",
+        ":preserveSemverRanges"
+    ],
+    "rangeStrategy": "bump",
+    "schedule": [
+        "after 10pm every weekday",
+        "before 5am every weekday"
+    ],
+    "timezone": "America/Los_Angeles",
+    "dependencyDashboard": true,
+    "dependencyDashboardTitle": "🤖 Dependency Updates Dashboard",
+    "prHourlyLimit": 2,
+    "prConcurrentLimit": 10,
+    "labels": [
+        "dependencies"
+    ],
+    "vulnerabilityAlerts": {
+        "enabled": true,
+        "labels": [
+            "security",
+            "dependencies"
+        ]
+    },
+    "lockFileMaintenance": {
+        "enabled": true,
+        "schedule": [
+            "before 3am on Monday"
+        ]
+    },
+    "packageRules": [
+        {
+            "description": "Group React ecosystem updates",
+            "groupName": "React ecosystem",
+            "matchPackagePatterns": [
+                "^react",
+                "^@types/react"
+            ],
+            "schedule": [
+                "every weekend"
+            ],
+            "labels": [
+                "dependencies",
+                "react"
+            ]
+        },
+        {
+            "description": "Group Next.js updates",
+            "groupName": "Next.js",
+            "matchPackageNames": [
+                "next",
+                "@next/eslint-plugin-next"
+            ],
+            "matchPackagePatterns": [
+                "^@next/"
+            ],
+            "schedule": [
+                "every weekend"
+            ],
+            "labels": [
+                "dependencies",
+                "nextjs"
+            ]
+        },
+        {
+            "description": "Group Expo SDK updates (must stay in sync)",
+            "groupName": "Expo SDK",
+            "matchPackagePatterns": [
+                "^expo",
+                "^@expo/"
+            ],
+            "matchPackageNames": [
+                "react-native",
+                "jest-expo"
+            ],
+            "schedule": [
+                "every weekend"
+            ],
+            "labels": [
+                "dependencies",
+                "expo"
+            ],
+            "rangeStrategy": "replace"
+        },
+        {
+            "description": "Group TypeScript and related tooling",
+            "groupName": "TypeScript",
+            "matchPackageNames": [
+                "typescript",
+                "ts-jest",
+                "ts-mixer",
+                "@typescript-eslint/eslint-plugin",
+                "@typescript-eslint/parser"
+            ],
+            "matchPackagePatterns": [
+                "^@types/"
+            ],
+            "schedule": [
+                "every weekend"
+            ],
+            "labels": [
+                "dependencies",
+                "typescript"
+            ]
+        },
+        {
+            "description": "Group Jest and testing utilities",
+            "groupName": "Testing",
+            "matchPackageNames": [
+                "jest",
+                "jest-expo",
+                "ts-jest",
+                "@types/jest",
+                "@faker-js/faker"
+            ],
+            "schedule": [
+                "every weekend"
+            ],
+            "labels": [
+                "dependencies",
+                "testing"
+            ]
+        },
+        {
+            "description": "Group ESLint and plugins",
+            "groupName": "ESLint",
+            "matchPackageNames": [
+                "eslint",
+                "eslint-config-prettier",
+                "eslint-config-turbo"
+            ],
+            "matchPackagePatterns": [
+                "^eslint-plugin-",
+                "^@typescript-eslint/"
+            ],
+            "schedule": [
+                "every weekend"
+            ],
+            "labels": [
+                "dependencies",
+                "linting"
+            ]
+        },
+        {
+            "description": "Group Tailwind CSS and related packages",
+            "groupName": "Tailwind CSS",
+            "matchPackageNames": [
+                "tailwindcss",
+                "postcss",
+                "autoprefixer",
+                "nativewind",
+                "@tailwindcss/typography",
+                "tailwindcss-animate",
+                "tailwindcss-opentype"
+            ],
+            "matchPackagePatterns": [
+                "^tailwindcss-",
+                "^@tailwindcss/"
+            ],
+            "schedule": [
+                "every weekend"
+            ],
+            "labels": [
+                "dependencies",
+                "styling"
+            ]
+        },
+        {
+            "description": "Group Radix UI primitives",
+            "groupName": "Radix UI",
+            "matchPackagePatterns": [
+                "^@radix-ui/"
+            ],
+            "schedule": [
+                "every weekend"
+            ],
+            "labels": [
+                "dependencies",
+                "ui"
+            ]
+        },
+        {
+            "description": "Group build tools",
+            "groupName": "Build tools",
+            "matchPackageNames": [
+                "turbo",
+                "prettier"
+            ],
+            "schedule": [
+                "every weekend"
+            ],
+            "labels": [
+                "dependencies",
+                "tooling"
+            ]
+        },
+        {
+            "description": "Auto-merge patch updates to devDependencies",
+            "matchDepTypes": [
+                "devDependencies"
+            ],
+            "matchUpdateTypes": [
+                "patch"
+            ],
+            "automerge": true,
+            "automergeType": "pr",
+            "automergeStrategy": "squash",
+            "labels": [
+                "dependencies",
+                "automerge"
+            ]
+        },
+        {
+            "description": "Auto-merge minor updates to trusted tooling",
+            "matchPackageNames": [
+                "prettier",
+                "@lellimecnar/prettier-config"
+            ],
+            "matchPackagePatterns": [
+                "^eslint-plugin-",
+                "^@types/"
+            ],
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "matchDepTypes": [
+                "devDependencies"
+            ],
+            "automerge": true,
+            "automergeType": "pr",
+            "automergeStrategy": "squash",
+            "labels": [
+                "dependencies",
+                "automerge"
+            ]
+        },
+        {
+            "description": "Never auto-merge major version updates",
+            "matchUpdateTypes": [
+                "major"
+            ],
+            "automerge": false,
+            "labels": [
+                "dependencies",
+                "major-update"
+            ]
+        },
+        {
+            "description": "Never auto-merge production dependencies",
+            "matchDepTypes": [
+                "dependencies"
+            ],
+            "automerge": false
+        },
+        {
+            "description": "Update overrides field in root package.json",
+            "matchFiles": [
+                "package.json"
+            ],
+            "matchDepTypes": [
+                "overrides"
+            ],
+            "enabled": true
+        }
+    ],
+    "ignorePaths": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/.next/**",
+        "**/.expo/**",
+        "**/.turbo/**"
+    ],
+    "prBodyTemplate": "{{{header}}}{{{table}}}{{{notes}}}{{{changelogs}}}{{{configDescription}}}{{{controls}}}{{{footer}}}",
+    "prBodyColumns": [
+        "Package",
+        "Change",
+        "Age",
+        "Adoption",
+        "Passing",
+        "Confidence"
+    ],
+    "prBodyNotes": [
+        "This PR was automatically generated by Renovate Bot.",
+        "",
+        "**Testing Checklist:**",
+        "- [ ] All CI checks pass",
+        "- [ ] `pnpm install` completes without errors",
+        "- [ ] `pnpm build` succeeds for all workspaces",
+        "- [ ] `pnpm test` passes for all workspaces",
+        "- [ ] `pnpm lint` passes with no errors",
+        "- [ ] Manual smoke testing of affected applications",
+        "",
+        "**Auto-merge Criteria:**",
+        "- ✅ Patch updates to devDependencies (if all checks pass)",
+        "- ✅ Minor updates to ESLint plugins and type definitions (if all checks pass)",
+        "- ⛔ Major version updates (always require manual review)",
+        "- ⛔ Production dependencies (always require manual review)"
+    ]
 }
