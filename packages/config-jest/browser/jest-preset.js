@@ -1,15 +1,22 @@
-/** @type {import('jest').Config} */
+const baseConfig = require('../jest-preset');
+
 module.exports = {
-	roots: ['<rootDir>'],
-	testEnvironment: 'jsdom',
-	transform: {
-		'^.+\\.tsx?$': 'ts-jest',
-	},
-	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-	modulePathIgnorePatterns: [
-		'<rootDir>/test/__fixtures__',
-		'<rootDir>/node_modules',
-		'<rootDir>/dist',
-	],
-	preset: 'ts-jest',
+  ...baseConfig,
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+  },
+  transform: {
+    '^.+\\.(ts|tsx)$': ['ts-jest', {
+      tsconfig: {
+        jsx: 'react-jsx',
+      },
+    }],
+  },
+  collectCoverageFrom: [
+    ...baseConfig.collectCoverageFrom,
+    '!src/**/*.stories.{ts,tsx}',
+  ],
 };
