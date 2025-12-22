@@ -10,10 +10,12 @@
     "scripts": {
         "lint": "eslint ."
     },
+    "dependencies": {
+        "ts-jest": "^29"
+    },
     "devDependencies": {
         "@types/jest": "^29.5.14",
         "jest": "^29",
-        "ts-jest": "^29",
         "typescript": "~5.5"
     },
     "peerDependencies": {

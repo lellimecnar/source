@@ -34,7 +34,10 @@
     "build": "tailwindcss -i ./src/global.css -o ./dist/global.css",
     "lint": "eslint .",
     "dev": "tailwindcss -i ./src/global.css -o ./dist/global.css --watch",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "peerDependencies": {
     "react": "^18",
@@ -44,9 +47,14 @@
     "@lellimecnar/eslint-config": "workspace:*",
     "@lellimecnar/tailwind-config": "workspace:*",
     "@lellimecnar/typescript-config": "workspace:*",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18",
     "autoprefixer": "^10.4.22",
     "eslint": "^8.57.1",
+    "identity-obj-proxy": "^3.0.0",
+    "jest-environment-jsdom": "^30.2.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.5"
