@@ -5,6 +5,7 @@
 This research report provides comprehensive findings for implementing framework optimizations across the `@lellimecnar/source` monorepo, covering Next.js web applications (miller.pub & readon.app) and the Expo mobile application (readon).
 
 **Key Findings:**
+
 - Next.js version: **15.2.3** (App Router)
 - Expo version: **~52.0.14** (Expo Router)
 - React Native version: **0.76.3**
@@ -18,6 +19,7 @@ This research report provides comprehensive findings for implementing framework 
 ## 1. Project-Wide Analysis
 
 ### 1.1 Project Type & Architecture
+
 - **Type**: pnpm + Turborepo monorepo
 - **Package Manager**: pnpm v9.12.2 (strictly enforced)
 - **Build System**: Turborepo ^2.6.1
@@ -27,6 +29,7 @@ This research report provides comprehensive findings for implementing framework 
 ### 1.2 Technology Stack Versions
 
 #### Web Stack
+
 - **Next.js**: ^15.2.3 (App Router, React Server Components)
 - **React**: ^18.3.1
 - **React DOM**: ^18.3.1
@@ -34,6 +37,7 @@ This research report provides comprehensive findings for implementing framework 
 - **TypeScript**: ~5.5
 
 #### Mobile Stack
+
 - **Expo**: ~52.0.14
 - **Expo Router**: ~4.0.11
 - **React Native**: 0.76.3
@@ -41,6 +45,7 @@ This research report provides comprehensive findings for implementing framework 
 - **React Native Reanimated**: ~3.16.1
 
 #### Shared Infrastructure
+
 - **UI Components**: `@lellimecnar/ui` (shadcn/ui + Radix)
 - **Mobile UI**: `@lellimecnar/ui-nativewind`
 - **Utilities**: date-fns, lodash (in `@lellimecnar/utils`)
@@ -64,6 +69,7 @@ This research report provides comprehensive findings for implementing framework 
 ```
 
 ### 1.4 Dependency Management
+
 - **Internal packages**: Use `workspace:*` protocol
 - **Version overrides**: Enforced at root for consistency
 - **Shared configs**: Centralized in `packages/config-*`
@@ -73,24 +79,24 @@ This research report provides comprehensive findings for implementing framework 
 
 ```json
 {
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "lint": {
-      "dependsOn": ["^build"]
-    },
-    "test": {
-      "outputs": ["coverage/**"],
-      "dependsOn": []
-    }
-  }
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"lint": {
+			"dependsOn": ["^build"]
+		},
+		"test": {
+			"outputs": ["coverage/**"],
+			"dependsOn": []
+		}
+	}
 }
 ```
 
@@ -98,17 +104,17 @@ This research report provides comprehensive findings for implementing framework 
 
 ```json
 {
-  "scripts": {
-    "miller.pub": "pnpm --filter miller.pub",
-    "readon.app": "pnpm --filter readon.app",
-    "readon": "pnpm --filter readon",
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "test": "turbo test",
-    "type-check": "turbo type-check",
-    "clean": "turbo clean; git clean -xdf node_modules .turbo .next .expo"
-  }
+	"scripts": {
+		"miller.pub": "pnpm --filter miller.pub",
+		"readon.app": "pnpm --filter readon.app",
+		"readon": "pnpm --filter readon",
+		"build": "turbo build",
+		"dev": "turbo dev",
+		"lint": "turbo lint",
+		"test": "turbo test",
+		"type-check": "turbo type-check",
+		"clean": "turbo clean; git clean -xdf node_modules .turbo .next .expo"
+	}
 }
 ```
 
@@ -119,6 +125,7 @@ This research report provides comprehensive findings for implementing framework 
 ### 2.1 miller.pub
 
 #### Current Configuration (`next.config.js`)
+
 ```javascript
 /** @type {import('next').NextConfig} */
 module.exports = {
@@ -128,6 +135,7 @@ module.exports = {
 ```
 
 **Analysis:**
+
 - ✅ React Strict Mode enabled
 - ✅ Transpiles workspace UI package
 - ❌ No performance optimizations
@@ -138,26 +146,28 @@ module.exports = {
 - ❌ No compression configured
 
 #### Package.json Dependencies
+
 ```json
 {
-  "dependencies": {
-    "@lellimecnar/ui": "workspace:*",
-    "next": "^15.2.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-use": "^17.6.0"
-  },
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint .",
-    "type-check": "tsc --noEmit"
-  }
+	"dependencies": {
+		"@lellimecnar/ui": "workspace:*",
+		"next": "^15.2.3",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"react-use": "^17.6.0"
+	},
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "eslint .",
+		"type-check": "tsc --noEmit"
+	}
 }
 ```
 
 #### Project Structure
+
 ```
 miller.pub/
 ├── src/
@@ -181,6 +191,7 @@ miller.pub/
 ```
 
 #### Tailwind Configuration
+
 ```typescript
 import { resolve } from 'node:path';
 import type { Config } from 'tailwindcss';
@@ -194,8 +205,12 @@ const config: Config = {
 	presets: [sharedConfig],
 	theme: {
 		extend: {
-			colors: { /* Custom Pokemon type colors */ },
-			boxShadow: { /* Custom shadows */ },
+			colors: {
+				/* Custom Pokemon type colors */
+			},
+			boxShadow: {
+				/* Custom shadows */
+			},
 			// ... project-specific extensions
 		},
 	},
@@ -203,22 +218,24 @@ const config: Config = {
 ```
 
 #### TypeScript Configuration
+
 ```json
 {
-  "extends": "@lellimecnar/typescript-config/next.json",
-  "compilerOptions": {
-    "plugins": [{ "name": "next" }],
-    "noEmit": true,
-    "isolatedModules": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
+	"extends": "@lellimecnar/typescript-config/next.json",
+	"compilerOptions": {
+		"plugins": [{ "name": "next" }],
+		"noEmit": true,
+		"isolatedModules": true,
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"]
+		}
+	}
 }
 ```
 
 #### Root Layout
+
 ```tsx
 import { type Metadata, type Viewport } from 'next';
 import { cn } from '@lellimecnar/ui/lib';
@@ -244,7 +261,12 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head />
-			<body className={cn('min-h-screen bg-sky-300 dark:bg-sky-950 font-sans antialiased', fontSans.variable)}>
+			<body
+				className={cn(
+					'min-h-screen bg-sky-300 dark:bg-sky-950 font-sans antialiased',
+					fontSans.variable,
+				)}
+			>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 					<div className="relative flex min-h-screen flex-col">
 						<SiteHeader />
@@ -258,6 +280,7 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
 ```
 
 **Observations:**
+
 - ❌ No analytics scripts
 - ❌ No performance monitoring
 - ✅ Uses server-side metadata API
@@ -265,6 +288,7 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
 - ✅ Proper HTML structure
 
 #### Existing Dockerfile
+
 ```dockerfile
 FROM node:20-slim AS base
 ENV PNPM_HOME="/pnpm"
@@ -304,6 +328,7 @@ CMD node web/miller.pub/server.js
 ```
 
 **Docker Analysis:**
+
 - ✅ Multi-stage build
 - ✅ Turbo prune for efficient caching
 - ❌ Expects standalone output but config doesn't enable it
@@ -314,6 +339,7 @@ CMD node web/miller.pub/server.js
 ### 2.2 readon.app
 
 #### Current Configuration (`next.config.js`)
+
 ```javascript
 /** @type {import('next').NextConfig} */
 module.exports = {
@@ -325,26 +351,28 @@ module.exports = {
 **Analysis:** Identical to miller.pub - same optimizations needed
 
 #### Package.json Dependencies
+
 ```json
 {
-  "dependencies": {
-    "@lellimecnar/ui": "workspace:*",
-    "next": "^15.2.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-use": "^17.6.0"
-  },
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint .",
-    "type-check": "tsc --noEmit"
-  }
+	"dependencies": {
+		"@lellimecnar/ui": "workspace:*",
+		"next": "^15.2.3",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"react-use": "^17.6.0"
+	},
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "eslint .",
+		"type-check": "tsc --noEmit"
+	}
 }
 ```
 
 #### Project Structure
+
 ```
 readon.app/
 ├── src/
@@ -366,6 +394,7 @@ readon.app/
 ```
 
 #### Tailwind Configuration
+
 ```typescript
 import { resolve } from 'node:path';
 import type { Config } from 'tailwindcss';
@@ -383,11 +412,13 @@ export default config;
 ```
 
 **Observations:**
+
 - Simpler Tailwind config than miller.pub (no custom extensions)
 - Same structure and patterns as miller.pub
 - Same optimization opportunities
 
 #### Root Layout
+
 Identical to miller.pub with same metadata and structure.
 
 ---
@@ -395,7 +426,9 @@ Identical to miller.pub with same metadata and structure.
 ### 2.3 Common Next.js Patterns Across Apps
 
 #### Configuration Pattern
+
 Both apps follow the same minimal configuration pattern:
+
 ```javascript
 module.exports = {
 	reactStrictMode: true,
@@ -404,23 +437,26 @@ module.exports = {
 ```
 
 #### Import Pattern (Granular Exports)
+
 ```typescript
 // ✅ Correct - granular imports
-import { Button } from '@lellimecnar/ui/button'
-import { cn } from '@lellimecnar/ui/lib'
-import '@lellimecnar/ui/global.css'
+import { Button } from '@lellimecnar/ui/button';
+import { cn } from '@lellimecnar/ui/lib';
+import '@lellimecnar/ui/global.css';
 
 // ❌ Wrong - no barrel exports
-import { Button } from '@lellimecnar/ui'
+import { Button } from '@lellimecnar/ui';
 ```
 
 #### Directory Structure Pattern
+
 - `src/app/` - App Router pages and layouts
 - `src/components/` - App-specific components
 - `src/config/` - Configuration files (fonts, site metadata)
 - `public/` - Static assets
 
 #### Path Aliases
+
 Both apps use `@/*` alias mapping to `./src/*`
 
 ---
@@ -428,6 +464,7 @@ Both apps use `@/*` alias mapping to `./src/*`
 ### 2.4 Missing Optimizations in Next.js Apps
 
 #### Performance
+
 - ❌ No standalone output mode for Docker
 - ❌ No compression configuration
 - ❌ No bundle analyzer setup
@@ -436,11 +473,13 @@ Both apps use `@/*` alias mapping to `./src/*`
 - ❌ No performance monitoring/analytics
 
 #### Security
+
 - ❌ No security headers (CSP, X-Frame-Options, etc.)
 - ❌ No middleware for security
 - ❌ No image domain restrictions
 
 #### Developer Experience
+
 - ❌ No bundle analyzer for debugging bundle size
 - ❌ No source maps configuration
 - ❌ No webpack/build customizations
@@ -497,6 +536,7 @@ export default (): ExpoConfig => ({
 ```
 
 **Analysis:**
+
 - ✅ New Architecture enabled (`newArchEnabled: true`)
 - ✅ Expo Router plugin configured
 - ✅ Typed routes experiment enabled
@@ -509,52 +549,53 @@ export default (): ExpoConfig => ({
 
 ```json
 {
-  "name": "readon",
-  "dependencies": {
-    "@lellimecnar/ui-nativewind": "workspace:*",
-    "@lellimecnar/tailwind-config": "workspace:*",
-    "expo": "~52.0.14",
-    "expo-router": "~4.0.11",
-    "expo-font": "~13.0.1",
-    "expo-linking": "~7.0.3",
-    "expo-splash-screen": "~0.29.12",
-    "expo-status-bar": "~2.0.0",
-    "expo-system-ui": "~4.0.5",
-    "expo-web-browser": "~14.0.1",
-    "nativewind": "^4.2.1",
-    "react": "18.3.1",
-    "react-native": "0.76.3",
-    "react-native-reanimated": "~3.16.1",
-    "react-native-safe-area-context": "4.12.0",
-    "react-native-screens": "~4.18.0",
-    "@expo/vector-icons": "^14.0.2",
-    "@react-navigation/elements": "^2.8.3",
-    "@react-navigation/native": "^7.1.21"
-  },
-  "devDependencies": {
-    "@lellimecnar/babel-preset": "workspace:*",
-    "@lellimecnar/eslint-config": "workspace:*",
-    "@lellimecnar/typescript-config": "workspace:*",
-    "@expo/config-types": "^52.0.1",
-    "jest": "^29.2.1",
-    "jest-expo": "~52.0.2",
-    "tailwindcss": "^3.4.17",
-    "typescript": "~5.5"
-  },
-  "scripts": {
-    "start": "expo start",
-    "dev": "expo start --android --clear",
-    "dev:ios": "expo start --ios --clear",
-    "dev:web": "expo start --web --clear",
-    "lint": "eslint .",
-    "test": "jest --watchAll",
-    "android": "expo run:android",
-    "ios": "expo run:ios"
-  }
+	"name": "readon",
+	"dependencies": {
+		"@lellimecnar/ui-nativewind": "workspace:*",
+		"@lellimecnar/tailwind-config": "workspace:*",
+		"expo": "~52.0.14",
+		"expo-router": "~4.0.11",
+		"expo-font": "~13.0.1",
+		"expo-linking": "~7.0.3",
+		"expo-splash-screen": "~0.29.12",
+		"expo-status-bar": "~2.0.0",
+		"expo-system-ui": "~4.0.5",
+		"expo-web-browser": "~14.0.1",
+		"nativewind": "^4.2.1",
+		"react": "18.3.1",
+		"react-native": "0.76.3",
+		"react-native-reanimated": "~3.16.1",
+		"react-native-safe-area-context": "4.12.0",
+		"react-native-screens": "~4.18.0",
+		"@expo/vector-icons": "^14.0.2",
+		"@react-navigation/elements": "^2.8.3",
+		"@react-navigation/native": "^7.1.21"
+	},
+	"devDependencies": {
+		"@lellimecnar/babel-preset": "workspace:*",
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@expo/config-types": "^52.0.1",
+		"jest": "^29.2.1",
+		"jest-expo": "~52.0.2",
+		"tailwindcss": "^3.4.17",
+		"typescript": "~5.5"
+	},
+	"scripts": {
+		"start": "expo start",
+		"dev": "expo start --android --clear",
+		"dev:ios": "expo start --ios --clear",
+		"dev:web": "expo start --web --clear",
+		"lint": "eslint .",
+		"test": "jest --watchAll",
+		"android": "expo run:android",
+		"ios": "expo run:ios"
+	}
 }
 ```
 
 **Key Dependencies:**
+
 - Expo SDK: ~52.0.14
 - React Native: 0.76.3
 - Expo Router: ~4.0.11 (file-based routing)
@@ -594,16 +635,18 @@ mobile/readon/
 ### 3.4 Build Configuration Files
 
 #### babel.config.js
+
 ```javascript
-module.exports = function(api) {
-  api.cache(true);
-  return {
-    presets: ['@lellimecnar/babel-preset'],
-  };
+module.exports = function (api) {
+	api.cache(true);
+	return {
+		presets: ['@lellimecnar/babel-preset'],
+	};
 };
 ```
 
 #### metro.config.js
+
 ```javascript
 // Standard Expo Metro configuration
 const { getDefaultConfig } = require('expo/metro-config');
@@ -613,6 +656,7 @@ module.exports = getDefaultConfig(__dirname);
 ### 3.5 Missing Optimizations in Expo App
 
 #### Performance
+
 - ❌ No build properties plugin configuration
 - ❌ No performance optimization plugins
 - ❌ No bundle size optimization
@@ -620,6 +664,7 @@ module.exports = getDefaultConfig(__dirname);
 - ❌ Status/navigation bar optimization commented out
 
 #### Developer Experience
+
 - ❌ Limited plugin ecosystem utilization
 - ❌ No analytics/monitoring setup
 
@@ -632,78 +677,83 @@ module.exports = getDefaultConfig(__dirname);
 Based on official Next.js documentation, here are the recommended optimizations:
 
 #### 4.1.1 Output Configuration
+
 ```javascript
 module.exports = {
-  output: 'standalone', // Creates minimal Docker-ready output
-}
+	output: 'standalone', // Creates minimal Docker-ready output
+};
 ```
+
 - Automatically traces required files
 - Reduces deployment size
 - Ideal for Docker/container deployments
 
 #### 4.1.2 Image Optimization
+
 ```javascript
 module.exports = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '*.example.com',
-        port: '',
-        pathname: '/uploads/**',
-      },
-    ],
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-  },
-}
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: '*.example.com',
+				port: '',
+				pathname: '/uploads/**',
+			},
+		],
+		formats: ['image/avif', 'image/webp'],
+		deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+		imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+	},
+};
 ```
 
 #### 4.1.3 Security Headers
+
 ```javascript
 module.exports = {
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on'
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload'
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff'
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block'
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin'
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()'
-          }
-        ],
-      },
-    ]
-  },
-}
+	async headers() {
+		return [
+			{
+				source: '/:path*',
+				headers: [
+					{
+						key: 'X-DNS-Prefetch-Control',
+						value: 'on',
+					},
+					{
+						key: 'Strict-Transport-Security',
+						value: 'max-age=63072000; includeSubDomains; preload',
+					},
+					{
+						key: 'X-Frame-Options',
+						value: 'SAMEORIGIN',
+					},
+					{
+						key: 'X-Content-Type-Options',
+						value: 'nosniff',
+					},
+					{
+						key: 'X-XSS-Protection',
+						value: '1; mode=block',
+					},
+					{
+						key: 'Referrer-Policy',
+						value: 'origin-when-cross-origin',
+					},
+					{
+						key: 'Permissions-Policy',
+						value: 'camera=(), microphone=(), geolocation=()',
+					},
+				],
+			},
+		];
+	},
+};
 ```
 
 #### 4.1.4 Content Security Policy (CSP)
+
 ```javascript
 const cspHeader = `
     default-src 'self';
@@ -716,54 +766,57 @@ const cspHeader = `
     form-action 'self';
     frame-ancestors 'none';
     upgrade-insecure-requests;
-`
+`;
 
 module.exports = {
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: cspHeader.replace(/\n/g, ''),
-          },
-        ],
-      },
-    ]
-  },
-}
+	async headers() {
+		return [
+			{
+				source: '/:path*',
+				headers: [
+					{
+						key: 'Content-Security-Policy',
+						value: cspHeader.replace(/\n/g, ''),
+					},
+				],
+			},
+		];
+	},
+};
 ```
 
 #### 4.1.5 Bundle Analyzer
+
 ```javascript
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-})
+	enabled: process.env.ANALYZE === 'true',
+});
 
 module.exports = withBundleAnalyzer({
-  // ... rest of config
-})
+	// ... rest of config
+});
 ```
 
 #### 4.1.6 Compression
+
 ```javascript
 module.exports = {
-  compress: true, // Enabled by default in production
-  poweredByHeader: false, // Remove X-Powered-By header
-}
+	compress: true, // Enabled by default in production
+	poweredByHeader: false, // Remove X-Powered-By header
+};
 ```
 
 #### 4.1.7 Experimental Features
+
 ```javascript
 module.exports = {
-  experimental: {
-    // Turbopack for faster builds (Next.js 15)
-    turbo: {},
-    // Optimize package imports
-    optimizePackageImports: ['@lellimecnar/ui'],
-  },
-}
+	experimental: {
+		// Turbopack for faster builds (Next.js 15)
+		turbo: {},
+		// Optimize package imports
+		optimizePackageImports: ['@lellimecnar/ui'],
+	},
+};
 ```
 
 ### 4.2 Expo 52 Optimizations
@@ -771,35 +824,38 @@ module.exports = {
 Based on official Expo documentation:
 
 #### 4.2.1 Build Properties Plugin
+
 ```typescript
 export default {
-  plugins: [
-    [
-      'expo-build-properties',
-      {
-        android: {
-          compileSdkVersion: 35,
-          targetSdkVersion: 35,
-          buildToolsVersion: '35.0.0',
-          enableProguardInReleaseBuilds: true,
-          enableShrinkResourcesInReleaseBuilds: true,
-        },
-        ios: {
-          deploymentTarget: '15.1',
-          newArchEnabled: true,
-        },
-      },
-    ],
-  ],
-}
+	plugins: [
+		[
+			'expo-build-properties',
+			{
+				android: {
+					compileSdkVersion: 35,
+					targetSdkVersion: 35,
+					buildToolsVersion: '35.0.0',
+					enableProguardInReleaseBuilds: true,
+					enableShrinkResourcesInReleaseBuilds: true,
+				},
+				ios: {
+					deploymentTarget: '15.1',
+					newArchEnabled: true,
+				},
+			},
+		],
+	],
+};
 ```
 
 #### 4.2.2 Asset Optimization
+
 - Use Expo's built-in image optimization
 - Configure proper asset resolutions
 - Enable Hermes for faster JavaScript execution
 
 #### 4.2.3 Performance Plugins
+
 - `expo-font` for font optimization
 - `expo-splash-screen` for UX
 - `react-native-reanimated` for performant animations
@@ -811,6 +867,7 @@ export default {
 ### 5.1 Next.js Configuration Pattern
 
 Current pattern:
+
 ```javascript
 /** @type {import('next').NextConfig} */
 module.exports = {
@@ -820,6 +877,7 @@ module.exports = {
 ```
 
 Recommended enhanced pattern:
+
 ```javascript
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -842,6 +900,7 @@ module.exports = nextConfig;
 ### 5.2 Monorepo Script Pattern
 
 All apps use filter pattern:
+
 ```bash
 pnpm --filter <workspace-name> <script>
 # or via root aliases
@@ -852,13 +911,14 @@ pnpm readon.app build
 ### 5.3 Import Pattern Enforcement
 
 Granular imports for UI packages:
+
 ```typescript
 // ✅ Correct
-import { Button } from '@lellimecnar/ui/button'
-import { Input } from '@lellimecnar/ui/input'
+import { Button } from '@lellimecnar/ui/button';
+import { Input } from '@lellimecnar/ui/input';
 
 // ❌ Wrong
-import { Button, Input } from '@lellimecnar/ui'
+import { Button, Input } from '@lellimecnar/ui';
 ```
 
 ---
@@ -873,24 +933,24 @@ const nextConfig = {
 	// Existing
 	reactStrictMode: true,
 	transpilePackages: ['@lellimecnar/ui'],
-	
+
 	// Production Optimizations
 	output: 'standalone',
 	poweredByHeader: false,
 	compress: true,
-	
+
 	// Image Optimization
 	images: {
 		formats: ['image/avif', 'image/webp'],
 		deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
 		imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
 	},
-	
+
 	// Experimental Features
 	experimental: {
 		optimizePackageImports: ['@lellimecnar/ui'],
 	},
-	
+
 	// Security Headers
 	async headers() {
 		return [
@@ -898,12 +958,18 @@ const nextConfig = {
 				source: '/:path*',
 				headers: [
 					{ key: 'X-DNS-Prefetch-Control', value: 'on' },
-					{ key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+					{
+						key: 'Strict-Transport-Security',
+						value: 'max-age=63072000; includeSubDomains; preload',
+					},
 					{ key: 'X-Frame-Options', value: 'SAMEORIGIN' },
 					{ key: 'X-Content-Type-Options', value: 'nosniff' },
 					{ key: 'X-XSS-Protection', value: '1; mode=block' },
 					{ key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
-					{ key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+					{
+						key: 'Permissions-Policy',
+						value: 'camera=(), microphone=(), geolocation=()',
+					},
 				],
 			},
 		];
@@ -919,6 +985,7 @@ module.exports = withBundleAnalyzer(nextConfig);
 ```
 
 **New Dependencies Required:**
+
 - `@next/bundle-analyzer`: For bundle analysis
 
 ### 6.2 Next.js readon.app Recommended Config
@@ -943,18 +1010,18 @@ export default (): ExpoConfig => ({
 	userInterfaceStyle: 'automatic',
 	newArchEnabled: true,
 	backgroundColor,
-	
+
 	splash: {
 		image: './assets/images/splash-icon.png',
 		resizeMode: 'contain',
 		backgroundColor: headerBackgroundColor,
 	},
-	
+
 	ios: {
 		supportsTablet: true,
 		bundleIdentifier: 'pub.miller.readon',
 	},
-	
+
 	android: {
 		adaptiveIcon: {
 			foregroundImage: './assets/images/adaptive-icon.png',
@@ -962,13 +1029,13 @@ export default (): ExpoConfig => ({
 		},
 		package: 'pub.miller.readon',
 	},
-	
+
 	web: {
 		bundler: 'metro',
 		output: 'static',
 		favicon: './assets/images/favicon.png',
 	},
-	
+
 	plugins: [
 		'expo-router',
 		[
@@ -988,11 +1055,11 @@ export default (): ExpoConfig => ({
 			},
 		],
 	],
-	
+
 	experiments: {
 		typedRoutes: true,
 	},
-	
+
 	// Now enabled instead of commented
 	androidStatusBar: {
 		backgroundColor: headerBackgroundColor,
@@ -1006,6 +1073,7 @@ export default (): ExpoConfig => ({
 ```
 
 **New Dependencies Required:**
+
 - `expo-build-properties`: For build optimization
 
 ---
@@ -1015,6 +1083,7 @@ export default (): ExpoConfig => ({
 ### 7.1 Files to Modify
 
 #### Next.js Apps (miller.pub & readon.app)
+
 ```
 web/miller.pub/next.config.js         # Add optimizations
 web/miller.pub/package.json           # Add @next/bundle-analyzer
@@ -1028,12 +1097,14 @@ web/readon.app/.dockerignore          # Create if missing
 ```
 
 #### Expo App (readon)
+
 ```
 mobile/readon/app.config.ts           # Add build properties plugin
 mobile/readon/package.json            # Add expo-build-properties
 ```
 
 #### Documentation
+
 ```
 web/miller.pub/AGENTS.md              # Update with optimization info
 web/readon.app/AGENTS.md              # Update with optimization info
@@ -1057,6 +1128,7 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 ### 8.1 Priority 1: Critical Optimizations
 
 #### Next.js Apps (Both)
+
 1. ✅ Enable standalone output
 2. ✅ Add security headers
 3. ✅ Add bundle analyzer (dev dependency)
@@ -1064,6 +1136,7 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 5. ✅ Add image optimization config
 
 #### Expo App
+
 1. ✅ Add expo-build-properties plugin
 2. ✅ Enable status/navigation bar config
 3. ✅ Configure Android/iOS build properties
@@ -1085,6 +1158,7 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 ## 9. Existing Infrastructure
 
 ### 9.1 Current State
+
 - ✅ Dockerfiles exist for both Next.js apps
 - ✅ Turbo cache configuration
 - ✅ TypeScript strict mode
@@ -1097,9 +1171,10 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 - ❌ No security headers
 
 ### 9.2 Configuration Patterns to Follow
+
 1. Use shared configs from `packages/config-*`
 2. Keep granular imports for tree-shaking
-3. Follow workspace:* protocol for dependencies
+3. Follow workspace:\* protocol for dependencies
 4. Maintain TypeScript strict mode
 5. Use absolute imports with path aliases
 
@@ -1108,40 +1183,44 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 ## 10. Dependencies Analysis
 
 ### 10.1 Current Shared Dependencies (Root)
+
 ```json
 {
-  "devDependencies": {
-    "eslint": "^8",
-    "jest": "^29",
-    "next": "^15.2.3",
-    "prettier": "^3.6.2",
-    "turbo": "^2.6.1",
-    "typescript": "~5.5"
-  }
+	"devDependencies": {
+		"eslint": "^8",
+		"jest": "^29",
+		"next": "^15.2.3",
+		"prettier": "^3.6.2",
+		"turbo": "^2.6.1",
+		"typescript": "~5.5"
+	}
 }
 ```
 
 ### 10.2 New Dependencies Required
 
 #### For Next.js Apps
+
 ```json
 {
-  "devDependencies": {
-    "@next/bundle-analyzer": "^15.2.3"
-  }
+	"devDependencies": {
+		"@next/bundle-analyzer": "^15.2.3"
+	}
 }
 ```
 
 #### For Expo App
+
 ```json
 {
-  "devDependencies": {
-    "expo-build-properties": "~0.13.2"
-  }
+	"devDependencies": {
+		"expo-build-properties": "~0.13.2"
+	}
 }
 ```
 
 ### 10.3 Version Constraints
+
 - Must align with existing Next.js version (^15.2.3)
 - Must align with Expo SDK version (~52.0.14)
 - Follow monorepo's TypeScript version (~5.5)
@@ -1151,11 +1230,13 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 ## 11. Testing & Validation Strategy
 
 ### 11.1 Pre-Implementation Checks
+
 - ✅ All current builds passing
 - ✅ No breaking changes in dependencies
 - ✅ TypeScript compilation successful
 
 ### 11.2 Post-Implementation Validation
+
 1. **Build Tests**
    - `pnpm build` succeeds for all workspaces
    - Bundle sizes are reasonable
@@ -1172,6 +1253,7 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
    - Docker image sizes reduced
 
 ### 11.3 Rollback Plan
+
 - Keep original configs in git history
 - Test incrementally (one app at a time)
 - Document any issues encountered
@@ -1183,16 +1265,19 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 ### 12.1 Files to Update
 
 #### Root Documentation
+
 - `AGENTS.md`: Add optimization section
 - `Technology_Stack_Blueprint.md`: Update with new dependencies
 - `Project_Workflow_Documentation.md`: Add optimization workflows
 
 #### App-Specific Documentation
+
 - `web/miller.pub/AGENTS.md`: Document new config options
 - `web/readon.app/AGENTS.md`: Document new config options
 - `mobile/readon/AGENTS.md`: Document build properties
 
 ### 12.2 Key Documentation Points
+
 1. How to run bundle analyzer
 2. Security headers explanation
 3. Standalone output benefits
@@ -1204,16 +1289,19 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 ## 13. Risk Assessment
 
 ### 13.1 Low Risk Changes
+
 - ✅ Adding bundle analyzer (dev only)
 - ✅ Adding security headers (read-only)
 - ✅ Enabling compression (Next.js default)
 
 ### 13.2 Medium Risk Changes
+
 - ⚠️ Standalone output (changes Docker deployment)
 - ⚠️ Build properties (changes native builds)
 - ⚠️ Experimental features (may have bugs)
 
 ### 13.3 Mitigation Strategies
+
 1. Test standalone output locally first
 2. Keep Dockerfiles backward compatible initially
 3. Use feature flags for experimental features
@@ -1226,17 +1314,20 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 ### 14.1 Implementation Phases
 
 **Phase 1: Next.js Optimizations (2-3 hours)**
+
 - Update next.config.js files
 - Add bundle analyzer
 - Update Dockerfiles
 - Test builds
 
 **Phase 2: Expo Optimizations (1-2 hours)**
+
 - Update app.config.ts
 - Add build properties
 - Test builds
 
 **Phase 3: Documentation (1 hour)**
+
 - Update AGENTS.md files
 - Update root documentation
 - Add examples
@@ -1244,6 +1335,7 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 **Total Estimated Time: 4-6 hours**
 
 ### 14.2 Testing & Validation (2-3 hours)
+
 - Local testing
 - Docker testing
 - Performance validation
@@ -1256,6 +1348,7 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 ## 15. Success Criteria
 
 ### 15.1 Functional Requirements
+
 - ✅ All apps build successfully
 - ✅ All apps run in development mode
 - ✅ Docker images build and run
@@ -1263,12 +1356,14 @@ web/readon.app/middleware.ts          # Optional: for advanced CSP
 - ✅ Bundle analyzer works
 
 ### 15.2 Performance Requirements
+
 - ✅ Docker image size reduced by >30%
 - ✅ Bundle sizes optimized
 - ✅ Build times maintained or improved
 - ✅ Runtime performance maintained
 
 ### 15.3 Documentation Requirements
+
 - ✅ All AGENTS.md files updated
 - ✅ Configuration changes documented
 - ✅ Usage examples provided
@@ -1286,24 +1381,24 @@ const nextConfig = {
 	// Core Configuration
 	reactStrictMode: true,
 	transpilePackages: ['@lellimecnar/ui'],
-	
+
 	// Production Optimizations
 	output: 'standalone',
 	poweredByHeader: false,
 	compress: true,
-	
+
 	// Image Optimization
 	images: {
 		formats: ['image/avif', 'image/webp'],
 		deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
 		imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
 	},
-	
+
 	// Experimental Features
 	experimental: {
 		optimizePackageImports: ['@lellimecnar/ui'],
 	},
-	
+
 	// Security Headers
 	async headers() {
 		return [
@@ -1312,32 +1407,32 @@ const nextConfig = {
 				headers: [
 					{
 						key: 'X-DNS-Prefetch-Control',
-						value: 'on'
+						value: 'on',
 					},
 					{
 						key: 'Strict-Transport-Security',
-						value: 'max-age=63072000; includeSubDomains; preload'
+						value: 'max-age=63072000; includeSubDomains; preload',
 					},
 					{
 						key: 'X-Frame-Options',
-						value: 'SAMEORIGIN'
+						value: 'SAMEORIGIN',
 					},
 					{
 						key: 'X-Content-Type-Options',
-						value: 'nosniff'
+						value: 'nosniff',
 					},
 					{
 						key: 'X-XSS-Protection',
-						value: '1; mode=block'
+						value: '1; mode=block',
 					},
 					{
 						key: 'Referrer-Policy',
-						value: 'origin-when-cross-origin'
+						value: 'origin-when-cross-origin',
 					},
 					{
 						key: 'Permissions-Policy',
-						value: 'camera=(), microphone=(), geolocation=()'
-					}
+						value: 'camera=(), microphone=(), geolocation=()',
+					},
 				],
 			},
 		];
@@ -1370,18 +1465,18 @@ export default (): ExpoConfig => ({
 	userInterfaceStyle: 'automatic',
 	newArchEnabled: true,
 	backgroundColor,
-	
+
 	splash: {
 		image: './assets/images/splash-icon.png',
 		resizeMode: 'contain',
 		backgroundColor: headerBackgroundColor,
 	},
-	
+
 	ios: {
 		supportsTablet: true,
 		bundleIdentifier: 'pub.miller.readon',
 	},
-	
+
 	android: {
 		adaptiveIcon: {
 			foregroundImage: './assets/images/adaptive-icon.png',
@@ -1389,13 +1484,13 @@ export default (): ExpoConfig => ({
 		},
 		package: 'pub.miller.readon',
 	},
-	
+
 	web: {
 		bundler: 'metro',
 		output: 'static',
 		favicon: './assets/images/favicon.png',
 	},
-	
+
 	plugins: [
 		'expo-router',
 		[
@@ -1415,16 +1510,16 @@ export default (): ExpoConfig => ({
 			},
 		],
 	],
-	
+
 	experiments: {
 		typedRoutes: true,
 	},
-	
+
 	androidStatusBar: {
 		backgroundColor: headerBackgroundColor,
 		barStyle: 'light-content',
 	},
-	
+
 	androidNavigationBar: {
 		backgroundColor: headerBackgroundColor,
 		barStyle: 'light-content',
@@ -1490,7 +1585,7 @@ This research report provides a comprehensive foundation for implementing framew
 1. **Current State**: Minimal configurations with significant optimization opportunities
 2. **Target Versions**: Next.js 15.2.3, Expo 52.0.14, React Native 0.76.3
 3. **Implementation Scope**: Medium complexity, low risk, high value
-4. **Expected Outcomes**: 
+4. **Expected Outcomes**:
    - Reduced Docker image sizes (30%+ reduction)
    - Enhanced security posture
    - Improved developer experience
@@ -1498,6 +1593,7 @@ This research report provides a comprehensive foundation for implementing framew
    - Comprehensive documentation
 
 **Next Steps:**
+
 1. Review this report
 2. Approve implementation plan
 3. Execute Phase 1 (Next.js optimizations)

@@ -2,5 +2,13 @@
 module.exports = {
 	extends: ['@lellimecnar/eslint-config/node'],
 
-	ignorePatterns: ['./apps/**', './mobile/**', './web/**', './packages/**', '**/dist/**', '**/build/**', '**/node_modules/**'],
+	ignorePatterns: [
+		'./apps/**',
+		'./mobile/**',
+		'./web/**',
+		'./packages/**',
+		'**/dist/**',
+		'**/build/**',
+		'**/node_modules/**',
+	],
 };

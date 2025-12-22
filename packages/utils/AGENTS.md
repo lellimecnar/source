@@ -30,27 +30,29 @@ pnpm utils lint
 The package exports utilities from a single entry point:
 
 ```typescript
-import { 
-  // date-fns functions
-  format, 
-  parseISO,
-  // lodash functions
-  chunk,
-  groupBy,
-  shuffle,
-  // custom utilities
-  pascalCase,
-  randomIndexes
-} from '@lellimecnar/utils'
+import {
+	// date-fns functions
+	format,
+	parseISO,
+	// lodash functions
+	chunk,
+	groupBy,
+	shuffle,
+	// custom utilities
+	pascalCase,
+	randomIndexes,
+} from '@lellimecnar/utils';
 ```
 
 ## Dependencies
 
 ### Runtime Dependencies
+
 - `date-fns` ^4 - Date manipulation library
 - `lodash` ^4 - Utility library
 
 ### Development Dependencies
+
 - `@types/lodash` - TypeScript types for lodash
 - `@types/lodash-es` - Additional lodash types
 - `typescript` ~5.5
@@ -58,19 +60,22 @@ import {
 ## Key Features
 
 ### Date Utilities (`dates.ts`)
+
 - Re-exports all functions from `date-fns`
 - Sets default locale to `enUS` (English US)
 - All date-fns functions are available:
   ```typescript
-  import { format, parseISO, addDays, subMonths } from '@lellimecnar/utils'
+  import { format, parseISO, addDays, subMonths } from '@lellimecnar/utils';
   ```
 
 ### Lodash Utilities (`lodash.ts`)
+
 - Re-exports commonly used lodash functions
 - Provides custom utility functions
 - Exports TypeScript types from lodash
 
 #### Available Lodash Functions
+
 - `camelCase` - Convert to camelCase
 - `chunk` - Split array into chunks
 - `find`, `findIndex` - Find elements
@@ -91,59 +96,67 @@ import {
 - `memoize` - Memoization utility
 
 #### Custom Utilities
+
 - `pascalCase` - Convert to PascalCase (uses `flow(camelCase, upperFirst)`)
 - `randomIndexes` - Get random array indexes
   ```typescript
-  randomIndexes([1, 2, 3, 4, 5], 2) // Returns random 2 indexes
+  randomIndexes([1, 2, 3, 4, 5], 2); // Returns random 2 indexes
   ```
 
 ### TypeScript Types
+
 The package exports lodash types:
+
 ```typescript
-import type { Dictionary, List, ListIteratee } from '@lellimecnar/utils'
+import type { Dictionary, List, ListIteratee } from '@lellimecnar/utils';
 ```
 
 ## Usage Examples
 
 ### Date Manipulation
-```typescript
-import { format, parseISO, addDays } from '@lellimecnar/utils'
 
-const date = parseISO('2024-01-01')
-const formatted = format(date, 'yyyy-MM-dd')
-const future = addDays(date, 7)
+```typescript
+import { format, parseISO, addDays } from '@lellimecnar/utils';
+
+const date = parseISO('2024-01-01');
+const formatted = format(date, 'yyyy-MM-dd');
+const future = addDays(date, 7);
 ```
 
 ### Array Utilities
+
 ```typescript
-import { chunk, groupBy, shuffle, pascalCase } from '@lellimecnar/utils'
+import { chunk, groupBy, shuffle, pascalCase } from '@lellimecnar/utils';
 
 // Chunk array
-const chunks = chunk([1, 2, 3, 4, 5], 2) // [[1, 2], [3, 4], [5]]
+const chunks = chunk([1, 2, 3, 4, 5], 2); // [[1, 2], [3, 4], [5]]
 
 // Group by property
-const grouped = groupBy(users, 'role')
+const grouped = groupBy(users, 'role');
 
 // Shuffle array
-const shuffled = shuffle([1, 2, 3, 4, 5])
+const shuffled = shuffle([1, 2, 3, 4, 5]);
 
 // Convert to PascalCase
-const pascal = pascalCase('hello world') // 'HelloWorld'
+const pascal = pascalCase('hello world'); // 'HelloWorld'
 ```
 
 ## Architecture Notes
 
 ### Tree-Shaking
+
 - Functions are imported individually from lodash (e.g., `import chunk from 'lodash/chunk'`)
 - This enables better tree-shaking in consuming applications
 - Only used functions are included in the final bundle
 
 ### Locale Configuration
+
 - `date-fns` default locale is set to `enUS` in `dates.ts`
 - This ensures consistent date formatting across the monorepo
 - Can be overridden in consuming applications if needed
 
 ### Custom Utilities
+
 - Custom utilities are kept minimal and focused
 - `pascalCase` is a composition of existing lodash functions
 - `randomIndexes` provides a convenient wrapper for random sampling
@@ -155,12 +168,13 @@ const pascal = pascalCase('hello world') // 'HelloWorld'
 3. Re-export it from the appropriate file
 4. Export from `src/index.ts`:
    ```typescript
-   export * from './dates'
-   export * from './lodash'
-   export * from './new-file' // if creating new file
+   export * from './dates';
+   export * from './lodash';
+   export * from './new-file'; // if creating new file
    ```
 
 ### Guidelines
+
 - Prefer re-exporting from established libraries (lodash, date-fns) over custom implementations
 - Keep custom utilities simple and well-documented
 - Ensure TypeScript types are properly exported

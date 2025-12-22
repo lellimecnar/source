@@ -39,26 +39,28 @@ pnpm --filter @card-stack/standard-deck lint
 The package exports standard deck implementation:
 
 ```typescript
-import { StandardCard, StandardDeck } from '@card-stack/standard-deck'
+import { StandardCard, StandardDeck } from '@card-stack/standard-deck';
 
 // Create a standard deck
-const deck = new StandardDeck()
-deck.init() // Initialize with 52 cards
+const deck = new StandardDeck();
+deck.init(); // Initialize with 52 cards
 
 // Access card constants
-const suit = StandardCard.SUIT.Hearts
-const rank = StandardCard.RANK.Ace
+const suit = StandardCard.SUIT.Hearts;
+const rank = StandardCard.RANK.Ace;
 
 // Create a specific card
-const card = new StandardCard(StandardCard.SUIT.Hearts, StandardCard.RANK.Ace)
+const card = new StandardCard(StandardCard.SUIT.Hearts, StandardCard.RANK.Ace);
 ```
 
 ## Dependencies
 
 ### Runtime Dependencies
+
 - `@card-stack/core` - Core card game engine (workspace package)
 
 ### Development Dependencies
+
 - `@lellimecnar/eslint-config` - Shared ESLint configuration
 - `@lellimecnar/jest-config` - Shared Jest configuration
 - `@lellimecnar/typescript-config` - Shared TypeScript configuration
@@ -68,63 +70,69 @@ const card = new StandardCard(StandardCard.SUIT.Hearts, StandardCard.RANK.Ace)
 ## Architecture Notes
 
 ### StandardCard
+
 - Extends `Mix(Card, Suitable, Rankable)` from core
 - Defines standard suits: Hearts, Diamonds, Spades, Clubs
 - Defines standard ranks: Ace, Two through Ten, Jack, Queen, King
 - Uses enum creation utilities from core
 
 ### StandardDeck
+
 - Extends `Mix(CardDeck<StandardCard>)` from core
 - Initializes with 52 cards (13 ranks × 4 suits)
 - Each card is assigned to the deck as its parent
 - Can use all CardDeck and CardSet operations from core
 
 ### Card Constants
+
 - `StandardCard.SUIT` - Suit enum (Hearts, Diamonds, Spades, Clubs)
 - `StandardCard.RANK` - Rank enum (Ace through King)
 
 ## Usage Examples
 
 ### Creating and Using a Standard Deck
+
 ```typescript
-import { StandardDeck } from '@card-stack/standard-deck'
+import { StandardDeck } from '@card-stack/standard-deck';
 
 // Create and initialize deck
-const deck = new StandardDeck()
-deck.init()
+const deck = new StandardDeck();
+deck.init();
 
 // Use deck operations (from core)
-deck.shuffle()
-const card = deck.take()
+deck.shuffle();
+const card = deck.take();
 ```
 
 ### Creating Specific Cards
+
 ```typescript
-import { StandardCard } from '@card-stack/standard-deck'
+import { StandardCard } from '@card-stack/standard-deck';
 
 // Create Ace of Spades
 const aceOfSpades = new StandardCard(
-  StandardCard.SUIT.Spades,
-  StandardCard.RANK.Ace
-)
+	StandardCard.SUIT.Spades,
+	StandardCard.RANK.Ace,
+);
 
 // Access properties
-console.log(aceOfSpades.suit) // Spades
-console.log(aceOfSpades.rank) // Ace
+console.log(aceOfSpades.suit); // Spades
+console.log(aceOfSpades.rank); // Ace
 ```
 
 ### Working with Suits and Ranks
+
 ```typescript
-import { StandardCard } from '@card-stack/standard-deck'
+import { StandardCard } from '@card-stack/standard-deck';
 
 // Iterate over suits
 for (const suit of StandardCard.SUIT) {
-  console.log(suit) // Hearts, Diamonds, Spades, Clubs
+	console.log(suit); // Hearts, Diamonds, Spades, Clubs
 }
 
 // Iterate over ranks
 for (const rank of StandardCard.RANK) {
-  console.log(rank) // Ace, Two, Three, ..., King
+	console.log(rank); // Ace, Two, Three, ..., King
 }
 ```
 
@@ -138,13 +146,17 @@ for (const rank of StandardCard.RANK) {
 ## Adding New Features
 
 ### Adding Card Variants
+
 If you need variants (e.g., Jokers), you could:
+
 1. Create new card class extending StandardCard
 2. Create new deck class that includes variants
 3. Export from package
 
 ### Extending Functionality
+
 Since StandardDeck uses mixins from core, you can:
+
 1. Create a new class extending StandardDeck
 2. Add additional mixins from core
 3. Add custom methods as needed

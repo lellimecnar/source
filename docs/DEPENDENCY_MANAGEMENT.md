@@ -43,11 +43,11 @@ Renovate is configured via `.github/renovate.json` in the repository root.
 
 ```json
 {
-  "extends": ["config:recommended", ":preserveSemverRanges"],
-  "rangeStrategy": "bump",
-  "schedule": ["after 10pm every weekday", "before 5am every weekday"],
-  "timezone": "America/Los_Angeles",
-  "dependencyDashboard": true
+	"extends": ["config:recommended", ":preserveSemverRanges"],
+	"rangeStrategy": "bump",
+	"schedule": ["after 10pm every weekday", "before 5am every weekday"],
+	"timezone": "America/Los_Angeles",
+	"dependencyDashboard": true
 }
 ```
 
@@ -64,8 +64,8 @@ Renovate is configured via `.github/renovate.json` in the repository root.
 
 ```json
 {
-  "prHourlyLimit": 2,
-  "prConcurrentLimit": 10
+	"prHourlyLimit": 2,
+	"prConcurrentLimit": 10
 }
 ```
 
@@ -81,6 +81,7 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 1. React Ecosystem
 
 **Packages:**
+
 - react
 - react-dom
 - @types/react
@@ -93,8 +94,9 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 2. Next.js
 
 **Packages:**
+
 - next
-- @next/* (all @next scoped packages)
+- @next/\* (all @next scoped packages)
 - @next/eslint-plugin-next
 
 **Schedule:** Every weekend
@@ -104,8 +106,9 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 3. Expo SDK
 
 **Packages:**
+
 - expo
-- @expo/* (all @expo scoped packages)
+- @expo/\* (all @expo scoped packages)
 - react-native
 - jest-expo
 
@@ -118,8 +121,9 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 4. TypeScript
 
 **Packages:**
+
 - typescript
-- @types/* (all type definitions)
+- @types/\* (all type definitions)
 - ts-jest
 - ts-mixer
 - @typescript-eslint/eslint-plugin
@@ -132,6 +136,7 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 5. Testing
 
 **Packages:**
+
 - jest
 - jest-expo
 - ts-jest
@@ -145,10 +150,11 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 6. ESLint
 
 **Packages:**
+
 - eslint
-- eslint-plugin-* (all ESLint plugins)
-- eslint-config-* (all ESLint configs)
-- @typescript-eslint/* (TypeScript ESLint tools)
+- eslint-plugin-\* (all ESLint plugins)
+- eslint-config-\* (all ESLint configs)
+- @typescript-eslint/\* (TypeScript ESLint tools)
 
 **Schedule:** Every weekend
 
@@ -157,9 +163,10 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 7. Tailwind CSS
 
 **Packages:**
+
 - tailwindcss
-- @tailwindcss/* (all Tailwind scoped packages)
-- tailwindcss-* (all Tailwind plugins)
+- @tailwindcss/\* (all Tailwind scoped packages)
+- tailwindcss-\* (all Tailwind plugins)
 - postcss
 - autoprefixer
 - nativewind
@@ -171,7 +178,8 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 8. Radix UI
 
 **Packages:**
-- @radix-ui/* (all Radix UI primitives)
+
+- @radix-ui/\* (all Radix UI primitives)
 
 **Schedule:** Every weekend
 
@@ -180,6 +188,7 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 9. Build Tools
 
 **Packages:**
+
 - turbo
 - prettier
 
@@ -212,15 +221,16 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 
 ```json
 {
-  "matchDepTypes": ["devDependencies"],
-  "matchUpdateTypes": ["patch"],
-  "automerge": true
+	"matchDepTypes": ["devDependencies"],
+	"matchUpdateTypes": ["patch"],
+	"automerge": true
 }
 ```
 
 **Example:** `prettier: 3.6.2` → `prettier: 3.6.3`
 
 **Why Safe:**
+
 - DevDependencies don't affect production runtime
 - Patch updates only include bug fixes (no breaking changes)
 - All CI checks must still pass
@@ -229,19 +239,21 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 
 ```json
 {
-  "matchPackageNames": ["prettier", "@lellimecnar/prettier-config"],
-  "matchPackagePatterns": ["^eslint-plugin-", "^@types/"],
-  "matchUpdateTypes": ["minor", "patch"],
-  "matchDepTypes": ["devDependencies"],
-  "automerge": true
+	"matchPackageNames": ["prettier", "@lellimecnar/prettier-config"],
+	"matchPackagePatterns": ["^eslint-plugin-", "^@types/"],
+	"matchUpdateTypes": ["minor", "patch"],
+	"matchDepTypes": ["devDependencies"],
+	"automerge": true
 }
 ```
 
 **Examples:**
+
 - `eslint-plugin-react: 7.37.5` → `eslint-plugin-react: 7.38.0`
 - `@types/node: 22.10.5` → `@types/node: 22.11.0`
 
 **Why Safe:**
+
 - Formatters and linters don't affect application behavior
 - Type definitions are dev-time only
 - High confidence in these tools' semver compliance
@@ -252,14 +264,15 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 
 ```json
 {
-  "matchUpdateTypes": ["major"],
-  "automerge": false
+	"matchUpdateTypes": ["major"],
+	"automerge": false
 }
 ```
 
 **Example:** `react: 18.3.1` → `react: 19.0.0`
 
 **Why Manual Review:**
+
 - Breaking changes require code modifications
 - Migration guide review needed
 - Extensive testing required
@@ -268,14 +281,15 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 
 ```json
 {
-  "matchDepTypes": ["dependencies"],
-  "automerge": false
+	"matchDepTypes": ["dependencies"],
+	"automerge": false
 }
 ```
 
 **Example:** `next: 15.2.3` → `next: 15.2.4` (even patch updates)
 
 **Why Manual Review:**
+
 - Runtime dependencies affect end users
 - Even patch updates can introduce regressions
 - Need validation in staging environment
@@ -289,16 +303,19 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
 ### Patch Updates (x.y.Z)
 
 **What They Include:**
+
 - Bug fixes
 - Security patches
 - Performance improvements
 - No breaking changes
 
 **Action:**
+
 - **DevDependencies:** Auto-merge after CI passes ✅
 - **Dependencies:** Manual review required ⛔
 
 **Example Workflow:**
+
 1. Renovate creates PR
 2. CI runs automatically
 3. If all checks pass:
@@ -309,15 +326,18 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
 ### Minor Updates (x.Y.z)
 
 **What They Include:**
+
 - New features
 - Deprecations (with backward compatibility)
 - No breaking changes
 
 **Action:**
+
 - **Trusted tooling (ESLint plugins, type definitions):** Auto-merge ✅
 - **Everything else:** Manual review required ⛔
 
 **Example Workflow:**
+
 1. Renovate creates PR
 2. Review release notes in PR description
 3. Check for deprecation warnings
@@ -326,14 +346,17 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
 ### Major Updates (X.y.z)
 
 **What They Include:**
+
 - Breaking changes
 - API redesigns
 - Removed features
 
 **Action:**
+
 - **All packages:** Manual review required ⛔
 
 **Example Workflow:**
+
 1. Renovate creates PR with "major-update" label
 2. **Review Migration Guide:**
    - Click changelog link in PR description
@@ -362,15 +385,18 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
 ### Security Updates
 
 **What They Include:**
+
 - CVE fixes
 - Security patches
 
 **Action:**
+
 - **Immediate processing** (no schedule delay)
 - **Labeled "security"** for visibility
 - **Auto-merge:** Only if patch to devDependency and CI passes
 
 **Example Workflow:**
+
 1. Renovate detects vulnerability
 2. Creates PR immediately with "security" label
 3. Team is notified via GitHub notifications
@@ -385,13 +411,14 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
 
 ```json
 {
-  "dependencies": {
-    "@lellimecnar/ui": "workspace:*"
-  }
+	"dependencies": {
+		"@lellimecnar/ui": "workspace:*"
+	}
 }
 ```
 
 **Renovate Behavior:**
+
 - Does NOT create PRs for `workspace:*` dependencies
 - These are always local packages, no updates needed
 
@@ -401,19 +428,21 @@ The root `package.json` has an `overrides` field that enforces specific versions
 
 ```json
 {
-  "overrides": {
-    "typescript": "~5.5",
-    "react": "^18.3.1",
-    "eslint": "^8.57.1"
-  }
+	"overrides": {
+		"typescript": "~5.5",
+		"react": "^18.3.1",
+		"eslint": "^8.57.1"
+	}
 }
 ```
 
 **Renovate Behavior:**
+
 - Updates the override when updating the package
 - All workspaces automatically use the overridden version
 
 **Manual Override Updates:**
+
 1. Update version in root `package.json` overrides
 2. Update version in individual workspace `package.json` (if explicitly listed)
 3. Run `pnpm install` to regenerate lockfile
@@ -425,18 +454,20 @@ Build tasks have dependencies in `turbo.json`:
 
 ```json
 {
-  "build": {
-    "dependsOn": ["^build"]
-  }
+	"build": {
+		"dependsOn": ["^build"]
+	}
 }
 ```
 
 **Impact on Updates:**
+
 - Changes to build tooling affect all workspaces
 - CI builds all workspaces in dependency order
 - Broken builds block the entire pipeline
 
 **Testing Strategy:**
+
 - Always run `pnpm build` locally after tooling updates
 - Watch for cascading failures
 
@@ -445,10 +476,12 @@ Build tasks have dependencies in `turbo.json`:
 ### Issue: Renovate PR Fails CI
 
 **Symptoms:**
+
 - Red X on Renovate PR
 - CI checks fail (lint, test, build)
 
 **Diagnosis:**
+
 1. Click "Details" on failed check
 2. Read error message in CI logs
 3. Identify failing workspace
@@ -456,16 +489,19 @@ Build tasks have dependencies in `turbo.json`:
 **Solutions:**
 
 **Option A: Temporary Incompatibility**
+
 - Add a comment to the PR: `@renovatebot rebase`
 - Renovate will rebase and retry CI
 
 **Option B: Breaking Change**
+
 - Checkout the PR branch locally
 - Fix the code to accommodate the breaking change
 - Push fix to the PR branch
 - CI will re-run
 
 **Option C: Known Issue**
+
 - Check package release notes for known issues
 - Add a comment: `@renovatebot ignore this dependency`
 - Create a tracking issue for manual update later
@@ -473,36 +509,43 @@ Build tasks have dependencies in `turbo.json`:
 ### Issue: Conflicting Dependency Versions
 
 **Symptoms:**
+
 - pnpm install fails with peer dependency conflicts
 - Multiple PRs updating the same dependency
 
 **Diagnosis:**
+
 - Check which packages have version conflicts
 - Review `overrides` field in root package.json
 
 **Solutions:**
 
 **Option A: Update Override**
+
 1. Update the version in root `package.json` overrides
 2. Run `pnpm install`
 3. Commit and push
 
 **Option B: Close Duplicate PRs**
+
 - Close older PRs, keep the newest
 - Renovate will rebase remaining PRs
 
 ### Issue: Lock File Out of Sync
 
 **Symptoms:**
+
 - CI fails with "Lock file out of sync" error
 - Local install differs from CI
 
 **Diagnosis:**
+
 - Lock file was manually edited or is corrupted
 
 **Solutions:**
 
 **Regenerate Lock File:**
+
 ```bash
 rm pnpm-lock.yaml
 pnpm install
@@ -512,16 +555,19 @@ git push
 ```
 
 **Enable Lock File Maintenance:**
+
 - Renovate has weekly lock file maintenance enabled
 - It will fix this automatically on Monday mornings
 
 ### Issue: Too Many Renovate PRs
 
 **Symptoms:**
+
 - 20+ open Renovate PRs
 - Overwhelming to review
 
 **Diagnosis:**
+
 - Rate limits may be too high
 - Grouping may not be configured correctly
 
@@ -529,45 +575,53 @@ git push
 
 **Option A: Lower Rate Limits**
 Edit `.github/renovate.json`:
+
 ```json
 {
-  "prHourlyLimit": 1,
-  "prConcurrentLimit": 5
+	"prHourlyLimit": 1,
+	"prConcurrentLimit": 5
 }
 ```
 
 **Option B: Review Dependency Dashboard**
+
 - Go to Dependency Dashboard issue
 - Uncheck PRs you want to postpone
 - Renovate will close them
 
 **Option C: Merge Auto-mergeable PRs**
+
 - Filter PRs by label "automerge"
 - Review and approve quickly (CI already passed)
 
 ### Issue: Renovate Bot Stops Working
 
 **Symptoms:**
+
 - No new PRs from Renovate
 - Dependency Dashboard is stale
 
 **Diagnosis:**
+
 - Configuration error in `.github/renovate.json`
 - Renovate Bot needs re-authorization
 
 **Solutions:**
 
 **Validate Configuration:**
+
 ```bash
 # Use Renovate's config validator
 npx -p renovate -c renovate-config-validator .github/renovate.json
 ```
 
 **Check Renovate Job Logs:**
+
 - Go to Renovate Bot app in GitHub repository settings
 - View recent job logs for errors
 
 **Re-install Renovate:**
+
 - Go to https://github.com/apps/renovate
 - Configure repository access
 - Re-authorize
@@ -575,16 +629,19 @@ npx -p renovate -c renovate-config-validator .github/renovate.json
 ### Issue: Security Update Needed Urgently
 
 **Symptoms:**
+
 - CVE disclosed in a dependency
 - Renovate hasn't created PR yet
 
 **Diagnosis:**
+
 - Renovate may be in rate limit window
 - Dependency may not be directly used
 
 **Solutions:**
 
 **Manual Update:**
+
 ```bash
 # Update the vulnerable package
 pnpm update <package-name> -r
@@ -604,6 +661,7 @@ git push
 ```
 
 **Trigger Renovate Manually:**
+
 - Go to Dependency Dashboard issue
 - Check the box next to the vulnerable package
 - Renovate will create PR immediately
@@ -616,14 +674,14 @@ To add a new update group, edit `.github/renovate.json`:
 
 ```json
 {
-  "packageRules": [
-    {
-      "groupName": "My Custom Group",
-      "matchPackageNames": ["package-a", "package-b"],
-      "matchPackagePatterns": ["^@my-scope/"],
-      "schedule": ["every weekend"]
-    }
-  ]
+	"packageRules": [
+		{
+			"groupName": "My Custom Group",
+			"matchPackageNames": ["package-a", "package-b"],
+			"matchPackagePatterns": ["^@my-scope/"],
+			"schedule": ["every weekend"]
+		}
+	]
 }
 ```
 
@@ -633,12 +691,12 @@ To prevent Renovate from updating a specific package:
 
 ```json
 {
-  "packageRules": [
-    {
-      "matchPackageNames": ["problematic-package"],
-      "enabled": false
-    }
-  ]
+	"packageRules": [
+		{
+			"matchPackageNames": ["problematic-package"],
+			"enabled": false
+		}
+	]
 }
 ```
 
@@ -648,12 +706,12 @@ To prevent updates until manually unblocked:
 
 ```json
 {
-  "packageRules": [
-    {
-      "matchPackageNames": ["stay-on-v3"],
-      "allowedVersions": "^3.0.0"
-    }
-  ]
+	"packageRules": [
+		{
+			"matchPackageNames": ["stay-on-v3"],
+			"allowedVersions": "^3.0.0"
+		}
+	]
 }
 ```
 

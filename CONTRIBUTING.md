@@ -116,22 +116,24 @@ This project uses **Renovate Bot** for automated dependency updates with intelli
 Renovate groups dependencies into logical sets:
 
 - **React ecosystem:** react, react-dom, @types/react, @types/react-dom
-- **Next.js:** next, @next/*
-- **Expo SDK:** expo, expo-*, react-native (must stay in sync)
-- **TypeScript:** typescript, ts-*, @typescript-eslint/*, @types/*
+- **Next.js:** next, @next/\*
+- **Expo SDK:** expo, expo-\*, react-native (must stay in sync)
+- **TypeScript:** typescript, ts-_, @typescript-eslint/_, @types/\*
 - **Testing:** jest, jest-expo, @faker-js/faker
-- **ESLint:** eslint, eslint-plugin-*, eslint-config-*
-- **Tailwind CSS:** tailwindcss, postcss, autoprefixer, nativewind, tailwindcss-*
-- **Radix UI:** @radix-ui/*
+- **ESLint:** eslint, eslint-plugin-_, eslint-config-_
+- **Tailwind CSS:** tailwindcss, postcss, autoprefixer, nativewind, tailwindcss-\*
+- **Radix UI:** @radix-ui/\*
 - **Build tools:** turbo, prettier
 
 #### Auto-merge Rules
 
 **✅ Safe to Auto-merge (if CI passes):**
+
 - Patch updates to devDependencies
 - Minor updates to ESLint plugins and type definitions
 
 **⛔ Requires Manual Review:**
+
 - Major version updates (any package)
 - Production dependencies (any update type)
 - Updates that fail CI checks
@@ -151,24 +153,26 @@ When a major version update PR is created:
 1. **Review Release Notes:** Click the changelog link in the PR description
 2. **Check Migration Guide:** Look for breaking changes and migration steps
 3. **Test Locally:**
+
    ```bash
    # Fetch the PR branch
    git fetch origin pull/XXX/head:renovate-major-update
    git checkout renovate-major-update
-   
+
    # Install dependencies
    pnpm install
-   
+
    # Run full test suite
    pnpm build
    pnpm test
    pnpm lint
-   
+
    # Test affected applications manually
    pnpm miller.pub dev
    pnpm readon.app dev
    pnpm readon dev
    ```
+
 4. **Apply Code Changes:** Make necessary code changes to accommodate breaking changes
 5. **Commit to PR Branch:** Push fixes to the PR branch or request changes
 6. **Merge After CI Passes:** Once all checks pass and manual testing is complete, approve and merge
@@ -227,9 +231,9 @@ Always use the `workspace:*` protocol for internal packages:
 
 ```json
 {
-  "dependencies": {
-    "@lellimecnar/ui": "workspace:*"
-  }
+	"dependencies": {
+		"@lellimecnar/ui": "workspace:*"
+	}
 }
 ```
 

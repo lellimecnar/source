@@ -1,9 +1,11 @@
 # Security Fixes - Remove Exposed Secrets
 
 ## Goal
+
 Eliminate the critical security vulnerability where API tokens (TURBO_TOKEN, CONTEXT7_API_KEY, GITHUB_TOKEN) are exposed in the `.env` file tracked in git history. Implement automated secret scanning and establish secure environment variable management practices.
 
 ## Prerequisites
+
 - [ ] Ensure you are on the `security/remove-exposed-secrets` branch before beginning implementation
 - [ ] If the branch does not exist, create it from master: `git checkout -b security/remove-exposed-secrets`
 - [ ] Ensure you have admin access to rotate secrets after implementation
@@ -173,6 +175,7 @@ yarn-error.*
 ```
 
 #### Step 1 Verification Checklist
+
 - [ ] Run `git status` and verify no `.env` files appear as untracked
 - [ ] Create test file: `touch .env.test` in root directory
 - [ ] Run `git status` - confirm `.env.test` does NOT appear
@@ -180,7 +183,9 @@ yarn-error.*
 - [ ] Verify all four `.gitignore` files have the enhanced patterns
 
 #### Step 1 STOP & COMMIT
+
 **STOP & COMMIT:** Commit these changes before proceeding.
+
 ```bash
 git add .gitignore web/miller.pub/.gitignore web/readon.app/.gitignore mobile/readon/.gitignore
 git commit -m "security: enhance .gitignore patterns to block all .env files"
@@ -198,17 +203,17 @@ Create `.env.example` templates showing required variables without exposing actu
 # ============================================================================
 # @lellimecnar/source - Environment Variables Template
 # ============================================================================
-# 
+#
 # 🚨 SECURITY WARNING:
 # - NEVER commit actual .env files to git
 # - NEVER share secrets in plain text (Slack, email, etc.)
 # - Rotate secrets immediately if accidentally exposed
-# 
+#
 # 📋 SETUP INSTRUCTIONS:
 # 1. Copy this file: cp .env.example .env
 # 2. Replace placeholder values with your actual secrets
 # 3. Verify .env is listed in .gitignore
-# 
+#
 # ============================================================================
 
 # Turborepo Remote Caching
@@ -241,9 +246,9 @@ GITHUB_TOKEN="your_github_personal_access_token_here"
 # ============================================================================
 # miller.pub - Environment Variables Template
 # ============================================================================
-# 
+#
 # Next.js App Router application environment variables
-# 
+#
 # ============================================================================
 
 # Public variables (exposed to browser - prefix with NEXT_PUBLIC_)
@@ -264,9 +269,9 @@ SESSION_SECRET="your_session_secret_minimum_32_characters_long"
 # ============================================================================
 # readon.app - Environment Variables Template
 # ============================================================================
-# 
+#
 # Next.js App Router application environment variables
-# 
+#
 # ============================================================================
 
 # Public variables (exposed to browser - prefix with NEXT_PUBLIC_)
@@ -287,9 +292,9 @@ SESSION_SECRET="your_session_secret_minimum_32_characters_long"
 # ============================================================================
 # readon (mobile) - Environment Variables Template
 # ============================================================================
-# 
+#
 # Expo mobile application environment variables
-# 
+#
 # ============================================================================
 
 # Expo Configuration
@@ -306,6 +311,7 @@ EXPO_PUBLIC_ANALYTICS_ID="your_analytics_id_here"
 ```
 
 #### Step 2 Verification Checklist
+
 - [ ] All four `.env.example` files created
 - [ ] Each template contains descriptive placeholder values
 - [ ] Security warnings are present in each file
@@ -313,7 +319,9 @@ EXPO_PUBLIC_ANALYTICS_ID="your_analytics_id_here"
 - [ ] Run `git status` - confirm `.env.example` files ARE tracked (not ignored)
 
 #### Step 2 STOP & COMMIT
+
 **STOP & COMMIT:** Commit these changes before proceeding.
+
 ```bash
 git add .env.example web/miller.pub/.env.example web/readon.app/.env.example mobile/readon/.env.example
 git commit -m "security: add environment variable templates with security warnings"
@@ -347,13 +355,16 @@ ls -la .env
 ```
 
 #### Step 3 Verification Checklist
+
 - [ ] `git status` shows `.env` as deleted (staged)
 - [ ] `ls -la .env` confirms file still exists locally
 - [ ] `.env` does NOT appear in untracked files section
 - [ ] File is preserved for local development use
 
 #### Step 3 STOP & COMMIT
+
 **STOP & COMMIT:** Commit this critical security change with explicit note about secret rotation.
+
 ```bash
 git commit -m "security: remove .env from git tracking - SECRETS MUST BE ROTATED
 
@@ -503,6 +514,7 @@ Find the existing `package.json` and add this configuration at the root level (a
 ```
 
 #### Step 4 Verification Checklist
+
 - [ ] Verify Husky installed: `ls -la .husky/`
 - [ ] Verify pre-commit hook exists and is executable: `ls -la .husky/pre-commit`
 - [ ] Verify Gitleaks installed: `gitleaks version`
@@ -530,7 +542,9 @@ rm test-clean.js
 ```
 
 #### Step 4 STOP & COMMIT
+
 **STOP & COMMIT:** Commit the Husky setup and pre-commit hooks.
+
 ```bash
 git add package.json pnpm-lock.yaml .husky/ .gitleaks.toml
 git commit -m "security: add Husky pre-commit hooks with Gitleaks secret scanning
@@ -561,12 +575,12 @@ name: Security Scanning
 
 on:
   push:
-    branches: ["**"]
+    branches: ['**']
   pull_request:
     branches: [master, main]
   schedule:
     # Run daily at 2 AM UTC
-    - cron: "0 2 * * *"
+    - cron: '0 2 * * *'
 
 permissions:
   contents: read
@@ -577,12 +591,12 @@ jobs:
   gitleaks:
     name: Secret Scanning with Gitleaks
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for comprehensive scanning
+          fetch-depth: 0 # Fetch all history for comprehensive scanning
 
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
@@ -599,7 +613,7 @@ jobs:
   dependency-scan:
     name: Dependency Vulnerability Scanning
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -628,11 +642,11 @@ jobs:
   codeql:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         language: [javascript, typescript]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -659,6 +673,7 @@ jobs:
 ```
 
 #### Step 5 Verification Checklist
+
 - [ ] `.github/workflows/` directory created
 - [ ] `security.yml` file created with valid YAML syntax
 - [ ] Verify YAML syntax: `pnpm add -g js-yaml && js-yaml .github/workflows/security.yml` (or use online validator)
@@ -667,7 +682,9 @@ jobs:
 - [ ] Check that workflow runs successfully on the feature branch
 
 #### Step 5 STOP & COMMIT
+
 **STOP & COMMIT:** Commit the GitHub Actions security workflow.
+
 ```bash
 git add .github/
 git commit -m "security: add GitHub Actions security scanning workflow
@@ -722,10 +739,12 @@ We take security seriously and will respond to vulnerability reports within 48 h
 ## Secret Storage Solutions
 
 ### For Local Development
+
 - Copy `.env.example` to `.env` and fill in your secrets
 - Store sensitive `.env` files in a password manager (1Password, Bitwarden, etc.)
 
 ### For Production
+
 - **GitHub Actions**: Use GitHub Secrets (Settings → Secrets and variables → Actions)
 - **Vercel**: Use Vercel Environment Variables (Project Settings → Environment Variables)
 - **Recommended**: Use a dedicated secret management service:
@@ -741,6 +760,7 @@ We take security seriously and will respond to vulnerability reports within 48 h
 ### When to Rotate Secrets
 
 Rotate secrets immediately if:
+
 - A secret is committed to git (even if removed later)
 - A secret is shared via insecure channel
 - A team member with access leaves the project
@@ -750,6 +770,7 @@ Rotate secrets immediately if:
 ### How to Rotate Secrets
 
 #### TURBO_TOKEN (Vercel Turbo Remote Cache)
+
 1. Log in to [Vercel](https://vercel.com/)
 2. Navigate to Account Settings → Tokens
 3. Revoke the compromised token
@@ -759,6 +780,7 @@ Rotate secrets immediately if:
 7. Update team members
 
 #### CONTEXT7_API_KEY
+
 1. Log in to [Context7](https://context7.com/)
 2. Navigate to Settings → API Keys
 3. Revoke the compromised key
@@ -767,6 +789,7 @@ Rotate secrets immediately if:
 6. Update GitHub Secrets: Settings → Secrets → Actions → `CONTEXT7_API_KEY`
 
 #### GITHUB_TOKEN
+
 1. Log in to [GitHub](https://github.com/)
 2. Navigate to Settings → Developer settings → Personal access tokens → Tokens (classic)
 3. Delete the compromised token
@@ -781,16 +804,18 @@ Rotate secrets immediately if:
 This repository uses [Gitleaks](https://github.com/gitleaks/gitleaks) for automatic secret detection.
 
 ### How It Works
+
 - Runs automatically before every commit
 - Scans staged files for potential secrets
 - Blocks the commit if secrets are detected
 - Prevents accidental secret exposure
 
 ### If Your Commit is Blocked
+```
 
-```
 ❌ SECRET DETECTED! Commit blocked for security.
-```
+
+````
 
 **Action steps:**
 1. Remove the detected secret from your changes
@@ -804,7 +829,7 @@ This repository uses [Gitleaks](https://github.com/gitleaks/gitleaks) for automa
 
 ```bash
 git commit --no-verify -m "your message"
-```
+````
 
 **Never bypass for actual secrets!**
 
@@ -813,17 +838,20 @@ git commit --no-verify -m "your message"
 ## GitHub Actions Security Workflow
 
 The `security.yml` workflow runs automatically on:
+
 - Every push to any branch
 - All pull requests to master/main
 - Daily at 2 AM UTC (scheduled scan)
 
 ### What It Does
+
 1. **Secret Scanning** - Scans entire git history with Gitleaks
 2. **Dependency Scanning** - Checks for vulnerable dependencies with `pnpm audit`
 3. **CodeQL Analysis** - Static analysis for JavaScript/TypeScript security issues
 4. **SARIF Reporting** - Uploads findings to GitHub Security tab
 
 ### Viewing Results
+
 - Go to repository → Security tab → Code scanning alerts
 - Check GitHub Actions tab for detailed logs
 
@@ -834,18 +862,21 @@ The `security.yml` workflow runs automatically on:
 If a secret is exposed:
 
 ### Immediate Actions (Within 1 hour)
+
 1. **Rotate the secret immediately** - Use procedures above
 2. **Document the incident** - Create an issue with `security` label
 3. **Notify the team** - Alert all team members via secure channel
 4. **Assess impact** - Check logs for unauthorized usage
 
 ### Follow-up Actions (Within 24 hours)
+
 1. **Purge from git history** - Use BFG Repo-Cleaner or git-filter-repo
 2. **Review access logs** - Check if the exposed secret was used
 3. **Update documentation** - Document lessons learned
 4. **Conduct post-mortem** - Review how the exposure occurred
 
 ### Prevention
+
 1. Enable GitHub secret scanning (Settings → Security → Code security)
 2. Use pre-commit hooks (already configured in this repo)
 3. Regular security training for team members
@@ -878,7 +909,8 @@ Before submitting a pull request:
 
 **Last Updated:** December 21, 2025
 **Security Contact:** [Add your security contact email]
-```
+
+````
 
 - [ ] Update `/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/README.md`:
 
@@ -897,7 +929,7 @@ Add the following section after the project description (before "Project Structu
    cp web/miller.pub/.env.example web/miller.pub/.env
    cp web/readon.app/.env.example web/readon.app/.env
    cp mobile/readon/.env.example mobile/readon/.env
-   ```
+````
 
 2. **Obtain actual secrets:**
    - **TURBO_TOKEN**: Get from project admin or generate at [Vercel Tokens](https://vercel.com/account/tokens)
@@ -926,7 +958,7 @@ This repository uses [Gitleaks](https://github.com/gitleaks/gitleaks) to automat
 2. If it's a real secret that was committed, **rotate it immediately**
 3. Check [SECURITY.md](SECURITY.md) for rotation procedures
 
-```
+````
 
 - [ ] Update `/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/AGENTS.md`:
 
@@ -958,13 +990,16 @@ When working with environment variables:
 
 ### Environment File Locations
 
-```
+````
+
 Root: .env (secrets), .env.example (template)
 Web Apps:
-  - web/miller.pub/.env (secrets), .env.example (template)
-  - web/readon.app/.env (secrets), .env.example (template)
-Mobile:
-  - mobile/readon/.env (secrets), .env.example (template)
+
+- web/miller.pub/.env (secrets), .env.example (template)
+- web/readon.app/.env (secrets), .env.example (template)
+  Mobile:
+- mobile/readon/.env (secrets), .env.example (template)
+
 ```
 
 ### Security Automation
@@ -977,6 +1012,7 @@ See [SECURITY.md](SECURITY.md) for complete security policy and procedures.
 ```
 
 #### Step 6 Verification Checklist
+
 - [ ] `SECURITY.md` created with complete procedures
 - [ ] `README.md` updated with security section
 - [ ] `AGENTS.md` updated with AI-specific guidance
@@ -985,7 +1021,9 @@ See [SECURITY.md](SECURITY.md) for complete security policy and procedures.
 - [ ] No actual secrets appear in any documentation
 
 #### Step 6 STOP & COMMIT
+
 **STOP & COMMIT:** Commit all documentation updates.
+
 ```bash
 git add SECURITY.md README.md AGENTS.md
 git commit -m "docs: add comprehensive security documentation
@@ -1019,6 +1057,7 @@ All automated security measures are now in place. The feature branch is ready fo
 Choose ONE method:
 
 **Option A: BFG Repo-Cleaner (Recommended - Faster)**
+
 ```bash
 # Install BFG
 brew install bfg
@@ -1041,6 +1080,7 @@ rm -rf source-cleanup
 ```
 
 **Option B: git-filter-repo (More thorough)**
+
 ```bash
 # Install git-filter-repo
 brew install git-filter-repo
@@ -1095,10 +1135,12 @@ Complete rotation checklist:
 Choose and implement ONE solution:
 
 **Option A: GitHub Secrets (Minimum - Already in place)**
+
 - [x] Secrets configured in repository settings
 - [ ] Document access procedures for team
 
 **Option B: Doppler (Recommended for teams)**
+
 ```bash
 # Install Doppler CLI
 brew install dopplerhq/cli/doppler
@@ -1117,6 +1159,7 @@ doppler run -- pnpm dev
 ```
 
 **Option C: 1Password Secrets Automation**
+
 - [ ] Set up 1Password Connect Server
 - [ ] Configure GitHub Actions integration
 - [ ] Migrate secrets to 1Password vaults
@@ -1162,12 +1205,14 @@ See SECURITY.md for complete details.
 ## 🎓 Lessons Learned & Prevention
 
 ### Root Causes
+
 1. `.env` file was not initially in `.gitignore`
 2. No pre-commit hooks to prevent secret commits
 3. No automated secret scanning in CI/CD
 4. Team members were not trained on secret management
 
 ### Preventive Measures Now in Place
+
 - [x] Enhanced `.gitignore` patterns
 - [x] Pre-commit hooks with Gitleaks
 - [x] GitHub Actions security workflow
@@ -1177,6 +1222,7 @@ See SECURITY.md for complete details.
 - [ ] Regular secret rotation schedule (quarterly)
 
 ### Success Metrics
+
 - Zero secrets committed after implementation
 - 100% pre-commit hook adoption across team
 - All security workflows passing

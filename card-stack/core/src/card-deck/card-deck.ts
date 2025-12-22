@@ -7,7 +7,7 @@ import { HexByte } from '../types';
 import { mix } from '../utils';
 
 // eslint-disable-next-line -- use interface, not type
-export interface CardDeck<C extends Card> extends CardSet<C>, Indexable  {}
+export interface CardDeck<C extends Card> extends CardSet<C>, Indexable {}
 
 @mix(CardSet, Indexable)
 export class CardDeck<C extends Card> {

@@ -50,14 +50,17 @@ The package provides multiple TypeScript configuration presets:
 ## Dependencies
 
 ### Development Dependencies
+
 - `@vercel/style-guide` - Vercel's TypeScript style guide
 
 ### Peer Dependencies
+
 - `typescript` ~5.5
 
 ## Configuration Details
 
 ### Base Configuration (`base.json`)
+
 - Extends `@vercel/style-guide/typescript/node20`
 - Strict mode enabled
 - Target: ESNext
@@ -69,11 +72,13 @@ The package provides multiple TypeScript configuration presets:
 - No emit (type-checking only)
 
 ### Next.js Configuration (`next.json`)
+
 - Extends base configuration
 - Adds Next.js-specific settings
 - Optimized for Next.js App Router
 
 ### React Configuration (`react.json`)
+
 - Extends base configuration
 - Adds React-specific settings
 - Optimized for React applications
@@ -81,46 +86,52 @@ The package provides multiple TypeScript configuration presets:
 ## Usage in Consuming Packages
 
 ### TypeScript Configuration
+
 Create or update `tsconfig.json`:
 
 ```json
 {
-  "extends": "@lellimecnar/typescript-config/next.json",
-  "compilerOptions": {
-    // Package-specific overrides
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+	"extends": "@lellimecnar/typescript-config/next.json",
+	"compilerOptions": {
+		// Package-specific overrides
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "dist"]
 }
 ```
 
 ### Package.json Script
+
 ```json
 {
-  "scripts": {
-    "type-check": "tsc --noEmit"
-  }
+	"scripts": {
+		"type-check": "tsc --noEmit"
+	}
 }
 ```
 
 ## Architecture Notes
 
 ### Strict Mode
+
 - All configs enable strict mode by default
 - Ensures type safety across the monorepo
 - Can be overridden in consuming packages if needed
 
 ### Modern JavaScript
+
 - Targets ESNext for latest JavaScript features
 - Includes DOM types for browser environments
 - Supports decorators for advanced patterns
 
 ### JavaScript Support
+
 - Allows JavaScript files (`allowJs: true`)
 - Checks JavaScript files (`checkJs: true`)
 - Enables gradual migration from JavaScript to TypeScript
 
 ### Module Resolution
+
 - ES module interop enabled
 - JSON module resolution enabled
 - Works with both CommonJS and ES modules
@@ -128,27 +139,29 @@ Create or update `tsconfig.json`:
 ## Modifying Configuration
 
 ### Adding New Settings
+
 1. Edit the appropriate config file (`base.json`, `next.json`, etc.)
 2. Add settings to `compilerOptions`
 3. Test in consuming packages
 
 ### Creating New Presets
+
 1. Create new `.json` file (e.g., `react-native.json`)
 2. Extend base or another preset:
    ```json
    {
-     "extends": "./base.json",
-     "compilerOptions": {
-       // Additional settings
-     }
+   	"extends": "./base.json",
+   	"compilerOptions": {
+   		// Additional settings
+   	}
    }
    ```
 3. Add export to `package.json`:
    ```json
    {
-     "exports": {
-       "./react-native": "./react-native.json"
-     }
+   	"exports": {
+   		"./react-native": "./react-native.json"
+   	}
    }
    ```
 

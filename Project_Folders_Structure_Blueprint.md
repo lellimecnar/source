@@ -5,6 +5,7 @@
 This project is a **TypeScript Monorepo** managed with **pnpm** and **Turborepo**. It follows a modular architecture that separates applications (web and mobile) from shared logic and UI libraries.
 
 ### Organizational Principles
+
 - **Workspace-Based**: The codebase is divided into distinct workspaces (`web`, `mobile`, `packages`, `card-stack`) defined in `pnpm-workspace.yaml`.
 - **Shared Configuration**: Configuration for tools like ESLint, TypeScript, Tailwind, and Jest is centralized in `packages/config-*` to ensure consistency across all projects.
 - **Component-Driven UI**: UI components are centralized in `@lellimecnar/ui` (Web) and `@lellimecnar/ui-nativewind` (Mobile) rather than being duplicated in apps.
@@ -12,6 +13,7 @@ This project is a **TypeScript Monorepo** managed with **pnpm** and **Turborepo*
 - **App Router Pattern**: Both Web (Next.js) and Mobile (Expo) use file-system based routing in an `app/` directory.
 
 ### Monorepo Organization
+
 - **`web/`**: Contains Next.js 14+ applications using the App Router.
 - **`mobile/`**: Contains Expo/React Native applications using Expo Router.
 - **`packages/`**: Contains shared infrastructure, UI libraries, and configurations.
@@ -68,13 +70,17 @@ This project is a **TypeScript Monorepo** managed with **pnpm** and **Turborepo*
 ## 3. Key Directory Analysis
 
 ### Web Projects (`web/*`)
+
 Next.js applications using the App Router.
+
 - **`src/app/`**: Contains routes, layouts, and page components. Follows Next.js conventions (`page.tsx`, `layout.tsx`, `route.ts`).
 - **`src/components/`**: Contains components specific to the application that are not generic enough for the shared UI library.
 - **`src/config/`**: Application-specific configuration files.
 
 ### Mobile Projects (`mobile/*`)
+
 Expo applications using Expo Router.
+
 - **`app/`**: File-based routing directory.
   - **`(tabs)/`**: Group for tab-based navigation routes.
   - **`_layout.tsx`**: Defines the layout structure for routes.
@@ -82,18 +88,23 @@ Expo applications using Expo Router.
 - **`components/`**: App-specific React Native components.
 
 ### Shared UI (`packages/ui`)
+
 A shared UI library based on shadcn/ui.
+
 - **`src/components/`**: Individual UI components (Button, Input, etc.).
 - **`src/lib/`**: Utilities like `utils.ts` for class merging (`cn`).
 - **`src/theme/`**: Theme configuration and variables.
 
 ### Domain Logic (`card-stack/*`)
+
 Pure TypeScript packages for business logic.
+
 - **`src/`**: Source code organized by domain entity (Card, Deck, Player).
 - **`src/index.ts`**: Public API export.
-- **`src/**/*.spec.ts`**: Co-located unit tests.
+- **`src/**/\*.spec.ts`\*\*: Co-located unit tests.
 
 ### Configuration Packages (`packages/config-*`)
+
 - **`config-eslint/`**: Exports ESLint configurations (base, next, react).
 - **`config-typescript/`**: Exports `tsconfig` bases (base, next, react).
 - **`config-tailwind/`**: Exports shared Tailwind configuration.
@@ -164,15 +175,18 @@ Pure TypeScript packages for business logic.
 ## 8. Technology-Specific Organization
 
 ### Next.js (Web)
+
 - **`next.config.js`**: Configures `transpilePackages` to include local workspace packages like `@lellimecnar/ui`.
 - **`src/app`**: Uses the App Router for all routing.
 
 ### Expo (Mobile)
+
 - **`app.config.ts`**: Dynamic Expo configuration.
 - **`nativewind-env.d.ts`**: Type definitions for NativeWind.
 - **`metro.config.js`**: Configured to resolve workspace packages.
 
 ### TypeScript
+
 - **`tsconfig.json`**: Extends base configs from `packages/config-typescript`.
 - **`references`**: Used in `tsconfig.json` for composite projects (if enabled) or simple `extends` pattern.
 
@@ -185,6 +199,7 @@ Pure TypeScript packages for business logic.
 ## 10. Structure Templates
 
 ### New Package Template
+
 ```
 packages/new-package/
 ├── package.json          # Define name @lellimecnar/new-package
@@ -196,11 +211,13 @@ packages/new-package/
 ```
 
 ### New UI Component Template (Manual)
+
 ```
 packages/ui/src/components/new-component.tsx
 packages/ui/src/components/new-component.spec.ts (optional)
 ```
-*Note: Prefer using `pnpm ui ui` to generate components.*
+
+_Note: Prefer using `pnpm ui ui` to generate components._
 
 ## 11. Structure Enforcement
 
@@ -210,4 +227,5 @@ packages/ui/src/components/new-component.spec.ts (optional)
 - **Dependency Management**: `pnpm` enforces strict workspace dependencies.
 
 ---
-*Last Updated: December 21, 2025*
+
+_Last Updated: December 21, 2025_

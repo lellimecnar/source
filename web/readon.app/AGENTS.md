@@ -52,12 +52,14 @@ pnpm readon.app type-check
 ## Dependencies
 
 ### Runtime Dependencies
+
 - `@lellimecnar/ui` - Web UI component library (workspace package)
 - `next` - Next.js framework
 - `react` & `react-dom` - React libraries
 - `react-use` - React hooks utilities
 
 ### Development Dependencies
+
 - `@lellimecnar/eslint-config` - Shared ESLint configuration
 - `@lellimecnar/tailwind-config` - Shared Tailwind configuration
 - `@lellimecnar/typescript-config` - Shared TypeScript configuration
@@ -75,37 +77,44 @@ pnpm readon.app type-check
 ## Architecture Notes
 
 ### App Router Structure
+
 - Uses Next.js App Router with file-based routing
 - `app/layout.tsx` is the root layout
 - `app/page.tsx` is the home page
 - Additional routes can be added in `app/` directory
 
 ### Component Organization
+
 - Shared components in `src/components/`
 - Each component has its own directory with `index.ts` and component file
 - Uses `@lellimecnar/ui` for base UI components
 
 ### Styling
+
 - Tailwind CSS for styling
 - Uses shared Tailwind config from `@lellimecnar/tailwind-config`
 - Global styles in `app/globals.css`
 
 ### UI Component Usage
+
 The package uses granular imports from `@lellimecnar/ui`:
+
 ```typescript
-import { Button } from '@lellimecnar/ui/button'
-import { Page } from '@lellimecnar/ui/page'
-import '@lellimecnar/ui/global.css'
+import { Button } from '@lellimecnar/ui/button';
+import { Page } from '@lellimecnar/ui/page';
+import '@lellimecnar/ui/global.css';
 ```
 
 ## Adding New Features
 
 ### Adding a New Route
+
 1. Create a new directory in `src/app/[route-name]/`
 2. Add a `page.tsx` file for the route
 3. Optionally add a `layout.tsx` for route-specific layouts
 
 ### Adding a New Component
+
 1. Create a directory in `src/components/[component-name]/`
 2. Add `index.ts` for exports
 3. Add the component file (e.g., `[component-name].tsx`)

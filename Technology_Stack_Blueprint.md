@@ -5,6 +5,7 @@
 This project is a **TypeScript Monorepo** utilizing a modern full-stack JavaScript/TypeScript ecosystem. It unifies web and mobile development under a single repository structure managed by **pnpm** and **Turborepo**.
 
 ### Core Stack Overview
+
 - **Language**: TypeScript (~5.5)
 - **Runtime**: Node.js (^20)
 - **Package Manager**: pnpm (9.12.2)
@@ -18,29 +19,34 @@ This project is a **TypeScript Monorepo** utilizing a modern full-stack JavaScri
 ## 2. Core Technologies Analysis
 
 ### JavaScript/TypeScript Stack
+
 - **TypeScript**: The primary language for all workspaces. Configured via shared `packages/config-typescript` to ensure strict type safety across the monorepo.
 - **Node.js**: The execution environment for development tools, build scripts, and the Next.js server.
 - **pnpm**: Used for efficient dependency management and workspace support. Enforces strict peer dependency resolution.
 - **Turborepo**: Orchestrates build, lint, and test tasks, providing caching and parallel execution to speed up CI/CD and local development.
 
 ### React Stack
+
 - **React**: Version ^18.3.1 is used across both web and mobile.
 - **Next.js**: Version ^15.2.3 (App Router) powers the web applications (`miller.pub`, `readon.app`). It leverages React Server Components (RSC).
 - **Expo**: Version ~52.0.14 powers the mobile application (`readon`). It uses **Expo Router** (~4.0.11) for file-based routing, mirroring the Next.js App Router pattern.
 - **React Native**: Version 0.76.3 provides the native rendering capabilities for mobile.
 
 ### UI & Styling Stack
+
 - **Tailwind CSS**: Version ^3.4.17 is the utility-first CSS framework used for web styling.
 - **NativeWind**: Version ^4.2.1 brings Tailwind CSS patterns to React Native, allowing shared styling concepts between web and mobile.
 - **shadcn/ui**: The web UI library (`@lellimecnar/ui`) is built using Radix UI primitives and styled with Tailwind, following the copy-paste component architecture pattern.
 
 ### Domain Logic Stack
+
 - **ts-mixer**: Version ^6.0.4 is used in `@card-stack/core` to implement mixin patterns for complex game entity behaviors (e.g., `Mix(Card, Flippable)`).
 - **Jest**: Version ^29 is the test runner for unit and integration tests, configured via `packages/config-jest`.
 
 ## 3. Implementation Patterns & Conventions
 
 ### Naming Conventions
+
 - **Files**:
   - Components: `PascalCase.tsx` (e.g., `Button.tsx`)
   - Utilities: `camelCase.ts` (e.g., `utils.ts`)
@@ -50,6 +56,7 @@ This project is a **TypeScript Monorepo** utilizing a modern full-stack JavaScri
 - **Types/Interfaces**: `PascalCase`
 
 ### Code Organization
+
 - **Monorepo Structure**:
   - `apps/` (or `web/`, `mobile/`): End-user applications.
   - `packages/`: Shared libraries and configurations.
@@ -58,6 +65,7 @@ This project is a **TypeScript Monorepo** utilizing a modern full-stack JavaScri
 - **Granular Exports**: The UI package exports components individually (e.g., `@lellimecnar/ui/button`) to enable tree-shaking and avoid circular dependencies.
 
 ### Common Patterns
+
 - **Shared Configuration**: ESLint, TypeScript, and Tailwind configs are shared packages (`@lellimecnar/config-*`) extended by apps and libraries.
 - **Transpilation**: Next.js apps use `transpilePackages` to consume local TypeScript packages (`@lellimecnar/ui`) directly without a separate build step for the package.
 - **Mixin Pattern**: The card game engine uses `ts-mixer` to compose behaviors rather than deep class inheritance.
@@ -65,16 +73,18 @@ This project is a **TypeScript Monorepo** utilizing a modern full-stack JavaScri
 ## 4. Usage Examples
 
 ### API Implementation (Next.js Route Handler)
+
 ```typescript
 // web/miller.pub/src/app/api/hello/route.ts
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-  return NextResponse.json({ message: 'Hello World' });
+	return NextResponse.json({ message: 'Hello World' });
 }
 ```
 
 ### UI Component (shadcn/ui Pattern)
+
 ```typescript
 // packages/ui/src/components/button.tsx
 import * as React from "react"
@@ -132,6 +142,7 @@ export { Button, buttonVariants }
 ```
 
 ### Service Layer (Card Stack Mixin)
+
 ```typescript
 // card-stack/core/src/card/standard-card.ts
 import { Mix } from 'ts-mixer';
@@ -141,35 +152,40 @@ import { Rankable } from './behaviors/rankable';
 import { Suitable } from './behaviors/suitable';
 
 export class StandardCard extends Mix(Card, Flippable, Rankable, Suitable) {
-  constructor(rank: string, suit: string) {
-    super();
-    this.rank = rank;
-    this.suit = suit;
-  }
+	constructor(rank: string, suit: string) {
+		super();
+		this.rank = rank;
+		this.suit = suit;
+	}
 }
 ```
 
 ## 5. Technology Stack Map
 
 ### Core Framework Usage
+
 - **Next.js**: Used for Server-Side Rendering (SSR) and Static Site Generation (SSG). Configured with `next.config.js`.
 - **Expo**: Used for cross-platform mobile development. Configured with `app.config.ts`.
 
 ### Integration Points
+
 - **Workspace Protocol**: `pnpm` links packages locally.
 - **NativeWind**: Bridges Tailwind classes to React Native stylesheets.
 
 ### Development Tooling
+
 - **VS Code**: Recommended IDE with ESLint and Prettier extensions.
 - **Turborepo**: Runs `build`, `lint`, `test` tasks.
 - **Jest**: Runs tests.
 
 ### Infrastructure
+
 - **Docker**: `Dockerfile` exists for web apps (`miller.pub`, `readon.app`) for containerized deployment.
 
 ## 6. Technology-Specific Implementation Details
 
 ### React Implementation
+
 - **Component Structure**: Functional components with Hooks are the standard.
 - **State Management**:
   - **Local**: `useState`, `useReducer`.
@@ -181,13 +197,15 @@ export class StandardCard extends Mix(Card, Flippable, Rankable, Suitable) {
   - **Utility**: `cn()` helper (clsx + tailwind-merge) is used to conditionally apply classes.
 
 ### .NET Implementation Details
-*Not Detected*
+
+_Not Detected_
 
 ## 7. Blueprint for New Code Implementation
 
 ### File/Class Templates
 
 **New React Component:**
+
 ```typescript
 import * as React from "react"
 import { cn } from "@/lib/utils"
@@ -206,6 +224,7 @@ export function Component({ className, ...props }: ComponentProps) {
 ```
 
 **New Next.js Page:**
+
 ```typescript
 export default function Page() {
   return (
@@ -217,6 +236,7 @@ export default function Page() {
 ```
 
 ### Implementation Checklist
+
 1.  **Define Requirements**: Identify if the feature is web-only, mobile-only, or shared.
 2.  **Create Shared Logic**: If shared, implement in `packages/utils` or a new package.
 3.  **Create UI Components**: If reusable, implement in `@lellimecnar/ui` (web) or `@lellimecnar/ui-nativewind` (mobile).
@@ -271,4 +291,5 @@ graph TD
 - **ts-mixer**: Used in the card game engine to allow for flexible composition of card behaviors, avoiding the rigidity of deep inheritance hierarchies.
 
 ---
-*Last Updated: December 21, 2025*
+
+_Last Updated: December 21, 2025_

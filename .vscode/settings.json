@@ -1,53 +1,53 @@
 {
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
-  "eslint.run": "onSave",
-  "eslint.format.enable": true,
-  "eslint.enable": true,
-  "eslint.packageManager": "pnpm",
-  "eslint.useFlatConfig": false,
-  "files.exclude": {
-    "**/.git": true,
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/CVS": true,
-    "**/.DS_Store": true,
-    "**/Thumbs.db": true,
-    "**/.turbo": true,
-    "**/CLAUDE.md": true,
-    "**/GEMINI.md": true,
-    "**/WARP.md": true
-  },
-  "editor.formatOnType": true,
-  "editor.formatOnPaste": true,
-  "editor.formatOnSave": true,
-  "editor.formatOnSaveMode": "file",
-  "files.autoSave": "onFocusChange",
-  "eslint.execArgv": "",
-  "vs-code-prettier-eslint.prettierLast": false,
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": "always",
-    "source.sortImports": "always",
-    "source.fixAll.eslint": "always"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
-  "[css]": {
-    "editor.defaultFormatter": "vscode.css-language-features"
-  }
+	"eslint.validate": [
+		"javascript",
+		"javascriptreact",
+		"typescript",
+		"typescriptreact"
+	],
+	"eslint.run": "onSave",
+	"eslint.format.enable": true,
+	"eslint.enable": true,
+	"eslint.packageManager": "pnpm",
+	"eslint.useFlatConfig": false,
+	"files.exclude": {
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/CVS": true,
+		"**/.DS_Store": true,
+		"**/Thumbs.db": true,
+		"**/.turbo": true,
+		"**/CLAUDE.md": true,
+		"**/GEMINI.md": true,
+		"**/WARP.md": true
+	},
+	"editor.formatOnType": true,
+	"editor.formatOnPaste": true,
+	"editor.formatOnSave": true,
+	"editor.formatOnSaveMode": "file",
+	"files.autoSave": "onFocusChange",
+	"eslint.execArgv": "",
+	"vs-code-prettier-eslint.prettierLast": false,
+	"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "always",
+		"source.sortImports": "always",
+		"source.fixAll.eslint": "always"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[javascriptreact]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[css]": {
+		"editor.defaultFormatter": "vscode.css-language-features"
+	}
 }

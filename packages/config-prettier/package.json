@@ -1,20 +1,20 @@
 {
-    "name": "@lellimecnar/prettier-config",
-    "version": "0.0.0",
-    "private": true,
-    "main": "prettier-preset.js",
-    "license": "MIT",
-    "scripts": {
-        "lint": "eslint .",
-        "type-check": "tsc --noEmit"
-    },
-    "devDependencies": {
-        "@vercel/style-guide": "^6",
-        "prettier": "^3.6.2",
-        "typescript": "~5.5"
-    },
-    "peerDependencies": {
-        "prettier": "^3.6.2",
-        "typescript": "~5.5"
-    }
+	"name": "@lellimecnar/prettier-config",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"main": "prettier-preset.js",
+	"scripts": {
+		"lint": "eslint .",
+		"type-check": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@vercel/style-guide": "^6",
+		"prettier": "^3.6.2",
+		"typescript": "~5.5"
+	},
+	"peerDependencies": {
+		"prettier": "^3.6.2",
+		"typescript": "~5.5"
+	}
 }

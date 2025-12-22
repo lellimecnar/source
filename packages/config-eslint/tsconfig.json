@@ -1,15 +1,8 @@
 {
-  "extends": "@lellimecnar/typescript-config",
-  "compilerOptions": {
-    "baseUrl": "."
-  },
-  "include": [
-    "*.js",
-    ".*.js"
-  ],
-  "exclude": [
-    "dist",
-    "build",
-    "node_modules"
-  ]
+	"extends": "@lellimecnar/typescript-config",
+	"compilerOptions": {
+		"baseUrl": "."
+	},
+	"include": ["*.js", ".*.js"],
+	"exclude": ["dist", "build", "node_modules"]
 }

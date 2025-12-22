@@ -25,23 +25,29 @@ The architecture is designed to maximize code sharing while keeping business log
 ## 🏁 Getting Started
 
 ### Prerequisites
+
 - **Node.js**: ^20
 - **pnpm**: ^9 (Strictly enforced)
 
 ### Installation
+
 ```bash
 # Install dependencies
 pnpm install
 ```
 
 ### Development
+
 Start all development servers (Web, Mobile, UI watch mode):
+
 ```bash
 pnpm dev
 ```
 
 ### Build
+
 Build all packages and applications:
+
 ```bash
 pnpm build
 ```
@@ -76,14 +82,18 @@ pnpm build
 ## 🔄 Development Workflow
 
 ### Workspace Management
+
 Always run commands from the root using `pnpm --filter`:
+
 ```bash
 pnpm --filter miller.pub dev
 pnpm --filter @card-stack/core test
 ```
 
 ### UI Component Development
+
 To add a new component to the Web UI library:
+
 ```bash
 pnpm ui ui add [component-name]
 ```

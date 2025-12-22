@@ -1,9 +1,11 @@
 # Testing Infrastructure Improvements
 
 ## Goal
+
 Establish comprehensive testing infrastructure with coverage reporting across all packages, add Jest configurations to web apps and UI libraries, and create testing standards documentation.
 
 ## Prerequisites
+
 Make sure you are currently on the `test/infrastructure-improvements` branch before beginning implementation.
 If not, switch to the correct branch. If the branch does not exist, create it from master.
 
@@ -28,34 +30,34 @@ This step adds comprehensive coverage configuration to the shared Jest presets t
 
 ```javascript
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
-  testMatch: [
-    '**/__tests__/**/*.+(ts|tsx|js)',
-    '**/?(*.)+(spec|test).+(ts|tsx|js)',
-  ],
-  transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
-  },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-    '!src/**/index.{ts,tsx}',
-  ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'text-summary', 'html', 'lcov', 'json'],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
-    },
-  },
-  verbose: true,
+	preset: 'ts-jest',
+	testEnvironment: 'node',
+	roots: ['<rootDir>/src'],
+	testMatch: [
+		'**/__tests__/**/*.+(ts|tsx|js)',
+		'**/?(*.)+(spec|test).+(ts|tsx|js)',
+	],
+	transform: {
+		'^.+\\.(ts|tsx)$': 'ts-jest',
+	},
+	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+	collectCoverageFrom: [
+		'src/**/*.{ts,tsx}',
+		'!src/**/*.d.ts',
+		'!src/**/__tests__/**',
+		'!src/**/index.{ts,tsx}',
+	],
+	coverageDirectory: 'coverage',
+	coverageReporters: ['text', 'text-summary', 'html', 'lcov', 'json'],
+	coverageThreshold: {
+		global: {
+			branches: 80,
+			functions: 80,
+			lines: 80,
+			statements: 80,
+		},
+	},
+	verbose: true,
 };
 ```
 
@@ -66,33 +68,38 @@ module.exports = {
 const baseConfig = require('../jest-preset');
 
 module.exports = {
-  ...baseConfig,
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-  },
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react-jsx',
-      },
-    }],
-  },
-  collectCoverageFrom: [
-    ...baseConfig.collectCoverageFrom,
-    '!src/**/*.stories.{ts,tsx}',
-  ],
+	...baseConfig,
+	testEnvironment: 'jsdom',
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+	moduleNameMapper: {
+		'^@/(.*)$': '<rootDir>/src/$1',
+		'\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+	},
+	transform: {
+		'^.+\\.(ts|tsx)$': [
+			'ts-jest',
+			{
+				tsconfig: {
+					jsx: 'react-jsx',
+				},
+			},
+		],
+	},
+	collectCoverageFrom: [
+		...baseConfig.collectCoverageFrom,
+		'!src/**/*.stories.{ts,tsx}',
+	],
 };
 ```
 
 #### Step 1 Verification Checklist
+
 - [x] Run `cat packages/config-jest/jest-preset.js` and verify coverage configuration is present
 - [x] Run `cat packages/config-jest/browser/jest-preset.js` and verify jsdom environment is set
 - [x] Verify both files have no syntax errors
 
 #### Step 1 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ```bash
@@ -112,40 +119,40 @@ Configure both Next.js applications with Jest and React Testing Library support.
 const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
-  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
-  dir: './',
+	// Provide the path to your Next.js app to load next.config.js and .env files in your test environment
+	dir: './',
 });
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
-  displayName: 'miller.pub',
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-  },
-  testMatch: [
-    '**/__tests__/**/*.+(ts|tsx|js)',
-    '**/?(*.)+(spec|test).+(ts|tsx|js)',
-  ],
-  collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-    '!src/**/*.stories.{ts,tsx}',
-    '!src/app/**/layout.tsx',
-    '!src/app/**/page.tsx',
-  ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
-  coverageThreshold: {
-    global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70,
-    },
-  },
+	displayName: 'miller.pub',
+	testEnvironment: 'jsdom',
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+	moduleNameMapper: {
+		'^@/(.*)$': '<rootDir>/src/$1',
+	},
+	testMatch: [
+		'**/__tests__/**/*.+(ts|tsx|js)',
+		'**/?(*.)+(spec|test).+(ts|tsx|js)',
+	],
+	collectCoverageFrom: [
+		'src/**/*.{js,jsx,ts,tsx}',
+		'!src/**/*.d.ts',
+		'!src/**/__tests__/**',
+		'!src/**/*.stories.{ts,tsx}',
+		'!src/app/**/layout.tsx',
+		'!src/app/**/page.tsx',
+	],
+	coverageDirectory: 'coverage',
+	coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
+	coverageThreshold: {
+		global: {
+			branches: 70,
+			functions: 70,
+			lines: 70,
+			statements: 70,
+		},
+	},
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
@@ -164,40 +171,40 @@ import '@testing-library/jest-dom';
 const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
-  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
-  dir: './',
+	// Provide the path to your Next.js app to load next.config.js and .env files in your test environment
+	dir: './',
 });
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
-  displayName: 'readon.app',
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-  },
-  testMatch: [
-    '**/__tests__/**/*.+(ts|tsx|js)',
-    '**/?(*.)+(spec|test).+(ts|tsx|js)',
-  ],
-  collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-    '!src/**/*.stories.{ts,tsx}',
-    '!src/app/**/layout.tsx',
-    '!src/app/**/page.tsx',
-  ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
-  coverageThreshold: {
-    global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70,
-    },
-  },
+	displayName: 'readon.app',
+	testEnvironment: 'jsdom',
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+	moduleNameMapper: {
+		'^@/(.*)$': '<rootDir>/src/$1',
+	},
+	testMatch: [
+		'**/__tests__/**/*.+(ts|tsx|js)',
+		'**/?(*.)+(spec|test).+(ts|tsx|js)',
+	],
+	collectCoverageFrom: [
+		'src/**/*.{js,jsx,ts,tsx}',
+		'!src/**/*.d.ts',
+		'!src/**/__tests__/**',
+		'!src/**/*.stories.{ts,tsx}',
+		'!src/app/**/layout.tsx',
+		'!src/app/**/page.tsx',
+	],
+	coverageDirectory: 'coverage',
+	coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
+	coverageThreshold: {
+		global: {
+			branches: 70,
+			functions: 70,
+			lines: 70,
+			statements: 70,
+		},
+	},
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
@@ -235,12 +242,14 @@ cd ../..
 ```
 
 #### Step 2 Verification Checklist
+
 - [x] Verify jest.config.js and jest.setup.js files exist in both web apps
 - [x] Run `cd web/miller.pub && pnpm test --passWithNoTests` - should run successfully (skipped due to watchman error)
 - [x] Run `cd web/readon.app && pnpm test --passWithNoTests` - should run successfully (skipped due to watchman error)
 - [x] Check that no TypeScript errors appear when running the test command
 
 #### Step 2 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ```bash
@@ -259,38 +268,41 @@ Configure the UI component libraries with appropriate testing setups.
 
 ```javascript
 module.exports = {
-  displayName: '@lellimecnar/ui',
-  preset: '@lellimecnar/jest-config/browser',
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-  },
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react-jsx',
-      },
-    }],
-  },
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-    '!src/**/*.stories.{ts,tsx}',
-    '!src/**/index.{ts,tsx}',
-  ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
-  coverageThreshold: {
-    global: {
-      branches: 75,
-      functions: 75,
-      lines: 75,
-      statements: 75,
-    },
-  },
+	displayName: '@lellimecnar/ui',
+	preset: '@lellimecnar/jest-config/browser',
+	testEnvironment: 'jsdom',
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+	moduleNameMapper: {
+		'^@/(.*)$': '<rootDir>/src/$1',
+		'\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+	},
+	transform: {
+		'^.+\\.(ts|tsx)$': [
+			'ts-jest',
+			{
+				tsconfig: {
+					jsx: 'react-jsx',
+				},
+			},
+		],
+	},
+	collectCoverageFrom: [
+		'src/**/*.{ts,tsx}',
+		'!src/**/*.d.ts',
+		'!src/**/__tests__/**',
+		'!src/**/*.stories.{ts,tsx}',
+		'!src/**/index.{ts,tsx}',
+	],
+	coverageDirectory: 'coverage',
+	coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
+	coverageThreshold: {
+		global: {
+			branches: 75,
+			functions: 75,
+			lines: 75,
+			statements: 75,
+		},
+	},
 };
 ```
 
@@ -304,33 +316,33 @@ import '@testing-library/jest-dom';
 
 ```javascript
 module.exports = {
-  displayName: '@lellimecnar/ui-nativewind',
-  preset: 'jest-expo',
-  testEnvironment: 'node',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
-  },
-  transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|nativewind)',
-  ],
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-    '!src/**/index.{ts,tsx}',
-  ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
-  coverageThreshold: {
-    global: {
-      branches: 75,
-      functions: 75,
-      lines: 75,
-      statements: 75,
-    },
-  },
+	displayName: '@lellimecnar/ui-nativewind',
+	preset: 'jest-expo',
+	testEnvironment: 'node',
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+	transform: {
+		'^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+	},
+	transformIgnorePatterns: [
+		'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|nativewind)',
+	],
+	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+	collectCoverageFrom: [
+		'src/**/*.{ts,tsx}',
+		'!src/**/*.d.ts',
+		'!src/**/__tests__/**',
+		'!src/**/index.{ts,tsx}',
+	],
+	coverageDirectory: 'coverage',
+	coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
+	coverageThreshold: {
+		global: {
+			branches: 75,
+			functions: 75,
+			lines: 75,
+			statements: 75,
+		},
+	},
 };
 ```
 
@@ -365,12 +377,14 @@ cd ../..
 ```
 
 #### Step 3 Verification Checklist
+
 - [x] Verify jest.config.js and jest.setup.js files exist in both UI packages
 - [x] Run `cd packages/ui && pnpm test --passWithNoTests` - should run successfully (skipped due to watchman error)
 - [x] Run `cd packages/ui-nativewind && pnpm test --passWithNoTests` - should run successfully (skipped due to watchman error)
 - [x] Check that configurations properly recognize TypeScript and JSX
 
 #### Step 3 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ```bash
@@ -389,34 +403,34 @@ Configure the utilities package with basic TypeScript testing support.
 
 ```javascript
 module.exports = {
-  displayName: '@lellimecnar/utils',
-  preset: '@lellimecnar/jest-config',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
-  testMatch: [
-    '**/__tests__/**/*.+(ts|tsx|js)',
-    '**/?(*.)+(spec|test).+(ts|tsx|js)',
-  ],
-  transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
-  },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-    '!src/**/index.{ts,tsx}',
-  ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
-    },
-  },
+	displayName: '@lellimecnar/utils',
+	preset: '@lellimecnar/jest-config',
+	testEnvironment: 'node',
+	roots: ['<rootDir>/src'],
+	testMatch: [
+		'**/__tests__/**/*.+(ts|tsx|js)',
+		'**/?(*.)+(spec|test).+(ts|tsx|js)',
+	],
+	transform: {
+		'^.+\\.(ts|tsx)$': 'ts-jest',
+	},
+	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+	collectCoverageFrom: [
+		'src/**/*.{ts,tsx}',
+		'!src/**/*.d.ts',
+		'!src/**/__tests__/**',
+		'!src/**/index.{ts,tsx}',
+	],
+	coverageDirectory: 'coverage',
+	coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
+	coverageThreshold: {
+		global: {
+			branches: 80,
+			functions: 80,
+			lines: 80,
+			statements: 80,
+		},
+	},
 };
 ```
 
@@ -429,11 +443,13 @@ module.exports = {
 ```
 
 #### Step 4 Verification Checklist
+
 - [x] Verify jest.config.js exists in packages/utils
 - [x] Run `cd packages/utils && pnpm test --passWithNoTests` - should run successfully (skipped due to watchman error)
 - [x] Verify TypeScript files can be tested without React dependencies
 
 #### Step 4 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ```bash
@@ -463,18 +479,20 @@ This document outlines the testing strategy, tools, and best practices for the @
 ## Testing Philosophy
 
 We follow the **Testing Pyramid** approach:
-
 ```
+
         /\
        /  \     E2E Tests (Few, Critical Paths)
       /____\
      /      \
     /        \   Integration Tests (Focused, Service Boundaries)
-   /__________\
-  /            \
- /              \ Unit Tests (Many, Fast, Isolated)
-/________________\
-```
+
+/****\_\_****\
+ / \
+ / \ Unit Tests (Many, Fast, Isolated)
+/******\_\_\_\_******\
+
+````
 
 - **Unit Tests**: Test individual functions, classes, and components in isolation
 - **Integration Tests**: Test interactions between components, services, and APIs
@@ -510,9 +528,10 @@ pnpm test:coverage
 
 # Run tests in CI mode
 pnpm test:ci
-```
+````
 
 ### From Specific Package
+
 ```bash
 # Run tests in a specific package
 pnpm --filter @lellimecnar/ui test
@@ -525,6 +544,7 @@ pnpm --filter @lellimecnar/ui test:watch
 ```
 
 ### From Package Directory
+
 ```bash
 # Navigate to package
 cd packages/ui
@@ -542,19 +562,23 @@ pnpm test:watch
 ## Coverage Requirements
 
 ### Global Thresholds
+
 - **Branches**: 80%
 - **Functions**: 80%
 - **Lines**: 80%
 - **Statements**: 80%
 
 ### Package-Specific Thresholds
+
 - **Web Apps** (miller.pub, readon.app): 70% (lower due to UI-heavy nature)
 - **UI Packages** (ui, ui-nativewind): 75%
 - **Utils Package**: 80%
 - **Card Stack Packages**: 80%
 
 ### Coverage Reports
+
 Coverage reports are generated in the `coverage/` directory of each package:
+
 - **HTML Report**: Open `coverage/index.html` in a browser for interactive exploration
 - **LCOV Report**: Used for CI integration and coverage tracking tools
 - **Text Summary**: Displayed in terminal after test run
@@ -562,6 +586,7 @@ Coverage reports are generated in the `coverage/` directory of each package:
 ## Test File Organization
 
 ### Co-located Tests (Preferred)
+
 Tests should be co-located with the source code they test:
 
 ```
@@ -579,6 +604,7 @@ src/
 ```
 
 ### Test Directories (Alternative)
+
 For larger components or integration tests:
 
 ```
@@ -602,19 +628,19 @@ src/
 import { formatDate } from './formatDate';
 
 describe('formatDate', () => {
-  it('formats a date in ISO format', () => {
-    const date = new Date('2024-01-15T10:30:00Z');
-    expect(formatDate(date)).toBe('2024-01-15');
-  });
+	it('formats a date in ISO format', () => {
+		const date = new Date('2024-01-15T10:30:00Z');
+		expect(formatDate(date)).toBe('2024-01-15');
+	});
 
-  it('handles invalid dates', () => {
-    expect(() => formatDate(new Date('invalid'))).toThrow();
-  });
+	it('handles invalid dates', () => {
+		expect(() => formatDate(new Date('invalid'))).toThrow();
+	});
 
-  it('formats date with custom format string', () => {
-    const date = new Date('2024-01-15');
-    expect(formatDate(date, 'MM/dd/yyyy')).toBe('01/15/2024');
-  });
+	it('formats date with custom format string', () => {
+		const date = new Date('2024-01-15');
+		expect(formatDate(date, 'MM/dd/yyyy')).toBe('01/15/2024');
+	});
 });
 ```
 
@@ -637,10 +663,10 @@ describe('Button', () => {
   it('calls onClick when clicked', async () => {
     const handleClick = jest.fn();
     const user = userEvent.setup();
-    
+
     render(<Button onClick={handleClick}>Click me</Button>);
     await user.click(screen.getByRole('button'));
-    
+
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
@@ -652,7 +678,7 @@ describe('Button', () => {
   it('applies variant styles correctly', () => {
     const { rerender } = render(<Button variant="primary">Primary</Button>);
     expect(screen.getByRole('button')).toHaveClass('bg-primary');
-    
+
     rerender(<Button variant="secondary">Secondary</Button>);
     expect(screen.getByRole('button')).toHaveClass('bg-secondary');
   });
@@ -679,7 +705,7 @@ describe('Button (React Native)', () => {
     const { getByText } = render(
       <Button onPress={handlePress}>Click me</Button>
     );
-    
+
     fireEvent.press(getByText('Click me'));
     expect(handlePress).toHaveBeenCalledTimes(1);
   });
@@ -691,7 +717,7 @@ describe('Button (React Native)', () => {
         Click me
       </Button>
     );
-    
+
     fireEvent.press(getByText('Click me'));
     expect(handlePress).not.toHaveBeenCalled();
   });
@@ -722,7 +748,7 @@ describe('Navigation', () => {
   it('highlights active link', () => {
     const { usePathname } = require('next/navigation');
     usePathname.mockReturnValue('/about');
-    
+
     render(<Navigation />);
     const aboutLink = screen.getByRole('link', { name: /about/i });
     expect(aboutLink).toHaveClass('active');
@@ -741,38 +767,39 @@ import { Rank } from './Rank';
 import { Suit } from './Suit';
 
 describe('Card', () => {
-  it('creates a card with rank and suit', () => {
-    const card = new Card(Rank.Ace, Suit.Spades);
-    expect(card.rank).toBe(Rank.Ace);
-    expect(card.suit).toBe(Suit.Spades);
-  });
+	it('creates a card with rank and suit', () => {
+		const card = new Card(Rank.Ace, Suit.Spades);
+		expect(card.rank).toBe(Rank.Ace);
+		expect(card.suit).toBe(Suit.Spades);
+	});
 
-  it('flips the card', () => {
-    const card = new Card(Rank.King, Suit.Hearts);
-    expect(card.isFaceUp).toBe(false);
-    
-    card.flip();
-    expect(card.isFaceUp).toBe(true);
-    
-    card.flip();
-    expect(card.isFaceUp).toBe(false);
-  });
+	it('flips the card', () => {
+		const card = new Card(Rank.King, Suit.Hearts);
+		expect(card.isFaceUp).toBe(false);
 
-  it('compares cards with rank and suit', () => {
-    const aceOfSpades = new Card(Rank.Ace, Suit.Spades);
-    const kingOfHearts = new Card(Rank.King, Suit.Hearts);
-    const queenOfSpades = new Card(Rank.Queen, Suit.Spades);
-    
-    expect(aceOfSpades.isHigherThan(kingOfHearts)).toBe(true);
-    expect(kingOfHearts.isHigherThan(aceOfSpades)).toBe(false);
-    expect(queenOfSpades.isHigherThan(kingOfHearts)).toBe(true);
-  });
+		card.flip();
+		expect(card.isFaceUp).toBe(true);
+
+		card.flip();
+		expect(card.isFaceUp).toBe(false);
+	});
+
+	it('compares cards with rank and suit', () => {
+		const aceOfSpades = new Card(Rank.Ace, Suit.Spades);
+		const kingOfHearts = new Card(Rank.King, Suit.Hearts);
+		const queenOfSpades = new Card(Rank.Queen, Suit.Spades);
+
+		expect(aceOfSpades.isHigherThan(kingOfHearts)).toBe(true);
+		expect(kingOfHearts.isHigherThan(aceOfSpades)).toBe(false);
+		expect(queenOfSpades.isHigherThan(kingOfHearts)).toBe(true);
+	});
 });
 ```
 
 ## Best Practices
 
 ### DO
+
 - ✅ Write tests for all new features and bug fixes
 - ✅ Test behavior, not implementation details
 - ✅ Use descriptive test names that explain what is being tested
@@ -785,6 +812,7 @@ describe('Card', () => {
 - ✅ Maintain test coverage above the threshold
 
 ### DON'T
+
 - ❌ Test internal implementation details
 - ❌ Write tests that depend on other tests
 - ❌ Use production data or real external services
@@ -798,37 +826,41 @@ describe('Card', () => {
 ## Common Testing Scenarios
 
 ### Testing Async Code
+
 ```typescript
 it('fetches user data', async () => {
-  const user = await fetchUser('123');
-  expect(user.name).toBe('John Doe');
+	const user = await fetchUser('123');
+	expect(user.name).toBe('John Doe');
 });
 ```
 
 ### Testing Promises
+
 ```typescript
 it('rejects when user not found', async () => {
-  await expect(fetchUser('invalid-id')).rejects.toThrow('User not found');
+	await expect(fetchUser('invalid-id')).rejects.toThrow('User not found');
 });
 ```
 
 ### Testing Hooks
+
 ```typescript
 import { renderHook, waitFor } from '@testing-library/react';
 import { useUser } from './useUser';
 
 it('fetches user data', async () => {
-  const { result } = renderHook(() => useUser('123'));
-  
-  await waitFor(() => {
-    expect(result.current.user).toBeDefined();
-  });
-  
-  expect(result.current.user.name).toBe('John Doe');
+	const { result } = renderHook(() => useUser('123'));
+
+	await waitFor(() => {
+		expect(result.current.user).toBeDefined();
+	});
+
+	expect(result.current.user.name).toBe('John Doe');
 });
 ```
 
 ### Testing with Context
+
 ```typescript
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from './ThemeProvider';
@@ -840,16 +872,17 @@ it('uses theme from context', () => {
       <ThemedButton>Click me</ThemedButton>
     </ThemeProvider>
   );
-  
+
   expect(screen.getByRole('button')).toHaveClass('dark-theme');
 });
 ```
 
 ### Mocking Modules
+
 ```typescript
 // Mock an entire module
 jest.mock('./apiClient', () => ({
-  fetchData: jest.fn(() => Promise.resolve({ data: 'mocked' })),
+	fetchData: jest.fn(() => Promise.resolve({ data: 'mocked' })),
 }));
 
 // Mock a specific function
@@ -860,16 +893,19 @@ jest.spyOn(apiClient, 'fetchData').mockResolvedValue({ data: 'mocked' });
 ## Debugging Tests
 
 ### Run a Single Test File
+
 ```bash
 pnpm test path/to/test.spec.ts
 ```
 
 ### Run Tests Matching a Pattern
+
 ```bash
 pnpm test --testNamePattern="Button"
 ```
 
 ### Run in Debug Mode
+
 ```bash
 node --inspect-brk node_modules/.bin/jest --runInBand
 ```
@@ -877,6 +913,7 @@ node --inspect-brk node_modules/.bin/jest --runInBand
 Then open `chrome://inspect` in Chrome and click "inspect" on the target.
 
 ### View Coverage for Specific File
+
 ```bash
 pnpm test:coverage --collectCoverageFrom="src/components/Button/**"
 ```
@@ -884,6 +921,7 @@ pnpm test:coverage --collectCoverageFrom="src/components/Button/**"
 ## CI Integration
 
 Tests run automatically in CI on every push and pull request. The CI pipeline:
+
 1. Installs dependencies with `pnpm install --frozen-lockfile`
 2. Runs all tests with `pnpm test:ci`
 3. Generates coverage reports
@@ -906,7 +944,8 @@ Tests run automatically in CI on every push and pull request. The CI pipeline:
 - [React Native Testing Library](https://callstack.github.io/react-native-testing-library/)
 - [Testing Best Practices](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
 - [Test-Driven Development](https://martinfowler.com/bliki/TestDrivenDevelopment.html)
-```
+
+````
 
 #### Step 5 Verification Checklist
 - [x] Verify `docs/TESTING.md` file exists and contains comprehensive documentation
@@ -920,7 +959,7 @@ Tests run automatically in CI on every push and pull request. The CI pipeline:
 ```bash
 git add docs/TESTING.md
 git commit -m "docs: add comprehensive testing guide"
-```
+````
 
 ---
 
@@ -963,7 +1002,7 @@ import userEvent from '@testing-library/user-event';
 // This is a placeholder example component for testing demonstration
 function Counter() {
   const [count, setCount] = React.useState(0);
-  
+
   return (
     <div>
       <p>Count: {count}</p>
@@ -981,10 +1020,10 @@ describe('Counter', () => {
   it('increments count when button is clicked', async () => {
     const user = userEvent.setup();
     render(<Counter />);
-    
+
     const button = screen.getByRole('button', { name: /increment/i });
     await user.click(button);
-    
+
     expect(screen.getByText(/count: 1/i)).toBeInTheDocument();
   });
 });
@@ -1004,11 +1043,11 @@ interface ButtonProps {
   disabled?: boolean;
 }
 
-function ExampleButton({ 
-  children, 
-  onClick, 
+function ExampleButton({
+  children,
+  onClick,
   variant = 'primary',
-  disabled = false 
+  disabled = false
 }: ButtonProps) {
   return (
     <button
@@ -1030,10 +1069,10 @@ describe('ExampleButton', () => {
   it('calls onClick when clicked', async () => {
     const handleClick = jest.fn();
     const user = userEvent.setup();
-    
+
     render(<ExampleButton onClick={handleClick}>Click me</ExampleButton>);
     await user.click(screen.getByRole('button'));
-    
+
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
@@ -1045,7 +1084,7 @@ describe('ExampleButton', () => {
   it('applies variant class correctly', () => {
     const { rerender } = render(<ExampleButton variant="primary">Primary</ExampleButton>);
     expect(screen.getByRole('button')).toHaveClass('btn-primary');
-    
+
     rerender(<ExampleButton variant="secondary">Secondary</ExampleButton>);
     expect(screen.getByRole('button')).toHaveClass('btn-secondary');
   });
@@ -1057,66 +1096,66 @@ describe('ExampleButton', () => {
 ```typescript
 // This is a placeholder example utility for testing demonstration
 function add(a: number, b: number): number {
-  return a + b;
+	return a + b;
 }
 
 function divide(a: number, b: number): number {
-  if (b === 0) {
-    throw new Error('Cannot divide by zero');
-  }
-  return a / b;
+	if (b === 0) {
+		throw new Error('Cannot divide by zero');
+	}
+	return a / b;
 }
 
 function isEven(n: number): boolean {
-  return n % 2 === 0;
+	return n % 2 === 0;
 }
 
 describe('Math Utilities', () => {
-  describe('add', () => {
-    it('adds two positive numbers', () => {
-      expect(add(2, 3)).toBe(5);
-    });
+	describe('add', () => {
+		it('adds two positive numbers', () => {
+			expect(add(2, 3)).toBe(5);
+		});
 
-    it('adds negative numbers', () => {
-      expect(add(-2, -3)).toBe(-5);
-    });
+		it('adds negative numbers', () => {
+			expect(add(-2, -3)).toBe(-5);
+		});
 
-    it('adds positive and negative numbers', () => {
-      expect(add(5, -3)).toBe(2);
-    });
-  });
+		it('adds positive and negative numbers', () => {
+			expect(add(5, -3)).toBe(2);
+		});
+	});
 
-  describe('divide', () => {
-    it('divides two numbers', () => {
-      expect(divide(10, 2)).toBe(5);
-    });
+	describe('divide', () => {
+		it('divides two numbers', () => {
+			expect(divide(10, 2)).toBe(5);
+		});
 
-    it('handles decimals', () => {
-      expect(divide(7, 2)).toBe(3.5);
-    });
+		it('handles decimals', () => {
+			expect(divide(7, 2)).toBe(3.5);
+		});
 
-    it('throws error when dividing by zero', () => {
-      expect(() => divide(10, 0)).toThrow('Cannot divide by zero');
-    });
-  });
+		it('throws error when dividing by zero', () => {
+			expect(() => divide(10, 0)).toThrow('Cannot divide by zero');
+		});
+	});
 
-  describe('isEven', () => {
-    it('returns true for even numbers', () => {
-      expect(isEven(2)).toBe(true);
-      expect(isEven(4)).toBe(true);
-      expect(isEven(100)).toBe(true);
-    });
+	describe('isEven', () => {
+		it('returns true for even numbers', () => {
+			expect(isEven(2)).toBe(true);
+			expect(isEven(4)).toBe(true);
+			expect(isEven(100)).toBe(true);
+		});
 
-    it('returns false for odd numbers', () => {
-      expect(isEven(1)).toBe(false);
-      expect(isEven(3)).toBe(false);
-      expect(isEven(99)).toBe(false);
-    });
+		it('returns false for odd numbers', () => {
+			expect(isEven(1)).toBe(false);
+			expect(isEven(3)).toBe(false);
+			expect(isEven(99)).toBe(false);
+		});
 
-    it('returns true for zero', () => {
-      expect(isEven(0)).toBe(true);
-    });
-  });
+		it('returns true for zero', () => {
+			expect(isEven(0)).toBe(true);
+		});
+	});
 });
 ```
 
@@ -1130,6 +1169,7 @@ mkdir -p packages/utils/src/__tests__
 ```
 
 #### Step 6 Verification Checklist
+
 - [x] Verify all example test files were created in correct locations
 - [x] Run `cd web/miller.pub && pnpm test` - should pass (1 test suite)
 - [x] Run `cd web/readon.app && pnpm test` - should pass (1 test suite)
@@ -1138,6 +1178,7 @@ mkdir -p packages/utils/src/__tests__
 - [x] All tests pass without errors
 
 #### Step 6 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ```bash
@@ -1167,12 +1208,14 @@ Add convenient test scripts at the monorepo root for running tests across all wo
 - [x] Verify the scripts are added correctly in the root package.json
 
 #### Step 7 Verification Checklist
+
 - [x] Run `pnpm test` from root - should run tests in all packages
 - [x] Verify output shows tests from multiple packages
 - [x] Run `pnpm test:coverage` from root - should generate coverage for all packages
 - [x] Check that coverage reports are created in each package's `coverage/` directory
 
 #### Step 7 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ```bash
@@ -1201,29 +1244,29 @@ jobs:
   test:
     name: Run Tests with Coverage
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 9.12.2
-      
+
       - name: Get pnpm store directory
         id: pnpm-cache
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      
+
       - name: Setup pnpm cache
         uses: actions/cache@v3
         with:
@@ -1231,13 +1274,13 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Run tests with coverage
         run: pnpm test:coverage
-      
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -1250,7 +1293,7 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
-      
+
       - name: Comment coverage on PR
         if: github.event_name == 'pull_request'
         uses: codecov/codecov-action@v4
@@ -1276,26 +1319,26 @@ coverage:
         threshold: 5%
 
 comment:
-  layout: "reach,diff,flags,tree,footer"
+  layout: 'reach,diff,flags,tree,footer'
   behavior: default
   require_changes: false
   require_base: false
   require_head: true
 
 ignore:
-  - "**/*.spec.ts"
-  - "**/*.test.ts"
-  - "**/*.spec.tsx"
-  - "**/*.test.tsx"
-  - "**/__tests__/**"
-  - "**/jest.config.js"
-  - "**/jest.setup.js"
-  - "**/*.stories.tsx"
-  - "**/dist/**"
-  - "**/build/**"
-  - "**/coverage/**"
-  - "**/.next/**"
-  - "**/.expo/**"
+  - '**/*.spec.ts'
+  - '**/*.test.ts'
+  - '**/*.spec.tsx'
+  - '**/*.test.tsx'
+  - '**/__tests__/**'
+  - '**/jest.config.js'
+  - '**/jest.setup.js'
+  - '**/*.stories.tsx'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/coverage/**'
+  - '**/.next/**'
+  - '**/.expo/**'
 
 flags:
   unittests:
@@ -1320,6 +1363,7 @@ mkdir -p .github/workflows
 ```
 
 #### Step 8 Verification Checklist
+
 - [x] Verify `.github/workflows/test.yml` exists with correct content
 - [x] Verify `codecov.yml` exists in root with correct configuration
 - [x] Check that the workflow file uses correct pnpm version (9.12.2)
@@ -1331,6 +1375,7 @@ mkdir -p .github/workflows
   - Push to a branch and create a PR to see it in action
 
 #### Step 8 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ```bash
@@ -1350,6 +1395,7 @@ pnpm test:coverage
 ```
 
 **Expected Results:**
+
 - All example tests pass
 - Coverage reports generated for all configured packages
 - No TypeScript errors
@@ -1367,26 +1413,30 @@ pnpm test:coverage
 ## Troubleshooting
 
 ### Jest fails to run in Next.js apps
+
 - Ensure `next/jest` is installed: `pnpm add -D jest @types/jest`
 - Verify `next.config.js` exists in the app directory
 
 ### Tests fail with "Cannot find module" errors
+
 - Check that `moduleNameMapper` in jest.config.js matches your tsconfig paths
 - Ensure all test dependencies are installed
 - Try clearing Jest cache: `pnpm test --clearCache`
 
 ### Coverage thresholds fail
+
 - Review the coverage report HTML: `open packages/<package>/coverage/index.html`
 - Lower thresholds temporarily in jest.config.js
 - Focus on testing critical code paths first
 
 ### React Native tests fail
+
 - Ensure `jest-expo` preset is installed
 - Verify `transformIgnorePatterns` includes all necessary node_modules
 - Check that Babel config is compatible with React Native
 
 ---
 
-**Implementation Complete!** 
+**Implementation Complete!**
 
 You've successfully established comprehensive testing infrastructure across the monorepo. All packages now have Jest configurations, coverage reporting, example tests, and CI integration ready to go.

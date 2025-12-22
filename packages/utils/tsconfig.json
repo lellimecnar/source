@@ -1,23 +1,21 @@
 {
-  "extends": "@lellimecnar/typescript-config/react.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext"
-  },
-  "include": [
-    "src/**/*.ts",
-    ".*.js",
-    "src/lodash.mts"
-  ],
-  "exclude": [
-    "dist",
-    "build",
-    "node_modules"
-  ]
+	"extends": "@lellimecnar/typescript-config/react.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@/*": [
+				"./src/*"
+			]
+		}
+	},
+	"include": [
+		"src/**/*.ts",
+		".*.js",
+		"src/lodash.mts"
+	],
+	"exclude": [
+		"dist",
+		"build",
+		"node_modules"
+	]
 }

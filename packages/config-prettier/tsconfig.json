@@ -1,18 +1,11 @@
 {
-  "extends": "@lellimecnar/typescript-config/react.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
-  },
-  "include": [
-    "*.js",
-    ".*.js"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+	"extends": "@lellimecnar/typescript-config/react.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"]
+		}
+	},
+	"include": ["*.js", ".*.js"],
+	"exclude": ["node_modules"]
 }

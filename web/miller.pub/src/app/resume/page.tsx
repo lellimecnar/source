@@ -39,10 +39,10 @@ export default function ResumePage(): JSX.Element {
 						<span className="border-b-2 border-black px-2 uppercase leading-none">
 							{data.name}
 						</span>
-						<span className="all-small-caps text-xl font-semibold leading-none">
+						<span className="text-xl font-semibold leading-none all-small-caps">
 							{data.title}
 						</span>
-						<span className="all-small-caps text-sm font-semibold leading-none text-[#777]">
+						<span className="text-sm font-semibold leading-none text-[#777] all-small-caps">
 							{data.location}
 						</span>
 					</h1>
@@ -135,14 +135,14 @@ function ExperienceItem({
 				<span className="relative flex items-baseline gap-4 font-bold">
 					<span className="text-md font-semibold">{title}</span>
 					{type ? (
-						<span className="all-small-caps text-sm font-medium text-[#777]">
+						<span className="text-sm font-medium text-[#777] all-small-caps">
 							{type}
 						</span>
 					) : null}
 				</span>
 				<span className="text-sm italic">{employer}</span>
 			</div>
-			<div className="all-small-caps flex break-before-avoid-page break-after-avoid-page items-center justify-between text-sm font-medium lining-nums leading-none text-[#777]">
+			<div className="flex break-before-avoid-page break-after-avoid-page items-center justify-between text-sm font-medium lining-nums leading-none text-[#777] all-small-caps">
 				<span className="">
 					{start} – {end}
 				</span>
@@ -150,7 +150,7 @@ function ExperienceItem({
 					{city}, {state}
 				</span>
 			</div>
-			<ul className="list-ring list-outside columns-2 break-before-avoid-page gap-8 pl-6 pr-2 pt-2 text-xs leading-tight">
+			<ul className="list-outside list-ring columns-2 break-before-avoid-page gap-8 pl-6 pr-2 pt-2 text-xs leading-tight">
 				{items.map((item) => (
 					<ExperienceItemPoint key={item} value={item} />
 				))}
@@ -250,7 +250,7 @@ function SkillsList(): JSX.Element {
 		<div className="flex w-full flex-col gap-4">
 			{groups.map(({ title, items }) => (
 				<div className="flex w-full flex-col gap-1.5" key={title}>
-					<div className="all-small-caps relative whitespace-nowrap border-b-2 border-[#ccc] pl-2 text-lg font-bold leading-none text-[#777]">
+					<div className="relative whitespace-nowrap border-b-2 border-[#ccc] pl-2 text-lg font-bold leading-none text-[#777] all-small-caps">
 						<span>{title}</span>
 					</div>
 					{items.map(({ name, icon, score }) => (

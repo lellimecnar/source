@@ -3,7 +3,7 @@ module.exports = {
 	preset: 'ts-jest',
 	roots: ['<rootDir>'],
 	transform: {
-		'^.+\.(ts|tsx)$': 'ts-jest',
+		'^.+.ts(x)?$': 'ts-jest',
 	},
 	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 	collectCoverageFrom: [

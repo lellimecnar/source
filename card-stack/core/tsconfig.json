@@ -1,20 +1,12 @@
 {
-    "extends": "@lellimecnar/typescript-config",
-    "compilerOptions": {
-        "baseUrl": ".",
-        "module": "NodeNext",
-        "moduleResolution": "NodeNext",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true
-    },
-    "include": [
-        "**/*.ts",
-        "*.js",
-        ".*.js"
-    ],
-    "exclude": [
-        "dist",
-        "build",
-        "node_modules"
-    ]
+	"extends": "@lellimecnar/typescript-config",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true
+	},
+	"include": ["**/*.ts", "*.js", ".*.js"],
+	"exclude": ["dist", "build", "node_modules"]
 }

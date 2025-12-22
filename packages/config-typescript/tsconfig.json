@@ -1,18 +1,11 @@
 {
-  "extends": "./base.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
-  },
-  "include": [
-    "*.json",
-    ".eslintrc.js"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+	"extends": "./base.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"]
+		}
+	},
+	"include": ["*.json", ".eslintrc.js"],
+	"exclude": ["node_modules"]
 }

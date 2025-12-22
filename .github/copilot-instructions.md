@@ -35,26 +35,28 @@ pnpm clean
 ## Package Export Patterns
 
 ### Web UI (@lellimecnar/ui)
+
 Uses **granular exports** for tree-shaking. Never import from package root:
 
 ```typescript
 // ✅ CORRECT - granular imports
-import { Button } from '@lellimecnar/ui/button'
-import { cn } from '@lellimecnar/ui/lib/utils'
-import '@lellimecnar/ui/global.css'
+import { Button } from '@lellimecnar/ui/button';
+import { cn } from '@lellimecnar/ui/lib/utils';
+import '@lellimecnar/ui/global.css';
 
 // ❌ WRONG - no barrel exports
-import { Button } from '@lellimecnar/ui'
+import { Button } from '@lellimecnar/ui';
 ```
 
 The package exports are defined in `package.json` exports field. Check `packages/ui/package.json` before adding imports.
 
 ### Mobile UI (@lellimecnar/ui-nativewind)
+
 Similar pattern for React Native components using NativeWind:
 
 ```typescript
-import { View, Stack } from '@lellimecnar/ui-nativewind'
-import '@lellimecnar/ui-nativewind/global.css'
+import { View, Stack } from '@lellimecnar/ui-nativewind';
+import '@lellimecnar/ui-nativewind/global.css';
 ```
 
 ## Next.js Configuration Pattern
@@ -64,8 +66,8 @@ Both Next.js apps MUST transpile the `@lellimecnar/ui` package because it uses T
 ```javascript
 // web/*/next.config.js
 module.exports = {
-  reactStrictMode: true,
-  transpilePackages: ['@lellimecnar/ui'],
+	reactStrictMode: true,
+	transpilePackages: ['@lellimecnar/ui'],
 };
 ```
 
@@ -78,7 +80,7 @@ import { Mix } from 'ts-mixer';
 
 // Compose multiple behaviors using Mix
 class StandardCard extends Mix(Card, Flippable, Rankable, Suitable) {
-  // Implementation
+	// Implementation
 }
 ```
 
@@ -107,6 +109,7 @@ export default baseConfig
 ## Turborepo Task Dependencies
 
 Build tasks have dependencies defined in `turbo.json`:
+
 - `build` depends on `^build` (upstream packages build first)
 - `lint` depends on `^build` (requires built packages)
 - `dev` and `test:watch` are persistent tasks (never cache)
@@ -130,6 +133,7 @@ Routes in `()` don't create URL segments. Files prefixed with `+` are web-only.
 ## Testing Convention
 
 Jest is configured per-package, NOT at monorepo root:
+
 - Config location: `<package>/jest.config.js`
 - Tests alongside source: `<package>/src/**/*.spec.ts`
 - Run from root: `pnpm --filter <package-name> test`

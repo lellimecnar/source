@@ -139,7 +139,7 @@ function Dots({ value }: DotsProps): JSX.Element {
 					</span>
 					{!((i + 1) % cols) && <span className="!h-0 basis-full" />}
 					{!((i + 1) % 10) && i + 1 < value && (
-						<span className="border-foreground/30 mx-4 my-1 !h-0 basis-full border-t" />
+						<span className="mx-4 my-1 !h-0 basis-full border-t border-foreground/30" />
 					)}
 				</>
 			)),
