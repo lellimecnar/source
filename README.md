@@ -2,7 +2,50 @@
 
 A modular **TypeScript Monorepo** unifying web and mobile development with a shared card game engine. This repository implements a strict architectural boundary between application logic, user interface components, and core domain logic, managed by **pnpm** and **Turborepo**.
 
-## 🚀 Technology Stack
+## � Security & Environment Setup
+
+**Critical:** This project uses environment variables for sensitive configuration. Follow these steps carefully:
+
+### First-Time Setup
+
+1. **Copy environment templates:**
+
+   ```bash
+   cp .env.example .env
+   cp web/miller.pub/.env.example web/miller.pub/.env
+   cp web/readon.app/.env.example web/readon.app/.env
+   cp mobile/readon/.env.example mobile/readon/.env
+   ```
+
+2. **Obtain actual secrets:**
+
+   - **TURBO_TOKEN**: Get from project admin or generate at [Vercel Tokens](https://vercel.com/account/tokens)
+   - **CONTEXT7_API_KEY**: Get from project admin or generate at [Context7 API Settings](https://context7.com/settings/api)
+   - **GITHUB_TOKEN**: Generate at [GitHub Tokens](https://github.com/settings/tokens) with `repo` and `workflow` scopes
+
+3. **Update `.env` files** with actual values (replace placeholders)
+
+4. **Verify git is ignoring `.env`:**
+   ```bash
+   git status  # .env files should NOT appear
+   ```
+
+### Security Guidelines
+
+- ⚠️ **NEVER commit `.env` files** - They are automatically ignored by git
+- ✅ **Always use `.env.example`** for documenting required variables
+- 🔄 **Rotate secrets immediately** if accidentally exposed
+- 📖 Read the full [Security Policy](SECURITY.md) for detailed guidelines
+
+### Pre-commit Secret Scanning
+
+This repository uses [Gitleaks](https://github.com/gitleaks/gitleaks) to automatically detect secrets before commits. If your commit is blocked:
+
+1. Remove the detected secret from your changes
+2. If it's a real secret that was committed, **rotate it immediately**
+3. Check [SECURITY.md](SECURITY.md) for rotation procedures
+
+## �🚀 Technology Stack
 
 This project utilizes a modern full-stack ecosystem:
 
