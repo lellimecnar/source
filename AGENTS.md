@@ -6,12 +6,31 @@ This file serves as the primary entry point for AI agents and developers working
 
 This is a **pnpm + Turborepo** monorepo containing web applications, mobile applications, shared UI libraries, and a card game engine.
 
-**Key Documentation Blueprints:**
+## 📚 Documentation
 
-- [Folder Structure](./Project_Folders_Structure_Blueprint.md) - Detailed directory hierarchy.
-- [Tech Stack](./Technology_Stack_Blueprint.md) - Comprehensive list of technologies and versions.
-- [Architecture](./Project_Architecture_Blueprint.md) - System design and data flow.
-- [Workflows](./Project_Workflow_Documentation.md) - Common development scenarios and code paths.
+- **[Developer Guide (this file)](./AGENTS.md):** Primary entry point for developers and AI agents.
+- **[Contributing](./CONTRIBUTING.md):** Guidelines for contributing to the project.
+- **[Security](./SECURITY.md):** Security policy and secret management.
+- **[Changelog](./CHANGELOG.md):** Version history.
+- **[Code of Conduct](./CODE_OF_CONDUCT.md):** Community standards.
+
+### Blueprints
+
+- **[Architecture](./Project_Architecture_Blueprint.md):** High-level system design.
+- **[Folder Structure](./Project_Folders_Structure_Blueprint.md):** Detailed directory hierarchy.
+- **[Tech Stack](./Technology_Stack_Blueprint.md):** List of technologies used.
+- **[Workflows](./Project_Workflow_Documentation.md):** Common development scenarios.
+
+### API Reference
+
+- **[UI Components](./docs/api/ui-components.md):** Props and usage for `@lellimecnar/ui`.
+- **[Card Stack](./docs/api/card-stack.md):** Core classes and mixins for the game engine.
+- **[Utilities](./docs/api/utils.md):** Shared utility functions.
+
+### Architecture Decision Records (ADRs)
+
+- **[ADR-0001: Use Turborepo](./docs/adr/0001-use-turborepo.md)**
+- **[ADR-0002: Mixin Pattern for Cards](./docs/adr/0002-mixin-pattern-for-cards.md)**
 
 ## 2. Monorepo Structure
 
@@ -30,6 +49,16 @@ The repository is organized into the following workspaces:
 - **`card-stack/*`**: Domain logic packages.
   - `core`: Core card game engine using TypeScript mixins.
   - `deck-standard`: Standard 52-card deck implementation.
+
+### Documentation Map
+
+- **[README.md](./README.md)**: Project overview and quick start.
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)**: Contribution guidelines.
+- **[SECURITY.md](./SECURITY.md)**: Security policy.
+- **[CHANGELOG.md](./CHANGELOG.md)**: Version history.
+- **[CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)**: Community standards.
+- **[docs/adr](./docs/adr)**: Architecture Decision Records.
+- **[docs/api](./docs/api)**: API Documentation.
 
 ## 3. Tech Stack Summary
 

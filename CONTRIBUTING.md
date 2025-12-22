@@ -10,6 +10,7 @@ Thank you for your interest in contributing! This document provides guidelines a
 - [Testing](#testing)
 - [Pull Requests](#pull-requests)
 - [Code Style](#code-style)
+- [Code of Conduct](#code-of-conduct)
 
 ## Getting Started
 
@@ -39,6 +40,165 @@ This is a **pnpm + Turborepo** monorepo with the following workspaces:
 - **`card-stack/*`**: Domain logic packages (card game engine)
 
 See [AGENTS.md](./AGENTS.md) for comprehensive project documentation.
+
+## Development Workflow
+
+### Running Development Servers
+
+```bash
+# Start all development servers
+pnpm dev
+
+# Start specific workspace
+pnpm miller.pub dev
+pnpm readon.app dev
+pnpm readon dev  # Mobile app
+```
+
+### Building
+
+```bash
+# Build all workspaces
+pnpm build
+
+# Build specific workspace
+pnpm --filter @lellimecnar/ui build
+```
+
+### Testing
+
+```bash
+# Run all tests
+pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run tests for specific package
+pnpm --filter @card-stack/core test
+```
+
+### Linting and Type Checking
+
+```bash
+# Lint all workspaces
+pnpm lint
+
+# Auto-fix linting issues
+pnpm format
+
+# Type check all workspaces
+pnpm type-check
+```
+
+### Clean Build Artifacts
+
+```bash
+# Remove all build artifacts and node_modules
+pnpm clean
+```
+
+## Dependency Management
+
+We use `pnpm` workspaces.
+
+- **Add dependency to specific package:**
+  ```bash
+  pnpm --filter @lellimecnar/ui add react-day-picker
+  ```
+- **Add dev dependency:**
+  ```bash
+  pnpm --filter @lellimecnar/ui add -D @types/react
+  ```
+
+## Testing
+
+- Tests are co-located with source files: `src/**/*.spec.ts`
+- Each workspace with tests has a `jest.config.js`
+- Shared Jest configuration: `@lellimecnar/jest-config`
+
+### Writing Tests
+
+```typescript
+// Example: src/utils/formatDate.spec.ts
+import { formatDate } from './formatDate';
+
+describe('formatDate', () => {
+	it('should format a date correctly', () => {
+		const date = new Date('2025-12-21');
+		expect(formatDate(date, 'yyyy-MM-dd')).toBe('2025-12-21');
+	});
+});
+```
+
+### Test Coverage
+
+To generate coverage reports:
+
+```bash
+# Run tests with coverage
+pnpm test -- --coverage
+
+# View coverage report
+open coverage/lcov-report/index.html
+```
+
+## Pull Requests
+
+### PR Guidelines
+
+1. **Branch Naming:**
+
+   - Feature: `feat/description`
+   - Bug fix: `fix/description`
+   - Chore: `chore/description`
+   - Documentation: `docs/description`
+
+2. **Commit Messages:**
+
+   - Follow [Conventional Commits](https://www.conventionalcommits.org/)
+   - Examples: `feat: add user authentication`, `fix: resolve memory leak in card shuffle`
+
+3. **PR Description:**
+
+   - Clearly describe what the PR does
+   - Reference any related issues
+   - Include screenshots for UI changes
+   - List any breaking changes
+
+4. **Before Submitting:**
+   - [ ] All tests pass (`pnpm test`)
+   - [ ] Linting passes (`pnpm lint`)
+   - [ ] Type checking passes (`pnpm type-check`)
+   - [ ] Build succeeds (`pnpm build`)
+   - [ ] Manual testing completed
+
+### CI Requirements
+
+All PRs must pass the following CI checks:
+
+- **Lint:** ESLint checks for code quality and style
+- **Type Check:** TypeScript compiler verifies types
+- **Test:** Jest runs all unit tests
+- **Build:** Turborepo builds all workspaces
+- **Dependency Review:** Security scan for vulnerabilities and license compliance
+
+### Review Process
+
+1. **Automated Checks:** CI must pass before review
+2. **Code Review:** At least one approval required
+
+## Code Style
+
+We use **ESLint** and **Prettier** to enforce code style.
+
+- **Linting:** Run `pnpm lint` to check for issues.
+- **Formatting:** Run `pnpm format` to auto-format code.
+- **Configuration:** Shared configs are in `packages/config-eslint` and `packages/config-prettier`.
+
+## Code of Conduct
+
+Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
 
 ## Development Workflow
 
@@ -312,16 +472,19 @@ open coverage/lcov-report/index.html
 ### PR Guidelines
 
 1. **Branch Naming:**
+
    - Feature: `feat/description`
    - Bug fix: `fix/description`
    - Chore: `chore/description`
    - Documentation: `docs/description`
 
 2. **Commit Messages:**
+
    - Follow [Conventional Commits](https://www.conventionalcommits.org/)
    - Examples: `feat: add user authentication`, `fix: resolve memory leak in card shuffle`
 
 3. **PR Description:**
+
    - Clearly describe what the PR does
    - Reference any related issues
    - Include screenshots for UI changes
