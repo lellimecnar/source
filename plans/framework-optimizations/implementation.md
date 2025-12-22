@@ -21,7 +21,7 @@ git checkout -b perf/framework-optimizations
 
 ### Step 1: Optimize Next.js Configuration - Miller.pub
 
-- [ ] Replace the entire contents of `web/miller.pub/next.config.js` with the optimized configuration below:
+- [x] Replace the entire contents of `web/miller.pub/next.config.js` with the optimized configuration below:
 
 ```javascript
 /** @type {import('next').NextConfig} */
@@ -100,17 +100,22 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 module.exports = withBundleAnalyzer(nextConfig);
 ```
 
-- [ ] Run the build command to verify the configuration works:
+- [x] Run the build command to verify the configuration works. **Note:** The build initially failed due to missing dependencies and incorrect configuration. The following steps were taken to resolve the issue:
+  - Installed `@next/bundle-analyzer`
+  - Moved `@lellimecnar/utils` from `devDependencies` to `dependencies` in `web/miller.pub/package.json`
+  - Added `@lellimecnar/utils` to `transpilePackages` in `web/miller.pub/next.config.js`
+  - Added path aliases for `@lellimecnar/utils` to `web/miller.pub/tsconfig.json`
+  - Added a webpack alias for `@lellimecnar/utils` to `web/miller.pub/next.config.js`
 
 ```bash
 pnpm miller.pub build
 ```
 
 #### Step 1 Verification Checklist
-- [ ] Build completes successfully without errors
-- [ ] Check build output mentions "Standalone build" mode
-- [ ] Verify `.next/standalone` directory is created
-- [ ] No TypeScript or ESLint errors reported
+- [x] Build completes successfully without errors
+- [x] Check build output mentions "Standalone build" mode
+- [x] Verify `.next/standalone` directory is created
+- [x] No TypeScript or ESLint errors reported
 
 #### Step 1 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.

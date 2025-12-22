@@ -12,6 +12,12 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@lellimecnar/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@lellimecnar/utils": [
+        "../../packages/utils/src/index.ts"
       ]
     }
   },
