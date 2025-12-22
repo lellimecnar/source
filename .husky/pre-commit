@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit security checks..."
+
+# Run Gitleaks on staged files
+echo "🔐 Scanning for secrets with Gitleaks..."
+gitleaks protect --staged --verbose --config=.gitleaks.toml
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ SECRET DETECTED! Commit blocked for security."
+  echo ""
+  echo "🚨 Action required:"
+  echo "   1. Remove the detected secret from your changes"
+  echo "   2. If it's a false positive, update .gitleaks.toml allowlist"
+  echo "   3. If a real secret was committed before, rotate it immediately"
+  echo ""
+  exit 1
+fi
+
+echo "✅ No secrets detected - proceeding with commit"
+
+# Run lint-staged for code quality
+pnpm exec lint-staged

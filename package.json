@@ -1,49 +1,61 @@
 {
-  "name": "@lellimecnar/source",
-  "version": "1.0.0",
-  "private": true,
-  "workspaces": [
-    "card-stack/*",
-    "packages/*",
-    "web/*",
-    "mobile/*"
-  ],
-  "scripts": {
-    "analyze:miller.pub": "cd web/miller.pub && ANALYZE=true pnpm build",
-    "analyze:readon.app": "cd web/readon.app && ANALYZE=true pnpm build",
-    "build": "turbo build",
-    "clean": "turbo clean; git clean -xdf node_modules .turbo .next .expo",
-    "clean:hard": "pnpm clean && rm -rf pnpm-lock.yaml && pnpm install",
-    "dev": "turbo dev",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,json}\"",
-    "graph": "pnpm list --depth=Infinity --json",
-    "lint": "turbo lint",
-    "miller.pub": "pnpm --filter miller.pub",
-    "outdated": "pnpm outdated --recursive",
-    "readon": "pnpm --filter readon",
-    "readon.app": "pnpm --filter readon.app",
-    "test": "turbo test",
-    "test:watch": "turbo test:watch",
-    "type-check": "turbo type-check",
-    "ui": "pnpm --filter @lellimecnar/ui",
-    "update-interactive": "pnpm update --interactive --recursive --latest",
-    "why": "pnpm why"
-  },
-  "devDependencies": {
-    "@lellimecnar/eslint-config": "workspace:*",
-    "@lellimecnar/prettier-config": "workspace:*",
-    "@lellimecnar/typescript-config": "workspace:*",
-    "eslint": "^8.57.1",
-    "prettier": "^3.4.2",
-    "turbo": "^2.3.3",
-    "typescript": "~5.5"
-  },
-  "packageManager": "pnpm@9.12.2",
-  "engines": {
-    "node": "^20",
-    "pnpm": "^9"
-  },
-  "dependencies": {
-    "web-vitals": "^5.1.0"
-  }
+	"name": "@lellimecnar/source",
+	"version": "1.0.0",
+	"private": true,
+	"workspaces": [
+		"card-stack/*",
+		"packages/*",
+		"web/*",
+		"mobile/*"
+	],
+	"scripts": {
+		"analyze:miller.pub": "cd web/miller.pub && ANALYZE=true pnpm build",
+		"analyze:readon.app": "cd web/readon.app && ANALYZE=true pnpm build",
+		"build": "turbo build",
+		"clean": "turbo clean; git clean -xdf node_modules .turbo .next .expo",
+		"clean:hard": "pnpm clean && rm -rf pnpm-lock.yaml && pnpm install",
+		"dev": "turbo dev",
+		"format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,json}\"",
+		"graph": "pnpm list --depth=Infinity --json",
+		"lint": "turbo lint",
+		"miller.pub": "pnpm --filter miller.pub",
+		"outdated": "pnpm outdated --recursive",
+		"prepare": "husky",
+		"readon": "pnpm --filter readon",
+		"readon.app": "pnpm --filter readon.app",
+		"test": "turbo test",
+		"test:watch": "turbo test:watch",
+		"type-check": "turbo type-check",
+		"ui": "pnpm --filter @lellimecnar/ui",
+		"update-interactive": "pnpm update --interactive --recursive --latest",
+		"why": "pnpm why"
+	},
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx,mjs,cjs}": [
+			"eslint --fix",
+			"prettier --write"
+		],
+		"*.{json,md,yml,yaml}": [
+			"prettier --write"
+		]
+	},
+	"dependencies": {
+		"web-vitals": "^5.1.0"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/prettier-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"eslint": "^8.57.1",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.2.7",
+		"prettier": "^3.4.2",
+		"turbo": "^2.3.3",
+		"typescript": "~5.5"
+	},
+	"packageManager": "pnpm@9.12.2",
+	"engines": {
+		"node": "^20",
+		"pnpm": "^9"
+	}
 }

@@ -1,0 +1,50 @@
+# Gitleaks Configuration for @lellimecnar/source
+# Documentation: https://github.com/gitleaks/gitleaks
+
+title = "Gitleaks Configuration for @lellimecnar/source"
+
+[extend]
+# Use default rules as baseline
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+description = "Detected a generic API key pattern"
+regex = '''(?i)(api[_-]?key|apikey|api[_-]?secret|apisecret)['"\s]*[:=]\s*['"]?[a-zA-Z0-9]{20,}'''
+keywords = ["api_key", "apikey", "api_secret"]
+
+[[rules]]
+id = "github-token"
+description = "Detected a GitHub Personal Access Token"
+regex = '''ghp_[0-9a-zA-Z]{36}'''
+keywords = ["ghp_"]
+
+[[rules]]
+id = "turbo-token"
+description = "Detected a Vercel Turbo token"
+regex = '''TURBO_TOKEN\s*=\s*['"]?[a-zA-Z0-9]{10,}'''
+keywords = ["TURBO_TOKEN"]
+
+[[rules]]
+id = "generic-secret"
+description = "Detected a generic secret pattern"
+regex = '''(?i)(secret|password|passwd|token)['"\s]*[:=]\s*['"]?[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};:'",.<>?]{8,}'''
+keywords = ["secret", "password", "token"]
+
+[allowlist]
+description = "Allowlist for false positives"
+paths = [
+  '''^\.env\.example$''',
+  '''^.*\.env\..*\.example$''',
+  '''^.*\.md$''',
+  '''^.*\.txt$''',
+]
+
+# Allow example/template values
+regexes = [
+  '''your_.*_here''',
+  '''placeholder''',
+  '''example''',
+  '''INSERT_.*_HERE''',
+  '''xxx+''',
+]
