@@ -1,0 +1,78 @@
+version: 2
+updates:
+  # pnpm lockfile maintenance
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 10
+    groups:
+      # Group React ecosystem updates
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+      # Group Next.js ecosystem updates
+      nextjs:
+        patterns:
+          - 'next'
+          - '@next/*'
+      # Group Expo ecosystem updates
+      expo:
+        patterns:
+          - 'expo'
+          - 'expo-*'
+          - '@expo/*'
+      # Group testing dependencies
+      testing:
+        patterns:
+          - 'jest'
+          - '@jest/*'
+          - '@testing-library/*'
+          - 'ts-jest'
+      # Group linting dependencies
+      linting:
+        patterns:
+          - 'eslint'
+          - 'eslint-*'
+          - '@typescript-eslint/*'
+          - 'prettier'
+      # Group build tools
+      build-tools:
+        patterns:
+          - 'turbo'
+          - 'typescript'
+          - '@types/*'
+      # Group Tailwind ecosystem
+      tailwind:
+        patterns:
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'tailwindcss-animate'
+      # Group Radix UI components
+      radix-ui:
+        patterns:
+          - '@radix-ui/*'
+    labels:
+      - 'dependencies'
+      - 'automated'
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+
+  # GitHub Actions updates
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    labels:
+      - 'dependencies'
+      - 'github-actions'
+    commit-message:
+      prefix: 'chore(ci)'

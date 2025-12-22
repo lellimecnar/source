@@ -48,6 +48,7 @@
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/prettier-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
+		"@lhci/cli": "^0.15.1",
 		"eslint": "^8.57.1",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.2.7",
