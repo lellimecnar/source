@@ -25,10 +25,50 @@
       "cache": false,
       "persistent": true
     },
+    "test:coverage": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "jest.config.js",
+        "jest.config.ts"
+      ]
+    },
+    "test:ci": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "jest.config.js",
+        "jest.config.ts"
+      ],
+      "env": [
+        "CI"
+      ]
+    },
     "lint": {
       "dependsOn": [
         "^build"
       ]
+    },
+    "format": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": false
+    },
+    "type-check": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": []
     },
     "dev": {
       "cache": false,
