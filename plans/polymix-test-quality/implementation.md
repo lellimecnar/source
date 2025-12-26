@@ -10,8 +10,8 @@ If not, move them to the correct branch. If the branch does not exist, create it
 ### Step-by-Step Instructions
 
 #### Step 1: Strategy short-circuit & error propagation tests
-- [ ] Update `packages/polymix/src/strategies.spec.ts` by replacing the entire file with the contents below.
-- [ ] Copy and paste code below into `packages/polymix/src/strategies.spec.ts`:
+- [x] Update `packages/polymix/src/strategies.spec.ts` by replacing the entire file with the contents below.
+- [x] Copy and paste code below into `packages/polymix/src/strategies.spec.ts`:
 
 ```typescript
 import { applyStrategy } from './strategies';
@@ -464,8 +464,8 @@ describe('composition Strategies', () => {
 ```
 
 ##### Step 1 Verification Checklist
-- [ ] `pnpm --filter polymix test -- strategies.spec`
-- [ ] `pnpm --filter polymix test -- --coverage --collectCoverageFrom="src/strategies.ts"`
+- [x] `pnpm --filter polymix test -- strategies.spec`
+- [x] `pnpm --filter polymix test -- --coverage --collectCoverageFrom="src/strategies.ts"`
 
 #### Step 1 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -473,8 +473,8 @@ describe('composition Strategies', () => {
 ---
 
 #### Step 2: Core mixin composition & static descriptor tests
-- [ ] Update `packages/polymix/src/core.spec.ts` by replacing the entire file with the contents below.
-- [ ] Copy and paste code below into `packages/polymix/src/core.spec.ts`:
+- [x] Update `packages/polymix/src/core.spec.ts` by replacing the entire file with the contents below.
+- [x] Copy and paste code below into `packages/polymix/src/core.spec.ts`:
 
 ```typescript
 import { mix, mixWithBase } from './core';
@@ -1289,8 +1289,8 @@ describe('polymix Core: mix()', () => {
 ```
 
 ##### Step 2 Verification Checklist
-- [ ] `pnpm --filter polymix test -- core.spec`
-- [ ] `pnpm --filter polymix test -- --coverage --collectCoverageFrom="src/core.ts"`
+- [x] `pnpm --filter polymix test -- core.spec`
+- [x] `pnpm --filter polymix test -- --coverage --collectCoverageFrom="src/core.ts"`
 
 #### Step 2 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -1298,8 +1298,8 @@ describe('polymix Core: mix()', () => {
 ---
 
 #### Step 3: Decorator metadata & utils edge cases
-- [ ] Update `packages/polymix/src/decorators.spec.ts` by replacing the entire file with the contents below.
-- [ ] Copy and paste code below into `packages/polymix/src/decorators.spec.ts`:
+- [x] Update `packages/polymix/src/decorators.spec.ts` by replacing the entire file with the contents below.
+- [x] Copy and paste code below into `packages/polymix/src/decorators.spec.ts`:
 
 ```typescript
 import { mix } from './core';
@@ -1695,8 +1695,8 @@ describe('decorators', () => {
 });
 ```
 
-- [ ] Update `packages/polymix/src/__tests__/robustness.spec.ts` by replacing the entire file with the contents below.
-- [ ] Copy and paste code below into `packages/polymix/src/__tests__/robustness.spec.ts`:
+- [x] Update `packages/polymix/src/__tests__/robustness.spec.ts` by replacing the entire file with the contents below.
+- [x] Copy and paste code below into `packages/polymix/src/__tests__/robustness.spec.ts`:
 
 ```typescript
 import { mix } from '../core';
@@ -1789,8 +1789,8 @@ describe('robustness', () => {
 ```
 
 ##### Step 3 Verification Checklist
-- [ ] `pnpm --filter polymix test -- decorators.spec robustness.spec`
-- [ ] `pnpm --filter polymix test -- --coverage`
+- [x] `pnpm --filter polymix test -- decorators.spec robustness.spec`
+- [x] `pnpm --filter polymix test -- --coverage`
 
 #### Step 3 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -1798,8 +1798,8 @@ describe('robustness', () => {
 ---
 
 #### Step 4: Enforce 80% branch coverage threshold
-- [ ] Update `packages/polymix/jest.config.js` by replacing the entire file with the contents below.
-- [ ] Copy and paste code below into `packages/polymix/jest.config.js`:
+- [x] Update `packages/polymix/jest.config.js` by replacing the entire file with the contents below.
+- [x] Copy and paste code below into `packages/polymix/jest.config.js`:
 
 ```javascript
 /** @type {import('jest').Config} */
@@ -1829,8 +1829,8 @@ module.exports = {
 ```
 
 ##### Step 4 Verification Checklist
-- [ ] `pnpm --filter polymix test -- --coverage`
-- [ ] (Negative check) temporarily comment out a test assertion and confirm Jest fails with `coverageThreshold` errors; restore and re-run.
+- [x] `pnpm --filter polymix test -- --coverage`
+- [x] (Negative check) temporarily comment out a test assertion and confirm Jest fails with `coverageThreshold` errors; restore and re-run.
 
 #### Step 4 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -1838,9 +1838,9 @@ module.exports = {
 ---
 
 #### Step 5: Eliminate timing-based test flakiness
-- [ ] Remove all `setTimeout` usage from Polymix tests.
-- [ ] Update `packages/polymix/src/strategies.spec.ts` by replacing the entire file with the contents below.
-- [ ] Copy and paste code below into `packages/polymix/src/strategies.spec.ts`:
+- [x] Remove all `setTimeout` usage from Polymix tests.
+- [x] Update `packages/polymix/src/strategies.spec.ts` by replacing the entire file with the contents below.
+- [x] Copy and paste code below into `packages/polymix/src/strategies.spec.ts`:
 
 ```typescript
 import { applyStrategy } from './strategies';
@@ -2311,8 +2311,8 @@ describe('composition Strategies', () => {
 });
 ```
 
-- [ ] Update `packages/polymix/src/decorators.spec.ts` by replacing the entire file with the contents below.
-- [ ] Copy and paste code below into `packages/polymix/src/decorators.spec.ts`:
+- [x] Update `packages/polymix/src/decorators.spec.ts` by replacing the entire file with the contents below.
+- [x] Copy and paste code below into `packages/polymix/src/decorators.spec.ts`:
 
 ```typescript
 import { mix } from './core';
@@ -2726,13 +2726,13 @@ describe('decorators', () => {
 ```
 
 ##### Step 5 Verification Checklist
-- [ ] `pnpm --filter polymix test -- --runInBand`
-- [ ] Run 10 consecutive times to verify stability:
+- [x] `pnpm --filter polymix test -- --runInBand`
+- [x] Run 10 consecutive times to verify stability:
 
   `for i in {1..10}; do pnpm --filter polymix test -- --runInBand || break; done`
 
-- [ ] `pnpm --filter polymix test -- --maxWorkers=2`
-- [ ] `pnpm --filter polymix test -- --maxWorkers=4`
+- [x] `pnpm --filter polymix test -- --maxWorkers=2`
+- [x] `pnpm --filter polymix test -- --maxWorkers=4`
 
 #### Step 5 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.

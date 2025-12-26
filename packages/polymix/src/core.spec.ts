@@ -1,7 +1,14 @@
 import { mix, mixWithBase } from './core';
-import { pipe, parallel, abstract } from './decorators';
+import {
+	pipe,
+	parallel,
+	abstract,
+	override,
+	first,
+	compose,
+} from './decorators';
 import { strategies } from './strategies';
-import { from, hasMixin, when } from './utils';
+import { from, hasMixin, when, MIXIN_METADATA } from './utils';
 import 'reflect-metadata';
 
 describe('polymix Core: mix()', () => {
@@ -117,6 +124,184 @@ describe('polymix Core: mix()', () => {
 			const results = await runner.run();
 			expect(results).toEqual(['Task1 done', 'Task2 done']);
 		});
+
+		describe('strategy Precedence', () => {
+			it('last mixin strategy wins when multiple mixins provide different strategies', () => {
+				class A {
+					@first
+					method() {
+						return 'A';
+					}
+				}
+				class B {
+					@override
+					method() {
+						return 'B';
+					}
+				}
+
+				const Mixed = mix(A, B);
+				const instance = new Mixed();
+				expect(instance.method()).toBe('B');
+			});
+
+			it('strategy metadata lookup prefers MIXIN_METADATA over symbol strategy', () => {
+				class A {
+					@override
+					method() {
+						return 'A';
+					}
+				}
+				class B {
+					method() {
+						return 'B';
+					}
+				}
+
+				// Force a mismatch: symbol says "first", metadata says "override".
+				const strategySymbol = Symbol.for('polymix:strategy:method');
+				(A as any)[strategySymbol] = 'first';
+
+				const Mixed = mix(A, B);
+				const instance = new Mixed();
+
+				// If symbol took precedence, we'd get 'A'. Metadata should win → override → 'B'.
+				expect(instance.method()).toBe('B');
+			});
+
+			it('symbol strategy vs string strategy priority: MIXIN_METADATA wins even when symbol differs', () => {
+				class A {
+					method() {
+						return 'A';
+					}
+				}
+				class B {
+					method() {
+						return 'B';
+					}
+				}
+
+				const metadata =
+					MIXIN_METADATA.get(A as any) ??
+					({
+						isAbstract: false,
+						strategies: new Map(),
+						decoratorMetadata: new Map(),
+					} as any);
+				metadata.strategies.set('method', 'override');
+				MIXIN_METADATA.set(A as any, metadata);
+
+				const strategySymbol = Symbol.for('polymix:strategy:method');
+				(A as any)[strategySymbol] = 'first';
+
+				const Mixed = mix(A, B);
+				const instance = new Mixed();
+				expect(instance.method()).toBe('B');
+			});
+		});
+
+		describe('method Composition Ordering', () => {
+			it('override/last with 3 mixins → rightmost wins', () => {
+				class A {
+					@override
+					value() {
+						return 'A';
+					}
+				}
+				class B {
+					@override
+					value() {
+						return 'B';
+					}
+				}
+				class C {
+					@override
+					value() {
+						return 'C';
+					}
+				}
+
+				const Mixed = mix(A, B, C);
+				expect(new Mixed().value()).toBe('C');
+			});
+
+			it('first with 3 mixins → leftmost defined wins', () => {
+				const calls: string[] = [];
+				class A {
+					@first
+					value() {
+						calls.push('A');
+						return 'A';
+					}
+				}
+				class B {
+					@first
+					value() {
+						calls.push('B');
+						return 'B';
+					}
+				}
+				class C {
+					@first
+					value() {
+						calls.push('C');
+						return 'C';
+					}
+				}
+
+				const Mixed = mix(A, B, C);
+				expect(new Mixed().value()).toBe('A');
+				expect(calls).toEqual(['A']);
+			});
+
+			it('pipe with 3 mixins → left-to-right', () => {
+				class A {
+					@pipe
+					process(x: number) {
+						return x + 1;
+					}
+				}
+				class B {
+					@pipe
+					process(x: number) {
+						return x * 2;
+					}
+				}
+				class C {
+					@pipe
+					process(x: number) {
+						return x - 3;
+					}
+				}
+
+				const Mixed = mix(A, B, C);
+				expect(new Mixed().process(10)).toBe(19);
+			});
+
+			it('compose with 3 mixins → right-to-left', () => {
+				class A {
+					@compose
+					process(x: number) {
+						return x + 1;
+					}
+				}
+				class B {
+					@compose
+					process(x: number) {
+						return x * 2;
+					}
+				}
+				class C {
+					@compose
+					process(x: number) {
+						return x - 3;
+					}
+				}
+
+				const Mixed = mix(A, B, C);
+				expect(new Mixed().process(10)).toBe(15);
+			});
+		});
 	});
 
 	// 3. Base Class and Constructor Handling
@@ -181,6 +366,91 @@ describe('polymix Core: mix()', () => {
 
 		it('should copy static methods', () => {
 			expect(Mixed.staticMethod()).toBe('world');
+		});
+
+		describe('static Descriptor Fidelity', () => {
+			it('preserves accessor descriptor for static getter/setter', () => {
+				let value = 1;
+				class WithAccessor {
+					static get count() {
+						return value;
+					}
+					static set count(v: number) {
+						value = v;
+					}
+				}
+
+				const M = mix(WithAccessor);
+				const desc = Object.getOwnPropertyDescriptor(M, 'count');
+				expect(desc?.get).toBeDefined();
+				expect(desc?.set).toBeDefined();
+
+				M.count = 123;
+				expect(M.count).toBe(123);
+			});
+
+			it('preserves non-writable static property descriptor', () => {
+				class WithNonWritable {}
+				Object.defineProperty(WithNonWritable, 'fixed', {
+					value: 42,
+					writable: false,
+					configurable: true,
+					enumerable: true,
+				});
+
+				const M = mix(WithNonWritable);
+				const desc = Object.getOwnPropertyDescriptor(M, 'fixed');
+				expect(desc?.writable).toBe(false);
+				expect((M as any).fixed).toBe(42);
+			});
+
+			it('preserves non-enumerable static property descriptor', () => {
+				class WithNonEnumerable {}
+				Object.defineProperty(WithNonEnumerable, 'hidden', {
+					value: 'x',
+					writable: true,
+					configurable: true,
+					enumerable: false,
+				});
+
+				const M = mix(WithNonEnumerable);
+				const desc = Object.getOwnPropertyDescriptor(M, 'hidden');
+				expect(desc?.enumerable).toBe(false);
+				expect((M as any).hidden).toBe('x');
+				expect(Object.keys(M)).not.toContain('hidden');
+			});
+
+			it('preserves non-configurable static property descriptor', () => {
+				class WithNonConfigurable {}
+				Object.defineProperty(WithNonConfigurable, 'sealed', {
+					value: 'sealed',
+					writable: true,
+					configurable: false,
+					enumerable: true,
+				});
+
+				const M = mix(WithNonConfigurable);
+				const desc = Object.getOwnPropertyDescriptor(M, 'sealed');
+				expect(desc?.configurable).toBe(false);
+				expect((M as any).sealed).toBe('sealed');
+			});
+
+			it('copies symbol-keyed statics with descriptor intact', () => {
+				const sym = Symbol('staticSymbol');
+				class WithSymbol {}
+				Object.defineProperty(WithSymbol, sym, {
+					value: 'ok',
+					writable: false,
+					configurable: true,
+					enumerable: false,
+				});
+
+				const M = mix(WithSymbol) as any;
+				const desc = Object.getOwnPropertyDescriptor(M, sym);
+				expect(M[sym]).toBe('ok');
+				expect(desc?.writable).toBe(false);
+				expect(desc?.enumerable).toBe(false);
+			});
 		});
 	});
 

@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/await-thenable */
+/* eslint-disable @typescript-eslint/no-confusing-void-expression */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import { mix } from './core';
 import {
 	delegate,
@@ -73,6 +77,54 @@ describe('decorators', () => {
 			expect(e).toBeInstanceOf(Nameable);
 			expect(e.move()).toBe('moving');
 			expect(e.name).toBe('test');
+		});
+
+		it('should keep prototype methods even when mixin construction fails (constructor requires args)', () => {
+			class NeedsArgs {
+				constructor(value: string) {
+					if (value === undefined) throw new Error('missing value');
+				}
+				method() {
+					return 'ok';
+				}
+			}
+
+			@mixin(NeedsArgs)
+			class Target {}
+
+			const instance = new Target() as any;
+			expect(instance.method()).toBe('ok');
+			expect(instance).toBeInstanceOf(NeedsArgs);
+		});
+
+		it('should not overwrite an existing Symbol.hasInstance on a mixin', () => {
+			const originalHasInstance = function (value: unknown): boolean {
+				return (
+					Boolean(value) &&
+					typeof value === 'object' &&
+					(value as any).__marker === true
+				);
+			};
+
+			class HasCustomInstanceCheck {}
+			Object.defineProperty(HasCustomInstanceCheck, Symbol.hasInstance, {
+				value: originalHasInstance,
+				configurable: true,
+			});
+
+			@mixin(HasCustomInstanceCheck)
+			class Target {}
+
+			// installInstanceCheck() should not overwrite it.
+			expect(HasCustomInstanceCheck[Symbol.hasInstance]).toBe(
+				originalHasInstance,
+			);
+
+			const obj = { __marker: true };
+			expect(obj instanceof HasCustomInstanceCheck).toBe(true);
+
+			const inst = new Target();
+			expect(inst instanceof HasCustomInstanceCheck).toBe(false);
 		});
 	});
 
@@ -241,23 +293,40 @@ describe('decorators', () => {
 		});
 
 		it('@race should return first resolved promise with mix()', async () => {
+			function createDeferred<T>() {
+				let resolve!: (value: T) => void;
+				let reject!: (reason?: any) => void;
+				const promise = new Promise<T>((res, rej) => {
+					resolve = res;
+					reject = rej;
+				});
+				return { promise, resolve, reject };
+			}
+
+			const slow = createDeferred<string>();
+			const fast = createDeferred<string>();
+
 			class SlowTask {
 				@race
-				async run() {
-					await new Promise((r) => setTimeout(r, 50));
-					return 'slow';
+				run() {
+					return slow.promise;
 				}
 			}
+
 			class FastTask {
 				@race
-				async run() {
-					await new Promise((r) => setTimeout(r, 5));
-					return 'fast';
+				run() {
+					return fast.promise;
 				}
 			}
+
 			const Mixed = mix(SlowTask, FastTask);
-			const result = await new Mixed().run();
-			expect(result).toBe('fast');
+			const p = new Mixed().run();
+
+			fast.resolve('fast');
+			slow.resolve('slow');
+
+			await expect(p).resolves.toBe('fast');
 		});
 
 		it('@all should return true only if all are truthy with mix()', async () => {
