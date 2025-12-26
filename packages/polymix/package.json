@@ -1,0 +1,67 @@
+{
+  "name": "@lellimecnar/polymix",
+  "version": "0.0.1",
+  "description": "Next-generation TypeScript mixins with native instanceof support and composition strategies.",
+  "license": "MIT",
+  "author": "James Miller <lellimecnar@gmail.com>",
+  "homepage": "https://github.com/lellimecnar/source/tree/master/packages/polymix#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lellimecnar/source.git",
+    "directory": "packages/polymix"
+  },
+  "bugs": {
+    "url": "https://github.com/lellimecnar/source/issues"
+  },
+  "keywords": [
+    "typescript",
+    "mixins",
+    "multiple-inheritance",
+    "decorators",
+    "composition"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "pnpm run clean && tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "test": "jest",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "prepack": "pnpm run build"
+  },
+  "devDependencies": {
+    "@lellimecnar/eslint-config": "workspace:*",
+    "@lellimecnar/typescript-config": "workspace:*",
+    "@lellimecnar/jest-config": "workspace:*",
+    "@types/jest": "^29.5.12",
+    "typescript": "~5.5",
+    "eslint": "^8.57.1",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "reflect-metadata": "^0.2.2"
+  },
+  "peerDependencies": {
+    "reflect-metadata": "^0.1.13 || ^0.2.0"
+  },
+  "peerDependenciesMeta": {
+    "reflect-metadata": {
+      "optional": true
+    }
+  }
+}
