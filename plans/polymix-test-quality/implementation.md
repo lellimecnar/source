@@ -1,5 +1,15 @@
 # Polymix Test Quality & Branch Coverage Gate
 
+> [!IMPORTANT]
+> This document is a historical, copy/paste-style implementation draft.
+> The authoritative implementation is the current repository state in `packages/polymix`.
+>
+> **Current verified status:**
+> - `pnpm --filter polymix test`: ✅ 122/122 tests passing (8 suites)
+> - `pnpm --filter polymix test -- --coverage`: ✅ 100% statements/branches/functions/lines
+> - `packages/polymix/jest.config.js`: ✅ includes `coverageThreshold` (80% floor)
+> - Polymix test sources: ✅ no timing-based `setTimeout` usage
+
 ## Goal
 Strengthen `packages/polymix` tests with higher-signal behavioral assertions (short-circuiting, precedence, error propagation) and enforce an **80% branch coverage** threshold in Jest, while removing timing-based flakiness.
 

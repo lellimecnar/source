@@ -11,7 +11,7 @@ Improve confidence in `packages/polymix` by adding high-value behavioral tests t
 - **Gap:** Tests validate outcomes but don't assert *how* those outcomes are achieved (call counts, short-circuit behavior, error paths)
 - **Risk:** Refactors can break behavioral guarantees without failing tests
 - **Opportunity:** Add focused behavioral tests to lock in semantic contracts
-- **Timing issues:** Found 9 instances of `setTimeout` in tests that create flake risk
+- **Timing issues:** Addressed (timing-based `setTimeout` usage removed from polymix test sources)
 
 ## Dependencies Between Steps
 - Steps 1-3 can be implemented in parallel (independent test files)
@@ -30,14 +30,14 @@ Improve confidence in `packages/polymix` by adding high-value behavioral tests t
 **Block 1: "Short-circuit behavior" (10 tests)**
 - `first`: Returns first defined value including falsy (`0`, `''`, `false`); later functions not called
 - `first`: Handles all undefined (returns undefined)
-- `any` (alias for `first`): Same short-circuit behavior
+- `any`: Short-circuits when a truthy value is found
 - `override`: All functions called despite result (no short-circuit)
 - `parallel`: All functions called concurrently (no short-circuit)
 - `race`: First to resolve/reject wins
 - `pipe`: Sequential execution with chaining
 - `compose`: Reverse order of pipe
 - `merge`: All functions called, results deep-merged
-- `all`: All functions called, returns array
+- `all`: Short-circuits when a falsy value is found
 
 **Block 2: "Error propagation" (6 tests)**
 - `first`: Sync throw propagates immediately

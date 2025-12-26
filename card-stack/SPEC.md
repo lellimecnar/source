@@ -88,8 +88,7 @@ Game-specific card game packages, including gameplay logic, UI components, table
 
 ## Guidelines
 
-- Use `ts-mixer` and `class-validator` to create the mixins and decorators.
-- Add a static type-guard method to each mixin class, following the pattern of `Array.isArray()`, using the `hasMixin` function from `ts-mixer`
+- Use `polymix` (`packages/polymix`) to create the mixins and decorators.
 - Focus on developer ergonomics and ease of implementation, with composable and configurable functionality.
 - Include extensive documentation and examples to guide developers in using the mixins and decorators.
 - Don't overcomplicate or over-engineer the APIs, but don't sacrifice functionality/composability/configurability either.

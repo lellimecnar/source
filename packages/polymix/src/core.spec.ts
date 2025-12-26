@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import { mix, mixWithBase } from './core';
 import {
 	pipe,
@@ -58,7 +59,7 @@ describe('polymix Core: mix()', () => {
 		it('should work with hasMixin type guard', () => {
 			expect(hasMixin(entity, Movable)).toBe(true);
 			expect(hasMixin(entity, Nameable)).toBe(true);
-			// eslint-disable-next-line @typescript-eslint/no-extraneous-class -- testing
+
 			expect(hasMixin(entity, class {})).toBe(false);
 		});
 	});
@@ -316,14 +317,22 @@ describe('polymix Core: mix()', () => {
 		}
 
 		it('should extend a base class correctly', () => {
-			const Mixed = mix(MixinA, Base);
-			const instance = new Mixed('MyBase');
+			const warn = jest
+				.spyOn(console, 'warn')
+				.mockImplementation(() => undefined);
+			try {
+				const Mixed = mix(MixinA, Base);
+				const instance = new Mixed('MyBase');
 
-			expect(instance.isBase).toBe(true);
-			expect(instance.isA).toBe(true);
-			expect(instance.name).toBe('MyBase');
-			expect(instance).toBeInstanceOf(Base);
-			expect(instance).toBeInstanceOf(MixinA);
+				expect(instance.isBase).toBe(true);
+				expect(instance.isA).toBe(true);
+				expect(instance.name).toBe('MyBase');
+				expect(instance).toBeInstanceOf(Base);
+				expect(instance).toBeInstanceOf(MixinA);
+				expect(warn).toHaveBeenCalledTimes(1);
+			} finally {
+				warn.mockRestore();
+			}
 		});
 
 		it('should support explicit base classes via mixWithBase()', () => {
@@ -350,7 +359,6 @@ describe('polymix Core: mix()', () => {
 
 	// 4. Static Properties and Methods
 	describe('statics', () => {
-		// eslint-disable-next-line @typescript-eslint/no-extraneous-class -- testing
 		class WithStatic {
 			static staticProp = 'hello';
 			static staticMethod() {
@@ -782,7 +790,7 @@ describe('polymix Core: mix()', () => {
 
 		it('should copy static symbol properties', () => {
 			const sym = Symbol('staticSym');
-			// eslint-disable-next-line @typescript-eslint/no-extraneous-class -- testing
+
 			class WithSymbol {
 				static [sym] = 'symbolValue';
 			}

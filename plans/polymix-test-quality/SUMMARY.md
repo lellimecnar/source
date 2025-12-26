@@ -23,8 +23,8 @@ Enhanced test suite for `packages/polymix` with focus on behavioral assertions a
 - Applies to statements, branches, functions, and lines
 
 ### 4. Flakiness Elimination
-- Replace `setTimeout` / wall-clock timing with Jest fake timers
-- Use deterministic promise control instead of race conditions
+- Replace `setTimeout` / wall-clock timing with deterministic promise control
+- Use deferred promises to prove ordering/short-circuit behavior without timers
 - Target 0% flake rate (verified with 10+ consecutive runs)
 
 ## Current State
