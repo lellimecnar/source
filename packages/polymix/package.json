@@ -1,5 +1,5 @@
 {
-  "name": "@lellimecnar/polymix",
+  "name": "polymix",
   "version": "0.0.1",
   "description": "Next-generation TypeScript mixins with native instanceof support and composition strategies.",
   "license": "MIT",

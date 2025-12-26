@@ -32,6 +32,14 @@ export function mix<T extends AnyConstructor[]>(...mixins: T): MixedClass<T> {
 	// Check if the last item has a constructor that expects parameters
 	const hasConstructorParams = lastItem && lastItem.length > 0;
 
+	// Warn if implicit base class detection might be ambiguous
+	if (hasConstructorParams && validMixins.length > 1) {
+		console.warn(
+			`[polymix] Warning: The last class provided to mix() (${lastItem.name}) has constructor parameters and is being treated as a base class. ` +
+				`If this is intended to be a mixin, please ensure it has a zero-argument constructor.`,
+		);
+	}
+
 	const Base = hasConstructorParams ? (lastItem as AnyConstructor) : class {};
 	const pureMixins = hasConstructorParams
 		? validMixins.slice(0, -1)
@@ -46,7 +54,7 @@ export function mixWithBase<
 >(Base: Base, ...mixins: T): MixedClass<[...T, Base]> {
 	const pureMixins = mixins.filter((m) => typeof m === 'function');
 
-	const Mixed = class extends (Base as AnyConstructor) {
+	const Mixed = class extends Base {
 		constructor(...args: any[]) {
 			super(...args);
 			registerMixins(this, pureMixins);
@@ -60,6 +68,12 @@ export function mixWithBase<
 				} catch {
 					// If a mixin can't be constructed with provided args, skip initialization.
 					// Methods are still composed from the prototype.
+				}
+
+				// Call init method if it exists (ts-mixer compatibility)
+				const initMethod = Mixin.prototype.init;
+				if (typeof initMethod === 'function') {
+					initMethod.apply(this, args);
 				}
 			}
 		}
@@ -92,7 +106,7 @@ export function mixWithBase<
 		}
 
 		// Process prototype properties (methods and accessors).
-		const protoKeys: Array<string | symbol> = [
+		const protoKeys: (string | symbol)[] = [
 			...Object.getOwnPropertyNames(Mixin.prototype),
 			...Object.getOwnPropertySymbols(Mixin.prototype),
 		];
@@ -105,56 +119,55 @@ export function mixWithBase<
 			);
 			if (!descriptor) continue;
 
-			if (typeof descriptor.value === 'function') {
-				const functions = methodCompositionMap.get(propKey) ?? [];
-				functions.push(descriptor.value);
-				methodCompositionMap.set(propKey, functions);
+			// Handle accessors (getters/setters)
+			if (descriptor.get || descriptor.set) {
+				Object.defineProperty(Mixed.prototype, propKey, descriptor);
+				continue;
+			}
 
-				const strategySymbol = Symbol.for(
-					`polymix:strategy:${String(propKey)}`,
-				);
-				const symbolStrategy = (Mixin as any)[strategySymbol];
-				if (symbolStrategy) {
-					strategyMap.set(propKey, symbolStrategy);
+			// Handle methods
+			if (typeof descriptor.value === 'function') {
+				// Check for composition strategy
+				const metadata = MIXIN_METADATA.get(Mixin);
+				let strategy: string | undefined;
+
+				if (metadata?.strategies.has(propKey as string)) {
+					strategy = metadata.strategies.get(propKey as string);
 				} else {
-					const meta = MIXIN_METADATA.get(Mixin);
-					const metaStrategy = meta?.strategies.get(propKey);
-					if (metaStrategy) {
-						strategyMap.set(propKey, metaStrategy);
+					// Check for symbol-based strategy for compatibility
+					const strategySymbol = Symbol.for(
+						`polymix:strategy:${String(propKey)}`,
+					);
+					const symbolStrategy =
+						(Mixin as any)[strategySymbol] ?? Mixin.prototype[strategySymbol];
+					if (symbolStrategy) {
+						strategy = symbolStrategy;
 					}
 				}
-			} else {
-				Object.defineProperty(Mixed.prototype, propKey, descriptor);
+
+				if (strategy) {
+					strategyMap.set(propKey, strategy);
+				}
+
+				if (!methodCompositionMap.has(propKey)) {
+					methodCompositionMap.set(propKey, []);
+				}
+				methodCompositionMap.get(propKey)!.push(descriptor.value);
 			}
 		}
 	}
 
-	// Compose methods from the map.
-	for (const [propKey, fns] of Array.from(methodCompositionMap.entries())) {
-		const strategy = strategyMap.get(propKey) ?? 'override';
-		let composedFn;
+	// Resolve method conflicts and apply strategies.
+	for (const [propKey, methods] of methodCompositionMap.entries()) {
+		const strategy = strategyMap.get(propKey) || 'override';
 
-		if (fns.length === 1) {
-			composedFn = fns[0];
-		} else if (strategy === 'override') {
-			composedFn = fns[fns.length - 1];
-		} else {
-			composedFn = function (this: any, ...args: any[]) {
-				return applyStrategy(strategy, fns, this, ...args);
-			};
-		}
-
-		Object.defineProperty(Mixed.prototype, propKey, {
-			value: composedFn,
-			writable: true,
-			configurable: true,
-			enumerable: false,
-		});
+		(Mixed.prototype as any)[propKey] = function (...args: any[]) {
+			return applyStrategy(strategy, methods, this, ...args);
+		};
 	}
 
-	// Copy decorator metadata from all mixins to the final class.
+	// Copy decorator metadata from mixins to the new class
 	copyDecoratorMetadata(pureMixins, Mixed);
 
-	// Return the fully composed class, cast to the correct mixed type.
 	return Mixed as any;
 }

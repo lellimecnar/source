@@ -1,4 +1,4 @@
-# @lellimecnar/polymix
+# polymix
 
 Next-Generation TypeScript Mixins — combining the best of `ts-mixer`, `typescript-mix`, and `polytype` while eliminating their fundamental limitations.
 
@@ -15,9 +15,9 @@ Next-Generation TypeScript Mixins — combining the best of `ts-mixer`, `typescr
 ## Installation
 
 ```bash
-pnpm add @lellimecnar/polymix
+pnpm add polymix
 # or
-npm install @lellimecnar/polymix
+npm install polymix
 ```
 
 For decorator metadata support (optional):
@@ -28,7 +28,7 @@ pnpm add reflect-metadata
 ## Quick Start
 
 ```typescript
-import { mix } from '@lellimecnar/polymix';
+import { mix } from 'polymix';
 
 class Identifiable {
   id = '123';
@@ -179,7 +179,7 @@ When multiple mixins define the same method, strategies control how they combine
 #### Using Strategy Decorators
 
 ```typescript
-import { mix, pipe, parallel, merge } from '@lellimecnar/polymix';
+import { mix, pipe, parallel, merge } from 'polymix';
 
 class DataPipeline extends mix(Validator, Transformer, Sanitizer) {
   @pipe process(data: unknown) { /* auto-chained */ }
@@ -191,7 +191,7 @@ class DataPipeline extends mix(Validator, Transformer, Sanitizer) {
 #### Using Symbol Keys
 
 ```typescript
-import { mix, strategies } from '@lellimecnar/polymix';
+import { mix, strategies } from 'polymix';
 
 class StepA {
   static get [strategies.for('process')]() {
@@ -217,7 +217,7 @@ new Pipeline().process(10); // 22 → (10+1)*2
 All types are automatically inferred:
 
 ```typescript
-import { mix, MixedClass, MixedInstance } from '@lellimecnar/polymix';
+import { mix, MixedClass, MixedInstance } from 'polymix';
 
 // Get the mixed class type
 type UserClass = MixedClass<[Identifiable, Timestamped]>;

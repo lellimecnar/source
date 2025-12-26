@@ -1,4 +1,8 @@
-import { type AnyConstructor, type MixinMetadata } from './types';
+import {
+	type AnyConstructor,
+	type Constructor,
+	type MixinMetadata,
+} from './types';
 
 export const MIXIN_REGISTRY = new WeakMap<object, Set<AnyConstructor>>();
 export const MIXIN_METADATA = new WeakMap<AnyConstructor, MixinMetadata>();
@@ -95,7 +99,10 @@ export function copyDecoratorMetadata(
 
 			// 3. As a fallback, try creating an instance to discover instance properties
 			try {
-				const instance = Object.create(Mixin.prototype);
+				// Use new Mixin() instead of Object.create() to ensure fields are initialized
+				// We pass no arguments, which might fail if the constructor requires them,
+				// hence the try/catch block is essential.
+				const instance = new (Mixin as Constructor)();
 				for (const propKey of Object.getOwnPropertyNames(instance)) {
 					allPropKeys.add(propKey);
 				}
@@ -103,28 +110,24 @@ export function copyDecoratorMetadata(
 				// Ignore errors if instantiation fails
 			}
 
-			// 4. Copy metadata for all discovered property keys
+			// Now iterate over all discovered keys and copy metadata
 			for (const propKey of allPropKeys) {
-				if (propKey === 'constructor') continue;
-
-				const propMetaKeys = (Reflect as any).getMetadataKeys(
+				const metadataKeys = (Reflect as any).getMetadataKeys(
 					Mixin.prototype,
 					propKey,
 				);
-				if (propMetaKeys && propMetaKeys.length > 0) {
-					for (const key of propMetaKeys) {
-						const value = (Reflect as any).getMetadata(
-							key,
-							Mixin.prototype,
-							propKey,
-						);
-						(Reflect as any).defineMetadata(
-							key,
-							value,
-							target.prototype,
-							propKey,
-						);
-					}
+				for (const key of metadataKeys) {
+					const value = (Reflect as any).getMetadata(
+						key,
+						Mixin.prototype,
+						propKey,
+					);
+					(Reflect as any).defineMetadata(
+						key,
+						value,
+						target.prototype,
+						propKey,
+					);
 				}
 			}
 		}

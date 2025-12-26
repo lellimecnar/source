@@ -2,7 +2,7 @@
 
 ## Package Overview
 
-**@lellimecnar/polymix** is a next-generation TypeScript mixin library that solves limitations of existing libraries like `ts-mixer` and `typescript-mix`.
+**polymix** is a next-generation TypeScript mixin library that solves limitations of existing libraries like `ts-mixer` and `typescript-mix`.
 
 ## Key Features
 
@@ -36,16 +36,16 @@
 
 ```bash
 # Build (uses tsconfig.build.json to exclude tests)
-pnpm --filter @lellimecnar/polymix build
+pnpm --filter polymix build
 
 # Run tests
-pnpm --filter @lellimecnar/polymix test
+pnpm --filter polymix test
 
 # Type check (uses main tsconfig.json)
-pnpm --filter @lellimecnar/polymix type-check
+pnpm --filter polymix type-check
 
 # Lint
-pnpm --filter @lellimecnar/polymix lint
+pnpm --filter polymix lint
 ```
 
 ## Testing Strategy
