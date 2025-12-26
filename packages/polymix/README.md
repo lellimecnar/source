@@ -1,18 +1,19 @@
-# polymix
+## polymix
 
-Next-Generation TypeScript Mixins — combining the best of `ts-mixer`, `typescript-mix`, and `polytype` while eliminating their fundamental limitations.
+Next-generation TypeScript mixins: true `instanceof`, unlimited mixins, and predictable conflict resolution.
 
-## Features
+### Why
 
-- **True `instanceof` support**: Mixed instances pass `instanceof` checks for all mixin classes via `Symbol.hasInstance`
-- **Type-safe**: Full TypeScript support with type inference for mixed methods and properties
-- **No mixin limit**: Mix as many classes as needed (variadic generics)
-- **Composition Strategies**: Control *how* methods merge with 9 built-in strategies
-- **Decorators**: Easy-to-use decorators for applying mixins and strategies
-- **Decorator metadata inheritance**: Automatic support for `Symbol.metadata` and `reflect-metadata`
-- **Zero dependencies**: Lightweight with optional `reflect-metadata` peer dependency
+- Mixed instances pass `instanceof` checks for every mixin (via `Symbol.hasInstance` + an internal registry)
+- Unlimited mixins (variadic generics)
+- Conflict resolution via built-in composition strategies
+- Optional decorator helpers (legacy TS decorators) and metadata copying (`Symbol.metadata` / `reflect-metadata`)
+- Zero required runtime dependencies
 
-## Installation
+> [!NOTE]
+> This package lives in a monorepo. The published package name is `polymix`.
+
+### Install
 
 ```bash
 pnpm add polymix
@@ -20,278 +21,309 @@ pnpm add polymix
 npm install polymix
 ```
 
-For decorator metadata support (optional):
+Optional (only if you rely on decorator metadata at runtime):
+
 ```bash
 pnpm add reflect-metadata
 ```
 
-## Quick Start
+### Quick start
 
-```typescript
-import { mix } from 'polymix';
+```ts
+import { mix } from 'polymix'
 
 class Identifiable {
-  id = '123';
+  id = '123'
 }
 
 class Timestamped {
-  createdAt = new Date();
+  createdAt = new Date()
 }
 
 class User extends mix(Identifiable, Timestamped) {
-  name: string;
-  constructor(name: string) {
-    super();
-    this.name = name;
+  constructor(readonly name: string) {
+    super()
   }
 }
 
-const user = new User('Alice');
+const user = new User('Alice')
 
-console.log(user.id);                        // '123'
-console.log(user.createdAt);                 // Date object
-console.log(user instanceof Identifiable);  // true ✅
-console.log(user instanceof Timestamped);   // true ✅
-console.log(user instanceof User);          // true ✅
+user.id // '123'
+user.createdAt // Date
+
+user instanceof Identifiable // true
+user instanceof Timestamped // true
+user instanceof User // true
 ```
 
-## API Reference
+> [!TIP]
+> If you need a base class with constructor parameters, prefer `mixWithBase()` to avoid the implicit base-class heuristic used by `mix()`.
 
-### Core Functions
+### Core API
 
-#### `mix(...mixins)`
+#### `mix(...classes)`
 
-Creates a new class that composes all provided mixins.
+Composes all provided classes.
 
-```typescript
-class Dragon extends mix(Flyer, FireBreather, Reptile) {
-  name = "Smaug";
+`mix()` has an implicit base-class heuristic: if the last class has constructor parameters (i.e. `Ctor.length > 0`), it is treated as the base class; otherwise all classes are treated as mixins.
+
+> [!WARNING]
+> If that heuristic triggers (constructor params + more than one class), `polymix` logs a warning because it may be ambiguous.
+
+```ts
+import { mix } from 'polymix'
+
+class Flyer {
+  fly() {}
+}
+
+class FireBreather {
+  breatheFire() {}
+}
+
+class Dragon extends mix(Flyer, FireBreather) {
+  name = 'Smaug'
 }
 ```
-
-> **Note:** `mix()` uses a heuristic to treat the last class as a base class only when it has constructor parameters. For explicit base class handling, use `mixWithBase()`.
 
 #### `mixWithBase(Base, ...mixins)`
 
-Creates a new class that explicitly extends `Base` and applies all provided mixins.
+Explicitly extends `Base` and applies all `mixins`.
 
-```typescript
-class Admin extends mixWithBase(User, Permissions, AuditLog) {
-  // User is the base class, Permissions and AuditLog are mixins
-}
-```
+```ts
+import { mixWithBase } from 'polymix'
 
-## Base Class Handling
-
-### `mix()` implicit base-class heuristic
-
-`mix()` treats the **last** class as a base class **only if it has constructor parameters** (i.e. `Ctor.length > 0`).
-
-If the heuristic triggers and you passed multiple classes, polymix logs a warning:
-
-```text
-[polymix] Warning: The last class provided to mix() (Base) has constructor parameters and is being treated as a base class. If this is intended to be a mixin, please ensure it has a zero-argument constructor.
-```
-
-Examples:
-
-```typescript
-// All are treated as mixins (no constructor params)
-class Example1 extends mix(MixinA, MixinB) {}
-
-class Base {
+class Person {
   constructor(readonly name: string) {}
 }
 
-// Base has constructor params → treated as base class
-class Example2 extends mix(MixinA, Base) {
-  constructor(name: string) {
-    super(name)
-  }
+class Timestamped {
+  createdAt = new Date()
 }
-```
 
-### `mixWithBase()` explicit base class
+class User extends mixWithBase(Person, Timestamped) {}
 
-Prefer `mixWithBase()` when you want explicit, unambiguous base-class behavior:
-
-```typescript
-class Example extends mixWithBase(Base, MixinA, MixinB) {}
+const user = new User('Ada')
+user instanceof Person // true
 ```
 
 #### `hasMixin(instance, Mixin)`
 
-Type guard to check if an instance has a specific mixin.
+Type guard for `instanceof`.
 
-```typescript
-if (hasMixin(entity, Timestamped)) {
-  entity.touch(); // TypeScript knows this method exists
+```ts
+import { hasMixin } from 'polymix'
+
+if (hasMixin(user, Timestamped)) {
+  user.createdAt
 }
 ```
 
 #### `from(instance, Mixin)`
 
-Disambiguates method calls when multiple mixins have methods with the same name.
+Calls a specific mixin’s implementation when names collide.
 
-```typescript
-class FlyingFish extends mix(Fish, Bird) {
+```ts
+import { from, mix } from 'polymix'
+
+class Fish {
   move() {
-    if (this.isInWater) {
-      return from(this, Fish).move();  // Call Fish's move
-    }
-    return from(this, Bird).move();    // Call Bird's move
+    return 'swim'
+  }
+}
+
+class Bird {
+  move() {
+    return 'fly'
+  }
+}
+
+class FlyingFish extends mix(Fish, Bird) {
+  isInWater = true
+
+  move() {
+    return this.isInWater ? from(this, Fish).move() : from(this, Bird).move()
   }
 }
 ```
 
 #### `when(condition, Mixin)`
 
-Conditionally includes a mixin. When `condition` is false, an empty placeholder mixin is used.
+Conditionally includes a mixin. When `condition` is false, a placeholder mixin is used.
 
-```typescript
-class SmartDevice extends mix(
-  PowerManagement,
-  when(process.env.NODE_ENV === 'development', Debuggable),
-  when(config.features.logging, Loggable),
-) {}
-```
+```ts
+import { mix, when } from 'polymix'
 
-### Decorators
-
-#### `@mixin(...mixins)` / `@Use(...mixins)`
-
-Applies mixins to an existing class using decorator syntax.
-
-```typescript
-@mixin(Serializable, Observable)
-class User extends BaseEntity {
-  name: string;
-  email: string;
+class Debuggable {
+  debug() {}
 }
+
+class Device extends mix(when(process.env.NODE_ENV !== 'production', Debuggable)) {}
 ```
 
-#### `@abstract`
+### Composition strategies
 
-Marks a mixin class as abstract. Its prototype methods are composed, but it is not instantiated during `new Mixed()`.
+When multiple mixins define the same method name, polymix combines them using a strategy.
 
-```typescript
-@abstract
-class Identifiable {
-  abstract getId(): string;
-  
-  toString() {
-    return `Entity(${this.getId()})`;
+| Strategy   | Behavior                                                                  | Return type               |
+| ---------- | ------------------------------------------------------------------------- | ------------------------- |
+| `override` | Runs all implementations in order; returns the last result (default)      | value                     |
+| `pipe`     | Calls each implementation with the previous result as its single argument | value or `Promise<value>` |
+| `compose`  | Like `pipe`, but right-to-left                                            | value or `Promise<value>` |
+| `parallel` | Runs all implementations concurrently                                     | `Promise<value[]>`        |
+| `race`     | Resolves with the first completed implementation                          | `Promise<value>`          |
+| `merge`    | Deep merges plain objects; concatenates arrays                            | merged value              |
+| `first`    | Returns the first result that is **not** `undefined`                      | value                     |
+| `all`      | `true` only if all results are truthy (awaits promises)                   | `Promise<boolean>`        |
+| `any`      | `true` if any result is truthy (awaits promises)                          | `Promise<boolean>`        |
+
+> [!NOTE]
+> Accessors (getters/setters) are copied directly onto the mixed prototype. If multiple mixins define the same accessor, the last one applied wins.
+
+#### Strategy decorators (legacy TS decorators)
+
+```ts
+import { merge, mix, parallel, pipe } from 'polymix'
+
+class Validator {
+  validate(_data: unknown) {
+    return true
+  }
+}
+
+class Transformer {
+  process(data: string) {
+    return data.trim()
+  }
+}
+
+class Sanitizer {
+  process(data: string) {
+    return data.replaceAll(/\s+/g, ' ')
+  }
+}
+
+class Pipeline extends mix(Validator, Transformer, Sanitizer) {
+  @pipe
+  process(_data: string) {
+    // Signature is only used for typing; implementations come from mixins.
+    return ''
+  }
+
+  @parallel
+  validate(_data: unknown) {
+    return false
+  }
+
+  @merge
+  getMeta() {
+    return {}
   }
 }
 ```
 
-#### `@delegate(Delegate)`
+> [!IMPORTANT]
+> The strategy/mixin decorators in `polymix` use the legacy TypeScript decorator signature (`experimentalDecorators`). If you’re using the new decorators proposal, prefer symbol strategies (below) or confirm your compiler emits compatible decorator calls.
 
-Delegates methods from a property to a helper class instance.
+#### Symbol strategies (no decorators)
 
-```typescript
-class AudioPlayer {
-  @delegate(MediaControls)
-  private controls = new MediaControls();
-  
-  // Automatically exposes: play(), pause(), stop(), seek()
-}
-```
-
-### Composition Strategies
-
-When multiple mixins define the same method, strategies control how they combine:
-
-| Strategy   | Behavior                             | Return Type        |
-| ---------- | ------------------------------------ | ------------------ |
-| `override` | Last mixin wins (default)            | Single value       |
-| `pipe`     | Output of each becomes input of next | Final output       |
-| `compose`  | Like pipe, but reverse order         | Final output       |
-| `parallel` | Run all concurrently                 | `Promise<T[]>`     |
-| `race`     | First to resolve wins                | `Promise<T>`       |
-| `merge`    | Deep merge objects/concat arrays     | Merged result      |
-| `first`    | First defined (non-undefined) result | Single value       |
-| `all`      | All must return truthy               | `Promise<boolean>` |
-| `any`      | At least one truthy                  | `Promise<boolean>` |
-
-#### Using Strategy Decorators
-
-```typescript
-import { mix, pipe, parallel, merge } from 'polymix';
-
-class DataPipeline extends mix(Validator, Transformer, Sanitizer) {
-  @pipe process(data: unknown) { /* auto-chained */ }
-  @parallel validate(data: unknown) { /* runs all concurrently */ }
-  @merge getErrors() { /* arrays/objects merged */ }
-}
-```
-
-#### Using Symbol Keys
-
-```typescript
-import { mix, strategies } from 'polymix';
+```ts
+import { mix, strategies } from 'polymix'
 
 class StepA {
   static get [strategies.for('process')]() {
-    return strategies.pipe;
+    return strategies.pipe
   }
+
   process(x: number) {
-    return x + 1;
+    return x + 1
   }
 }
 
 class StepB {
   process(x: number) {
-    return x * 2;
+    return x * 2
   }
 }
 
 class Pipeline extends mix(StepA, StepB) {}
-new Pipeline().process(10); // 22 → (10+1)*2
+
+new Pipeline().process(10) // 22
 ```
 
-## TypeScript Support
+### Mixins as decorators
 
-All types are automatically inferred:
+#### `@mixin(...mixins)` / `@Use(...mixins)`
 
-```typescript
-import { mix, MixedClass, MixedInstance } from 'polymix';
+Applies mixins to an existing class.
 
-// Get the mixed class type
-type UserClass = MixedClass<[Identifiable, Timestamped]>;
+```ts
+import { mixin } from 'polymix'
 
-// Get the instance type
-type UserInstance = MixedInstance<[Identifiable, Timestamped]>;
+@mixin(Timestamped, Identifiable)
+class Account {
+  constructor(readonly email: string) {}
+}
 ```
 
-## Comparison with Other Libraries
+#### `@abstract`
 
-| Feature                | polymix          | ts-mixer              | typescript-mix |
-| ---------------------- | ---------------- | --------------------- | -------------- |
-| `instanceof` support   | ✅                | ❌                     | ❌              |
-| Unlimited mixins       | ✅                | ❌ (10 max)            | ✅              |
-| Composition strategies | ✅ (9 strategies) | ❌                     | ❌              |
-| Decorator inheritance  | ✅                | ⚠️ (requires wrapping) | ❌              |
-| TypeScript 5.x         | ✅                | ✅                     | ❌ (abandoned)  |
-| Zero dependencies      | ✅                | ✅                     | ✅              |
+Marks a mixin as “prototype-only”: its methods are composed, but it is not instantiated during `new Mixed()`.
 
-## Compatibility
+```ts
+import { abstract } from 'polymix'
+
+@abstract
+class Identifiable {
+  id = 'n/a'
+}
+```
+
+#### `@delegate(Delegate)`
+
+Delegates methods to a helper instance stored in a property.
+
+```ts
+import { delegate } from 'polymix'
+
+class MediaControls {
+  play() {}
+  pause() {}
+}
+
+class AudioPlayer {
+  @delegate(MediaControls)
+  private controls = new MediaControls()
+}
+
+new AudioPlayer().play()
+```
+
+### TypeScript types
+
+```ts
+import type { MixedClass, MixedInstance } from 'polymix'
+
+type UserClass = MixedClass<[Identifiable, Timestamped]>
+type UserInstance = MixedInstance<[Identifiable, Timestamped]>
+```
+
+### Metadata support
+
+If you use runtime metadata reflection (common with `reflect-metadata`), you usually want to import it once at app startup:
+
+```ts
+import 'reflect-metadata'
+```
+
+polymix will copy decorator metadata from mixins onto the mixed class where possible.
+
+### Compatibility notes
 
 polymix is designed to be ts-mixer-friendly, but it is not a 100% drop-in replacement.
 
-### Works well
+- Works well: `mix()`, `mixWithBase()`, `instanceof`, and per-mixin `init(...args)` calls
+- Differences: no global `settings` object; `mix()` has an implicit base-class heuristic; `init()` runs once per mixin (no shared `super.init()` chain)
 
-- `mix(A, B, C)` for composing mixins
-- `mixWithBase(Base, A, B)` for explicit base classes
-- `instanceof` checks via `Symbol.hasInstance`
-- `init(...args)` lifecycle support
-
-### Differences
-
-- polymix has no `settings` object
-- `mix()` has an implicit base-class heuristic (see "Base Class Handling")
-- `init()` is called per-mixin; there is no shared `super.init()` chain
-
-## License
-
-MIT
+> [!NOTE]
+> See `MIGRATION.md` for migration notes and incompatibilities.

@@ -43,6 +43,9 @@ describe('polymix Core: mix()', () => {
 			expect(entity).toBeInstanceOf(Entity);
 			expect(entity).toBeInstanceOf(Movable);
 			expect(entity).toBeInstanceOf(Nameable);
+
+			// Defensive: instanceof should be false for non-objects.
+			expect((123 as any) instanceof Movable).toBe(false);
 		});
 
 		it('should work with hasMixin type guard', () => {
@@ -233,6 +236,50 @@ describe('polymix Core: mix()', () => {
 			expect(from(instance, B).method()).toBe('B');
 		});
 
+		it('from() should fall back to instance properties when not on the mixin prototype', () => {
+			class A {
+				method() {
+					return 'A';
+				}
+			}
+			class B {
+				value = 123;
+			}
+
+			const Mixed = mix(A, B);
+			const instance = new Mixed() as any;
+
+			// `value` is an instance field from B, not on A.prototype.
+			expect((from(instance, A) as any).value).toBe(123);
+		});
+
+		it('from() should support non-function prototype properties', () => {
+			class A {
+				method() {
+					return 'A';
+				}
+			}
+			Object.defineProperty(A.prototype, 'kind', {
+				value: 'mixin-a',
+				writable: false,
+				configurable: true,
+				enumerable: false,
+			});
+
+			class B {
+				method() {
+					return 'B';
+				}
+			}
+
+			const Mixed = mix(A, B);
+			const instance = new Mixed() as any;
+
+			// Mixed does not copy non-method prototype properties, but `from()` can still expose them.
+			expect(instance.kind).toBeUndefined();
+			expect((from(instance, A) as any).kind).toBe('mixin-a');
+		});
+
 		it('should support conditional mixins with `when()`', () => {
 			class FeatureA {
 				hasA = true;
@@ -271,6 +318,39 @@ describe('polymix Core: mix()', () => {
 
 			expect(classMeta).toBe('classValue');
 			expect(propMeta).toBe('propValue');
+		});
+
+		it('should copy decorator metadata (Symbol.metadata)', () => {
+			const hadOwn = Object.prototype.hasOwnProperty.call(Symbol, 'metadata');
+			const original = (Symbol as any).metadata;
+
+			try {
+				if (!(Symbol as any).metadata) {
+					Object.defineProperty(Symbol, 'metadata', {
+						value: Symbol('polymix:test:metadata'),
+						configurable: true,
+					});
+				}
+
+				class MetaA {}
+				class MetaB {}
+
+				(MetaA as any)[(Symbol as any).metadata] = { a: 1 };
+				(MetaB as any)[(Symbol as any).metadata] = { b: 2 };
+
+				const Mixed = mix(MetaA, MetaB) as any;
+				expect(Mixed[(Symbol as any).metadata]).toEqual({ a: 1, b: 2 });
+			} finally {
+				if (hadOwn) {
+					Object.defineProperty(Symbol, 'metadata', {
+						value: original,
+						configurable: true,
+					});
+				} else {
+					// Best-effort cleanup if we introduced Symbol.metadata for the test.
+					delete (Symbol as any).metadata;
+				}
+			}
 		});
 
 		it('should compose symbol-named methods', () => {
@@ -343,6 +423,38 @@ describe('polymix Core: mix()', () => {
 			expect(instance.computed).toBe(42);
 			instance.computed = 100;
 			expect(instance.computed).toBe(100);
+		});
+
+		it('should ignore prototype keys with no descriptor (defensive)', () => {
+			class WithMethod {
+				foo() {
+					return 'foo';
+				}
+			}
+			class WithOtherMethod {
+				bar() {
+					return 'bar';
+				}
+			}
+
+			const original = Object.getOwnPropertyDescriptor;
+			const spy = jest
+				.spyOn(Object, 'getOwnPropertyDescriptor')
+				.mockImplementation((obj: any, prop: any) => {
+					if (obj === WithMethod.prototype && prop === 'foo') {
+						return undefined;
+					}
+					return original(obj, prop);
+				});
+
+			try {
+				const Mixed = mix(WithMethod, WithOtherMethod);
+				const instance = new Mixed() as any;
+				expect(instance.bar()).toBe('bar');
+				expect('foo' in instance).toBe(false);
+			} finally {
+				spy.mockRestore();
+			}
 		});
 
 		it('should continue composition when mixin constructor throws', () => {

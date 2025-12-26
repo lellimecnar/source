@@ -10,6 +10,15 @@ describe('composition Strategies', () => {
 			expect(fn1).toHaveBeenCalledWith(10);
 			expect(fn2).toHaveBeenCalledWith(10);
 		});
+
+		it('should default to override for unknown strategies (including symbols)', () => {
+			const fn1 = jest.fn().mockReturnValue('first');
+			const fn2 = jest.fn().mockReturnValue('last');
+			const result = applyStrategy(Symbol('unknown'), [fn1, fn2], null, 1, 2);
+			expect(result).toBe('last');
+			expect(fn1).toHaveBeenCalledWith(1, 2);
+			expect(fn2).toHaveBeenCalledWith(1, 2);
+		});
 	});
 
 	describe('pipe', () => {
@@ -116,6 +125,18 @@ describe('composition Strategies', () => {
 			const fn1 = (a: number) => a + 1;
 			const fn2 = (a: number) => a * 2;
 			// compose means: fn1(fn2(input)) when ordered [fn1, fn2]
+			const result = await applyStrategy('compose', [fn1, fn2], null, 10);
+			expect(result).toBe(21);
+		});
+
+		it('should compose when intermediate results are promise-like', async () => {
+			const fn1 = (a: number) => a + 1;
+			const fn2 = async (a: number) => {
+				await new Promise((r) => setTimeout(r, 10));
+				return a * 2;
+			};
+
+			// reduceRight applies fn2 first, producing a Promise, then fn1 receives the resolved value.
 			const result = await applyStrategy('compose', [fn1, fn2], null, 10);
 			expect(result).toBe(21);
 		});
