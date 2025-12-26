@@ -1,760 +1,655 @@
-# Polymix Unified Implementation Plan
 
-## Goal
-Complete implementation of the `polymix` TypeScript mixin library with full documentation, ts-mixer compatibility, and production-ready quality. This unified plan consolidates all work from `polymix-implementation` and `polymix-improvements` into a single comprehensive implementation guide.
+# Polymix: Implementation + Documentation Completion Guide
 
-## Current Status
-- **Implementation:** 100% Complete (Steps 1-10)
-- **Tests:** 77 passing across 7 test files
-- **Documentation:** 60% Complete (remaining work in Step 11)
-- **Branch:** `feat/polymix-implementation`
+This file is the copy/paste-ready implementation guide for `packages/polymix`.
 
----
+## Status (as of last verification)
 
-## Prerequisites
+- Steps 1–10: ✅ complete in repo
+- Step 11 (docs): ⚠️ remaining work
+- Polymix tests: ✅ 77 passed / 7 suites
 
-Ensure you are on the correct branch before beginning:
+Baseline verification (run from repo root):
 
-```bash
-git checkout feat/polymix-implementation
-```
-
-If the branch doesn't exist, create it from main:
-```bash
-git checkout -b feat/polymix-implementation main
-```
-
----
-
-## Implementation Steps
-
-### Step 1: Scaffold Package Structure ✅ COMPLETE
-
-**Files Created:**
-- [x] `packages/polymix/package.json`
-- [x] `packages/polymix/tsconfig.json`
-- [x] `packages/polymix/tsconfig.build.json`
-- [x] `packages/polymix/.eslintrc.js`
-- [x] `packages/polymix/jest.config.js`
-- [x] `packages/polymix/src/index.ts`
-
-**Verification:**
-```bash
-pnpm install
-pnpm --filter polymix build
-```
-
----
-
-### Step 2: Implement Core Types and Utilities ✅ COMPLETE
-
-**Files Created:**
-- [x] `packages/polymix/src/types.ts` - Core type definitions
-- [x] `packages/polymix/src/utils.ts` - Utility functions
-
-**What's Implemented:**
-- `Constructor<T>`, `AbstractConstructor<T>`, `AnyConstructor<T>` types
-- `MixedClass<T>`, `MixedInstance<T>`, `MixedStatic<T>` variadic generics
-- `MIXIN_REGISTRY` and `MIXIN_METADATA` WeakMaps
-- `installInstanceCheck()` for `Symbol.hasInstance` support
-- `copyDecoratorMetadata()` for `Symbol.metadata` and `reflect-metadata`
-- `from()`, `hasMixin()`, `when()` utility functions
-
-**Verification:**
-```bash
-pnpm --filter polymix build
-pnpm --filter polymix test
-```
-
----
-
-### Step 3: Implement Composition Strategies ✅ COMPLETE
-
-**Files Created:**
-- [x] `packages/polymix/src/strategies.ts` - 9 composition strategies
-- [x] `packages/polymix/src/strategies.spec.ts` - 14 tests
-
-**Strategies Implemented:**
-| Strategy   | Behavior                             | Return Type        |
-| ---------- | ------------------------------------ | ------------------ |
-| `override` | Calls all; last result returned      | Single value       |
-| `pipe`     | Output becomes input of next         | Final output       |
-| `compose`  | Like pipe, reverse order             | Final output       |
-| `parallel` | Run all concurrently                 | `Promise<T[]>`     |
-| `race`     | First to resolve wins                | `Promise<T>`       |
-| `merge`    | Deep merge objects/concat arrays     | Merged result      |
-| `first`    | First non-undefined result           | Single value       |
-| `all`      | All must return truthy               | `Promise<boolean>` |
-| `any`      | At least one truthy                  | `Promise<boolean>` |
-
-**Verification:**
-```bash
-pnpm --filter polymix test -- --testPathPattern=strategies
-```
-
----
-
-### Step 4: Implement Core Mixin Logic ✅ COMPLETE
-
-**Files Created:**
-- [x] `packages/polymix/src/core.ts` - `mix()` and `mixWithBase()` functions
-- [x] `packages/polymix/src/core.spec.ts` - 42+ comprehensive tests
-
-**What's Implemented:**
-- `mix(...mixins)` - Automatic base class heuristic
-- `mixWithBase(Base, ...mixins)` - Explicit base class
-- Prototype composition (methods + accessors)
-- Static property/method copying (including symbols)
-- Method conflict resolution via `applyStrategy()`
-- `instanceof` support via `Symbol.hasInstance`
-- Error-resilient constructor initialization
-
-**Verification:**
-```bash
-pnpm --filter polymix test -- --testPathPattern=core
-```
-
----
-
-### Step 5: Implement Decorators ✅ COMPLETE
-
-**Files Created:**
-- [x] `packages/polymix/src/decorators.ts` - All decorators
-- [x] `packages/polymix/src/decorators.spec.ts` - 19+ tests
-
-**Decorators Implemented:**
-- `@mixin(...mixins)` / `@Use(...)` - Apply mixins to existing class
-- `@abstract` - Mark mixin as abstract (not instantiated)
-- `@delegate(Delegate)` - Delegate methods to property
-- Strategy decorators: `@override`, `@pipe`, `@compose`, `@parallel`, `@race`, `@merge`, `@first`, `@all`, `@any`
-
-**Verification:**
-```bash
-pnpm --filter polymix test -- --testPathPattern=decorators
-```
-
----
-
-### Step 6: Migrate Tests and Cleanup ✅ COMPLETE
-
-**Files Created:**
-- [x] `packages/polymix/src/__tests__/polymix.spec.ts` - 6 integration tests
-- [x] `packages/polymix/src/__tests__/compatibility.spec.ts` - 3 ts-mixer compatibility tests
-- [x] `packages/polymix/src/__tests__/lifecycle.spec.ts` - 3 init lifecycle tests
-- [x] `packages/polymix/src/__tests__/robustness.spec.ts` - 1 edge case test
-
-**Test Coverage Summary:**
-```
-Total Tests: 77 passing
-Test Files: 7
-- core.spec.ts: 42+ tests
-- strategies.spec.ts: 14 tests
-- decorators.spec.ts: 19+ tests
-- polymix.spec.ts: 6 tests
-- compatibility.spec.ts: 3 tests
-- lifecycle.spec.ts: 3 tests
-- robustness.spec.ts: 1 test
-```
-
-**Verification:**
 ```bash
 pnpm --filter polymix test
 ```
 
 ---
 
-### Step 7: Basic Documentation ✅ COMPLETE
+## Guardrails
 
-**Files Created:**
-- [x] `packages/polymix/README.md` - Basic documentation
-
-**What Exists:**
-- Features list
-- Installation instructions
-- Quick Start example
-- API Reference (mix, mixWithBase, hasMixin, from, when)
-- Decorator documentation
-- Composition strategies table
-- TypeScript support section
-- Comparison table vs ts-mixer
-
-**Verification:**
-- [x] README renders correctly in GitHub
-- [x] All tests pass
+- Run all commands from repo root.
+- Use pnpm workspace filtering (do not `cd packages/polymix`).
+- Keep changes scoped strictly to documentation and doc-verification tests.
 
 ---
 
-### Step 8: Implement `init` Lifecycle Support ✅ COMPLETE
-**(From polymix-improvements)**
+## Steps 1–10 (Already Done)
 
-**Files Modified:**
-- [x] `packages/polymix/src/core.ts` - Added `init()` lifecycle invocation
+No work required; these steps are included only for traceability.
 
-**What's Implemented:**
-- Each mixin's `init(...args)` method is called after construction
-- Constructor arguments are passed to `init()`
-- Works with mixins that don't have `init()` (graceful skip)
-
-**Code (already in core.ts):**
-```typescript
-// In mixWithBase constructor:
-for (const Mixin of pureMixins) {
-  // ... existing code ...
-  
-  // Call init method if it exists (ts-mixer compatibility)
-  const initMethod = Mixin.prototype.init;
-  if (typeof initMethod === 'function') {
-    initMethod.apply(this, args);
-  }
-}
-```
-
-**Verification:**
-```bash
-pnpm --filter polymix test -- --testPathPattern=lifecycle
-```
+- [x] Step 1: scaffold `packages/polymix/*`
+- [x] Step 2: implement core types + utilities
+- [x] Step 3: implement strategies (`override`, `pipe`, `compose`, `parallel`, `race`, `merge`, `first`, `all`, `any`)
+- [x] Step 4: implement `mix()` + `mixWithBase()` core
+- [x] Step 5: implement decorators
+- [x] Step 6: add/port tests
+- [x] Step 7: initial `packages/polymix/README.md`
+- [x] Step 8: `init()` lifecycle support
+- [x] Step 9: robust metadata copy behavior
+- [x] Step 10: ts-mixer compatibility tests
 
 ---
 
-### Step 9: Robust Metadata Discovery ✅ COMPLETE
-**(From polymix-improvements)**
+## Step 11: Documentation Completion (Do Now)
 
-**Files Modified:**
-- [x] `packages/polymix/src/utils.ts` - Improved `copyDecoratorMetadata()`
+Step 11 is organized as 5 sub-steps. Each sub-step includes:
 
-**What's Implemented:**
-- Metadata discovery uses instantiation fallback with try/catch
-- Tolerates mixins that cannot be instantiated (constructors with required args)
-- Tolerates constructors that throw
-- Prototype composition succeeds even when constructor fails
+- A checklist
+- Copy/paste-ready patches or full file contents
+- A concrete verification command
+- A **STOP & COMMIT** gate
 
-**Verification:**
-```bash
-pnpm --filter polymix test -- --testPathPattern=robustness
-```
+### Step 11.0: Confirm Current Baseline
 
----
+- [x] Confirm `polymix` builds and tests are green before touching docs.
 
-### Step 10: TS-Mixer Compatibility Tests ✅ COMPLETE
-**(From polymix-improvements)**
-
-**Files Created:**
-- [x] `packages/polymix/src/__tests__/compatibility.spec.ts`
-
-**Patterns Tested:**
-1. `Mix(MixinA, MixinB)` - Multiple mixins (✅ works)
-2. `Mix(Base, Mixin)` - Base class mixing (✅ works with `mixWithBase`)
-3. `init()` lifecycle (✅ works)
-
-**Verification:**
-```bash
-pnpm --filter polymix test -- --testPathPattern=compatibility
-```
-
----
-
-### Step 11: Complete Documentation ⚠️ PENDING
-
-**Remaining Tasks:**
-
-#### 11.1 Add JSDoc Comments to Public APIs
-- [ ] Add JSDoc to `mix()` function
-- [ ] Add JSDoc to `mixWithBase()` function
-- [ ] Add JSDoc to `hasMixin()` function
-- [ ] Add JSDoc to `from()` function
-- [ ] Add JSDoc to `when()` function
-- [ ] Add JSDoc to all decorators
-- [ ] Add JSDoc to all exported types
-
-**Example JSDoc to add to `packages/polymix/src/core.ts`:**
-
-```typescript
-/**
- * Creates a new class that composes all provided mixin classes.
- * 
- * The resulting class will:
- * - Have all properties and methods from all mixins
- * - Pass `instanceof` checks for all mixins via `Symbol.hasInstance`
- * - Copy static properties and methods from all mixins
- * - Inherit decorator metadata from all mixins
- * 
- * @example
- * ```typescript
- * class Dragon extends mix(Flyer, FireBreather, Reptile) {
- *   name = "Smaug";
- * }
- * 
- * const dragon = new Dragon();
- * dragon instanceof Flyer; // true
- * ```
- * 
- * @remarks
- * If the last class has constructor parameters, it is treated as a base class.
- * For explicit base class handling, use {@link mixWithBase} instead.
- * 
- * @param mixins - Variable number of mixin classes to compose
- * @returns A new class that is the composition of all provided mixins
- * @see {@link mixWithBase} for explicit base class handling
- */
-export function mix<T extends AnyConstructor[]>(...mixins: T): MixedClass<T> {
-  // ... existing implementation
-}
-
-/**
- * Creates a new class that extends a base class and applies mixins.
- * 
- * Unlike {@link mix}, this function explicitly specifies which class
- * should be the base class (first argument).
- * 
- * @example
- * ```typescript
- * class Admin extends mixWithBase(User, Permissions, AuditLog) {
- *   // User is the base class, Permissions and AuditLog are mixins
- * }
- * ```
- * 
- * @param Base - The base class to extend
- * @param mixins - Variable number of mixin classes to apply
- * @returns A new class extending Base with all mixins applied
- */
-export function mixWithBase<Base extends AnyConstructor, T extends AnyConstructor[]>(
-  Base: Base,
-  ...mixins: T
-): MixedClass<[...T, Base]> {
-  // ... existing implementation
-}
-```
-
-**Verification:**
 ```bash
 pnpm --filter polymix build
-# Check IDE autocomplete shows JSDoc comments
+pnpm --filter polymix test
 ```
 
-#### 11.2 Document Base Class Heuristic Behavior
-- [ ] Add "Base Class Handling" section to README
-- [ ] Explain implicit base class detection
-- [ ] Provide examples of when to use `mix()` vs `mixWithBase()`
+#### STOP & COMMIT (11.0)
 
-**Content to add to `packages/polymix/README.md`:**
+STOP & COMMIT: If baseline fails, stop and fix baseline first.
+
+---
+
+### Step 11.1: Add JSDoc to Public Exports
+
+Goal: JSDoc for public, user-facing symbols (so editor IntelliSense is useful).
+
+Files to update:
+
+- [x] `packages/polymix/src/core.ts` (add JSDoc for `mixWithBase`; tighten `mix()` remarks)
+- [x] `packages/polymix/src/utils.ts` (`from`, `hasMixin`, `when`, `EmptyMixin`)
+- [x] `packages/polymix/src/types.ts` (types + `MixinMetadata`)
+- [x] `packages/polymix/src/decorators.ts` (decorator exports)
+
+#### Patch: `packages/polymix/src/core.ts`
+
+```diff
+*** Begin Patch
+*** Update File: packages/polymix/src/core.ts
+@@
+ /**
+  * The core mixin composition function.
+  *
+  * It intelligently handles a base class, applies mixins, resolves method conflicts
+  * using strategies, and preserves `instanceof` checks and decorator metadata.
+  *
++ * @remarks
++ * `mix()` uses an implicit base-class heuristic:
++ * - If the last class has constructor parameters (i.e. `Ctor.length > 0`), it is treated as the base class.
++ * - Otherwise, all provided classes are treated as mixins.
++ *
++ * When the heuristic triggers and multiple classes were provided, `polymix` logs a warning:
++ * `[polymix] Warning: The last class provided to mix() (...) has constructor parameters and is being treated as a base class. ...`
++ *
++ * Prefer {@link mixWithBase} when you want explicit base class handling.
+  *
+  * @param mixins - A variable number of mixin classes to combine. The last class
+  *   can be a base class to extend.
+  * @returns A new class that is the composition of all provided mixins.
+  */
+ export function mix<T extends AnyConstructor[]>(...mixins: T): MixedClass<T> {
+@@
+ 	return mixWithBase(Base as any, ...(pureMixins as any)) as any;
+ }
+ 
++/**
++ * Creates a new class that extends `Base` and applies `mixins`.
++ *
++ * @remarks
++ * Use this when you have an actual base class (especially one with constructor parameters)
++ * and want to avoid the implicit base-class heuristic in {@link mix}.
++ *
++ * @example
++ * ```ts
++ * class User {
++ *   constructor(readonly name: string) {}
++ * }
++ *
++ * class Timestamped {
++ *   createdAt = new Date();
++ * }
++ *
++ * class Admin extends mixWithBase(User, Timestamped) {}
++ *
++ * const admin = new Admin('Ada');
++ * admin instanceof User; // true
++ * admin.createdAt instanceof Date; // true
++ * ```
++ */
+ export function mixWithBase<
+ 	Base extends AnyConstructor,
+ 	T extends AnyConstructor[],
+ >(Base: Base, ...mixins: T): MixedClass<[...T, Base]> {
+*** End Patch
+```
+
+#### Patch: `packages/polymix/src/utils.ts`
+
+```diff
+*** Begin Patch
+*** Update File: packages/polymix/src/utils.ts
+@@
+ export function from<T extends AnyConstructor>(
+ 	instance: any,
+ 	Mixin: T,
+ ): InstanceType<T> {
+@@
+ }
+ 
++/**
++ * Returns a view of `instance` as-if it were an instance of `Mixin`.
++ *
++ * @remarks
++ * This is useful when two mixins provide conflicting method names and you want
++ * to call a specific mixin's implementation.
++ */
+ export function from<T extends AnyConstructor>(
+ 	instance: any,
+ 	Mixin: T,
+ ): InstanceType<T> {
+@@
+ }
+ 
++/**
++ * Type guard for `instanceof Mixin`.
++ */
+ export function hasMixin<T extends AnyConstructor>(
+ 	instance: unknown,
+ 	Mixin: T,
+ ): instance is InstanceType<T> {
+ 	return instance instanceof Mixin;
+ }
+ 
++/**
++ * Placeholder mixin returned by {@link when} when `condition` is false.
++ */
+ export class EmptyMixin {
+ 	// Intentionally empty - used as placeholder for disabled mixins
+ }
+ 
++/**
++ * Conditionally include a mixin.
++
++ * @example
++ * ```ts
++ * const DebuggableDevice = mix(when(process.env.NODE_ENV !== 'production', Debuggable))
++ * ```
++ */
+ export function when<T extends AnyConstructor>(
+ 	condition: boolean,
+ 	Mixin: T,
+ ): T | typeof EmptyMixin {
+ 	return condition ? Mixin : EmptyMixin;
+ }
+*** End Patch
+```
+
+Note: The patch above intentionally adds only JSDoc; do not change runtime behavior.
+
+#### Patch: `packages/polymix/src/types.ts`
+
+```diff
+*** Begin Patch
+*** Update File: packages/polymix/src/types.ts
+@@
+-export type Constructor<T = object> = new (...args: any[]) => T;
+-export type AbstractConstructor<T = object> = abstract new (
+-	...args: any[]
+-) => T;
+-export type AnyConstructor<T = object> =
+-	| Constructor<T>
+-	| AbstractConstructor<T>;
++/** Standard (concrete) constructor type. */
++export type Constructor<T = object> = new (...args: any[]) => T;
++
++/** Abstract constructor type. */
++export type AbstractConstructor<T = object> = abstract new (
++	...args: any[]
++) => T;
++
++/** Union of concrete and abstract constructor types used by polymix. */
++export type AnyConstructor<T = object> =
++	| Constructor<T>
++	| AbstractConstructor<T>;
+ 
+ // Merge instance types from all mixins (variadic - no limit!)
+ export type UnionToIntersection<U> = (
+ 	U extends any ? (k: U) => void : never
+ ) extends (k: infer I) => void
+ 	? I
+ 	: never;
+@@
+ export type MixedClass<T extends AnyConstructor[]> = Constructor<
+ 	MixedInstance<T>
+ > &
+ 	Omit<MixedStatic<T>, 'prototype'>;
+ 
++/** Internal metadata tracked per mixin constructor. */
+ export interface MixinMetadata {
+ 	isAbstract: boolean;
+ 	strategies: Map<string | symbol, any>;
+ 	decoratorMetadata: Map<string | symbol, any[]>;
+ }
+*** End Patch
+```
+
+#### Patch: `packages/polymix/src/decorators.ts`
+
+Add JSDoc blocks to each exported decorator so IntelliSense explains usage.
+
+```diff
+*** Begin Patch
+*** Update File: packages/polymix/src/decorators.ts
+@@
+-export function mixin<T extends AnyConstructor[]>(...mixins: T) {
++/**
++ * Class decorator that applies one or more mixins to an existing class.
++ *
++ * @example
++ * ```ts
++ * @mixin(Timestamped, Identifiable)
++ * class User {}
++ * ```
++ */
++export function mixin<T extends AnyConstructor[]>(...mixins: T) {
+@@
+-export function Use<T extends AnyConstructor[]>(...mixins: T) {
++/** Alias for {@link mixin}. */
++export function Use<T extends AnyConstructor[]>(...mixins: T) {
+@@
+-export function abstract<T extends AnyConstructor>(Target: T): T {
++/** Marks a mixin as abstract so it is not instantiated during construction. */
++export function abstract<T extends AnyConstructor>(Target: T): T {
+@@
+-export function delegate<T extends AnyConstructor>(Delegate: T) {
++/**
++ * Delegates methods to an instance property.
++
++ * @example
++ * ```ts
++ * class Service { doWork() {} }
++ *
++ * class Worker {
++ *   service = new Service()
++ *
++ *   @delegate(Service)
++ *   doWork!: Service['doWork']
++ * }
++ * ```
++ */
++export function delegate<T extends AnyConstructor>(Delegate: T) {
+*** End Patch
+```
+
+Continue in the same file by adding short JSDoc one-liners above each strategy decorator export (`override`, `pipe`, `compose`, `parallel`, `race`, `merge`, `first`, `all`, `any`).
+
+#### Verification (11.1)
+
+```bash
+pnpm --filter polymix build
+pnpm --filter polymix test
+```
+
+#### STOP & COMMIT (11.1)
+
+STOP & COMMIT: Stage and commit JSDoc changes only.
+
+---
+
+### Step 11.2: Document the Base-Class Heuristic + Warning
+
+- [x] Add a "Base Class Handling" section to `packages/polymix/README.md`.
+- [x] Document the heuristic exactly (last class treated as base iff `Ctor.length > 0`).
+- [x] Mention the warning and provide the explicit alternative (`mixWithBase`).
+
+#### Patch: `packages/polymix/README.md`
+
+Add this section (placement: near the API docs for `mix` / `mixWithBase`):
 
 ```markdown
 ## Base Class Handling
 
-### Implicit Base Class Detection (`mix()`)
+### `mix()` implicit base-class heuristic
 
-When using `mix()`, the last class is treated as a base class **only if it has constructor parameters**:
+`mix()` treats the **last** class as a base class **only if it has constructor parameters** (i.e. `Ctor.length > 0`).
 
-```typescript
-// MixinA and MixinB have no constructor params → all are mixins
+If the heuristic triggers and you passed multiple classes, polymix logs a warning:
+
+```text
+[polymix] Warning: The last class provided to mix() (Base) has constructor parameters and is being treated as a base class. If this is intended to be a mixin, please ensure it has a zero-argument constructor.
+```
+
+Examples:
+
+```ts
+// All are treated as mixins (no constructor params)
 class Example1 extends mix(MixinA, MixinB) {}
 
-// Base has constructor params → Base is treated as the base class
 class Base {
-  constructor(public name: string) {}
+  constructor(readonly name: string) {}
 }
+
+// Base has constructor params → treated as base class
 class Example2 extends mix(MixinA, Base) {
   constructor(name: string) {
-    super(name); // Calls Base constructor
+    super(name)
   }
 }
 ```
 
-A warning is logged when the implicit base class heuristic is triggered.
+### `mixWithBase()` explicit base class
 
-### Explicit Base Class (`mixWithBase()`)
+Prefer `mixWithBase()` when you want explicit, unambiguous base-class behavior:
 
-For clarity, use `mixWithBase()` to explicitly specify the base class:
-
-```typescript
-// Base is always the base class, regardless of constructor signature
-class Admin extends mixWithBase(User, Permissions, AuditLog) {
-  // User is the base class (first argument)
-  // Permissions and AuditLog are mixins
-}
+```ts
+class Example extends mixWithBase(Base, MixinA, MixinB) {}
+```
 ```
 
-**When to use which:**
-| Scenario | Recommended API |
-|----------|----------------|
-| All classes are mixins (no base) | `mix(A, B, C)` |
-| Extending an existing class | `mixWithBase(Base, A, B)` |
-| Base class has constructor params | `mixWithBase(Base, A, B)` |
-| Avoiding implicit behavior | `mixWithBase(...)` |
+#### Verification (11.2)
+
+```bash
+pnpm --filter polymix test
 ```
 
-#### 11.3 Create TS-Mixer Migration Guide
-- [ ] Create `packages/polymix/MIGRATION.md`
-- [ ] Document API differences
-- [ ] Provide side-by-side comparison
-- [ ] Add @card-stack/core migration example
+#### STOP & COMMIT (11.2)
 
-**Create `packages/polymix/MIGRATION.md`:**
+STOP & COMMIT: Stage and commit README updates only.
+
+---
+
+### Step 11.3: Add `MIGRATION.md` (ts-mixer → polymix)
+
+- [x] Create `packages/polymix/MIGRATION.md` with side-by-side examples.
+- [x] Make it explicit which patterns are "same", "different", and "not supported".
+
+#### New file: `packages/polymix/MIGRATION.md`
 
 ```markdown
 # Migrating from ts-mixer to polymix
 
 This guide helps you migrate from `ts-mixer` to `polymix`.
 
-## Quick Start
+## Executive summary
 
-1. Install polymix:
-   ```bash
-   pnpm add polymix
-   ```
+- If you currently use `Mixin(A, B)` (no base class), migrating to `mix(A, B)` is usually direct.
+- If you mix a base class, prefer `mixWithBase(Base, A, B)` for clarity.
+- `polymix` calls each mixin’s `init(...args)` automatically (ts-mixer-compatible), without a shared `settings` object.
 
-2. Update imports:
-   ```typescript
-   // Before (ts-mixer)
-   import { Mixin as Mix, settings } from 'ts-mixer';
-   
-   // After (polymix)
-   import { mix, mixWithBase } from 'polymix';
-   ```
+## API mapping
 
-3. Update mixin patterns (see below)
+| ts-mixer                         | polymix                   | Notes               |
+| -------------------------------- | ------------------------- | ------------------- |
+| `Mixin(A, B)`                    | `mix(A, B)`               | Similar behavior    |
+| `Mixin(Base, A, B)`              | `mixWithBase(Base, A, B)` | Explicit base class |
+| `settings.initFunction = 'init'` | built-in                  | No settings needed  |
 
-## API Comparison
+## Base class handling
 
-| ts-mixer | polymix | Notes |
-|----------|---------|-------|
-| `Mixin(A, B)` | `mix(A, B)` | Identical behavior |
-| `Mixin(Base, A, B)` | `mixWithBase(Base, A, B)` | Base class first in both |
-| `settings.initFunction = 'init'` | Built-in | No configuration needed |
-| `settings.prototypeStrategy` | Not configurable | Always uses 'copy' |
-| `hasMixin(obj, Mixin)` | `hasMixin(obj, Mixin)` | Identical |
-| `decorate(...)` | `@mixin(...)` | Decorator syntax |
+ts-mixer commonly treats the first argument as a base class when you include one.
 
-## Base Class Ordering
+polymix has two supported patterns:
 
-**ts-mixer**: Base class is FIRST
-```typescript
-class User extends Mixin(BaseEntity, Timestamped) {}
+```ts
+// Explicit base class (recommended)
+class User extends mixWithBase(BaseEntity, Timestamped, Auditable) {}
+
+// Implicit base class via mix() heuristic (last class is base iff it has ctor params)
+class User2 extends mix(Timestamped, BaseEntity) {}
 ```
 
-**polymix**: Same pattern with `mixWithBase`
-```typescript
-class User extends mixWithBase(BaseEntity, Timestamped) {}
-```
+If you rely on a class being a mixin even though it has constructor parameters, ensure it has a zero-argument constructor or use `mixWithBase()`.
 
-**polymix with implicit base**: Base class is LAST (when it has constructor params)
-```typescript
-class User extends mix(Timestamped, BaseEntity) {}
-// Warning: Implicit base class detection triggered
-```
+## `init()` lifecycle
 
-## `init()` Lifecycle Differences
+polymix calls each mixin’s `init(...args)` after construction.
 
-**ts-mixer**: Supports `super.init()` chaining
-```typescript
-class A {
+```ts
+class Timestamped {
   init() {
-    super.init?.(); // Chain to parent
-    console.log('A init');
+    // called automatically
   }
 }
 ```
 
-**polymix**: Calls each mixin's `init()` directly (no chaining)
-```typescript
-class A {
-  init() {
-    // No super.init() - each mixin's init is called automatically
-    console.log('A init');
-  }
-}
+## What polymix does not support
+
+polymix does not expose a `settings` API like ts-mixer.
+
+If you rely on ts-mixer proxy strategies or other settings-driven behavior, you must refactor to polymix’s fixed “copy” composition approach.
 ```
 
-## @card-stack/core Migration Example
+#### Verification (11.3)
 
-**Before (ts-mixer):**
-```typescript
-// card-stack/core/src/utils.ts
-export { Mixin as Mix, mix } from 'ts-mixer';
-import { settings } from 'ts-mixer';
-
-settings.initFunction = 'init';
-settings.prototypeStrategy = 'copy';
-settings.staticsStrategy = 'copy';
-settings.decoratorInheritance = 'deep';
-
-// Usage
-class Card extends Mix(Indexable, Parentable) {}
-class TestPlayer extends Mix(Player, Scoreable) {}
+```bash
+pnpm --filter polymix test
 ```
 
-**After (polymix):**
-```typescript
-// card-stack/core/src/utils.ts
-export { mix as Mix, mix, mixWithBase } from 'polymix';
-// No settings configuration needed - init() is built-in
+#### STOP & COMMIT (11.3)
 
-// Usage - identical!
-class Card extends Mix(Indexable, Parentable) {}
-class TestPlayer extends Mix(Player, Scoreable) {}
-```
+STOP & COMMIT: Stage and commit `MIGRATION.md` only.
 
-## Migration Checklist
+---
 
-- [ ] Install polymix: `pnpm add polymix`
-- [ ] Update imports from `ts-mixer` to `polymix`
-- [ ] Replace `Mixin` with `mix` or `mixWithBase`
-- [ ] Remove `settings` configuration (init is built-in)
-- [ ] Test `instanceof` checks (should work automatically)
-- [ ] Verify `init()` methods are called correctly
-- [ ] Run full test suite
-```
+### Step 11.4: Document Compatibility Boundaries in README
 
-#### 11.4 Document Compatibility Boundaries
-- [ ] Add "Compatibility" section to README
-- [ ] Explain "drop-in replacement" limitations
-- [ ] List what is NOT compatible
+- [x] Add a "Compatibility" section to `packages/polymix/README.md`.
+- [x] Clearly list what's compatible and what's not.
 
-**Content to add to `packages/polymix/README.md`:**
+#### Patch: `packages/polymix/README.md`
+
+Add this section near the bottom:
 
 ```markdown
-## Compatibility with ts-mixer
+## Compatibility
 
-polymix is designed to be largely compatible with ts-mixer, but there are differences:
+polymix is designed to be ts-mixer-friendly, but it is not a 100% drop-in replacement.
 
-### ✅ What Works
-- `mix(A, B, C)` pattern
-- `mixWithBase(Base, A, B)` pattern
-- `instanceof` checks (improved!)
-- `hasMixin()` type guard
-- `init()` lifecycle methods
-- Decorator metadata inheritance
+### Works well
 
-### ⚠️ Differences
-| Feature | ts-mixer | polymix |
-|---------|----------|---------|
-| Base class ordering | First argument | First argument with `mixWithBase`, last with `mix` (if has params) |
-| `init()` chaining | `super.init()` supported | Each `init()` called independently |
-| Settings object | Configurable | Not configurable |
-| Max mixins | 10 | Unlimited |
+- `mix(A, B, C)` for composing mixins
+- `mixWithBase(Base, A, B)` for explicit base classes
+- `instanceof` checks via `Symbol.hasInstance`
+- `init(...args)` lifecycle support
 
-### ❌ Not Supported
-- `settings.prototypeStrategy = 'proxy'` (polymix always copies)
-- `settings.staticsStrategy = 'proxy'` (polymix always copies)
-- `super.init()` chaining pattern
+### Differences
+
+- polymix has no `settings` object
+- `mix()` has an implicit base-class heuristic (see “Base Class Handling”)
+- `init()` is called per-mixin; there is no shared `super.init()` chain
 ```
 
-#### 11.5 Verify README Examples
-- [ ] Add all README examples to test suite
-- [ ] Ensure examples compile and run correctly
+#### Verification (11.4)
 
-**Create `packages/polymix/src/__tests__/readme-examples.spec.ts`:**
+```bash
+pnpm --filter polymix test
+```
 
-```typescript
-import { mix, mixWithBase, hasMixin, from, when, mixin } from '..';
+#### STOP & COMMIT (11.4)
 
-describe('README Examples', () => {
-  describe('Quick Start', () => {
-    it('should work as documented', () => {
-      class Identifiable {
-        id = '123';
-      }
+STOP & COMMIT: Stage and commit README compatibility section only.
 
-      class Timestamped {
-        createdAt = new Date();
-      }
+---
 
-      class User extends mix(Identifiable, Timestamped) {
-        name: string;
-        constructor(name: string) {
-          super();
-          this.name = name;
-        }
-      }
+### Step 11.5: Verify README Examples via Tests
 
-      const user = new User('Alice');
+- [x] Add a dedicated test file: `packages/polymix/src/__tests__/readme-examples.spec.ts`.
+- [x] Ensure examples compile and assertions match actual runtime behavior.
+- [x] When testing the base-class heuristic, stub `console.warn` so the suite stays clean.
 
-      expect(user.id).toBe('123');
-      expect(user.createdAt).toBeInstanceOf(Date);
-      expect(user instanceof Identifiable).toBe(true);
-      expect(user instanceof Timestamped).toBe(true);
-      expect(user instanceof User).toBe(true);
-    });
-  });
+#### New file: `packages/polymix/src/__tests__/readme-examples.spec.ts`
 
-  describe('hasMixin', () => {
-    it('should work as documented', () => {
-      class Timestamped {
-        updatedAt = new Date();
-        touch() {
-          this.updatedAt = new Date();
-        }
-      }
+```ts
+import { from, hasMixin, mix, mixWithBase, when } from '..';
 
-      const entity = new (mix(Timestamped))();
+describe('README examples', () => {
+	it('Quick Start composition works', () => {
+		class Identifiable {
+			id = '123';
+		}
 
-      if (hasMixin(entity, Timestamped)) {
-        entity.touch();
-        expect(entity.updatedAt).toBeInstanceOf(Date);
-      } else {
-        fail('hasMixin should return true');
-      }
-    });
-  });
+		class Timestamped {
+			createdAt = new Date();
+		}
 
-  describe('from()', () => {
-    it('should work as documented', () => {
-      class Fish {
-        move() { return 'swimming'; }
-      }
-      class Bird {
-        move() { return 'flying'; }
-      }
+		class User extends mix(Identifiable, Timestamped) {
+			constructor(readonly name: string) {
+				super();
+			}
+		}
 
-      class FlyingFish extends mix(Fish, Bird) {
-        moveInWater() {
-          return from(this, Fish).move();
-        }
-        moveInAir() {
-          return from(this, Bird).move();
-        }
-      }
+		const user = new User('Alice');
+		expect(user.id).toBe('123');
+		expect(user.createdAt).toBeInstanceOf(Date);
+		expect(user instanceof Identifiable).toBe(true);
+		expect(user instanceof Timestamped).toBe(true);
+		expect(user instanceof User).toBe(true);
+	});
 
-      const ff = new FlyingFish();
-      expect(ff.moveInWater()).toBe('swimming');
-      expect(ff.moveInAir()).toBe('flying');
-    });
-  });
+	it('hasMixin narrows types', () => {
+		class Timestamped {
+			updatedAt = new Date();
+			touch() {
+				this.updatedAt = new Date();
+			}
+		}
 
-  describe('when()', () => {
-    it('should work as documented', () => {
-      class Debuggable {
-        debug = true;
-      }
+		const Entity = mix(Timestamped);
+		const entity = new Entity();
 
-      const DevDevice = mix(when(true, Debuggable));
-      const ProdDevice = mix(when(false, Debuggable));
+		if (!hasMixin(entity, Timestamped)) {
+			throw new Error('expected entity to have Timestamped mixin');
+		}
 
-      expect(hasMixin(new DevDevice(), Debuggable)).toBe(true);
-      expect(hasMixin(new ProdDevice(), Debuggable)).toBe(false);
-    });
-  });
+		entity.touch();
+		expect(entity.updatedAt).toBeInstanceOf(Date);
+	});
 
-  describe('mixWithBase()', () => {
-    it('should work as documented', () => {
-      class User {
-        email = 'user@example.com';
-      }
-      class Permissions {
-        canEdit = true;
-      }
-      class AuditLog {
-        logs: string[] = [];
-      }
+	it('from() targets a specific mixin implementation', () => {
+		class Fish {
+			move() {
+				return 'swimming';
+			}
+		}
+		class Bird {
+			move() {
+				return 'flying';
+			}
+		}
 
-      class Admin extends mixWithBase(User, Permissions, AuditLog) {}
+		class FlyingFish extends mix(Fish, Bird) {
+			moveInWater() {
+				return from(this, Fish).move();
+			}
+			moveInAir() {
+				return from(this, Bird).move();
+			}
+		}
 
-      const admin = new Admin();
-      expect(admin.email).toBe('user@example.com');
-      expect(admin.canEdit).toBe(true);
-      expect(admin.logs).toEqual([]);
-      expect(admin instanceof User).toBe(true);
-    });
-  });
+		const ff = new FlyingFish();
+		expect(ff.moveInWater()).toBe('swimming');
+		expect(ff.moveInAir()).toBe('flying');
+	});
+
+	it('when() conditionally includes a mixin', () => {
+		class Debuggable {
+			debug = true;
+		}
+
+		const DevDevice = mix(when(true, Debuggable));
+		const ProdDevice = mix(when(false, Debuggable));
+
+		expect(hasMixin(new DevDevice(), Debuggable)).toBe(true);
+		expect(hasMixin(new ProdDevice(), Debuggable)).toBe(false);
+	});
+
+	it('mixWithBase is explicit and avoids heuristic warning', () => {
+		class Base {
+			constructor(readonly name: string) {}
+		}
+		class Extra {
+			extra = true;
+		}
+
+		class Thing extends mixWithBase(Base, Extra) {
+			constructor(name: string) {
+				super(name);
+			}
+		}
+
+		const t = new Thing('x');
+		expect(t.name).toBe('x');
+		expect(t.extra).toBe(true);
+		expect(t instanceof Base).toBe(true);
+	});
+
+	it('mix() heuristic warns when last class has constructor params', () => {
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			class MixinA {
+				a = true;
+			}
+			class Base {
+				constructor(readonly name: string) {}
+			}
+
+			class Thing extends mix(MixinA, Base) {
+				constructor(name: string) {
+					super(name);
+				}
+			}
+
+			const t = new Thing('x');
+			expect(t.a).toBe(true);
+			expect(t.name).toBe('x');
+			expect(warn).toHaveBeenCalled();
+		} finally {
+			warn.mockRestore();
+		}
+	});
 });
 ```
 
-**Verification:**
+#### Verification (11.5)
+
 ```bash
 pnpm --filter polymix test -- --testPathPattern=readme-examples
+pnpm --filter polymix test
 ```
 
----
+#### STOP & COMMIT (11.5)
 
-### Step 11 Verification Checklist
-- [ ] All JSDoc comments added to public APIs
-- [ ] Base class handling documented in README
-- [ ] `MIGRATION.md` created with ts-mixer comparison
-- [ ] Compatibility boundaries documented
-- [ ] All README examples verified in test suite
-- [ ] All tests pass: `pnpm --filter polymix test`
-- [ ] Package builds: `pnpm --filter polymix build`
-
-#### Step 11 STOP & COMMIT
-**STOP & COMMIT:** Stop here and let the user test, stage, and commit documentation changes.
+STOP & COMMIT: Stage and commit the README example tests.
 
 ---
 
-## Summary
+## Step 11 Final Verification
 
-### Completed Steps (1-10)
-| Step | Description | Status |
-|------|-------------|--------|
-| 1 | Scaffold Package Structure | ✅ Complete |
-| 2 | Core Types and Utilities | ✅ Complete |
-| 3 | Composition Strategies | ✅ Complete |
-| 4 | Core Mixin Logic | ✅ Complete |
-| 5 | Decorators | ✅ Complete |
-| 6 | Tests and Cleanup | ✅ Complete |
-| 7 | Basic Documentation | ✅ Complete |
-| 8 | `init` Lifecycle (from polymix-improvements) | ✅ Complete |
-| 9 | Robust Metadata (from polymix-improvements) | ✅ Complete |
-| 10 | TS-Mixer Compatibility Tests (from polymix-improvements) | ✅ Complete |
-
-### Remaining Work (Step 11)
-| Task | Priority | Effort |
-|------|----------|--------|
-| Add JSDoc to public APIs | HIGH | 2-4 hours |
-| Document base class heuristic | HIGH | 30 min |
-| Create ts-mixer migration guide | MEDIUM | 2-3 hours |
-| Document compatibility boundaries | MEDIUM | 1 hour |
-| Verify README examples in tests | MEDIUM | 1 hour |
-
-### Future Enhancements (v2.0 - Deferred)
-- `@onMix` / `@onConstruct` lifecycle hooks
-- Compile-time conflict detection
-- Symbol-based mixin access (`this[Fish].move()`)
-- Lazy prototype resolution optimization
+- [x] `pnpm --filter polymix build`
+- [x] `pnpm --filter polymix test`
 
 ---
 
-## Test Commands
+## Useful Commands
 
 ```bash
-# Run all tests
-pnpm --filter polymix test
-
-# Run specific test suites
-pnpm --filter polymix test -- --testPathPattern=core
-pnpm --filter polymix test -- --testPathPattern=strategies
-pnpm --filter polymix test -- --testPathPattern=decorators
-pnpm --filter polymix test -- --testPathPattern=lifecycle
-pnpm --filter polymix test -- --testPathPattern=compatibility
-pnpm --filter polymix test -- --testPathPattern=robustness
-
-# Build package
 pnpm --filter polymix build
-
-# Watch mode
+pnpm --filter polymix test
 pnpm --filter polymix test -- --watch
 ```
-
----
-
-## Files Reference
-
-### Source Files
-- `packages/polymix/src/index.ts` - Main exports
-- `packages/polymix/src/types.ts` - Type definitions
-- `packages/polymix/src/utils.ts` - Utility functions
-- `packages/polymix/src/strategies.ts` - Composition strategies
-- `packages/polymix/src/core.ts` - `mix()` and `mixWithBase()`
-- `packages/polymix/src/decorators.ts` - All decorators
-
-### Test Files
-- `packages/polymix/src/core.spec.ts` - Core API tests
-- `packages/polymix/src/strategies.spec.ts` - Strategy tests
-- `packages/polymix/src/decorators.spec.ts` - Decorator tests
-- `packages/polymix/src/__tests__/polymix.spec.ts` - Integration tests
-- `packages/polymix/src/__tests__/compatibility.spec.ts` - ts-mixer compatibility
-- `packages/polymix/src/__tests__/lifecycle.spec.ts` - init() lifecycle
-- `packages/polymix/src/__tests__/robustness.spec.ts` - Edge cases
-
-### Documentation Files
-- `packages/polymix/README.md` - Main documentation
-- `packages/polymix/MIGRATION.md` - ts-mixer migration guide (to create)

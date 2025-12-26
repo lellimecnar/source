@@ -17,6 +17,16 @@ import {
  * It intelligently handles a base class, applies mixins, resolves method conflicts
  * using strategies, and preserves `instanceof` checks and decorator metadata.
  *
+ * @remarks
+ * `mix()` uses an implicit base-class heuristic:
+ * - If the last class has constructor parameters (i.e. `Ctor.length > 0`), it is treated as the base class.
+ * - Otherwise, all provided classes are treated as mixins.
+ *
+ * When the heuristic triggers and multiple classes were provided, `polymix` logs a warning:
+ * `[polymix] Warning: The last class provided to mix() (...) has constructor parameters and is being treated as a base class. ...`
+ *
+ * Prefer {@link mixWithBase} when you want explicit base class handling.
+ *
  * @param mixins - A variable number of mixin classes to combine. The last class
  *   can be a base class to extend.
  * @returns A new class that is the composition of all provided mixins.
@@ -48,6 +58,30 @@ export function mix<T extends AnyConstructor[]>(...mixins: T): MixedClass<T> {
 	return mixWithBase(Base as any, ...(pureMixins as any)) as any;
 }
 
+/**
+ * Creates a new class that extends `Base` and applies `mixins`.
+ *
+ * @remarks
+ * Use this when you have an actual base class (especially one with constructor parameters)
+ * and want to avoid the implicit base-class heuristic in {@link mix}.
+ *
+ * @example
+ * ```ts
+ * class User {
+ *   constructor(readonly name: string) {}
+ * }
+ *
+ * class Timestamped {
+ *   createdAt = new Date();
+ * }
+ *
+ * class Admin extends mixWithBase(User, Timestamped) {}
+ *
+ * const admin = new Admin('Ada');
+ * admin instanceof User; // true
+ * admin.createdAt instanceof Date; // true
+ * ```
+ */
 export function mixWithBase<
 	Base extends AnyConstructor,
 	T extends AnyConstructor[],

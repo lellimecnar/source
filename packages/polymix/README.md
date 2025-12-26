@@ -81,6 +81,44 @@ class Admin extends mixWithBase(User, Permissions, AuditLog) {
 }
 ```
 
+## Base Class Handling
+
+### `mix()` implicit base-class heuristic
+
+`mix()` treats the **last** class as a base class **only if it has constructor parameters** (i.e. `Ctor.length > 0`).
+
+If the heuristic triggers and you passed multiple classes, polymix logs a warning:
+
+```text
+[polymix] Warning: The last class provided to mix() (Base) has constructor parameters and is being treated as a base class. If this is intended to be a mixin, please ensure it has a zero-argument constructor.
+```
+
+Examples:
+
+```typescript
+// All are treated as mixins (no constructor params)
+class Example1 extends mix(MixinA, MixinB) {}
+
+class Base {
+  constructor(readonly name: string) {}
+}
+
+// Base has constructor params → treated as base class
+class Example2 extends mix(MixinA, Base) {
+  constructor(name: string) {
+    super(name)
+  }
+}
+```
+
+### `mixWithBase()` explicit base class
+
+Prefer `mixWithBase()` when you want explicit, unambiguous base-class behavior:
+
+```typescript
+class Example extends mixWithBase(Base, MixinA, MixinB) {}
+```
+
 #### `hasMixin(instance, Mixin)`
 
 Type guard to check if an instance has a specific mixin.
@@ -236,6 +274,23 @@ type UserInstance = MixedInstance<[Identifiable, Timestamped]>;
 | Decorator inheritance  | ✅                | ⚠️ (requires wrapping) | ❌              |
 | TypeScript 5.x         | ✅                | ✅                     | ❌ (abandoned)  |
 | Zero dependencies      | ✅                | ✅                     | ✅              |
+
+## Compatibility
+
+polymix is designed to be ts-mixer-friendly, but it is not a 100% drop-in replacement.
+
+### Works well
+
+- `mix(A, B, C)` for composing mixins
+- `mixWithBase(Base, A, B)` for explicit base classes
+- `instanceof` checks via `Symbol.hasInstance`
+- `init(...args)` lifecycle support
+
+### Differences
+
+- polymix has no `settings` object
+- `mix()` has an implicit base-class heuristic (see "Base Class Handling")
+- `init()` is called per-mixin; there is no shared `super.init()` chain
 
 ## License
 

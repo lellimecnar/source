@@ -134,6 +134,13 @@ export function copyDecoratorMetadata(
 	}
 }
 
+/**
+ * Returns a view of `instance` as-if it were an instance of `Mixin`.
+ *
+ * @remarks
+ * This is useful when two mixins provide conflicting method names and you want
+ * to call a specific mixin's implementation.
+ */
 export function from<T extends AnyConstructor>(
 	instance: any,
 	Mixin: T,
@@ -153,6 +160,9 @@ export function from<T extends AnyConstructor>(
 	}) as InstanceType<T>;
 }
 
+/**
+ * Type guard for `instanceof Mixin`.
+ */
 export function hasMixin<T extends AnyConstructor>(
 	instance: unknown,
 	Mixin: T,
@@ -160,10 +170,21 @@ export function hasMixin<T extends AnyConstructor>(
 	return instance instanceof Mixin;
 }
 
+/**
+ * Placeholder mixin returned by {@link when} when `condition` is false.
+ */
 export class EmptyMixin {
 	// Intentionally empty - used as placeholder for disabled mixins
 }
 
+/**
+ * Conditionally include a mixin.
+ *
+ * @example
+ * ```ts
+ * const DebuggableDevice = mix(when(process.env.NODE_ENV !== 'production', Debuggable))
+ * ```
+ */
 export function when<T extends AnyConstructor>(
 	condition: boolean,
 	Mixin: T,

@@ -24,6 +24,15 @@ function setStrategy(
 	MIXIN_METADATA.set(Target as any, metadata);
 }
 
+/**
+ * Class decorator that applies one or more mixins to an existing class.
+ *
+ * @example
+ * ```ts
+ * @mixin(Timestamped, Identifiable)
+ * class User {}
+ * ```
+ */
 export function mixin<T extends AnyConstructor[]>(...mixins: T) {
 	return function <C extends Constructor>(Target: C): C & MixedClass<T> {
 		const Mixed = mixWithBase(Target as any, ...(mixins as any));
@@ -37,10 +46,12 @@ export function mixin<T extends AnyConstructor[]>(...mixins: T) {
 	};
 }
 
+/** Alias for {@link mixin}. */
 export function Use<T extends AnyConstructor[]>(...mixins: T) {
 	return mixin(...mixins);
 }
 
+/** Marks a mixin as abstract so it is not instantiated during construction. */
 export function abstract<T extends AnyConstructor>(Target: T): T {
 	const metadata = MIXIN_METADATA.get(Target) ?? {
 		isAbstract: false,
@@ -52,6 +63,21 @@ export function abstract<T extends AnyConstructor>(Target: T): T {
 	return Target;
 }
 
+/**
+ * Delegates methods to an instance property.
+ *
+ * @example
+ * ```ts
+ * class Service { doWork() {} }
+ *
+ * class Worker {
+ *   service = new Service()
+ *
+ *   @delegate(Service)
+ *   doWork!: Service['doWork']
+ * }
+ * ```
+ */
 export function delegate<T extends AnyConstructor>(Delegate: T) {
 	return function (target: any, propertyKey: string | symbol): void {
 		const methodNames = Object.getOwnPropertyNames(Delegate.prototype).filter(
@@ -82,6 +108,7 @@ export function override(
 	return descriptor;
 }
 
+/** Chains method calls in sequence (output of one becomes input of next). */
 export function pipe(
 	target: any,
 	propertyKey: string,
@@ -91,6 +118,7 @@ export function pipe(
 	return descriptor;
 }
 
+/** Composes method results using functional composition. */
 export function compose(
 	target: any,
 	propertyKey: string,
@@ -100,6 +128,7 @@ export function compose(
 	return descriptor;
 }
 
+/** Executes all method implementations in parallel and returns array of results. */
 export function parallel(
 	target: any,
 	propertyKey: string,
@@ -109,6 +138,7 @@ export function parallel(
 	return descriptor;
 }
 
+/** Returns the result of the first method to complete. */
 export function race(
 	target: any,
 	propertyKey: string,
@@ -118,6 +148,7 @@ export function race(
 	return descriptor;
 }
 
+/** Merges all method results into a single object. */
 export function merge(
 	target: any,
 	propertyKey: string,
@@ -127,6 +158,7 @@ export function merge(
 	return descriptor;
 }
 
+/** Returns the first truthy result from all implementations. */
 export function first(
 	target: any,
 	propertyKey: string,
@@ -136,6 +168,7 @@ export function first(
 	return descriptor;
 }
 
+/** Returns true only if all implementations return truthy values. */
 export function all(
 	target: any,
 	propertyKey: string,
@@ -145,6 +178,7 @@ export function all(
 	return descriptor;
 }
 
+/** Returns true if any implementation returns a truthy value. */
 export function any(
 	target: any,
 	propertyKey: string,

@@ -1,7 +1,12 @@
+/** Standard (concrete) constructor type. */
 export type Constructor<T = object> = new (...args: any[]) => T;
+
+/** Abstract constructor type. */
 export type AbstractConstructor<T = object> = abstract new (
 	...args: any[]
 ) => T;
+
+/** Union of concrete and abstract constructor types used by polymix. */
 export type AnyConstructor<T = object> =
 	| Constructor<T>
 	| AbstractConstructor<T>;
@@ -26,6 +31,7 @@ export type MixedClass<T extends AnyConstructor[]> = Constructor<
 > &
 	Omit<MixedStatic<T>, 'prototype'>;
 
+/** Internal metadata tracked per mixin constructor. */
 export interface MixinMetadata {
 	isAbstract: boolean;
 	strategies: Map<string | symbol, any>;
