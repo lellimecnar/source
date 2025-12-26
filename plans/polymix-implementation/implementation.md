@@ -6,8 +6,8 @@ This file is the copy/paste-ready implementation guide for `packages/polymix`.
 ## Status (as of last verification)
 
 - Steps 1–10: ✅ complete in repo
-- Step 11 (docs): ⚠️ remaining work
-- Polymix tests: ✅ 77 passed / 7 suites
+- Step 11 (docs): ✅ complete
+- Polymix tests: ✅ 83 passed / 8 suites
 
 Baseline verification (run from repo root):
 
