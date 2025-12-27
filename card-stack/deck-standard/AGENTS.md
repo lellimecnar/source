@@ -1,13 +1,14 @@
-This file provides guidance when working with code in the `@card-stack/standard-deck` package.
+This file provides guidance when working with code in the `@card-stack/deck-standard` package.
 
 ## Package Overview
 
-`@card-stack/standard-deck` is an implementation of a standard 52-card deck using the `@card-stack/core` engine. It provides `StandardCard` and `StandardDeck` classes for traditional playing card games.
+`@card-stack/deck-standard` is an implementation of a standard 52-card deck using the `@card-stack/core` engine. It provides `StandardCard` and `StandardDeck` classes for traditional playing card games.
 
 ## Tech Stack
 
 - **Language**: TypeScript ~5.5
 - **Core Engine**: @card-stack/core (workspace package)
+- **Mixins**: polymix (via @card-stack/core exports)
 - **Testing**: Jest ^29
 
 ## Package Structure
@@ -25,13 +26,13 @@ src/
 
 ```bash
 # Run tests
-pnpm --filter @card-stack/standard-deck test
+pnpm --filter @card-stack/deck-standard test
 
 # Run tests in watch mode
-pnpm --filter @card-stack/standard-deck test:watch
+pnpm --filter @card-stack/deck-standard test:watch
 
 # Lint code
-pnpm --filter @card-stack/standard-deck lint
+pnpm --filter @card-stack/deck-standard lint
 ```
 
 ## Package Exports
@@ -39,11 +40,10 @@ pnpm --filter @card-stack/standard-deck lint
 The package exports standard deck implementation:
 
 ```typescript
-import { StandardCard, StandardDeck } from '@card-stack/standard-deck'
+import { StandardCard, StandardDeck } from '@card-stack/deck-standard'
 
-// Create a standard deck
+// Create a standard deck (52 cards are created in the constructor)
 const deck = new StandardDeck()
-deck.init() // Initialize with 52 cards
 
 // Access card constants
 const suit = StandardCard.SUIT.Hearts
@@ -68,13 +68,13 @@ const card = new StandardCard(StandardCard.SUIT.Hearts, StandardCard.RANK.Ace)
 ## Architecture Notes
 
 ### StandardCard
-- Extends `Mix(Card, Suitable, Rankable)` from core
+- Uses polymix mixins via `@mixin(Suitable, Rankable)`
 - Defines standard suits: Hearts, Diamonds, Spades, Clubs
 - Defines standard ranks: Ace, Two through Ten, Jack, Queen, King
 - Uses enum creation utilities from core
 
 ### StandardDeck
-- Extends `Mix(CardDeck<StandardCard>)` from core
+- Extends `CardDeck<StandardCard>` from core
 - Initializes with 52 cards (13 ranks × 4 suits)
 - Each card is assigned to the deck as its parent
 - Can use all CardDeck and CardSet operations from core
@@ -87,11 +87,10 @@ const card = new StandardCard(StandardCard.SUIT.Hearts, StandardCard.RANK.Ace)
 
 ### Creating and Using a Standard Deck
 ```typescript
-import { StandardDeck } from '@card-stack/standard-deck'
+import { StandardDeck } from '@card-stack/deck-standard'
 
-// Create and initialize deck
+// Create deck
 const deck = new StandardDeck()
-deck.init()
 
 // Use deck operations (from core)
 deck.shuffle()
@@ -100,7 +99,7 @@ const card = deck.take()
 
 ### Creating Specific Cards
 ```typescript
-import { StandardCard } from '@card-stack/standard-deck'
+import { StandardCard } from '@card-stack/deck-standard'
 
 // Create Ace of Spades
 const aceOfSpades = new StandardCard(
@@ -109,13 +108,13 @@ const aceOfSpades = new StandardCard(
 )
 
 // Access properties
-console.log(aceOfSpades.suit) // Spades
-console.log(aceOfSpades.rank) // Ace
+console.log(aceOfSpades.suitName) // Spades
+console.log(aceOfSpades.rankName) // Ace
 ```
 
 ### Working with Suits and Ranks
 ```typescript
-import { StandardCard } from '@card-stack/standard-deck'
+import { StandardCard } from '@card-stack/deck-standard'
 
 // Iterate over suits
 for (const suit of StandardCard.SUIT) {
@@ -134,20 +133,6 @@ for (const rank of StandardCard.RANK) {
 - Tests in `standard-deck.spec.ts`
 - Uses Jest snapshots for output verification
 - Tests deck initialization, card creation, and operations
-
-## Adding New Features
-
-### Adding Card Variants
-If you need variants (e.g., Jokers), you could:
-1. Create new card class extending StandardCard
-2. Create new deck class that includes variants
-3. Export from package
-
-### Extending Functionality
-Since StandardDeck uses mixins from core, you can:
-1. Create a new class extending StandardDeck
-2. Add additional mixins from core
-3. Add custom methods as needed
 
 ## Notes
 

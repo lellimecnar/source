@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
+
 import {
 	Card,
 	CardDeck,
-	Mix,
 	Rankable,
 	Suitable,
 	createRankEnum,
 	createSuitEnum,
 	hasMixin,
+	mixin,
 } from '@card-stack/core';
 
 const RANK = createRankEnum([
@@ -26,22 +28,22 @@ const RANK = createRankEnum([
 ]);
 const SUIT = createSuitEnum(['Hearts', 'Diamonds', 'Spades', 'Clubs']);
 
-export class StandardCard extends Mix(Card, Suitable, Rankable) {
+export interface StandardCard extends Card, Suitable, Rankable {}
+
+@mixin(Suitable, Rankable)
+export class StandardCard extends Card {
 	static readonly RANK = RANK;
 	static readonly SUIT = SUIT;
 
 	constructor(suit: number, rank: number) {
-		super();
-
-		// @ts-expect-error suit is readonly
-		this.suit = suit;
-		// @ts-expect-error rank is readonly
-		this.rank = rank;
+		super(suit, rank);
 	}
 }
 
-export class StandardDeck extends Mix(CardDeck<StandardCard>) {
-	init(..._args: unknown[]): void {
+export class StandardDeck extends CardDeck<StandardCard> {
+	constructor() {
+		super();
+
 		for (const suit of StandardCard.SUIT) {
 			for (const rank of StandardCard.RANK) {
 				const card = new StandardCard(suit, rank);

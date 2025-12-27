@@ -961,7 +961,6 @@ for (const rank of StandardCard.RANK) {
 - Can be extended for specific game needs
 - Independent package (not tied to web/mobile apps)
 - Uses workspace dependency on @card-stack/core
-```
 
 - [ ] Run: `pnpm --filter @card-stack/deck-standard test`
 - [ ] Run: `pnpm --filter @card-stack/core test`

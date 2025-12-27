@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
+
 import { Indexable } from '../shared/indexable';
 import { HexByte } from '../types';
-import { Mix } from '../utils';
 
-export class Player extends Mix(Indexable) {
-	static override HexByte = HexByte.PlayerIndex;
+// eslint-disable-next-line -- use interface, not type
+export interface Player extends Indexable {}
+
+export class Player extends Indexable {
+	static HexByte = HexByte.PlayerIndex;
 }

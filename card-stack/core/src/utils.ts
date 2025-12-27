@@ -1,16 +1,76 @@
 /* eslint-disable @typescript-eslint/no-var-requires -- ignore */
-import { hasMixin as _hasMixin, settings } from 'ts-mixer';
+import type { AnyConstructor, MixedInstance, MixedStatic } from 'polymix';
+import {
+	abstract,
+	delegate,
+	from,
+	hasMixin as _hasMixin,
+	mix,
+	mixWithBase,
+	mixin,
+	strategies,
+	Use,
+	when,
+} from 'polymix';
 
 import { type EnumType, type HexByte } from './types';
 
-export { Mixin as Mix, mix } from 'ts-mixer';
+export {
+	abstract,
+	delegate,
+	from,
+	mix,
+	mixWithBase,
+	mixin,
+	strategies,
+	Use,
+	when,
+};
 
-Object.assign(settings, {
-	initFunction: 'init',
-	prototypeStrategy: 'copy',
-	staticsStrategy: 'copy',
-	decoratorInheritance: 'deep',
-} as typeof settings);
+// Transitional helper matching ts-mixer `Mixin(Base, ...mixins)` calling style.
+// This keeps existing test code and some internal call sites working while production
+// code prefers `@mixin(...)` decorators.
+
+type MixedCtor<T extends AnyConstructor[]> = (new (
+	...args: any[]
+) => MixedInstance<T>) &
+	MixedStatic<T>;
+
+export function Mix<C extends AnyConstructor>(Base: C): MixedCtor<[C]>;
+export function Mix<
+	Base extends AnyConstructor,
+	Mixins extends AnyConstructor[],
+>(Base: Base, ...mixins: Mixins): MixedCtor<[...Mixins, Base]>;
+export function Mix(...classes: AnyConstructor[]): AnyConstructor {
+	if (classes.length === 0) {
+		throw new Error('Mix() requires at least one class');
+	}
+
+	const [Base, ...mixins] = classes;
+	if (mixins.length === 0) {
+		return Base!;
+	}
+
+	const Mixed = mixWithBase(Base!, ...mixins) as any;
+
+	// Ensure static prototype chaining so static fields (e.g. HexByte) can be resolved
+	// via the base class even if polymix didn't copy them as own properties.
+	if (Base && Object.getPrototypeOf(Mixed) !== Base) {
+		Object.setPrototypeOf(Mixed, Base);
+	}
+
+	// Ensure Indexable-style static state exists on the mixed ctor.
+	// (Tests reset via `this.instances.clear()`; runtime relies on `.instances.set()`.)
+	if (!Mixed.instances || !(Mixed.instances instanceof Map)) {
+		Object.defineProperty(Mixed, 'instances', {
+			value: new Map<number, unknown>(),
+			writable: true,
+			configurable: true,
+		});
+	}
+
+	return Mixed;
+}
 
 export const createEnum = <K extends string, V extends number>(
 	keys: readonly K[],
@@ -89,20 +149,6 @@ export const replace = <T>(target: T[], src: T[]) => {
 	return target;
 };
 
-// export const hasMixin = <T>(obj: unknown, mixin: string): obj is T => {
-// 	if (!obj?.constructor) {
-// 		return false;
-// 	}
-
-// 	const curr = obj.constructor;
-
-// 	while (curr !== Function) {
-// 		const mixins = getMixinsForClass(curr);
-// 	}
-
-// 	return false;
-// };
-
 export const getProps = (obj: unknown) => {
 	const allProps: string[] = [];
 	let curr = obj;
@@ -119,10 +165,10 @@ export const getProps = (obj: unknown) => {
 	return allProps;
 };
 
-export const hasMixin = <T>(
+export const hasMixin = <T extends AnyConstructor>(
 	obj: unknown,
-	mixin: new (...args: any[]) => T,
-): obj is T => Boolean(obj?.constructor && _hasMixin(obj, mixin));
+	mixin: T,
+): obj is InstanceType<T> => Boolean(obj && _hasMixin(obj, mixin));
 
 export const isCard = (obj: unknown): obj is import('./card/card').Card =>
 	hasMixin(obj, require('./card/card').Card);
@@ -151,6 +197,7 @@ export const isAtable = <C extends import('./card/card').Card>(
 	obj: unknown,
 ): obj is import('./card-set/atable').Atable<C> =>
 	hasMixin(obj, require('./card-set/atable').Atable);
+
 export const isCardSet = <C extends import('./card/card').Card>(
 	obj: unknown,
 ): obj is import('./card-set/card-set').CardSet<C> =>

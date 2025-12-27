@@ -4,7 +4,7 @@
     "license": "MIT",
     "scripts": {
         "lint": "eslint .",
-        "test": "jest --no-watchman",
+        "test": "jest",
         "test:watch": "jest --watch"
     },
     "exports": {
@@ -25,7 +25,6 @@
     },
     "dependencies": {
         "@lellimecnar/utils": "workspace:*",
-        "polymix": "workspace:*",
-        "ts-mixer": "^6.0.4"
+        "polymix": "workspace:*"
     }
 }

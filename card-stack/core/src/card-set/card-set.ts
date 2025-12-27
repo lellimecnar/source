@@ -4,7 +4,6 @@ import { type Card } from '../card/card';
 import { isCard } from '../utils';
 
 export class CardSet<T extends Card = Card> {
-	// @ts-expect-error: cards defined in init
 	protected readonly cards: T[];
 
 	get size(): number {
@@ -19,10 +18,24 @@ export class CardSet<T extends Card = Card> {
 		}
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-useless-constructor, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function -- typing only
-	constructor(...args: unknown[]) {}
+	constructor(...args: unknown[]) {
+		const cards: T[] =
+			args
+				.find(
+					(arg): arg is unknown[] =>
+						Array.isArray(arg) &&
+						(!arg.length || arg.some((item) => isCard(item))),
+				)
+				?.filter((item): item is T => isCard(item)) ?? [];
+
+		this.cards = cards;
+	}
 
 	init(...args: unknown[]): void {
+		if (Array.isArray(this.cards) && this.cards.length >= 0) {
+			return;
+		}
+
 		const cards: T[] =
 			args
 				.find(
@@ -33,7 +46,7 @@ export class CardSet<T extends Card = Card> {
 				?.filter((item): item is T => isCard(item)) ?? [];
 
 		// @ts-expect-error: cards is readonly
-		this.cards ??= cards;
+		this.cards = cards;
 	}
 
 	*[Symbol.iterator](): Generator<T, void> {

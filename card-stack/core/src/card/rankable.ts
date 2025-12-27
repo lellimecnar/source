@@ -6,7 +6,7 @@ export interface Rankable extends Card {
 	//
 }
 export class Rankable {
-	static RANK: RankEnumType<any>;
+	declare static RANK: RankEnumType<any>;
 
 	readonly rank!: number;
 

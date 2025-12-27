@@ -47,10 +47,21 @@ export class Indexable {
 		return this.getIndex(1);
 	}
 
-	// @ts-expect-error: index defined in init
-	readonly index: number;
+	readonly index!: number;
+
+	constructor(..._args: unknown[]) {
+		this.ensureIndex();
+	}
 
 	init(..._args: unknown[]): void {
+		this.ensureIndex();
+	}
+
+	private ensureIndex(): void {
+		if (typeof (this as any).index === 'number') {
+			return;
+		}
+
 		// @ts-expect-error: index is readonly
 		this.index = (this.constructor as typeof Indexable).getNextIndex();
 

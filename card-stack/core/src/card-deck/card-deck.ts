@@ -1,19 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-unsafe-declaration-merging -- ignore */
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
 
 import { type Card } from '../card';
 import { CardSet } from '../card-set';
 import { Indexable } from '../shared/indexable';
 import { HexByte } from '../types';
-import { mix } from '../utils';
+import { mixin } from '../utils';
 
-// eslint-disable-next-line -- use interface, not type
-export interface CardDeck<C extends Card> extends CardSet<C>, Indexable  {}
+export interface CardDeck<C extends Card> extends CardSet<C>, Indexable {}
 
-@mix(CardSet, Indexable)
-export class CardDeck<C extends Card> {
+@mixin(Indexable)
+export class CardDeck<C extends Card> extends CardSet<C> {
 	static HexByte = HexByte.DeckIndex;
-
-	init(..._args: unknown[]): void {
-		//
-	}
 }
+
+// Some mixin decorators return a replacement constructor; ensure the exported
+// class has the expected static HexByte even in that case.
+(CardDeck as any).HexByte ??= HexByte.DeckIndex;

@@ -6,7 +6,7 @@ import { type Card } from './card';
 
 export interface Suitable extends Card {}
 export class Suitable {
-	static SUIT: SuitEnumType<any>;
+	declare static SUIT: SuitEnumType<any>;
 
 	readonly suit!: number;
 

@@ -1,5 +1,5 @@
 {
-    "name": "@card-stack/standard-deck",
+    "name": "@card-stack/deck-standard",
     "version": "0.0.0",
     "license": "MIT",
     "exports": {
