@@ -1,2 +1,2 @@
-export * from './components';
-export * from './icons';
+export * from './components/index.js';
+export * from './icons/index.js';

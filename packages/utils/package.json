@@ -1,25 +1,22 @@
 {
     "name": "@lellimecnar/utils",
-    "version": "0.0.0",
-    "private": true,
-    "license": "MIT",
+    "version": "0.1.0",
+    "description": "Shared utility functions",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "scripts": {
-        "lint": "eslint ."
-    },
-    "exports": {
-        ".": "./src/index.ts"
+        "lint": "eslint .",
+        "type-check": "tsc --noEmit"
     },
     "dependencies": {
-    "date-fns": "^4.1.0",
-    "lodash": "^4.17.21"
+        "date-fns": "^4.1.0",
+        "lodash": "^4.17.21"
     },
     "devDependencies": {
-    "@types/lodash": "^4.17.21",
-    "@types/lodash-es": "^4.17.12",
-        "eslint": "^8",
-        "typescript": "~5.5"
-    },
-    "peerDependencies": {
+        "@lellimecnar/eslint-config": "workspace:*",
+        "@lellimecnar/typescript-config": "workspace:*",
+        "@types/lodash": "^4.17.13",
+        "eslint": "^8.57.1",
         "typescript": "~5.5"
     }
 }

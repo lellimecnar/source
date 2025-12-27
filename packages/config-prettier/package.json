@@ -5,7 +5,8 @@
     "main": "prettier-preset.js",
     "license": "MIT",
     "scripts": {
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "type-check": "tsc --noEmit"
     },
     "devDependencies": {
         "@vercel/style-guide": "^6",

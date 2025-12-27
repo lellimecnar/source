@@ -1,4 +1,5 @@
-export * from './flatlist';
-export * from './stack';
-export * from './tabs';
-export * from './view';
+export * from './flatlist.js';
+export * from './stack.js';
+export * from './tabs.js';
+export * from './view.js';
+

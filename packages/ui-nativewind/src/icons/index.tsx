@@ -1,4 +1,4 @@
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { cssInterop } from 'nativewind';
 
 const RemappedMaterialIcons = cssInterop(MaterialIcons, {

@@ -1,5 +1,6 @@
 module.exports = {
-	preset: 'ts-jest',
+	displayName: '@lellimecnar/utils',
+	preset: '@lellimecnar/jest-config',
 	testEnvironment: 'node',
 	roots: ['<rootDir>/src'],
 	testMatch: [
@@ -17,7 +18,7 @@ module.exports = {
 		'!src/**/index.{ts,tsx}',
 	],
 	coverageDirectory: 'coverage',
-	coverageReporters: ['text', 'text-summary', 'html', 'lcov', 'json'],
+	coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
 	coverageThreshold: {
 		global: {
 			branches: 80,
@@ -26,5 +27,4 @@ module.exports = {
 			statements: 80,
 		},
 	},
-	verbose: true,
 };

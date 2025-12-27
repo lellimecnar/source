@@ -1,10 +1,12 @@
 {
+  "extends": "@lellimecnar/typescript-config/base.json",
   "compilerOptions": {
-    "allowJs": true,
-    "checkJs": false,
-    "noEmit": true
+    "checkJs": false
   },
-  "include": ["**/*.js"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
-

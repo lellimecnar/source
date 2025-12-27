@@ -23,9 +23,9 @@ git checkout -b chore/build-system-improvements
 
 The root `package.json` already has a `"type-check": "turbo type-check"` script, but the `turbo.json` configuration is missing the task definition. This step fixes that disconnect.
 
-- [ ] Open `turbo.json` in the root directory
-- [ ] Add the `type-check` task configuration
-- [ ] Copy and paste the code below into `turbo.json`:
+- [x] Open `turbo.json` in the root directory
+- [x] Add the `type-check` task configuration
+- [x] Copy and paste the code below into `turbo.json`:
 
 ```json
 {
@@ -66,12 +66,12 @@ The root `package.json` already has a `"type-check": "turbo type-check"` script,
 ```
 
 #### Step 1 Verification Checklist
-- [ ] File is valid JSON (no syntax errors)
-- [ ] `type-check` task is present in the tasks object
-- [ ] Task depends on `^build` (upstream builds complete first)
-- [ ] Task has `outputs: []` (validation produces no artifacts)
-- [ ] Run `pnpm type-check` from root (will check packages that already have the script)
-- [ ] Verify no errors about missing task definition
+- [x] File is valid JSON (no syntax errors)
+- [x] `type-check` task is present in the tasks object
+- [x] Task depends on `^build` (upstream builds complete first)
+- [x] Task has `outputs: []` (validation produces no artifacts)
+- [x] Run `pnpm type-check` from root (will check packages that already have the script)
+- [x] Verify no errors about missing task definition
 
 #### Step 1 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -87,9 +87,9 @@ git commit -m "feat(turbo): add type-check task configuration"
 
 Add TypeScript validation scripts to both card-stack packages.
 
-- [ ] Open `card-stack/core/package.json`
-- [ ] Add the type-check script to the scripts section
-- [ ] Copy and paste the updated scripts object below into `card-stack/core/package.json`:
+- [x] Open `card-stack/core/package.json`
+- [x] Add the type-check script to the scripts section
+- [x] Copy and paste the updated scripts object below into `card-stack/core/package.json`:
 
 ```json
 {
@@ -121,9 +121,9 @@ Add TypeScript validation scripts to both card-stack packages.
 }
 ```
 
-- [ ] Open `card-stack/deck-standard/package.json`
-- [ ] Add the type-check script to the scripts section
-- [ ] Copy and paste the updated scripts object below into `card-stack/deck-standard/package.json`:
+- [x] Open `card-stack/deck-standard/package.json`
+- [x] Add the type-check script to the scripts section
+- [x] Copy and paste the updated scripts object below into `card-stack/deck-standard/package.json`:
 
 ```json
 {
@@ -155,11 +155,11 @@ Add TypeScript validation scripts to both card-stack packages.
 ```
 
 #### Step 2 Verification Checklist
-- [ ] Both package.json files are valid JSON
-- [ ] `type-check` script is present in scripts object for both packages
-- [ ] Run `pnpm --filter @card-stack/core type-check` - should complete with no errors
-- [ ] Run `pnpm --filter @card-stack/deck-standard type-check` - should complete with no errors
-- [ ] Run `pnpm type-check` from root - should include card-stack packages
+- [x] Both package.json files are valid JSON
+- [x] `type-check` script is present in scripts object for both packages
+- [x] Run `pnpm --filter @card-stack/core type-check` - should complete with no errors
+- [x] Run `pnpm --filter @card-stack/deck-standard type-check` - should complete with no errors
+- [x] Run `pnpm type-check` from root - should include card-stack packages
 
 #### Step 2 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -175,9 +175,9 @@ git commit -m "feat(card-stack): add type-check scripts to core and deck-standar
 
 Add TypeScript validation scripts to all config packages that contain TypeScript code.
 
-- [ ] Open `packages/config-eslint/package.json`
-- [ ] Add type-check to scripts section
-- [ ] Copy and paste the updated scripts object below:
+- [x] Open `packages/config-eslint/package.json`
+- [x] Add type-check to scripts section
+- [x] Copy and paste the updated scripts object below:
 
 ```json
 {
@@ -200,9 +200,9 @@ Add TypeScript validation scripts to all config packages that contain TypeScript
 }
 ```
 
-- [ ] Open `packages/config-jest/package.json`
-- [ ] Add type-check to scripts section
-- [ ] Copy and paste the updated scripts object below:
+- [x] Open `packages/config-jest/package.json`
+- [x] Add type-check to scripts section
+- [x] Copy and paste the updated scripts object below:
 
 ```json
 {
@@ -229,9 +229,9 @@ Add TypeScript validation scripts to all config packages that contain TypeScript
 }
 ```
 
-- [ ] Open `packages/config-prettier/package.json`
-- [ ] Add type-check to scripts section
-- [ ] Copy and paste the updated scripts object below:
+- [x] Open `packages/config-prettier/package.json`
+- [x] Add type-check to scripts section
+- [x] Copy and paste the updated scripts object below:
 
 ```json
 {
@@ -256,9 +256,9 @@ Add TypeScript validation scripts to all config packages that contain TypeScript
 }
 ```
 
-- [ ] Open `packages/config-tailwind/package.json`
-- [ ] Add type-check to scripts section
-- [ ] Copy and paste the updated scripts object below:
+- [x] Open `packages/config-tailwind/package.json`
+- [x] Add type-check to scripts section
+- [x] Copy and paste the updated scripts object below:
 
 ```json
 {
@@ -283,9 +283,9 @@ Add TypeScript validation scripts to all config packages that contain TypeScript
 }
 ```
 
-- [ ] Open `packages/config-typescript/package.json`
-- [ ] Add type-check to scripts section
-- [ ] Copy and paste the updated scripts object below:
+- [x] Open `packages/config-typescript/package.json`
+- [x] Add type-check to scripts section
+- [x] Copy and paste the updated scripts object below:
 
 ```json
 {
@@ -308,9 +308,9 @@ Add TypeScript validation scripts to all config packages that contain TypeScript
 }
 ```
 
-- [ ] Open `packages/expo-with-modify-gradle/package.json`
-- [ ] Add type-check to scripts section
-- [ ] Copy and paste the updated scripts object below:
+- [x] Open `packages/expo-with-modify-gradle/package.json`
+- [x] Add type-check to scripts section
+- [x] Copy and paste the updated scripts object below:
 
 ```json
 {
@@ -335,14 +335,14 @@ Add TypeScript validation scripts to all config packages that contain TypeScript
 ```
 
 #### Step 3 Verification Checklist
-- [ ] All 6 package.json files are valid JSON
-- [ ] Each has `"type-check": "tsc --noEmit"` in scripts
-- [ ] Run `pnpm --filter @lellimecnar/eslint-config type-check` - no errors
-- [ ] Run `pnpm --filter @lellimecnar/jest-config type-check` - no errors
-- [ ] Run `pnpm --filter @lellimecnar/prettier-config type-check` - no errors
-- [ ] Run `pnpm --filter @lellimecnar/tailwind-config type-check` - no errors
-- [ ] Run `pnpm --filter @lellimecnar/typescript-config type-check` - no errors
-- [ ] Run `pnpm --filter @lellimecnar/expo-with-modify-gradle type-check` - no errors
+- [x] All 6 package.json files are valid JSON
+- [x] Each has `"type-check": "tsc --noEmit"` in scripts
+- [x] Run `pnpm --filter @lellimecnar/eslint-config type-check` - no errors
+- [x] Run `pnpm --filter @lellimecnar/jest-config type-check` - no errors
+- [x] Run `pnpm --filter @lellimecnar/prettier-config type-check` - no errors
+- [x] Run `pnpm --filter @lellimecnar/tailwind-config type-check` - no errors
+- [x] Run `pnpm --filter @lellimecnar/typescript-config type-check` - no errors
+- [x] Run `pnpm --filter @lellimecnar/expo-with-modify-gradle type-check` - no errors
 
 #### Step 3 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -358,9 +358,9 @@ git commit -m "feat(packages): add type-check scripts to all config packages"
 
 Add TypeScript validation script to the utils package.
 
-- [ ] Open `packages/utils/package.json`
-- [ ] Add type-check to scripts section
-- [ ] Copy and paste the updated scripts object below:
+- [x] Open `packages/utils/package.json`
+- [x] Add type-check to scripts section
+- [x] Copy and paste the updated scripts object below:
 
 ```json
 {
@@ -388,10 +388,10 @@ Add TypeScript validation script to the utils package.
 ```
 
 #### Step 4 Verification Checklist
-- [ ] package.json is valid JSON
-- [ ] `type-check` script is present
-- [ ] Run `pnpm --filter @lellimecnar/utils type-check` - no errors
-- [ ] Run `pnpm type-check` from root - includes utils package
+- [x] package.json is valid JSON
+- [x] `type-check` script is present
+- [x] Run `pnpm --filter @lellimecnar/utils type-check` - no errors
+- [x] Run `pnpm type-check` from root - includes utils package
 
 #### Step 4 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -407,9 +407,9 @@ git commit -m "feat(utils): add type-check script"
 
 Add TypeScript validation script to the mobile Expo app.
 
-- [ ] Open `mobile/readon/package.json`
-- [ ] Add type-check to scripts section (maintain alphabetical order)
-- [ ] Copy and paste the updated scripts object below:
+- [x] Open `mobile/readon/package.json`
+- [x] Add type-check to scripts section (maintain alphabetical order)
+- [x] Copy and paste the updated scripts object below:
 
 ```json
 {
@@ -473,12 +473,12 @@ Add TypeScript validation script to the mobile Expo app.
 ```
 
 #### Step 5 Verification Checklist
-- [ ] package.json is valid JSON
-- [ ] `type-check` script is present in scripts section
-- [ ] Scripts are in alphabetical order
-- [ ] Run `pnpm readon type-check` - no errors (uses root alias)
-- [ ] Run `pnpm --filter readon type-check` - no errors (direct filter)
-- [ ] Run `pnpm type-check` from root - includes mobile app
+- [x] package.json is valid JSON
+- [x] `type-check` script is present in scripts section
+- [x] Scripts are in alphabetical order
+- [x] Run `pnpm readon type-check` - no errors (uses root alias)
+- [x] Run `pnpm --filter readon type-check` - no errors (direct filter)
+- [x] Run `pnpm type-check` from root - includes mobile app
 
 #### Step 5 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -494,19 +494,19 @@ git commit -m "feat(mobile): add type-check script to readon app"
 
 Create `.nvmrc` to ensure consistent Node.js version across development environments and CI.
 
-- [ ] Create `.nvmrc` file in the root directory
-- [ ] Copy and paste the content below into `.nvmrc`:
+- [x] Create `.nvmrc` file in the root directory
+- [x] Copy and paste the content below into `.nvmrc`:
 
 ```
 20
 ```
 
 #### Step 6 Verification Checklist
-- [ ] `.nvmrc` file exists in root directory
-- [ ] File contains only `20` (no extra whitespace or newlines)
-- [ ] Run `nvm use` in project root (if nvm is installed)
-- [ ] Verify correct Node version is activated: `node --version` should show v20.x.x
-- [ ] Note: CI systems will automatically use this version if configured
+- [x] `.nvmrc` file exists in root directory
+- [x] File contains only `20` (no extra whitespace or newlines)
+- [x] Run `nvm use` in project root (if nvm is installed)
+- [x] Verify correct Node version is activated: `node --version` should show v20.x.x
+- [x] Note: CI systems will automatically use this version if configured
 
 #### Step 6 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -522,9 +522,9 @@ git commit -m "chore: add .nvmrc for Node.js version management"
 
 Add additional task configurations to improve caching, support new workflows, and add environment variable handling where needed.
 
-- [ ] Open `turbo.json` in the root directory
-- [ ] Add new tasks: `format`, `test:coverage`, `test:ci`
-- [ ] Copy and paste the complete updated configuration below into `turbo.json`:
+- [x] Open `turbo.json` in the root directory
+- [x] Add new tasks: `format`, `test:coverage`, `test:ci`
+- [x] Copy and paste the complete updated configuration below into `turbo.json`:
 
 ```json
 {
@@ -581,14 +581,14 @@ Add additional task configurations to improve caching, support new workflows, an
 ```
 
 #### Step 7 Verification Checklist
-- [ ] File is valid JSON (no syntax errors)
-- [ ] All original tasks are preserved
-- [ ] New tasks added: `format`, `test:coverage`, `test:ci`
-- [ ] `test:coverage` depends on `^build` and outputs to `coverage/**`
-- [ ] `test:ci` includes `CI` environment variable
-- [ ] `format` has no cache (mutations always execute)
-- [ ] Run `turbo test:coverage --dry-run` to verify task recognition
-- [ ] Run `turbo format --dry-run` to verify task recognition
+- [x] File is valid JSON (no syntax errors)
+- [x] All original tasks are preserved
+- [x] New tasks added: `format`, `test:coverage`, `test:ci`
+- [x] `test:coverage` depends on `^build` and outputs to `coverage/**`
+- [x] `test:ci` includes `CI` environment variable
+- [x] `format` has no cache (mutations always execute)
+- [x] Run `turbo test:coverage --dry-run` to verify task recognition
+- [x] Run `turbo format --dry-run` to verify task recognition
 
 #### Step 7 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -604,9 +604,9 @@ git commit -m "feat(turbo): add format, test:coverage, and test:ci tasks"
 
 Add convenience scripts to root package.json for common workspace operations.
 
-- [ ] Open `package.json` in the root directory
-- [ ] Add new scripts: `graph`, `outdated`, `update-interactive`, `why`, `clean:hard`
-- [ ] Copy and paste the updated scripts section below (merge with existing scripts):
+- [x] Open `package.json` in the root directory
+- [x] Add new scripts: `graph`, `outdated`, `update-interactive`, `why`, `clean:hard`
+- [x] Copy and paste the updated scripts section below (merge with existing scripts):
 
 ```json
 {
@@ -656,13 +656,13 @@ Add convenience scripts to root package.json for common workspace operations.
 ```
 
 #### Step 8 Verification Checklist
-- [ ] package.json is valid JSON
-- [ ] All new scripts are present: `graph`, `outdated`, `update-interactive`, `why`, `clean:hard`
-- [ ] Scripts are in alphabetical order
-- [ ] Run `pnpm graph` - should output dependency tree JSON
-- [ ] Run `pnpm outdated` - should check for outdated packages
-- [ ] Run `pnpm why typescript` - should explain why typescript is installed
-- [ ] Do NOT run `clean:hard` yet (destructive operation)
+- [x] package.json is valid JSON
+- [x] All new scripts are present: `graph`, `outdated`, `update-interactive`, `why`, `clean:hard`
+- [x] Scripts are in alphabetical order
+- [x] Run `pnpm graph` - should output dependency tree JSON
+- [x] Run `pnpm outdated` - should check for outdated packages
+- [x] Run `pnpm why typescript` - should explain why typescript is installed
+- [x] Do NOT run `clean:hard` yet (destructive operation)
 
 #### Step 8 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -678,9 +678,9 @@ git commit -m "feat(workspace): add convenience scripts for dependency managemen
 
 Create documentation for the required structure and scripts for new packages.
 
-- [ ] Create directory `.github` if it doesn't exist
-- [ ] Create file `.github/PACKAGE_TEMPLATE.md`
-- [ ] Copy and paste the content below into `.github/PACKAGE_TEMPLATE.md`:
+- [x] Create directory `.github` if it doesn't exist
+- [x] Create file `.github/PACKAGE_TEMPLATE.md`
+- [x] Copy and paste the content below into `.github/PACKAGE_TEMPLATE.md`:
 
 ```markdown
 # Package Template
@@ -946,12 +946,12 @@ pnpm --filter @lellimecnar/<package-name> lint
 ```
 
 #### Step 9 Verification Checklist
-- [ ] `.github/` directory exists
-- [ ] `.github/PACKAGE_TEMPLATE.md` file created
-- [ ] File contains all required sections: structure, package.json fields, scripts, tsconfig patterns, AGENTS.md template, checklist
-- [ ] Markdown formatting is correct (no rendering errors)
-- [ ] Review template against existing packages (e.g., `packages/ui`, `card-stack/core`) to ensure accuracy
-- [ ] Template matches established patterns in the monorepo
+- [x] `.github/` directory exists
+- [x] `.github/PACKAGE_TEMPLATE.md` file created
+- [x] File contains all required sections: structure, package.json fields, scripts, tsconfig patterns, AGENTS.md template, checklist
+- [x] Markdown formatting is correct (no rendering errors)
+- [x] Review template against existing packages (e.g., `packages/ui`, `card-stack/core`) to ensure accuracy
+- [x] Template matches established patterns in the monorepo
 
 #### Step 9 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -988,15 +988,15 @@ pnpm -r exec -- jq '.scripts["type-check"]' package.json | grep -v null | wc -l
 
 ## Completion Checklist
 
-- [ ] All 9 steps completed and committed
-- [ ] `turbo.json` has `type-check`, `format`, `test:coverage`, `test:ci` tasks
-- [ ] 10 packages have new `type-check` scripts added
-- [ ] `.nvmrc` file created with Node 20
-- [ ] Root `package.json` has workspace management scripts
-- [ ] `.github/PACKAGE_TEMPLATE.md` documentation created
-- [ ] All changes committed to `chore/build-system-improvements` branch
-- [ ] `pnpm type-check` runs successfully from root
-- [ ] No build, lint, or type errors in any package
+- [x] All 9 steps completed and committed
+- [x] `turbo.json` has `type-check`, `format`, `test:coverage`, `test:ci` tasks
+- [x] 10 packages have new `type-check` scripts added
+- [x] `.nvmrc` file created with Node 20
+- [x] Root `package.json` has workspace management scripts
+- [x] `.github/PACKAGE_TEMPLATE.md` documentation created
+- [x] All changes committed to `chore/build-system-improvements` branch
+- [x] `pnpm type-check` runs successfully from root
+- [x] No build, lint, or type errors in any package
 
 ## Next Steps
 

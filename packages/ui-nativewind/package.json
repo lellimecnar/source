@@ -1,6 +1,7 @@
 {
   "name": "@lellimecnar/ui-nativewind",
   "version": "0.0.0",
+  "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
@@ -19,7 +20,10 @@
     "build": "tailwindcss -i ./src/global.css -o ./dist/global.css",
     "lint": "eslint .",
     "dev": "tailwindcss -i ./src/global.css -o ./dist/global.css --watch",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "peerDependencies": {
     "expo-router": "~4.0.11",
@@ -35,9 +39,11 @@
     "@lellimecnar/typescript-config": "workspace:*",
     "@react-navigation/bottom-tabs": "^7.8.6",
     "@react-navigation/native-stack": "^7.7.0",
+    "@testing-library/react-native": "^13.3.3",
     "@types/react": "^18",
     "autoprefixer": "^10.4.22",
     "eslint": "^8.57.1",
+    "jest-expo": "~52.0.2",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.5"
