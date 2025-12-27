@@ -2,12 +2,12 @@ This file provides guidance when working with code in the `@card-stack/core` pac
 
 ## Package Overview
 
-`@card-stack/core` is a card game engine core library that provides abstractions and utilities for building card games. It uses TypeScript mixins (via `ts-mixer`) to create flexible, composable card game components.
+`@card-stack/core` is a card game engine core library that provides abstractions and utilities for building card games. It uses TypeScript mixins (via `polymix`) to create flexible, composable card game components.
 
 ## Tech Stack
 
 - **Language**: TypeScript ~5.5
-- **Mixins**: ts-mixer ^6.0.4
+- **Mixins**: polymix (workspace package `polymix`)
 - **Testing**: Jest ^29
 - **Utilities**: @lellimecnar/utils (lodash, date-fns)
 
@@ -91,10 +91,10 @@ import {
 
 // Utilities
 import {
-	Mix,
 	hasMixin,
 	createRankEnum,
 	createSuitEnum,
+	mixin,
 } from '@card-stack/core';
 ```
 
@@ -103,7 +103,7 @@ import {
 ### Runtime Dependencies
 
 - `@lellimecnar/utils` - Shared utilities (lodash, date-fns)
-- `ts-mixer` ^6.0.4 - TypeScript mixin library
+- `polymix` - TypeScript mixin library
 
 ### Development Dependencies
 
@@ -122,10 +122,20 @@ import {
 
 ### Mixin Pattern
 
-- Uses `ts-mixer` for TypeScript mixins
-- Components are composed via `Mix()` function
-- Example: `class MyCard extends Mix(Card, Suitable, Rankable)`
+- Uses `polymix` for composition of mixins
 - Mixins provide specific capabilities (flippable, rankable, etc.)
+- Most capability mixins in this package expose an `init(...args)` method (polymix calls each mixin’s `init()` automatically).
+- Concrete primitives (e.g., `CardSet`) should not rely on their own `init()` being called.
+- Components are composed via `@mixin()` decorator:
+
+```ts
+import { mixin } from '@card-stack/core';
+
+@mixin(SomeMixin)
+class Example {
+	// ...
+}
+```
 
 ### Card System
 
@@ -168,7 +178,7 @@ import {
 ```typescript
 import {
 	Card,
-	Mix,
+	mixin,
 	Suitable,
 	Rankable,
 	createSuitEnum,
@@ -178,7 +188,8 @@ import {
 const SUIT = createSuitEnum(['Hearts', 'Diamonds', 'Spades', 'Clubs']);
 const RANK = createRankEnum(['Ace', 'Two', 'Three' /* ... */]);
 
-class MyCard extends Mix(Card, Suitable, Rankable) {
+@mixin(Card, Suitable, Rankable)
+class MyCard {
 	static readonly SUIT = SUIT;
 	static readonly RANK = RANK;
 
@@ -193,19 +204,22 @@ class MyCard extends Mix(Card, Suitable, Rankable) {
 ### Creating a CardSet with Operations
 
 ```typescript
-import { CardSet, Mix, Shuffleable, Sortable } from '@card-stack/core';
+import { CardSet, mixin, Shuffleable, Sortable } from '@card-stack/core';
 
-class MyCardSet extends Mix(CardSet, Shuffleable, Sortable) {
+@mixin(CardSet, Shuffleable, Sortable)
+class MyCardSet {
 	// Automatically has shuffle() and sort() methods
 }
-
-const set = new MyCardSet();
-set.init([card1, card2, card3]);
-set.shuffle();
-set.sort();
 ```
 
 ### Checking for Mixins
+
+```typescript
+if (card instanceof Suitable) {
+	// card has suit property
+	console.log(card.suit);
+}
+```
 
 ```typescript
 import { hasMixin } from '@card-stack/core';
@@ -241,9 +255,5 @@ if (hasMixin(card, Suitable)) {
 
 ## Notes
 
-- Package uses TypeScript mixins extensively
-- All classes use mixin composition pattern
-- Tests are comprehensive and co-located
-- Uses `@lellimecnar/utils` for array/utility operations
-- Designed to be extended for specific card games
-- Independent package (not tied to web/mobile apps)
+- Prefer `@mixin(...)` for readability and spec-alignment.
+- Keep runtime mixin checks via `hasMixin(instance, Mixin)`.

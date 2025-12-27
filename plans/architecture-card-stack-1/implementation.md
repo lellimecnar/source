@@ -22,10 +22,14 @@ Migrate `@card-stack/core` from `ts-mixer` to `polymix`, refactor initialization
 
 ## Step-by-Step Instructions
 
-#### Step 1: Add `polymix` dependency to `@card-stack/core`
+#### Step 1: Refactor `@card-stack/core` to use `polymix` (replace `ts-mixer`)
 
-- [ ] Edit `card-stack/core/package.json` and add `polymix: "workspace:*"` to `dependencies` (keep `ts-mixer` for now).
-- [ ] Copy and paste the code below into `card-stack/core/package.json`:
+This step performs the polymix migration work in core (including dependency setup), so that later steps can focus on the deck package rename and then removing `ts-mixer` entirely.
+
+##### Step 1A: Add `polymix` dependency to `@card-stack/core`
+
+- [x] Edit `card-stack/core/package.json` and add `polymix: "workspace:*"` to `dependencies` (keep `ts-mixer` for now).
+- [x] Copy and paste the code below into `card-stack/core/package.json`:
 
 ```json
 {
@@ -61,23 +65,17 @@ Migrate `@card-stack/core` from `ts-mixer` to `polymix`, refactor initialization
 }
 ```
 
-- [ ] Run: `pnpm --filter @card-stack/core test`
+- [x] Run: `pnpm --filter @card-stack/core test`
 
-##### Step 1 Verification Checklist
+##### Step 1A Verification Checklist
 
-- [ ] `pnpm --filter @card-stack/core test` passes
+- [x] `pnpm --filter @card-stack/core test` passes
 
-#### Step 1 STOP & COMMIT
-
-**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
-
----
-
-#### Step 2: Refactor initialization to be constructor-safe (while still on `ts-mixer`)
+##### Step 1B: Refactor initialization to be constructor-safe (while still on `ts-mixer`)
 
 This step removes reliance on concrete-class `init()` by ensuring base/core classes initialize required state in constructors, while keeping `init()` as a compatibility fallback for places where these classes are currently mixed-in (e.g. ts-mixer `@mix(...)`).
 
-- [ ] Copy and paste the code below into `card-stack/core/src/card-set/card-set.ts`:
+- [x] Copy and paste the code below into `card-stack/core/src/card-set/card-set.ts`:
 
 ```ts
 import { flatten } from '@lellimecnar/utils';
@@ -139,7 +137,7 @@ export class CardSet<T extends Card = Card> {
 }
 ```
 
-- [ ] Copy and paste the code below into `card-stack/core/src/shared/indexable.ts`:
+- [x] Copy and paste the code below into `card-stack/core/src/shared/indexable.ts`:
 
 ```ts
 import { type HexByte } from '../types';
@@ -218,7 +216,7 @@ export class Indexable {
 }
 ```
 
-- [ ] Copy and paste the code below into `card-stack/core/src/card/card.ts`:
+- [x] Copy and paste the code below into `card-stack/core/src/card/card.ts`:
 
 ```ts
 import { type CardSet } from '../card-set';
@@ -295,7 +293,7 @@ export class Card extends Mix(Indexable, Parentable<CardSet>) {
 }
 ```
 
-- [ ] Copy and paste the code below into `card-stack/core/src/player/player.ts` (no functional change yet; kept in-sync for later migration):
+- [x] Copy and paste the code below into `card-stack/core/src/player/player.ts` (no functional change yet; kept in-sync for later migration):
 
 ```ts
 import { Indexable } from '../shared/indexable';
@@ -307,23 +305,19 @@ export class Player extends Mix(Indexable) {
 }
 ```
 
-- [ ] Run: `pnpm --filter @card-stack/core test`
+- [x] Run: `pnpm --filter @card-stack/core test`
 
-##### Step 2 Verification Checklist
+##### Step 1B Verification Checklist
 
-- [ ] `pnpm --filter @card-stack/core test` passes
+- [x] `pnpm --filter @card-stack/core test` passes
 
-#### Step 2 STOP & COMMIT
-
-**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
-
----
-
-#### Step 3: Migrate core from `ts-mixer` to `polymix` (prefer `@mixin(...)`)
+##### Step 1C: Migrate core from `ts-mixer` to `polymix` (prefer `@mixin(...)`)
 
 This step removes `ts-mixer` settings usage, switches exports to `polymix`, and migrates the core primitive classes to decorator-based composition.
 
-- [ ] Copy and paste the code below into `card-stack/core/src/utils.ts`:
+Note: The exact pasted snippets may require small adjustments to keep constructors and static state behaving correctly under `polymix` (e.g. avoiding `Parentable` init overwriting a `parent` passed via constructor).
+
+- [x] Copy and paste the code below into `card-stack/core/src/utils.ts`:
 
 ```ts
 /* eslint-disable @typescript-eslint/no-var-requires -- ignore */
@@ -600,7 +594,7 @@ export const isParentable = <T>(
 	hasMixin(obj, require('./shared/parentable').Parentable);
 ```
 
-- [ ] Copy and paste the code below into `card-stack/core/src/card/card.ts`:
+- [x] Copy and paste the code below into `card-stack/core/src/card/card.ts`:
 
 ```ts
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
@@ -678,7 +672,7 @@ export class Card {
 }
 ```
 
-- [ ] Copy and paste the code below into `card-stack/core/src/card-deck/card-deck.ts`:
+- [x] Copy and paste the code below into `card-stack/core/src/card-deck/card-deck.ts`:
 
 ```ts
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
@@ -698,7 +692,7 @@ export class CardDeck<C extends Card> extends CardSet<C> {
 }
 ```
 
-- [ ] Copy and paste the code below into `card-stack/core/src/player/player.ts`:
+- [x] Copy and paste the code below into `card-stack/core/src/player/player.ts`:
 
 ```ts
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
@@ -716,38 +710,32 @@ export class Player {
 }
 ```
 
-- [ ] Run: `pnpm --filter @card-stack/core test`
+- [x] Run: `pnpm --filter @card-stack/core test`
 
-##### Step 3 Verification Checklist
+##### Step 1C Verification Checklist
 
-- [ ] `pnpm --filter @card-stack/core test` passes
+- [x] `pnpm --filter @card-stack/core test` passes
 
-#### Step 3 STOP & COMMIT
-
-**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
-
----
-
-#### Step 4: Verify/update runtime type guards (polymix `hasMixin`)
+##### Step 1D: Verify/update runtime type guards (polymix `hasMixin`)
 
 This step is a focused validation pass: type guards continue to use `require()` indirection to avoid circular dependencies, but the underlying `hasMixin()` now uses polymix.
 
-- [ ] Confirm `card-stack/core/src/utils.ts` no longer imports from `ts-mixer`.
-- [ ] Run: `pnpm --filter @card-stack/core test`
+- [x] Confirm `card-stack/core/src/utils.ts` no longer imports from `ts-mixer`.
+- [x] Run: `pnpm --filter @card-stack/core test`
 
-##### Step 4 Verification Checklist
+##### Step 1D Verification Checklist
 
-- [ ] `pnpm --filter @card-stack/core test` passes
+- [x] `pnpm --filter @card-stack/core test` passes
 
-#### Step 4 STOP & COMMIT
+#### Step 1 STOP & COMMIT
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 5: Rename standard deck package + migrate it off `Mix(...)`
+#### Step 2: Rename standard deck package + migrate it off `Mix(...)`
 
-- [ ] Copy and paste the code below into `card-stack/deck-standard/package.json`:
+- [x] Copy and paste the code below into `card-stack/deck-standard/package.json`:
 
 ```json
 {
@@ -776,7 +764,7 @@ This step is a focused validation pass: type guards continue to use `require()` 
 }
 ```
 
-- [ ] Copy and paste the code below into `card-stack/deck-standard/src/standard-deck.ts`:
+- [x] Copy and paste the code below into `card-stack/deck-standard/src/standard-deck.ts`:
 
 ```ts
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging -- ignore */
@@ -843,7 +831,7 @@ export const isStandardDeck = (obj: unknown): obj is StandardDeck =>
 	hasMixin(obj, StandardDeck);
 ```
 
-- [ ] Copy and paste the code below into `card-stack/deck-standard/AGENTS.md`:
+- [x] Copy and paste the code below into `card-stack/deck-standard/AGENTS.md`:
 
 ```markdown
 This file provides guidance when working with code in the `@card-stack/deck-standard` package.
@@ -1000,59 +988,59 @@ for (const rank of StandardCard.RANK) {
 - Independent package (not tied to web/mobile apps)
 - Uses workspace dependency on @card-stack/core
 
-````
+- [x] Run: `pnpm --filter @card-stack/deck-standard test`
+- [x] Run: `pnpm --filter @card-stack/core test`
 
-- [ ] Run: `pnpm --filter @card-stack/deck-standard test`
-- [ ] Run: `pnpm --filter @card-stack/core test`
+##### Step 2 Verification Checklist
 
-##### Step 5 Verification Checklist
-- [ ] `pnpm --filter @card-stack/deck-standard test` passes
-- [ ] `pnpm --filter @card-stack/core test` passes
-- [ ] Standard deck snapshot remains unchanged
+- [x] `pnpm --filter @card-stack/deck-standard test` passes
+- [x] `pnpm --filter @card-stack/core test` passes
+- [x] Standard deck snapshot remains unchanged
 
-#### Step 5 STOP & COMMIT
+#### Step 2 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 6: Remove `ts-mixer` from core + update documentation
+#### Step 3: Remove `ts-mixer` from core + update documentation
 
-- [ ] Copy and paste the code below into `card-stack/core/package.json`:
+- [x] Copy and paste the code below into `card-stack/core/package.json`:
 
 ```json
 {
-    "name": "@card-stack/core",
-    "version": "0.0.0",
-    "license": "MIT",
-    "scripts": {
-        "lint": "eslint .",
-        "test": "jest",
-        "test:watch": "jest --watch"
-    },
-    "exports": {
-        ".": "./src/index.ts"
-    },
-    "devDependencies": {
-        "@faker-js/faker": "^9.2.0",
-        "@lellimecnar/eslint-config": "workspace:*",
-        "@lellimecnar/jest-config": "workspace:*",
-        "@lellimecnar/typescript-config": "workspace:*",
-        "@types/jest": "^29.5.14",
-        "@types/node": "^20.11.24",
-        "jest": "^29",
-        "typescript": "~5.5"
-    },
-    "peerDependencies": {
-        "typescript": "~5.5"
-    },
-    "dependencies": {
-        "@lellimecnar/utils": "workspace:*",
-        "polymix": "workspace:*"
-    }
+	"name": "@card-stack/core",
+	"version": "0.0.0",
+	"license": "MIT",
+	"scripts": {
+		"lint": "eslint .",
+		"test": "jest",
+		"test:watch": "jest --watch"
+	},
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"devDependencies": {
+		"@faker-js/faker": "^9.2.0",
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/jest-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@types/jest": "^29.5.14",
+		"@types/node": "^20.11.24",
+		"jest": "^29",
+		"typescript": "~5.5"
+	},
+	"peerDependencies": {
+		"typescript": "~5.5"
+	},
+	"dependencies": {
+		"@lellimecnar/utils": "workspace:*",
+		"polymix": "workspace:*"
+	}
 }
-````
+```
 
-- [ ] Copy and paste the code below into `card-stack/core/AGENTS.md`:
+- [x] Copy and paste the code below into `card-stack/core/AGENTS.md`:
 
 ```markdown
 This file provides guidance when working with code in the `@card-stack/core` package.
@@ -1202,14 +1190,14 @@ Concrete primitives (e.g., `CardSet`) should not rely on their own `init()` bein
 
 ```
 
-- [ ] Run: `pnpm --filter @card-stack/core test`
-- [ ] Run: `pnpm --filter @card-stack/deck-standard test`
+- [x] Run: `pnpm --filter @card-stack/core test`
+- [x] Run: `pnpm --filter @card-stack/deck-standard test`
 
-##### Step 6 Verification Checklist
-- [ ] `pnpm --filter @card-stack/core test` passes
-- [ ] `pnpm --filter @card-stack/deck-standard test` passes
-- [ ] No remaining imports from `ts-mixer` in `card-stack/core/src/**`
+##### Step 3 Verification Checklist
+- [x] `pnpm --filter @card-stack/core test` passes
+- [x] `pnpm --filter @card-stack/deck-standard test` passes
+- [x] No remaining imports from `ts-mixer` in `card-stack/core/src/**`
 
-#### Step 6 STOP & COMMIT
+#### Step 3 STOP & COMMIT
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 ```

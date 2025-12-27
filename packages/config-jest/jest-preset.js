@@ -28,4 +28,5 @@ module.exports = {
 	},
 	verbose: true,
 	setupFiles: ['reflect-metadata'],
+	watchman: false,
 };

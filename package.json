@@ -23,7 +23,7 @@
 		"prepare": "husky",
 		"readon": "pnpm --filter readon",
 		"readon.app": "pnpm --filter readon.app",
-		"test": "turbo test",
+		"test": "turbo test -- --no-watchman",
 		"test:coverage": "turbo test --coverage",
 		"test:watch": "turbo test:watch",
 		"type-check": "turbo type-check",
@@ -38,6 +38,11 @@
 		"*.{json,md,yml,yaml}": [
 			"prettier --write"
 		]
+	},
+	"overrides": {
+		"eslint": "^8",
+		"react": "^19",
+		"react-dom": "^19"
 	},
 	"dependencies": {
 		"web-vitals": "^5.1.0"
@@ -59,10 +64,5 @@
 	"engines": {
 		"node": "^24.12.0",
 		"pnpm": "^9.12.2"
-	},
-	"overrides": {
-		"eslint": "^8",
-		"react": "^19",
-		"react-dom": "^19"
 	}
 }
