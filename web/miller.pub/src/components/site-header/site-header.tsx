@@ -32,7 +32,7 @@ export function SiteHeader(): JSX.Element {
 								<NavLinkItem
 									key={item.href}
 									item={item}
-									className="text-muted-foreground flex items-center text-sm font-medium"
+									className="flex items-center text-sm font-medium text-muted-foreground"
 								/>
 							))}
 						</NavigationMenuList>

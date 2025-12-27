@@ -1,16 +1,19 @@
 {
-    "name": "@lellimecnar/expo-with-modify-gradle",
-    "version": "0.0.0",
-    "private": true,
-    "exports": {
-        ".": "./index.js"
-    },
-    "license": "MIT",
-    "scripts": {
-        "lint": "eslint .",
-        "type-check": "tsc --noEmit"
-    },
-    "dependencies": {
-        "@expo/config-plugins": "^9"
-    }
+	"name": "@lellimecnar/expo-with-modify-gradle",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"exports": {
+		".": "./index.js"
+	},
+	"scripts": {
+		"type-check": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@expo/config-plugins": "^9"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*"
+	}
 }

@@ -9,12 +9,14 @@
 ## Executive Summary
 
 This research covers the @lellimecnar/source monorepo, a **pnpm + Turborepo** TypeScript monorepo containing:
+
 - 2 Next.js web apps (miller.pub, readon.app)
 - 1 Expo mobile app (readon)
 - 10 shared packages (UI libraries, configs, utils)
 - 2 card-stack domain packages (core game engine)
 
 **Key Findings:**
+
 - ✅ Excellent architecture documentation exists (AGENTS.md, blueprints)
 - ❌ Missing: CONTRIBUTING.md, SECURITY.md, CHANGELOG.md, CODE_OF_CONDUCT.md
 - ✅ Strong technical patterns established (mixins, granular exports, workspace protocol)
@@ -26,9 +28,11 @@ This research covers the @lellimecnar/source monorepo, a **pnpm + Turborepo** Ty
 ## 1. Project-Wide Analysis
 
 ### 1.1 Project Type Verification
+
 **Confirmed**: pnpm + Turborepo monorepo
 
 **Evidence:**
+
 - `pnpm-workspace.yaml` defines 4 workspace patterns
 - `turbo.json` orchestrates build tasks with dependency management
 - `package.json` enforces `pnpm@9.12.2` via `packageManager` field
@@ -58,20 +62,23 @@ From root `package.json` and workspace analysis:
 ### 1.3 Folder Structure & Organization
 
 **Workspace Pattern** (from `pnpm-workspace.yaml`):
+
 ```yaml
 packages:
-  - "web/*"
-  - "mobile/*"
-  - "packages/*"
-  - "card-stack/*"
+  - 'web/*'
+  - 'mobile/*'
+  - 'packages/*'
+  - 'card-stack/*'
 ```
 
 **Applications:**
+
 - `web/miller.pub/` - Personal portfolio site (Next.js)
 - `web/readon.app/` - Reading app web interface (Next.js)
 - `mobile/readon/` - Reading app mobile (Expo + Expo Router)
 
 **Packages (10 total):**
+
 - `packages/ui/` - Web UI components (shadcn/ui style)
 - `packages/ui-nativewind/` - Mobile UI components
 - `packages/utils/` - Shared utilities (date-fns, lodash)
@@ -84,28 +91,33 @@ packages:
 - `packages/expo-with-modify-gradle/` - Expo gradle modification plugin
 
 **Domain Logic:**
+
 - `card-stack/core/` - Card game engine with mixin composition
 - `card-stack/deck-standard/` - Standard 52-card deck implementation
 
 ### 1.4 Naming Conventions
 
 **Files:**
+
 - Components: `PascalCase.tsx` (Button.tsx, CardDeck.tsx)
 - Utilities: `camelCase.ts` (utils.ts, useTheme.ts)
 - Tests: `*.spec.ts` (player.spec.ts, card-deck.spec.ts)
 - Next.js/Expo Special: `page.tsx`, `layout.tsx`, `_layout.tsx`, `route.ts`
 
 **Directories:**
+
 - General: `kebab-case` (card-stack, ui-nativewind, config-eslint)
 - Route Groups: `(group-name)` (mobile/readon/app/(tabs)/)
 - Private Folders: `_folder` prefix
 
 **Packages:**
+
 - Scoped: `@lellimecnar/*` for shared packages
 - Domain: `@card-stack/*` for game engine
 - Protocol: `workspace:*` for all internal dependencies
 
 **Variables/Functions:**
+
 - Variables: `camelCase`
 - Functions: `camelCase`
 - Types/Interfaces: `PascalCase`
@@ -114,26 +126,28 @@ packages:
 ### 1.5 Build/Test/Run Commands
 
 **Root Level Commands** (from root `package.json`):
+
 ```json
 {
-  "miller.pub": "pnpm --filter miller.pub",
-  "readon": "pnpm --filter readon",
-  "readon.app": "pnpm --filter readon.app",
-  "build": "turbo build",
-  "dev": "turbo dev",
-  "lint": "turbo lint",
-  "test": "turbo test",
-  "test:watch": "turbo test:watch",
-  "type-check": "turbo type-check",
-  "clean": "turbo clean; git clean -xdf node_modules .turbo .next .expo",
-  "format": "turbo lint -- --fix --fix-type=directive,problem,suggestion,layout",
-  "ui": "pnpm --filter @lellimecnar/ui"
+	"miller.pub": "pnpm --filter miller.pub",
+	"readon": "pnpm --filter readon",
+	"readon.app": "pnpm --filter readon.app",
+	"build": "turbo build",
+	"dev": "turbo dev",
+	"lint": "turbo lint",
+	"test": "turbo test",
+	"test:watch": "turbo test:watch",
+	"type-check": "turbo type-check",
+	"clean": "turbo clean; git clean -xdf node_modules .turbo .next .expo",
+	"format": "turbo lint -- --fix --fix-type=directive,problem,suggestion,layout",
+	"ui": "pnpm --filter @lellimecnar/ui"
 }
 ```
 
 **Workspace-Specific Examples:**
 
-*Web (Next.js):*
+_Web (Next.js):_
+
 ```bash
 pnpm miller.pub dev
 pnpm miller.pub build
@@ -142,7 +156,8 @@ pnpm miller.pub lint
 pnpm miller.pub type-check
 ```
 
-*Mobile (Expo):*
+_Mobile (Expo):_
+
 ```bash
 pnpm readon dev              # Android
 pnpm readon dev:ios          # iOS
@@ -153,14 +168,16 @@ pnpm readon android          # Run on Android device
 pnpm readon ios              # Run on iOS device
 ```
 
-*UI Package:*
+_UI Package:_
+
 ```bash
 pnpm ui dev                  # Watch mode for Tailwind
 pnpm ui build                # Build Tailwind CSS
 pnpm ui ui                   # Add shadcn/ui component
 ```
 
-*Card Stack:*
+_Card Stack:_
+
 ```bash
 pnpm --filter @card-stack/core test
 pnpm --filter @card-stack/core test:watch
@@ -169,34 +186,36 @@ pnpm --filter @card-stack/core test:watch
 ### 1.6 Workspace Configuration
 
 **From `turbo.json`:**
+
 ```json
 {
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
-    },
-    "test": {
-      "outputs": ["coverage/**"],
-      "dependsOn": []
-    },
-    "test:watch": {
-      "cache": false,
-      "persistent": true
-    },
-    "lint": {
-      "dependsOn": ["^build"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    }
-  }
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+		},
+		"test": {
+			"outputs": ["coverage/**"],
+			"dependsOn": []
+		},
+		"test:watch": {
+			"cache": false,
+			"persistent": true
+		},
+		"lint": {
+			"dependsOn": ["^build"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		}
+	}
 }
 ```
 
 **Key Insights:**
+
 - `^build` means "build upstream dependencies first"
 - `lint` depends on `^build` (requires built packages)
 - `dev` and `test:watch` are persistent tasks (never cached)
@@ -208,6 +227,7 @@ pnpm --filter @card-stack/core test:watch
 ### 2.1 Current Documentation Files
 
 **✅ Existing:**
+
 1. **AGENTS.md** (200 lines) - Primary developer/AI instructions
    - Project overview
    - Monorepo structure
@@ -260,12 +280,14 @@ pnpm --filter @card-stack/core test:watch
 7. **llms.txt** - Machine-readable documentation index
 
 **❌ Missing (Critical):**
+
 1. **CONTRIBUTING.md** - No contributor guidelines
 2. **SECURITY.md** - No security policy
 3. **CHANGELOG.md** - No version history tracking
 4. **CODE_OF_CONDUCT.md** - No community guidelines
 
 **❌ Missing (Optional but Recommended):**
+
 - **LICENSE** - No explicit license file (packages have "MIT" in package.json)
 - **PULL_REQUEST_TEMPLATE.md** - No PR template
 - **ISSUE_TEMPLATES/** - No issue templates
@@ -277,11 +299,13 @@ pnpm --filter @card-stack/core test:watch
 
 **Pattern Found:** Most packages have minimal READMEs
 
-*Examples:*
+_Examples:_
+
 - `web/miller.pub/README.md`: Only contains "## miller.pub"
 - Other packages: Similar minimal or missing READMEs
 
 **Needed:**
+
 - Individual package READMEs explaining purpose, API, usage
 - Installation instructions for each package
 - Examples and API documentation
@@ -289,16 +313,19 @@ pnpm --filter @card-stack/core test:watch
 ### 2.3 Documentation Structure Patterns
 
 **Current Pattern:**
+
 - Root-level blueprints provide comprehensive technical documentation
 - AGENTS.md serves as primary entry point
 - Package-level documentation is minimal/absent
 
 **Strengths:**
+
 - Excellent high-level architecture documentation
 - Clear separation of concerns (Architecture, Folders, Tech Stack, Workflows)
 - Machine-readable llms.txt for AI tooling
 
 **Gaps:**
+
 - No contribution workflow documentation
 - No security reporting process
 - No changelog/release notes
@@ -312,6 +339,7 @@ pnpm --filter @card-stack/core test:watch
 ### 3.1 UI Component Patterns (packages/ui)
 
 **Structure:**
+
 - **Export Strategy**: Granular exports for tree-shaking
   ```json
   "exports": {
@@ -322,6 +350,7 @@ pnpm --filter @card-stack/core test:watch
   ```
 
 **Component Pattern (shadcn/ui style):**
+
 ```typescript
 // Example: Button component
 import { Slot } from '@radix-ui/react-slot';
@@ -364,6 +393,7 @@ export { Button, buttonVariants };
 ```
 
 **Key Patterns:**
+
 - ✅ Radix UI primitives for accessibility
 - ✅ `class-variance-authority` (cva) for variant management
 - ✅ `cn()` utility (clsx + tailwind-merge) for class merging
@@ -372,6 +402,7 @@ export { Button, buttonVariants };
 - ✅ TypeScript strict typing with VariantProps
 
 **Current Components:**
+
 - button.tsx
 - checkbox.tsx
 - form.tsx
@@ -399,15 +430,16 @@ export interface CardDeck<C extends Card> extends CardSet<C>, Indexable {}
 
 @mix(CardSet, Indexable)
 export class CardDeck<C extends Card> {
-  static HexByte = HexByte.DeckIndex;
-  
-  init(..._args: unknown[]): void {
-    // Initialization logic
-  }
+	static HexByte = HexByte.DeckIndex;
+
+	init(..._args: unknown[]): void {
+		// Initialization logic
+	}
 }
 ```
 
 **Key Characteristics:**
+
 - ✅ Composition over inheritance
 - ✅ Interface merging for TypeScript support
 - ✅ Decorator-based mixin application
@@ -416,24 +448,26 @@ export class CardDeck<C extends Card> {
 ### 3.3 Configuration Patterns
 
 **ESLint Config (`packages/config-eslint/base.js`):**
+
 ```javascript
 module.exports = {
-  extends: [
-    '@vercel/style-guide/eslint/_base',
-    '@vercel/style-guide/eslint/typescript',
-    'plugin:tailwindcss/recommended',
-    'turbo',
-  ],
-  plugins: ['prettier'],
-  rules: {
-    'no-console': ['error', { allow: ['warn', 'error'] }],
-    '@typescript-eslint/no-unsafe-declaration-merging': 'warn',
-    // ... more rules
-  }
-}
+	extends: [
+		'@vercel/style-guide/eslint/_base',
+		'@vercel/style-guide/eslint/typescript',
+		'plugin:tailwindcss/recommended',
+		'turbo',
+	],
+	plugins: ['prettier'],
+	rules: {
+		'no-console': ['error', { allow: ['warn', 'error'] }],
+		'@typescript-eslint/no-unsafe-declaration-merging': 'warn',
+		// ... more rules
+	},
+};
 ```
 
 **Exports Pattern:**
+
 ```json
 "exports": {
   ".": "./base.js",
@@ -444,24 +478,26 @@ module.exports = {
 ```
 
 **TypeScript Config (`packages/config-typescript/base.json`):**
+
 ```json
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": ["@vercel/style-guide/typescript/node20"],
-  "compilerOptions": {
-    "strict": true,
-    "target": "ESNext",
-    "lib": ["ESNext", "DOM", "Decorators"],
-    "checkJs": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "noEmit": true
-  }
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": ["@vercel/style-guide/typescript/node20"],
+	"compilerOptions": {
+		"strict": true,
+		"target": "ESNext",
+		"lib": ["ESNext", "DOM", "Decorators"],
+		"checkJs": true,
+		"allowJs": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"noEmit": true
+	}
 }
 ```
 
 **Tailwind Config (`packages/config-tailwind/tailwind.config.ts`):**
+
 ```typescript
 import twTypography from '@tailwindcss/typography';
 import { type Config } from 'tailwindcss';
@@ -469,27 +505,28 @@ import twAnimate from 'tailwindcss-animate';
 import twOpenType from 'tailwindcss-opentype';
 
 const config: Omit<Config, 'content'> = {
-  darkMode: ['class'],
-  theme: {
-    extend: {
-      container: { center: true, padding: '2rem' },
-      colors: {
-        border: 'hsl(var(--border))',
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-        },
-        // ... CSS variable-based theme
-      }
-    }
-  },
-  plugins: [twTypography, twAnimate, twOpenType]
+	darkMode: ['class'],
+	theme: {
+		extend: {
+			container: { center: true, padding: '2rem' },
+			colors: {
+				border: 'hsl(var(--border))',
+				primary: {
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))',
+				},
+				// ... CSS variable-based theme
+			},
+		},
+	},
+	plugins: [twTypography, twAnimate, twOpenType],
 };
 ```
 
 ### 3.4 Commit Message Analysis
 
 **Recent Commits (from git log):**
+
 ```
 6c68f01 plan out improvements
 63557e7 add/update agent files
@@ -504,6 +541,7 @@ feaa15e fix lint
 ```
 
 **Pattern Analysis:**
+
 - ❌ No Conventional Commits format
 - ❌ Inconsistent capitalization
 - ❌ No type prefixes (feat:, fix:, docs:)
@@ -511,6 +549,7 @@ feaa15e fix lint
 - ✅ Generally descriptive but informal
 
 **Recommended Pattern (Conventional Commits):**
+
 ```
 feat(ui): add button component with variants
 fix(card-stack): correct deck shuffling logic
@@ -522,6 +561,7 @@ refactor(ui): extract common button styles to cva
 ### 3.5 Error Handling Patterns
 
 **Not extensively documented in existing code, but inferred:**
+
 - TypeScript strict mode enabled (null checks, type safety)
 - ESLint rules enforce error handling best practices
 - No global error boundary patterns documented
@@ -529,25 +569,27 @@ refactor(ui): extract common button styles to cva
 ### 3.6 Testing Patterns
 
 **From `card-stack/core/src/player/player.spec.ts`:**
+
 ```typescript
 import { isIndexable, isPlayer, Mix, Player } from '..';
 
 describe('player', () => {
-  class TestPlayer extends Mix(Player) {}
+	class TestPlayer extends Mix(Player) {}
 
-  it('is Player', () => {
-    const player = new TestPlayer();
-    expect(isPlayer(player)).toBe(true);
-  });
+	it('is Player', () => {
+		const player = new TestPlayer();
+		expect(isPlayer(player)).toBe(true);
+	});
 
-  it('is Indexable', () => {
-    const player = new TestPlayer();
-    expect(isIndexable(player)).toBe(true);
-  });
+	it('is Indexable', () => {
+		const player = new TestPlayer();
+		expect(isIndexable(player)).toBe(true);
+	});
 });
 ```
 
 **Patterns:**
+
 - ✅ Co-located tests (`*.spec.ts` alongside source)
 - ✅ Jest as test runner
 - ✅ Describe/it structure
@@ -555,14 +597,16 @@ describe('player', () => {
 - ✅ Simple, focused unit tests
 
 **Jest Config Pattern:**
+
 ```javascript
 // card-stack/core/jest.config.js
 module.exports = {
-  preset: '@lellimecnar/jest-config',
+	preset: '@lellimecnar/jest-config',
 };
 ```
 
 **Test Commands:**
+
 ```json
 "scripts": {
   "test": "jest",
@@ -577,6 +621,7 @@ module.exports = {
 ### 4.1 TypeScript Configuration
 
 **Base Config Pattern** (`packages/config-typescript/base.json`):
+
 - Extends `@vercel/style-guide/typescript/node20`
 - Strict mode enabled
 - ESNext target
@@ -584,32 +629,36 @@ module.exports = {
 - JSON module resolution
 
 **Usage in Packages:**
+
 ```json
 // Example: card-stack/core/tsconfig.json
 {
-  "extends": "@lellimecnar/typescript-config/base.json",
-  "compilerOptions": {
-    "outDir": "./dist"
-  },
-  "include": ["src/**/*"]
+	"extends": "@lellimecnar/typescript-config/base.json",
+	"compilerOptions": {
+		"outDir": "./dist"
+	},
+	"include": ["src/**/*"]
 }
 ```
 
 ### 4.2 ESLint Configuration
 
 **Hierarchy:**
+
 - `base.js` - Core rules for all projects
 - `browser.js` - Browser-specific rules
 - `next.js` - Next.js specific rules
 - `node.js` - Node.js specific rules
 
 **Base extends:**
+
 - `@vercel/style-guide/eslint/_base`
 - `@vercel/style-guide/eslint/typescript`
 - `plugin:tailwindcss/recommended`
 - `turbo`
 
 **Custom Rules:**
+
 - Console statements: Only warn/error allowed
 - TypeScript safety: Many unsafe operations set to `warn`
 - Import ordering enforced
@@ -618,54 +667,60 @@ module.exports = {
 ### 4.3 Tailwind Configuration
 
 **Shared Base:**
+
 - CSS variable-based theming (`hsl(var(--primary))`)
 - Extended container utilities
 - Dark mode: class-based
 - Plugins: typography, animate, opentype
 
 **Consumption:**
+
 ```typescript
 // web/miller.pub/tailwind.config.ts
 import baseConfig from '@lellimecnar/tailwind-config';
 
 export default {
-  ...baseConfig,
-  content: ['./src/**/*.{ts,tsx}']
+	...baseConfig,
+	content: ['./src/**/*.{ts,tsx}'],
 };
 ```
 
 ### 4.4 Next.js Configuration Patterns
 
 **From `web/miller.pub/next.config.js`:**
+
 ```javascript
 module.exports = {
-  reactStrictMode: true,
-  transpilePackages: ['@lellimecnar/ui'],
+	reactStrictMode: true,
+	transpilePackages: ['@lellimecnar/ui'],
 };
 ```
 
 **Key Pattern:**
+
 - ✅ `transpilePackages` required for local workspace TypeScript packages
 - ✅ Enables consuming `@lellimecnar/ui` source directly without build step
 
 ### 4.5 Expo Configuration
 
 **From `mobile/readon/app.config.ts`:**
+
 ```typescript
 export default (): ExpoConfig => ({
-  name: 'Read On',
-  slug: 'readon',
-  version: '1.0.0',
-  scheme: 'readon',
-  newArchEnabled: true,
-  plugins: ['expo-router'],
-  experiments: {
-    typedRoutes: true,
-  }
+	name: 'Read On',
+	slug: 'readon',
+	version: '1.0.0',
+	scheme: 'readon',
+	newArchEnabled: true,
+	plugins: ['expo-router'],
+	experiments: {
+		typedRoutes: true,
+	},
 });
 ```
 
 **Key Features:**
+
 - ✅ New React Native architecture enabled
 - ✅ Expo Router for file-based routing
 - ✅ Typed routes experimental feature
@@ -674,6 +729,7 @@ export default (): ExpoConfig => ({
 ### 4.6 NativeWind Usage
 
 **Pattern:**
+
 - Same Tailwind classes work in React Native
 - `className` prop on React Native components
 - Shared design tokens with web
@@ -685,6 +741,7 @@ export default (): ExpoConfig => ({
 ### 5.1 Turborepo Task Dependencies
 
 **Dependency Graph:**
+
 ```
 build:
   ↓ depends on
@@ -706,43 +763,48 @@ dev:
 **Pattern:** ALL internal dependencies use `workspace:*`
 
 **Examples:**
+
 ```json
 // web/miller.pub/package.json
 {
-  "dependencies": {
-    "@lellimecnar/ui": "workspace:*"
-  },
-  "devDependencies": {
-    "@lellimecnar/eslint-config": "workspace:*",
-    "@lellimecnar/tailwind-config": "workspace:*"
-  }
+	"dependencies": {
+		"@lellimecnar/ui": "workspace:*"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/tailwind-config": "workspace:*"
+	}
 }
 ```
 
 **Never Use:**
+
 - ❌ File paths: `"@lellimecnar/ui": "file:../../packages/ui"`
 - ❌ Version numbers: `"@lellimecnar/ui": "0.0.0"`
 
 ### 5.3 Package Exports Patterns
 
 **Granular Exports (`packages/ui/package.json`):**
+
 ```json
 {
-  "exports": {
-    "./global.css": "./dist/global.css",
-    "./lib/utils": "./src/lib/utils.ts",
-    "./button": "./src/components/button.tsx",
-    "./checkbox": "./src/components/checkbox.tsx"
-  }
+	"exports": {
+		"./global.css": "./dist/global.css",
+		"./lib/utils": "./src/lib/utils.ts",
+		"./button": "./src/components/button.tsx",
+		"./checkbox": "./src/components/checkbox.tsx"
+	}
 }
 ```
 
 **Benefits:**
+
 - ✅ Tree-shaking friendly
 - ✅ Prevents accidental internal imports
 - ✅ Explicit public API surface
 
 **Usage:**
+
 ```typescript
 // ✅ CORRECT
 import { Button } from '@lellimecnar/ui/button';
@@ -759,6 +821,7 @@ import { Button } from '@lellimecnar/ui';
 ### 6.1 Conventional Commits (v1.0.0)
 
 **Format:**
+
 ```
 <type>[optional scope]: <description>
 
@@ -768,6 +831,7 @@ import { Button } from '@lellimecnar/ui';
 ```
 
 **Types:**
+
 - `feat:` - New feature (MINOR version)
 - `fix:` - Bug fix (PATCH version)
 - `docs:` - Documentation only
@@ -781,10 +845,12 @@ import { Button } from '@lellimecnar/ui';
 - `revert:` - Revert a previous commit
 
 **Breaking Changes:**
+
 - Use `!` after type: `feat!:` or `feat(api)!:`
 - OR use footer: `BREAKING CHANGE: description`
 
 **Examples:**
+
 ```
 feat(ui): add button component with size variants
 fix(card-deck): correct shuffle algorithm for empty decks
@@ -798,6 +864,7 @@ BREAKING CHANGE: Button component now requires variant prop
 ### 6.2 Keep a Changelog (v1.1.0)
 
 **Format:**
+
 ```markdown
 # Changelog
 
@@ -807,30 +874,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 ### Added
+
 - New features coming in next release
 
 ## [1.0.0] - 2024-01-15
+
 ### Added
+
 - Initial release
 
 ### Changed
+
 - Changes in existing functionality
 
 ### Deprecated
+
 - Soon-to-be removed features
 
 ### Removed
+
 - Now removed features
 
 ### Fixed
+
 - Bug fixes
 
 ### Security
+
 - Security fixes
 ```
 
 **Principles:**
+
 - ✅ Human-readable, not git log dumps
 - ✅ Newest version first
 - ✅ Release dates in ISO 8601 format (YYYY-MM-DD)
@@ -838,6 +915,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ Link to versions/diffs
 
 **Types of Changes:**
+
 - `Added` - New features
 - `Changed` - Changes in existing functionality
 - `Deprecated` - Soon-to-be removed features
@@ -850,6 +928,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Latest Version:** 2.1 (but 3.0 exists)
 
 **Sections:**
+
 1. **Our Pledge** - Commitment to harassment-free community
 2. **Our Standards** - Expected behavior examples
 3. **Enforcement Responsibilities** - Leaders' role
@@ -863,6 +942,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 7. **Attribution** - Credit to Contributor Covenant
 
 **Customization Required:**
+
 - `[INSERT CONTACT METHOD]` - Replace with actual contact email
 
 ### 6.4 MADR (Markdown Any Decision Records)
@@ -870,6 +950,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Pattern:** Not currently used in the project
 
 **Structure (for future use):**
+
 ```markdown
 # [Number]. [Title]
 
@@ -897,6 +978,7 @@ What becomes easier or more difficult to do because of this change?
 **Not currently implemented**
 
 **Would be useful for:**
+
 - Generating API documentation for `@card-stack/core`
 - Documenting `@lellimecnar/ui` component props
 - Creating developer reference docs
@@ -931,6 +1013,7 @@ What becomes easier or more difficult to do because of this change?
 ### 7.2 Package Documentation Gaps
 
 **All packages lack:**
+
 - Individual README.md with:
   - Purpose/description
   - Installation instructions
@@ -939,6 +1022,7 @@ What becomes easier or more difficult to do because of this change?
   - Configuration options
 
 **Specific needs:**
+
 - `@lellimecnar/ui` - Component API docs
 - `@card-stack/core` - Game engine API
 - Config packages - Configuration options
@@ -946,6 +1030,7 @@ What becomes easier or more difficult to do because of this change?
 ### 7.3 Process Documentation Gaps
 
 **Missing:**
+
 - Release process
 - Versioning strategy
 - Deprecation policy
@@ -957,6 +1042,7 @@ What becomes easier or more difficult to do because of this change?
 ### 7.4 Developer Experience Gaps
 
 **Could be improved:**
+
 - First-time contributor quick start
 - Troubleshooting guide (beyond current section)
 - FAQ section
@@ -1072,6 +1158,7 @@ What becomes easier or more difficult to do because of this change?
 ### 9.1 Common Usage Patterns
 
 **Adding a new workspace package:**
+
 ```bash
 # 1. Create package directory
 mkdir -p packages/new-package/src
@@ -1103,6 +1190,7 @@ pnpm install
 ```
 
 **Adding shadcn/ui component:**
+
 ```bash
 # Interactive CLI
 pnpm ui ui
@@ -1114,6 +1202,7 @@ pnpm ui ui
 ```
 
 **Running tests for specific package:**
+
 ```bash
 # Run once
 pnpm --filter @card-stack/core test
@@ -1128,29 +1217,33 @@ pnpm test
 ### 9.2 Styling Patterns
 
 **Web (Tailwind CSS):**
+
 ```tsx
 // Using cn() utility for conditional classes
-<div className={cn(
-  "base-class",
-  condition && "conditional-class",
-  variant === 'primary' && "primary-class"
-)} />
+<div
+	className={cn(
+		'base-class',
+		condition && 'conditional-class',
+		variant === 'primary' && 'primary-class',
+	)}
+/>;
 
 // Using cva for component variants
-const variants = cva("base", {
-  variants: {
-    size: { sm: "...", lg: "..." }
-  }
+const variants = cva('base', {
+	variants: {
+		size: { sm: '...', lg: '...' },
+	},
 });
 ```
 
 **Mobile (NativeWind):**
+
 ```tsx
 import { View, Text } from '@lellimecnar/ui-nativewind';
 
 <View className="flex-1 items-center justify-center bg-white">
-  <Text className="text-lg font-bold">Hello World</Text>
-</View>
+	<Text className="text-lg font-bold">Hello World</Text>
+</View>;
 ```
 
 ---
@@ -1160,6 +1253,7 @@ import { View, Text } from '@lellimecnar/ui-nativewind';
 ### 10.1 What We Have
 
 **✅ Strengths:**
+
 - Excellent architecture documentation (blueprints)
 - Comprehensive AGENTS.md for developers/AI
 - Well-organized monorepo structure
@@ -1168,6 +1262,7 @@ import { View, Text } from '@lellimecnar/ui-nativewind';
 - Strong TypeScript configuration
 
 **❌ Gaps:**
+
 - Missing community documentation (CONTRIBUTING, CODE_OF_CONDUCT)
 - No security policy
 - No changelog/release notes
@@ -1178,31 +1273,22 @@ import { View, Text } from '@lellimecnar/ui-nativewind';
 ### 10.2 Recommended Action Plan
 
 **Phase 1: Critical Community Files**
+
 1. Create CONTRIBUTING.md with commit guidelines
 2. Create CODE_OF_CONDUCT.md (Contributor Covenant)
 3. Create SECURITY.md with reporting process
 4. Create CHANGELOG.md with current state
 
-**Phase 2: Developer Experience**
-5. Create PR template
-6. Create issue templates (bug, feature, question)
-7. Add LICENSE file
-8. Enhance root README with badges
+**Phase 2: Developer Experience** 5. Create PR template 6. Create issue templates (bug, feature, question) 7. Add LICENSE file 8. Enhance root README with badges
 
-**Phase 3: Package Documentation**
-9. Create README template for packages
-10. Document each package's API
-11. Add usage examples
+**Phase 3: Package Documentation** 9. Create README template for packages 10. Document each package's API 11. Add usage examples
 
-**Phase 4: Advanced Documentation**
-12. Set up docs/ directory
-13. Add Architecture Decision Records
-14. Create in-depth guides
-15. Generate API docs with TypeDoc
+**Phase 4: Advanced Documentation** 12. Set up docs/ directory 13. Add Architecture Decision Records 14. Create in-depth guides 15. Generate API docs with TypeDoc
 
 ### 10.3 Documentation Best Practices to Follow
 
 **From research:**
+
 - ✅ Use Conventional Commits for all changes
 - ✅ Keep a Changelog format for CHANGELOG.md
 - ✅ Contributor Covenant for CODE_OF_CONDUCT.md
@@ -1218,6 +1304,7 @@ import { View, Text } from '@lellimecnar/ui-nativewind';
 ## Appendix A: File Locations Reference
 
 **Architecture Documentation:**
+
 - `/AGENTS.md`
 - `/Project_Architecture_Blueprint.md`
 - `/Project_Folders_Structure_Blueprint.md`
@@ -1226,6 +1313,7 @@ import { View, Text } from '@lellimecnar/ui-nativewind';
 - `/README.md`
 
 **Configuration:**
+
 - `/package.json` - Root package
 - `/pnpm-workspace.yaml` - Workspace definition
 - `/turbo.json` - Build orchestration
@@ -1233,6 +1321,7 @@ import { View, Text } from '@lellimecnar/ui-nativewind';
 - `/.github/copilot-instructions.md` - AI instructions
 
 **Shared Configs:**
+
 - `/packages/config-eslint/` - ESLint configurations
 - `/packages/config-typescript/` - TypeScript configurations
 - `/packages/config-tailwind/` - Tailwind base config
@@ -1241,17 +1330,21 @@ import { View, Text } from '@lellimecnar/ui-nativewind';
 - `/packages/config-babel/` - Babel configuration
 
 **Web Apps:**
+
 - `/web/miller.pub/` - Portfolio site
 - `/web/readon.app/` - Reading app web
 
 **Mobile Apps:**
+
 - `/mobile/readon/` - Reading app mobile
 
 **UI Libraries:**
+
 - `/packages/ui/` - Web components
 - `/packages/ui-nativewind/` - Mobile components
 
 **Domain Logic:**
+
 - `/card-stack/core/` - Game engine
 - `/card-stack/deck-standard/` - Standard deck
 
@@ -1271,10 +1364,10 @@ import { View, Text } from '@lellimecnar/ui-nativewind';
 
 5. **ts-mixer**: Flexible composition of card behaviors, avoiding deep inheritance hierarchies.
 
-6. **workspace:* protocol**: Ensure latest local version is always used.
+6. **workspace:\* protocol**: Ensure latest local version is always used.
 
 7. **Granular exports**: Enable tree-shaking and prevent accidental internal imports.
 
 ---
 
-*End of Research Report*
+_End of Research Report_

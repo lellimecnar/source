@@ -46,6 +46,7 @@ git checkout -b improvements/fast-track
 ## 🎯 Recommended Implementation Order
 
 ### Day 1: Security & Foundation
+
 ```bash
 # Morning: Security
 git checkout -b security/remove-exposed-secrets
@@ -59,6 +60,7 @@ git checkout -b chore/build-system-improvements
 ```
 
 ### Day 2-3: CI/CD
+
 ```bash
 git checkout master && git pull
 git checkout -b ci/github-actions-setup
@@ -67,6 +69,7 @@ git checkout -b ci/github-actions-setup
 ```
 
 ### Day 4-5: Testing & Performance
+
 ```bash
 # Parallel tracks - split team or do sequentially
 
@@ -80,6 +83,7 @@ git checkout -b perf/framework-optimizations
 ```
 
 ### Day 6-7: Automation & Docs
+
 ```bash
 # Parallel tracks - can be done independently
 
@@ -121,6 +125,7 @@ After completing ANY plan:
 ### Common Issues
 
 **Type errors appear after adding type-check:**
+
 ```bash
 # Fix incrementally, don't disable strict mode
 pnpm type-check 2>&1 | grep "error TS" | wc -l  # Count errors
@@ -128,6 +133,7 @@ pnpm type-check 2>&1 | grep "error TS" | wc -l  # Count errors
 ```
 
 **CI fails after setup:**
+
 ```bash
 # Check GitHub Actions logs
 # Verify secrets are configured
@@ -135,6 +141,7 @@ pnpm type-check 2>&1 | grep "error TS" | wc -l  # Count errors
 ```
 
 **Renovate creates too many PRs:**
+
 ```bash
 # Edit renovate.json
 # Increase grouping, adjust schedules
@@ -142,6 +149,7 @@ pnpm type-check 2>&1 | grep "error TS" | wc -l  # Count errors
 ```
 
 **Bundle size increases:**
+
 ```bash
 # Run bundle analyzer
 ANALYZE=true pnpm build
@@ -151,24 +159,29 @@ ANALYZE=true pnpm build
 ## 🎓 Learning Resources
 
 **Turborepo:**
+
 - [Official Docs](https://turbo.build/repo/docs)
 - [Task Configuration](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
 
 **GitHub Actions:**
+
 - [Workflow Syntax](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
 - [pnpm Action](https://github.com/pnpm/action-setup)
 
 **Testing:**
+
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 
 **Performance:**
+
 - [Next.js Optimization](https://nextjs.org/docs/app/building-your-application/optimizing)
 - [Web Vitals](https://web.dev/vitals/)
 
 ## 📞 Getting Help
 
 **Stuck on a step?**
+
 1. Re-read the plan step carefully
 2. Check the "Testing" section for verification
 3. Search issues in related GitHub repos

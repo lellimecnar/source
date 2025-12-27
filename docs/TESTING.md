@@ -25,21 +25,25 @@ We follow the **Testing Pyramid** approach:
 ## Testing Tools
 
 ### Core Testing Framework
+
 - **Jest**: JavaScript testing framework with built-in assertion library, mocking, and coverage
 - **ts-jest**: TypeScript preprocessor for Jest
 
 ### React Testing
+
 - **React Testing Library**: For testing React components by simulating user interactions
 - **@testing-library/jest-dom**: Additional matchers for DOM assertions
 - **@testing-library/user-event**: Simulate user interactions
 
 ### React Native Testing
+
 - **React Native Testing Library**: For testing React Native components
 - **jest-expo**: Jest preset for Expo applications
 
 ## Running Tests
 
 ### From Root
+
 ```bash
 # Run all tests across all packages
 pnpm test
@@ -55,6 +59,7 @@ pnpm test:ci
 ```
 
 ### From Specific Package
+
 ```bash
 # Run tests in a specific package
 pnpm --filter @lellimecnar/ui test
@@ -67,6 +72,7 @@ pnpm --filter @lellimecnar/ui test:watch
 ```
 
 ### From Package Directory
+
 ```bash
 # Navigate to package
 cd packages/ui
@@ -84,19 +90,23 @@ pnpm test:watch
 ## Coverage Requirements
 
 ### Global Thresholds
+
 - **Branches**: 80%
 - **Functions**: 80%
 - **Lines**: 80%
 - **Statements**: 80%
 
 ### Package-Specific Thresholds
+
 - **Web Apps** (miller.pub, readon.app): 70% (lower due to UI-heavy nature)
 - **UI Packages** (ui, ui-nativewind): 75%
 - **Utils Package**: 80%
 - **Card Stack Packages**: 80%
 
 ### Coverage Reports
+
 Coverage reports are generated in the `coverage/` directory of each package:
+
 - **HTML Report**: Open `coverage/index.html` in a browser for interactive exploration
 - **LCOV Report**: Used for CI integration and coverage tracking tools
 - **Text Summary**: Displayed in terminal after test run
@@ -104,6 +114,7 @@ Coverage reports are generated in the `coverage/` directory of each package:
 ## Test File Organization
 
 ### Co-located Tests (Preferred)
+
 Tests should be co-located with the source code they test:
 
 ```
@@ -121,6 +132,7 @@ src/
 ```
 
 ### Test Directories (Alternative)
+
 For larger components or integration tests:
 
 ```
@@ -144,19 +156,19 @@ src/
 import { formatDate } from './formatDate';
 
 describe('formatDate', () => {
-  it('formats a date in ISO format', () => {
-    const date = new Date('2024-01-15T10:30:00Z');
-    expect(formatDate(date)).toBe('2024-01-15');
-  });
+	it('formats a date in ISO format', () => {
+		const date = new Date('2024-01-15T10:30:00Z');
+		expect(formatDate(date)).toBe('2024-01-15');
+	});
 
-  it('handles invalid dates', () => {
-    expect(() => formatDate(new Date('invalid'))).toThrow();
-  });
+	it('handles invalid dates', () => {
+		expect(() => formatDate(new Date('invalid'))).toThrow();
+	});
 
-  it('formats date with custom format string', () => {
-    const date = new Date('2024-01-15');
-    expect(formatDate(date, 'MM/dd/yyyy')).toBe('01/15/2024');
-  });
+	it('formats date with custom format string', () => {
+		const date = new Date('2024-01-15');
+		expect(formatDate(date, 'MM/dd/yyyy')).toBe('01/15/2024');
+	});
 });
 ```
 
@@ -179,10 +191,10 @@ describe('Button', () => {
   it('calls onClick when clicked', async () => {
     const handleClick = jest.fn();
     const user = userEvent.setup();
-    
+
     render(<Button onClick={handleClick}>Click me</Button>);
     await user.click(screen.getByRole('button'));
-    
+
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
@@ -194,7 +206,7 @@ describe('Button', () => {
   it('applies variant styles correctly', () => {
     const { rerender } = render(<Button variant="primary">Primary</Button>);
     expect(screen.getByRole('button')).toHaveClass('bg-primary');
-    
+
     rerender(<Button variant="secondary">Secondary</Button>);
     expect(screen.getByRole('button')).toHaveClass('bg-secondary');
   });
@@ -221,7 +233,7 @@ describe('Button (React Native)', () => {
     const { getByText } = render(
       <Button onPress={handlePress}>Click me</Button>
     );
-    
+
     fireEvent.press(getByText('Click me'));
     expect(handlePress).toHaveBeenCalledTimes(1);
   });
@@ -233,7 +245,7 @@ describe('Button (React Native)', () => {
         Click me
       </Button>
     );
-    
+
     fireEvent.press(getByText('Click me'));
     expect(handlePress).not.toHaveBeenCalled();
   });
@@ -264,7 +276,7 @@ describe('Navigation', () => {
   it('highlights active link', () => {
     const { usePathname } = require('next/navigation');
     usePathname.mockReturnValue('/about');
-    
+
     render(<Navigation />);
     const aboutLink = screen.getByRole('link', { name: /about/i });
     expect(aboutLink).toHaveClass('active');
@@ -283,36 +295,37 @@ import { Rank } from './Rank';
 import { Suit } from './Suit';
 
 describe('Card', () => {
-  it('creates a card with rank and suit', () => {
-    const card = new Card(Rank.Ace, Suit.Spades);
-    expect(card.rank).toBe(Rank.Ace);
-    expect(card.suit).toBe(Suit.Spades);
-  });
+	it('creates a card with rank and suit', () => {
+		const card = new Card(Rank.Ace, Suit.Spades);
+		expect(card.rank).toBe(Rank.Ace);
+		expect(card.suit).toBe(Suit.Spades);
+	});
 
-  it('flips the card', () => {
-    const card = new Card(Rank.King, Suit.Hearts);
-    expect(card.isFaceUp).toBe(false);
-    
-    card.flip();
-    expect(card.isFaceUp).toBe(true);
-    
-    card.flip();
-    expect(card.isFaceUp).toBe(false);
-  });
+	it('flips the card', () => {
+		const card = new Card(Rank.King, Suit.Hearts);
+		expect(card.isFaceUp).toBe(false);
 
-  it('compares cards by rank', () => {
-    const aceOfSpades = new Card(Rank.Ace, Suit.Spades);
-    const kingOfHearts = new Card(Rank.King, Suit.Hearts);
-    
-    expect(aceOfSpades.isHigherThan(kingOfHearts)).toBe(true);
-    expect(kingOfHearts.isHigherThan(aceOfSpades)).toBe(false);
-  });
+		card.flip();
+		expect(card.isFaceUp).toBe(true);
+
+		card.flip();
+		expect(card.isFaceUp).toBe(false);
+	});
+
+	it('compares cards by rank', () => {
+		const aceOfSpades = new Card(Rank.Ace, Suit.Spades);
+		const kingOfHearts = new Card(Rank.King, Suit.Hearts);
+
+		expect(aceOfSpades.isHigherThan(kingOfHearts)).toBe(true);
+		expect(kingOfHearts.isHigherThan(aceOfSpades)).toBe(false);
+	});
 });
 ```
 
 ## Best Practices
 
 ### DO
+
 - ✅ Write tests for all new features and bug fixes
 - ✅ Test behavior, not implementation details
 - ✅ Use descriptive test names that explain what is being tested
@@ -325,6 +338,7 @@ describe('Card', () => {
 - ✅ Maintain test coverage above the threshold
 
 ### DON'T
+
 - ❌ Test internal implementation details
 - ❌ Write tests that depend on other tests
 - ❌ Use production data or real external services
@@ -338,37 +352,41 @@ describe('Card', () => {
 ## Common Testing Scenarios
 
 ### Testing Async Code
+
 ```typescript
 it('fetches user data', async () => {
-  const user = await fetchUser('123');
-  expect(user.name).toBe('John Doe');
+	const user = await fetchUser('123');
+	expect(user.name).toBe('John Doe');
 });
 ```
 
 ### Testing Promises
+
 ```typescript
 it('rejects when user not found', async () => {
-  await expect(fetchUser('invalid-id')).rejects.toThrow('User not found');
+	await expect(fetchUser('invalid-id')).rejects.toThrow('User not found');
 });
 ```
 
 ### Testing Hooks
+
 ```typescript
 import { renderHook, waitFor } from '@testing-library/react';
 import { useUser } from './useUser';
 
 it('fetches user data', async () => {
-  const { result } = renderHook(() => useUser('123'));
-  
-  await waitFor(() => {
-    expect(result.current.user).toBeDefined();
-  });
-  
-  expect(result.current.user.name).toBe('John Doe');
+	const { result } = renderHook(() => useUser('123'));
+
+	await waitFor(() => {
+		expect(result.current.user).toBeDefined();
+	});
+
+	expect(result.current.user.name).toBe('John Doe');
 });
 ```
 
 ### Testing with Context
+
 ```typescript
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from './ThemeProvider';
@@ -380,16 +398,17 @@ it('uses theme from context', () => {
       <ThemedButton>Click me</ThemedButton>
     </ThemeProvider>
   );
-  
+
   expect(screen.getByRole('button')).toHaveClass('dark-theme');
 });
 ```
 
 ### Mocking Modules
+
 ```typescript
 // Mock an entire module
 jest.mock('./apiClient', () => ({
-  fetchData: jest.fn(() => Promise.resolve({ data: 'mocked' })),
+	fetchData: jest.fn(() => Promise.resolve({ data: 'mocked' })),
 }));
 
 // Mock a specific function
@@ -400,16 +419,19 @@ jest.spyOn(apiClient, 'fetchData').mockResolvedValue({ data: 'mocked' });
 ## Debugging Tests
 
 ### Run a Single Test File
+
 ```bash
 pnpm test path/to/test.spec.ts
 ```
 
 ### Run Tests Matching a Pattern
+
 ```bash
 pnpm test --testNamePattern="Button"
 ```
 
 ### Run in Debug Mode
+
 ```bash
 node --inspect-brk node_modules/.bin/jest --runInBand
 ```
@@ -417,6 +439,7 @@ node --inspect-brk node_modules/.bin/jest --runInBand
 Then open `chrome://inspect` in Chrome and click "inspect" on the target.
 
 ### View Coverage for Specific File
+
 ```bash
 pnpm test:coverage --collectCoverageFrom="src/components/Button/**"
 ```
@@ -424,6 +447,7 @@ pnpm test:coverage --collectCoverageFrom="src/components/Button/**"
 ## CI Integration
 
 Tests run automatically in CI on every push and pull request. The CI pipeline:
+
 1. Installs dependencies with `pnpm install --frozen-lockfile`
 2. Runs all tests with `pnpm test:ci`
 3. Generates coverage reports

@@ -1,6 +1,18 @@
-/** @type {import('eslint').Linter.Config} */
+/** @type {import('eslint').ESLint.ConfigData} */
 module.exports = {
 	extends: ['@lellimecnar/eslint-config/node'],
 
-	ignorePatterns: ['./apps/**', './mobile/**', './web/**', './packages/**', '**/dist/**', '**/build/**', '**/node_modules/**'],
+	parserOptions: {
+		project: ['./tsconfig.json'],
+	},
+
+	ignorePatterns: [
+		'./apps/**',
+		'./mobile/**',
+		'./web/**',
+		'./packages/**',
+		'**/dist/**',
+		'**/build/**',
+		'**/node_modules/**',
+	],
 };

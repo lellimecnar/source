@@ -186,7 +186,7 @@ export default function PokeMasherPage(): JSX.Element {
 															<span className="font-bold">
 																Generation {ROMAN_NUMERALS[i]}
 															</span>{' '}
-															<span className="text-muted-foreground text-[0.8em] italic">
+															<span className="text-[0.8em] italic text-muted-foreground">
 																({genList.length})
 															</span>
 														</FormLabel>

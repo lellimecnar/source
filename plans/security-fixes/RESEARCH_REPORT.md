@@ -14,31 +14,32 @@
 
 ```json
 {
-  "name": "@lellimecnar/source",
-  "private": true,
-  "packageManager": "pnpm@9.12.2",
-  "engines": {
-    "node": "^20",
-    "pnpm": "^9"
-  },
-  "scripts": {
-    "miller.pub": "pnpm --filter miller.pub",
-    "readon": "pnpm --filter readon",
-    "readon.app": "pnpm --filter readon.app",
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "test": "turbo test",
-    "test:watch": "turbo test:watch",
-    "type-check": "turbo type-check",
-    "clean": "turbo clean; git clean -xdf node_modules .turbo .next .expo",
-    "format": "turbo lint -- --fix --fix-type=directive,problem,suggestion,layout",
-    "ui": "pnpm --filter @lellimecnar/ui"
-  }
+	"name": "@lellimecnar/source",
+	"private": true,
+	"packageManager": "pnpm@9.12.2",
+	"engines": {
+		"node": "^20",
+		"pnpm": "^9"
+	},
+	"scripts": {
+		"miller.pub": "pnpm --filter miller.pub",
+		"readon": "pnpm --filter readon",
+		"readon.app": "pnpm --filter readon.app",
+		"build": "turbo build",
+		"dev": "turbo dev",
+		"lint": "turbo lint",
+		"test": "turbo test",
+		"test:watch": "turbo test:watch",
+		"type-check": "turbo type-check",
+		"clean": "turbo clean; git clean -xdf node_modules .turbo .next .expo",
+		"format": "turbo lint -- --fix --fix-type=directive,problem,suggestion,layout",
+		"ui": "pnpm --filter @lellimecnar/ui"
+	}
 }
 ```
 
 **Key Observations:**
+
 - ✅ Enforces pnpm@9.12.2 via `packageManager` field
 - ✅ Enforces Node.js ^20 via engines
 - ✅ All scripts use turbo or pnpm --filter pattern
@@ -51,29 +52,30 @@
 
 ```json
 {
-  "$schema": "https://turbo.build/schema.json",
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
-    },
-    "test": {
-      "outputs": ["coverage/**"],
-      "dependsOn": []
-    },
-    "lint": {
-      "dependsOn": ["^build"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    }
-  }
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+		},
+		"test": {
+			"outputs": ["coverage/**"],
+			"dependsOn": []
+		},
+		"lint": {
+			"dependsOn": ["^build"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		}
+	}
 }
 ```
 
 **Key Observations:**
+
 - ✅ Build task already includes `.env*` in inputs (aware of environment files)
 - ℹ️ No security-related tasks defined yet
 
@@ -83,13 +85,14 @@
 
 ```yaml
 packages:
-  - "web/*"
-  - "mobile/*"
-  - "packages/*"
-  - "card-stack/*"
+  - 'web/*'
+  - 'mobile/*'
+  - 'packages/*'
+  - 'card-stack/*'
 ```
 
 **Workspace Packages Identified:**
+
 - `web/miller.pub` - Next.js personal site
 - `web/readon.app` - Next.js reading app
 - `mobile/readon` - Expo React Native app
@@ -149,6 +152,7 @@ dist/
 ```
 
 **Analysis:**
+
 - ✅ `.env` is listed but **FILE CURRENTLY EXISTS AND IS TRACKED** (major issue!)
 - ✅ Ignores `.env.local`, `.env.*.local` patterns
 - ✅ Covers Next.js, Turbo, and build artifacts
@@ -158,8 +162,9 @@ dist/
 
 ### 2.2 Web App .gitignore Files
 
-**Files:** 
-- `web/miller.pub/.gitignore` 
+**Files:**
+
+- `web/miller.pub/.gitignore`
 - `web/readon.app/.gitignore`
 
 Both files are **IDENTICAL** with Next.js defaults:
@@ -202,6 +207,7 @@ yarn-error.log*
 ```
 
 **Analysis:**
+
 - ⚠️ **CRITICAL:** Does NOT ignore `.env` (only `.env.local` and `.env.*.local`)
 - ⚠️ **MISSING:** `.env.development`, `.env.production` patterns
 - ℹ️ Uses relative paths (`/node_modules` vs `node_modules`) - Next.js convention
@@ -250,6 +256,7 @@ yarn-error.*
 ```
 
 **Analysis:**
+
 - ⚠️ **CRITICAL:** Only ignores `.env*.local` pattern, NOT `.env` itself
 - ✅ Good coverage of Expo-specific artifacts
 - ✅ Ignores native certificate files (`.jks`, `.p8`, `.p12`, `.mobileprovision`)
@@ -264,16 +271,19 @@ yarn-error.*
 **File:** `/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/.env`
 
 **Current Content:**
+
 ```dotenv
 TURBO_TOKEN="PLiN2qLDuipG9JlzJDwx9Q7B"
 ```
 
-**Status:** 
+**Status:**
+
 - ❌ **ACTIVELY TRACKED IN GIT** despite being in `.gitignore`
 - ❌ Contains exposed Turbo token (must be rotated immediately)
 - ❌ This token is now considered compromised
 
 **Additional Notes from Plan:**
+
 - Plan mentions other exposed tokens: `CONTEXT7_API_KEY`, `GITHUB_TOKEN`
 - These may have been removed or in git history
 
@@ -281,7 +291,8 @@ TURBO_TOKEN="PLiN2qLDuipG9JlzJDwx9Q7B"
 
 **Searched patterns:** `**/.env*`
 
-**Results:** 
+**Results:**
+
 - ✅ No `.env.example` files exist (good baseline - we'll create them)
 - ✅ No `.env.development`, `.env.production`, etc. files found
 - ⚠️ Only the compromised `.env` file exists at root
@@ -293,6 +304,7 @@ TURBO_TOKEN="PLiN2qLDuipG9JlzJDwx9Q7B"
 ### 4.1 Current State
 
 **Searched for:**
+
 - `.husky/` directory: **NOT FOUND**
 - `husky` in package.json dependencies: **NOT FOUND**
 - Existing git hooks: **NONE CONFIGURED**
@@ -303,10 +315,10 @@ TURBO_TOKEN="PLiN2qLDuipG9JlzJDwx9Q7B"
 
 ```json
 {
-  "devDependencies": {
-    "husky": "^9.1.7",
-    "lint-staged": "^15.2.11"
-  }
+	"devDependencies": {
+		"husky": "^9.1.7",
+		"lint-staged": "^15.2.11"
+	}
 }
 ```
 
@@ -330,15 +342,17 @@ pnpm exec husky init
 Husky 9 uses a simplified approach:
 
 **Script in package.json:**
+
 ```json
 {
-  "scripts": {
-    "prepare": "husky"
-  }
+	"scripts": {
+		"prepare": "husky"
+	}
 }
 ```
 
 **Pre-commit hook file:** `.husky/pre-commit`
+
 ```bash
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
@@ -363,15 +377,16 @@ pnpm exec gitleaks protect --staged --verbose
 | **Language**           | Go (single binary)    | Python        |
 | **Speed**              | Very fast             | Moderate      |
 | **Installation**       | Homebrew, binary, npm | pip, binary   |
-| **Pre-commit Support** | ✅ Excellent           | ✅ Good        |
-| **Custom Rules**       | ✅ TOML config         | ✅ Regexes     |
+| **Pre-commit Support** | ✅ Excellent          | ✅ Good       |
+| **Custom Rules**       | ✅ TOML config        | ✅ Regexes    |
 | **False Positives**    | Low-moderate          | Moderate-high |
-| **Active Development** | ✅ Very active         | ✅ Active      |
+| **Active Development** | ✅ Very active        | ✅ Active     |
 | **GitHub Stars**       | ~18k                  | ~16k          |
 
 **Recommendation:** **Gitleaks** (preferred for this project)
 
 **Reasons:**
+
 - Single Go binary (easier installation, no Python dependency)
 - Better performance for large repos
 - Excellent pnpm/npm integration
@@ -381,6 +396,7 @@ pnpm exec gitleaks protect --staged --verbose
 ### 5.2 Gitleaks Installation
 
 **Method 1: NPM Package (Recommended for pnpm monorepo)**
+
 ```bash
 pnpm add -Dw gitleaks
 ```
@@ -388,6 +404,7 @@ pnpm add -Dw gitleaks
 This installs the gitleaks binary wrapper as a dev dependency.
 
 **Method 2: System-wide (macOS with Homebrew)**
+
 ```bash
 brew install gitleaks
 ```
@@ -397,11 +414,13 @@ brew install gitleaks
 ### 5.3 Gitleaks Pre-commit Usage
 
 **Command to scan staged files:**
+
 ```bash
 gitleaks protect --staged --verbose
 ```
 
 **Options:**
+
 - `--staged`: Only scan staged files (fast for pre-commit)
 - `--verbose`: Show detailed output
 - `-v`: Show version
@@ -409,6 +428,7 @@ gitleaks protect --staged --verbose
 - `--config`: Use custom config file
 
 **Exit codes:**
+
 - `0`: No leaks found
 - `1`: Leaks found (blocks commit)
 
@@ -447,6 +467,7 @@ paths = [
 ### 6.1 Current State
 
 **Directory:** `.github/` exists but contains only:
+
 - `copilot-instructions.md`
 
 **Workflows directory:** `.github/workflows/` **DOES NOT EXIST**
@@ -477,7 +498,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for comprehensive scan
+          fetch-depth: 0 # Full history for comprehensive scan
 
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
@@ -489,14 +510,15 @@ jobs:
 **Alternative: Using gitleaks Docker image directly**
 
 ```yaml
-      - name: Run Gitleaks
-        run: |
-          docker run -v ${PWD}:/path ghcr.io/gitleaks/gitleaks:latest detect --source="/path" --verbose
+- name: Run Gitleaks
+  run: |
+    docker run -v ${PWD}:/path ghcr.io/gitleaks/gitleaks:latest detect --source="/path" --verbose
 ```
 
 ### 6.3 Additional Recommended Workflows
 
 **Dependency Scanning:**
+
 ```yaml
 name: Dependency Check
 
@@ -536,25 +558,41 @@ jobs:
 **File:** `/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/README.md`
 
 **Current Structure:**
+
 ```markdown
 # @lellimecnar/source
+
 ## 🚀 Technology Stack
+
 ## 🏗️ Project Architecture
+
 ## 🏁 Getting Started
-  ### Prerequisites
-  ### Installation
-  ### Development
-  ### Build
+
+### Prerequisites
+
+### Installation
+
+### Development
+
+### Build
+
 ## 📂 Project Structure
+
 ## ✨ Key Features
+
 ## 🔄 Development Workflow
-  ### Workspace Management
-  ### UI Component Development
+
+### Workspace Management
+
+### UI Component Development
+
 ## 📏 Coding Standards
+
 ## 🧪 Testing
 ```
 
 **Observations:**
+
 - ✅ Well-structured with emojis
 - ✅ Clear Getting Started section
 - ⚠️ **NO security section** (needs addition)
@@ -565,19 +603,29 @@ jobs:
 **File:** `/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/AGENTS.md`
 
 **Current Structure:**
+
 ```markdown
 # AGENTS.md - Developer Guide & AI Instructions
+
 ## 1. Project Overview
+
 ## 2. Monorepo Structure
+
 ## 3. Tech Stack Summary
+
 ## 4. Setup & Installation
+
 ## 5. Development Commands
+
 ## 6. Architecture & Patterns
+
 ## 7. Testing Strategy
+
 ## 8. Pull Request Guidelines
 ```
 
 **Observations:**
+
 - ✅ Comprehensive developer guide
 - ✅ Aimed at AI agents and developers
 - ⚠️ **NO security/secret management section** (needs addition under section 4 or 9)
@@ -605,6 +653,7 @@ jobs:
 ```
 
 **Observations:**
+
 - ✅ Consistent naming (`dev`, `build`, `lint`, `test`, `type-check`)
 - ✅ All test scripts use Jest
 - ✅ TypeScript checking via `tsc --noEmit`
@@ -613,10 +662,19 @@ jobs:
 ### 8.2 ESLint Configuration Pattern
 
 **Root:** `.eslintrc.js`
+
 ```javascript
 module.exports = {
-  extends: ['@lellimecnar/eslint-config/node'],
-  ignorePatterns: ['./apps/**', './mobile/**', './web/**', './packages/**', '**/dist/**', '**/build/**', '**/node_modules/**'],
+	extends: ['@lellimecnar/eslint-config/node'],
+	ignorePatterns: [
+		'./apps/**',
+		'./mobile/**',
+		'./web/**',
+		'./packages/**',
+		'**/dist/**',
+		'**/build/**',
+		'**/node_modules/**',
+	],
 };
 ```
 
@@ -625,11 +683,12 @@ module.exports = {
 ### 8.3 Prettier Configuration Pattern
 
 **Root:** `.prettierrc.js`
+
 ```javascript
 const baseConfig = require('@lellimecnar/prettier-config');
 
 module.exports = {
-  ...baseConfig,
+	...baseConfig,
 };
 ```
 
@@ -637,7 +696,8 @@ module.exports = {
 
 ### 8.4 Environment Variable Usage
 
-**Search Results:** 
+**Search Results:**
+
 - ✅ No `process.env.*` or `import.meta.env.*` usage in source files
 - ℹ️ Only found in node_modules (expected)
 - ℹ️ Turbo uses `.env` files (configured in turbo.json)
@@ -651,6 +711,7 @@ module.exports = {
 ### 9.1 Git Ignore Enhancements
 
 **Files to modify:**
+
 1. Root `.gitignore`
 2. `web/miller.pub/.gitignore`
 3. `web/readon.app/.gitignore`
@@ -711,11 +772,11 @@ GITHUB_TOKEN="ghp_your_github_token_here"
 
 ```json
 {
-  "scripts": {
-    "prepare": "husky",
-    "security:scan": "gitleaks detect --verbose",
-    "security:scan:staged": "gitleaks protect --staged --verbose"
-  }
+	"scripts": {
+		"prepare": "husky",
+		"security:scan": "gitleaks detect --verbose",
+		"security:scan:staged": "gitleaks protect --staged --verbose"
+	}
 }
 ```
 
@@ -725,8 +786,8 @@ GITHUB_TOKEN="ghp_your_github_token_here"
 
 ```javascript
 module.exports = {
-  '*.{js,jsx,ts,tsx,mjs,cjs}': ['eslint --fix', 'prettier --write'],
-  '*.{json,md,yml,yaml}': ['prettier --write'],
+	'*.{js,jsx,ts,tsx,mjs,cjs}': ['eslint --fix', 'prettier --write'],
+	'*.{json,md,yml,yaml}': ['prettier --write'],
 };
 ```
 
@@ -734,10 +795,10 @@ Or in `package.json`:
 
 ```json
 {
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx,mjs,cjs}": ["eslint --fix", "prettier --write"],
-    "*.{json,md,yml,yaml}": ["prettier --write"]
-  }
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx,mjs,cjs}": ["eslint --fix", "prettier --write"],
+		"*.{json,md,yml,yaml}": ["prettier --write"]
+	}
 }
 ```
 
@@ -755,6 +816,7 @@ Or in `package.json`:
 If you discover a security vulnerability in this project, please report it by emailing [SECURITY_EMAIL]. Please do NOT create a public GitHub issue.
 
 Include the following in your report:
+
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
@@ -774,28 +836,34 @@ We will respond within 48 hours and aim to patch critical vulnerabilities within
 This project implements the following security practices:
 
 ### Secret Management
+
 - All sensitive environment variables must be stored in `.env` files (gitignored)
 - `.env.example` templates provided with placeholder values
 - Pre-commit hooks scan for accidentally committed secrets
 - GitHub Actions scan all pushes for exposed secrets
 
 ### Automated Scanning
+
 - **Pre-commit:** Gitleaks scans staged files before each commit
 - **CI/CD:** GitHub Actions runs security scans on all branches
 - **Schedule:** Weekly full repository scans
 
 ### Environment Variables
+
 Required secrets (NEVER commit these):
+
 - `TURBO_TOKEN` - Vercel Turborepo remote caching token
 - `CONTEXT7_API_KEY` - Context7 documentation API key
 - `GITHUB_TOKEN` - GitHub personal access token
 
 Obtain these from:
+
 - Turbo: https://vercel.com/account/tokens
 - Context7: https://context7.com/settings/api
 - GitHub: https://github.com/settings/tokens
 
 ### Best Practices
+
 1. Never commit `.env` files
 2. Use `.env.example` for documentation
 3. Rotate secrets immediately if exposed
@@ -805,6 +873,7 @@ Obtain these from:
 ## Incident Response
 
 If secrets are accidentally committed:
+
 1. **STOP** - Do not push to remote
 2. Rotate ALL exposed credentials immediately
 3. Run `git reset HEAD~1` to undo commit (if not pushed)
@@ -816,6 +885,7 @@ If secrets are accidentally committed:
 ## Dependency Security
 
 This project uses:
+
 - `pnpm audit` for vulnerability scanning
 - Dependabot for automated updates
 - Regular dependency reviews
@@ -1002,6 +1072,7 @@ git commit -m "security: stop tracking .env file [requires token rotation]"
 After implementation, verify:
 
 ### 15.1 Git Ignore Tests
+
 - [ ] Create `.env` file in root → Not tracked by git
 - [ ] Create `.env` in web/miller.pub → Not tracked
 - [ ] Create `.env` in web/readon.app → Not tracked
@@ -1009,18 +1080,21 @@ After implementation, verify:
 - [ ] `.env.example` files ARE tracked
 
 ### 15.2 Husky Hook Tests
+
 - [ ] Create file with fake AWS key pattern → Commit blocked
 - [ ] Create file with fake GitHub token → Commit blocked
 - [ ] Create normal code file → Commit succeeds
 - [ ] Bypass with `--no-verify` → Commit succeeds (expected)
 
 ### 15.3 Environment Template Tests
+
 - [ ] `.env.example` has all required variables
 - [ ] `.env.example` has NO real secrets
 - [ ] `.env.example` has security warning
 - [ ] `.env.example` has instructions
 
 ### 15.4 GitHub Actions Tests
+
 - [ ] Push to feature branch → Workflow runs
 - [ ] Add file with fake secret → Workflow fails
 - [ ] Normal push → Workflow succeeds
@@ -1051,6 +1125,7 @@ After implementation, verify:
 This research provides all necessary information to implement comprehensive security fixes for the `@lellimecnar/source` monorepo. The project has a clean baseline (no hardcoded secrets in code, consistent patterns) but critical gaps in secret management (exposed .env, no pre-commit scanning, incomplete .gitignore patterns).
 
 **Priority actions:**
+
 1. Rotate compromised TURBO_TOKEN immediately
 2. Install Husky + Gitleaks with pre-commit hooks
 3. Update all .gitignore files comprehensively
@@ -1059,6 +1134,7 @@ This research provides all necessary information to implement comprehensive secu
 6. Document security practices in SECURITY.md
 
 **Timeline estimate:**
+
 - Immediate actions: 30 minutes
 - Implementation: 2-3 hours
 - Testing and documentation: 1-2 hours

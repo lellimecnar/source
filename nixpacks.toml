@@ -1,4 +1,10 @@
-providers = ["...", "node"]
+providers = ["...", "node", "docker"]
 
 [phases.setup]
   nixPkgs = ["turbo"]
+
+[phases.build]
+  cmds = ["pnpm build"]
+
+[start]
+  cmd = "pnpm start"

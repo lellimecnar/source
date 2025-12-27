@@ -1,9 +1,11 @@
 # Dependency Update Automation
 
 ## Goal
+
 Automate dependency updates using Renovate Bot with intelligent grouping, scheduling, and selective auto-merge to reduce maintenance burden while maintaining code quality and security.
 
 ## Prerequisites
+
 Make sure you are currently on the `chore/dependency-automation` branch before beginning implementation.
 If not, create and switch to this branch from master.
 
@@ -20,21 +22,16 @@ git checkout -b chore/dependency-automation
 ## Step-by-Step Instructions
 
 ### Step 1: Create Renovate Configuration File
+
 - [x] Create the Renovate configuration file in the repository root
 - [x] Copy and paste the code below into `.github/renovate.json`:
 
 ```json
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": [
-		"config:recommended",
-		":preserveSemverRanges"
-	],
+	"extends": ["config:recommended", ":preserveSemverRanges"],
 	"rangeStrategy": "bump",
-	"schedule": [
-		"after 10pm every weekday",
-		"before 5am every weekday"
-	],
+	"schedule": ["after 10pm every weekday", "before 5am every weekday"],
 	"timezone": "America/Los_Angeles",
 	"dependencyDashboard": true,
 	"dependencyDashboardTitle": "🤖 Dependency Updates Dashboard",
@@ -53,37 +50,23 @@ git checkout -b chore/dependency-automation
 		{
 			"description": "Group React ecosystem updates",
 			"groupName": "React ecosystem",
-			"matchPackagePatterns": [
-				"^react",
-				"^@types/react"
-			],
+			"matchPackagePatterns": ["^react", "^@types/react"],
 			"schedule": ["every weekend"],
 			"labels": ["dependencies", "react"]
 		},
 		{
 			"description": "Group Next.js updates",
 			"groupName": "Next.js",
-			"matchPackageNames": [
-				"next",
-				"@next/eslint-plugin-next"
-			],
-			"matchPackagePatterns": [
-				"^@next/"
-			],
+			"matchPackageNames": ["next", "@next/eslint-plugin-next"],
+			"matchPackagePatterns": ["^@next/"],
 			"schedule": ["every weekend"],
 			"labels": ["dependencies", "nextjs"]
 		},
 		{
 			"description": "Group Expo SDK updates (must stay in sync)",
 			"groupName": "Expo SDK",
-			"matchPackagePatterns": [
-				"^expo",
-				"^@expo/"
-			],
-			"matchPackageNames": [
-				"react-native",
-				"jest-expo"
-			],
+			"matchPackagePatterns": ["^expo", "^@expo/"],
+			"matchPackageNames": ["react-native", "jest-expo"],
 			"schedule": ["every weekend"],
 			"labels": ["dependencies", "expo"],
 			"rangeStrategy": "replace"
@@ -98,9 +81,7 @@ git checkout -b chore/dependency-automation
 				"@typescript-eslint/eslint-plugin",
 				"@typescript-eslint/parser"
 			],
-			"matchPackagePatterns": [
-				"^@types/"
-			],
+			"matchPackagePatterns": ["^@types/"],
 			"schedule": ["every weekend"],
 			"labels": ["dependencies", "typescript"]
 		},
@@ -125,10 +106,7 @@ git checkout -b chore/dependency-automation
 				"eslint-config-prettier",
 				"eslint-config-turbo"
 			],
-			"matchPackagePatterns": [
-				"^eslint-plugin-",
-				"^@typescript-eslint/"
-			],
+			"matchPackagePatterns": ["^eslint-plugin-", "^@typescript-eslint/"],
 			"schedule": ["every weekend"],
 			"labels": ["dependencies", "linting"]
 		},
@@ -144,29 +122,21 @@ git checkout -b chore/dependency-automation
 				"tailwindcss-animate",
 				"tailwindcss-opentype"
 			],
-			"matchPackagePatterns": [
-				"^tailwindcss-",
-				"^@tailwindcss/"
-			],
+			"matchPackagePatterns": ["^tailwindcss-", "^@tailwindcss/"],
 			"schedule": ["every weekend"],
 			"labels": ["dependencies", "styling"]
 		},
 		{
 			"description": "Group Radix UI primitives",
 			"groupName": "Radix UI",
-			"matchPackagePatterns": [
-				"^@radix-ui/"
-			],
+			"matchPackagePatterns": ["^@radix-ui/"],
 			"schedule": ["every weekend"],
 			"labels": ["dependencies", "ui"]
 		},
 		{
 			"description": "Group build tools",
 			"groupName": "Build tools",
-			"matchPackageNames": [
-				"turbo",
-				"prettier"
-			],
+			"matchPackageNames": ["turbo", "prettier"],
 			"schedule": ["every weekend"],
 			"labels": ["dependencies", "tooling"]
 		},
@@ -181,14 +151,8 @@ git checkout -b chore/dependency-automation
 		},
 		{
 			"description": "Auto-merge minor updates to trusted tooling",
-			"matchPackageNames": [
-				"prettier",
-				"@lellimecnar/prettier-config"
-			],
-			"matchPackagePatterns": [
-				"^eslint-plugin-",
-				"^@types/"
-			],
+			"matchPackageNames": ["prettier", "@lellimecnar/prettier-config"],
+			"matchPackagePatterns": ["^eslint-plugin-", "^@types/"],
 			"matchUpdateTypes": ["minor", "patch"],
 			"matchDepTypes": ["devDependencies"],
 			"automerge": true,
@@ -252,6 +216,7 @@ git checkout -b chore/dependency-automation
 ```
 
 #### Step 1 Verification Checklist
+
 - [ ] File `.github/renovate.json` exists in repository root
 - [ ] JSON is valid (no syntax errors)
 - [ ] Configuration includes all 9 package groups (React, Next.js, Expo, TypeScript, Testing, ESLint, Tailwind, Radix UI, Build tools)
@@ -260,6 +225,7 @@ git checkout -b chore/dependency-automation
 - [ ] Dependency dashboard is enabled
 
 #### Step 1 STOP & COMMIT
+
 **STOP & COMMIT:** Stage and commit the Renovate configuration file.
 
 ```bash
@@ -270,6 +236,7 @@ git commit -m "chore: add Renovate bot configuration with intelligent grouping"
 ---
 
 ### Step 2: Create CI Workflow for Pull Request Validation
+
 - [x] Create GitHub Actions workflow directory if it doesn't exist
 - [x] Copy and paste the code below into `.github/workflows/ci.yml`:
 
@@ -479,6 +446,7 @@ jobs:
 ```
 
 #### Step 2 Verification Checklist
+
 - [ ] File `.github/workflows/ci.yml` exists
 - [ ] Workflow triggers on pull requests to master/main branches
 - [ ] Workflow includes 5 jobs: install, lint, typecheck, test, build
@@ -488,6 +456,7 @@ jobs:
 - [ ] All jobs use `--frozen-lockfile` flag
 
 #### Step 2 STOP & COMMIT
+
 **STOP & COMMIT:** Stage and commit the CI workflow file.
 
 ```bash
@@ -498,6 +467,7 @@ git commit -m "chore: add CI workflow for PR validation"
 ---
 
 ### Step 3: Create Dependency Review Workflow
+
 - [x] Copy and paste the code below into `.github/workflows/dependency-review.yml`:
 
 ```yaml
@@ -531,6 +501,7 @@ jobs:
 ```
 
 #### Step 3 Verification Checklist
+
 - [ ] File `.github/workflows/dependency-review.yml` exists
 - [ ] Workflow triggers on pull requests to master/main branches
 - [ ] Workflow has write permissions for pull-requests (to post comments)
@@ -540,6 +511,7 @@ jobs:
 - [ ] Summary will be commented on every PR
 
 #### Step 3 STOP & COMMIT
+
 **STOP & COMMIT:** Stage and commit the dependency review workflow.
 
 ```bash
@@ -550,9 +522,10 @@ git commit -m "chore: add dependency review workflow for security scanning"
 ---
 
 ### Step 4: Create CONTRIBUTING.md with Dependency Update Process
+
 - [x] Copy and paste the code below into `CONTRIBUTING.md`:
 
-```markdown
+````markdown
 # Contributing to @lellimecnar/source
 
 Thank you for your interest in contributing! This document provides guidelines and workflows for contributing to this monorepo.
@@ -583,6 +556,7 @@ cd source
 # Install dependencies
 pnpm install
 ```
+````
 
 ### Project Structure
 
@@ -671,22 +645,24 @@ This project uses **Renovate Bot** for automated dependency updates with intelli
 Renovate groups dependencies into logical sets:
 
 - **React ecosystem:** react, react-dom, @types/react, @types/react-dom
-- **Next.js:** next, @next/*
-- **Expo SDK:** expo, expo-*, react-native (must stay in sync)
-- **TypeScript:** typescript, ts-*, @typescript-eslint/*, @types/*
+- **Next.js:** next, @next/\*
+- **Expo SDK:** expo, expo-\*, react-native (must stay in sync)
+- **TypeScript:** typescript, ts-_, @typescript-eslint/_, @types/\*
 - **Testing:** jest, jest-expo, @faker-js/faker
-- **ESLint:** eslint, eslint-plugin-*, eslint-config-*
-- **Tailwind CSS:** tailwindcss, postcss, autoprefixer, nativewind, tailwindcss-*
-- **Radix UI:** @radix-ui/*
+- **ESLint:** eslint, eslint-plugin-_, eslint-config-_
+- **Tailwind CSS:** tailwindcss, postcss, autoprefixer, nativewind, tailwindcss-\*
+- **Radix UI:** @radix-ui/\*
 - **Build tools:** turbo, prettier
 
 #### Auto-merge Rules
 
 **✅ Safe to Auto-merge (if CI passes):**
+
 - Patch updates to devDependencies
 - Minor updates to ESLint plugins and type definitions
 
 **⛔ Requires Manual Review:**
+
 - Major version updates (any package)
 - Production dependencies (any update type)
 - Updates that fail CI checks
@@ -706,24 +682,26 @@ When a major version update PR is created:
 1. **Review Release Notes:** Click the changelog link in the PR description
 2. **Check Migration Guide:** Look for breaking changes and migration steps
 3. **Test Locally:**
+
    ```bash
    # Fetch the PR branch
    git fetch origin pull/XXX/head:renovate-major-update
    git checkout renovate-major-update
-   
+
    # Install dependencies
    pnpm install
-   
+
    # Run full test suite
    pnpm build
    pnpm test
    pnpm lint
-   
+
    # Test affected applications manually
    pnpm miller.pub dev
    pnpm readon.app dev
    pnpm readon dev
    ```
+
 4. **Apply Code Changes:** Make necessary code changes to accommodate breaking changes
 5. **Commit to PR Branch:** Push fixes to the PR branch or request changes
 6. **Merge After CI Passes:** Once all checks pass and manual testing is complete, approve and merge
@@ -782,9 +760,9 @@ Always use the `workspace:*` protocol for internal packages:
 
 ```json
 {
-  "dependencies": {
-    "@lellimecnar/ui": "workspace:*"
-  }
+	"dependencies": {
+		"@lellimecnar/ui": "workspace:*"
+	}
 }
 ```
 
@@ -963,7 +941,8 @@ If you have questions or need help:
 3. Open a new issue with the "question" label
 
 Thank you for contributing! 🎉
-```
+
+````
 
 #### Step 4 Verification Checklist
 - [ ] File `CONTRIBUTING.md` exists in repository root
@@ -981,15 +960,16 @@ Thank you for contributing! 🎉
 ```bash
 git add CONTRIBUTING.md
 git commit -m "docs: add contribution guidelines with dependency management process"
-```
+````
 
 ---
 
 ### Step 5: Create Detailed Dependency Management Documentation
+
 - [x] Create a docs directory if it doesn't exist
 - [x] Copy and paste the code below into `docs/DEPENDENCY_MANAGEMENT.md`:
 
-```markdown
+````markdown
 # Dependency Management
 
 This document provides comprehensive guidance on managing dependencies in the @lellimecnar/source monorepo.
@@ -1035,13 +1015,14 @@ Renovate is configured via `.github/renovate.json` in the repository root.
 
 ```json
 {
-  "extends": ["config:recommended", ":preserveSemverRanges"],
-  "rangeStrategy": "bump",
-  "schedule": ["after 10pm every weekday", "before 5am every weekday"],
-  "timezone": "America/Los_Angeles",
-  "dependencyDashboard": true
+	"extends": ["config:recommended", ":preserveSemverRanges"],
+	"rangeStrategy": "bump",
+	"schedule": ["after 10pm every weekday", "before 5am every weekday"],
+	"timezone": "America/Los_Angeles",
+	"dependencyDashboard": true
 }
 ```
+````
 
 **Settings Explained:**
 
@@ -1056,8 +1037,8 @@ Renovate is configured via `.github/renovate.json` in the repository root.
 
 ```json
 {
-  "prHourlyLimit": 2,
-  "prConcurrentLimit": 10
+	"prHourlyLimit": 2,
+	"prConcurrentLimit": 10
 }
 ```
 
@@ -1073,6 +1054,7 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 1. React Ecosystem
 
 **Packages:**
+
 - react
 - react-dom
 - @types/react
@@ -1085,8 +1067,9 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 2. Next.js
 
 **Packages:**
+
 - next
-- @next/* (all @next scoped packages)
+- @next/\* (all @next scoped packages)
 - @next/eslint-plugin-next
 
 **Schedule:** Every weekend
@@ -1096,8 +1079,9 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 3. Expo SDK
 
 **Packages:**
+
 - expo
-- @expo/* (all @expo scoped packages)
+- @expo/\* (all @expo scoped packages)
 - react-native
 - jest-expo
 
@@ -1110,8 +1094,9 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 4. TypeScript
 
 **Packages:**
+
 - typescript
-- @types/* (all type definitions)
+- @types/\* (all type definitions)
 - ts-jest
 - ts-mixer
 - @typescript-eslint/eslint-plugin
@@ -1124,6 +1109,7 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 5. Testing
 
 **Packages:**
+
 - jest
 - jest-expo
 - ts-jest
@@ -1137,10 +1123,11 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 6. ESLint
 
 **Packages:**
+
 - eslint
-- eslint-plugin-* (all ESLint plugins)
-- eslint-config-* (all ESLint configs)
-- @typescript-eslint/* (TypeScript ESLint tools)
+- eslint-plugin-\* (all ESLint plugins)
+- eslint-config-\* (all ESLint configs)
+- @typescript-eslint/\* (TypeScript ESLint tools)
 
 **Schedule:** Every weekend
 
@@ -1149,9 +1136,10 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 7. Tailwind CSS
 
 **Packages:**
+
 - tailwindcss
-- @tailwindcss/* (all Tailwind scoped packages)
-- tailwindcss-* (all Tailwind plugins)
+- @tailwindcss/\* (all Tailwind scoped packages)
+- tailwindcss-\* (all Tailwind plugins)
 - postcss
 - autoprefixer
 - nativewind
@@ -1163,7 +1151,8 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 8. Radix UI
 
 **Packages:**
-- @radix-ui/* (all Radix UI primitives)
+
+- @radix-ui/\* (all Radix UI primitives)
 
 **Schedule:** Every weekend
 
@@ -1172,6 +1161,7 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 ### 9. Build Tools
 
 **Packages:**
+
 - turbo
 - prettier
 
@@ -1204,15 +1194,16 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 
 ```json
 {
-  "matchDepTypes": ["devDependencies"],
-  "matchUpdateTypes": ["patch"],
-  "automerge": true
+	"matchDepTypes": ["devDependencies"],
+	"matchUpdateTypes": ["patch"],
+	"automerge": true
 }
 ```
 
 **Example:** `prettier: 3.6.2` → `prettier: 3.6.3`
 
 **Why Safe:**
+
 - DevDependencies don't affect production runtime
 - Patch updates only include bug fixes (no breaking changes)
 - All CI checks must still pass
@@ -1221,19 +1212,21 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 
 ```json
 {
-  "matchPackageNames": ["prettier", "@lellimecnar/prettier-config"],
-  "matchPackagePatterns": ["^eslint-plugin-", "^@types/"],
-  "matchUpdateTypes": ["minor", "patch"],
-  "matchDepTypes": ["devDependencies"],
-  "automerge": true
+	"matchPackageNames": ["prettier", "@lellimecnar/prettier-config"],
+	"matchPackagePatterns": ["^eslint-plugin-", "^@types/"],
+	"matchUpdateTypes": ["minor", "patch"],
+	"matchDepTypes": ["devDependencies"],
+	"automerge": true
 }
 ```
 
 **Examples:**
+
 - `eslint-plugin-react: 7.37.5` → `eslint-plugin-react: 7.38.0`
 - `@types/node: 22.10.5` → `@types/node: 22.11.0`
 
 **Why Safe:**
+
 - Formatters and linters don't affect application behavior
 - Type definitions are dev-time only
 - High confidence in these tools' semver compliance
@@ -1244,14 +1237,15 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 
 ```json
 {
-  "matchUpdateTypes": ["major"],
-  "automerge": false
+	"matchUpdateTypes": ["major"],
+	"automerge": false
 }
 ```
 
 **Example:** `react: 18.3.1` → `react: 19.0.0`
 
 **Why Manual Review:**
+
 - Breaking changes require code modifications
 - Migration guide review needed
 - Extensive testing required
@@ -1260,14 +1254,15 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 
 ```json
 {
-  "matchDepTypes": ["dependencies"],
-  "automerge": false
+	"matchDepTypes": ["dependencies"],
+	"automerge": false
 }
 ```
 
 **Example:** `next: 15.2.3` → `next: 15.2.4` (even patch updates)
 
 **Why Manual Review:**
+
 - Runtime dependencies affect end users
 - Even patch updates can introduce regressions
 - Need validation in staging environment
@@ -1281,16 +1276,19 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
 ### Patch Updates (x.y.Z)
 
 **What They Include:**
+
 - Bug fixes
 - Security patches
 - Performance improvements
 - No breaking changes
 
 **Action:**
+
 - **DevDependencies:** Auto-merge after CI passes ✅
 - **Dependencies:** Manual review required ⛔
 
 **Example Workflow:**
+
 1. Renovate creates PR
 2. CI runs automatically
 3. If all checks pass:
@@ -1301,15 +1299,18 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
 ### Minor Updates (x.Y.z)
 
 **What They Include:**
+
 - New features
 - Deprecations (with backward compatibility)
 - No breaking changes
 
 **Action:**
+
 - **Trusted tooling (ESLint plugins, type definitions):** Auto-merge ✅
 - **Everything else:** Manual review required ⛔
 
 **Example Workflow:**
+
 1. Renovate creates PR
 2. Review release notes in PR description
 3. Check for deprecation warnings
@@ -1318,14 +1319,17 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
 ### Major Updates (X.y.z)
 
 **What They Include:**
+
 - Breaking changes
 - API redesigns
 - Removed features
 
 **Action:**
+
 - **All packages:** Manual review required ⛔
 
 **Example Workflow:**
+
 1. Renovate creates PR with "major-update" label
 2. **Review Migration Guide:**
    - Click changelog link in PR description
@@ -1354,15 +1358,18 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
 ### Security Updates
 
 **What They Include:**
+
 - CVE fixes
 - Security patches
 
 **Action:**
+
 - **Immediate processing** (no schedule delay)
 - **Labeled "security"** for visibility
 - **Auto-merge:** Only if patch to devDependency and CI passes
 
 **Example Workflow:**
+
 1. Renovate detects vulnerability
 2. Creates PR immediately with "security" label
 3. Team is notified via GitHub notifications
@@ -1377,13 +1384,14 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
 
 ```json
 {
-  "dependencies": {
-    "@lellimecnar/ui": "workspace:*"
-  }
+	"dependencies": {
+		"@lellimecnar/ui": "workspace:*"
+	}
 }
 ```
 
 **Renovate Behavior:**
+
 - Does NOT create PRs for `workspace:*` dependencies
 - These are always local packages, no updates needed
 
@@ -1393,19 +1401,21 @@ The root `package.json` has an `overrides` field that enforces specific versions
 
 ```json
 {
-  "overrides": {
-    "typescript": "~5.5",
-    "react": "^18.3.1",
-    "eslint": "^8.57.1"
-  }
+	"overrides": {
+		"typescript": "~5.5",
+		"react": "^18.3.1",
+		"eslint": "^8.57.1"
+	}
 }
 ```
 
 **Renovate Behavior:**
+
 - Updates the override when updating the package
 - All workspaces automatically use the overridden version
 
 **Manual Override Updates:**
+
 1. Update version in root `package.json` overrides
 2. Update version in individual workspace `package.json` (if explicitly listed)
 3. Run `pnpm install` to regenerate lockfile
@@ -1417,18 +1427,20 @@ Build tasks have dependencies in `turbo.json`:
 
 ```json
 {
-  "build": {
-    "dependsOn": ["^build"]
-  }
+	"build": {
+		"dependsOn": ["^build"]
+	}
 }
 ```
 
 **Impact on Updates:**
+
 - Changes to build tooling affect all workspaces
 - CI builds all workspaces in dependency order
 - Broken builds block the entire pipeline
 
 **Testing Strategy:**
+
 - Always run `pnpm build` locally after tooling updates
 - Watch for cascading failures
 
@@ -1437,10 +1449,12 @@ Build tasks have dependencies in `turbo.json`:
 ### Issue: Renovate PR Fails CI
 
 **Symptoms:**
+
 - Red X on Renovate PR
 - CI checks fail (lint, test, build)
 
 **Diagnosis:**
+
 1. Click "Details" on failed check
 2. Read error message in CI logs
 3. Identify failing workspace
@@ -1448,16 +1462,19 @@ Build tasks have dependencies in `turbo.json`:
 **Solutions:**
 
 **Option A: Temporary Incompatibility**
+
 - Add a comment to the PR: `@renovatebot rebase`
 - Renovate will rebase and retry CI
 
 **Option B: Breaking Change**
+
 - Checkout the PR branch locally
 - Fix the code to accommodate the breaking change
 - Push fix to the PR branch
 - CI will re-run
 
 **Option C: Known Issue**
+
 - Check package release notes for known issues
 - Add a comment: `@renovatebot ignore this dependency`
 - Create a tracking issue for manual update later
@@ -1465,36 +1482,43 @@ Build tasks have dependencies in `turbo.json`:
 ### Issue: Conflicting Dependency Versions
 
 **Symptoms:**
+
 - pnpm install fails with peer dependency conflicts
 - Multiple PRs updating the same dependency
 
 **Diagnosis:**
+
 - Check which packages have version conflicts
 - Review `overrides` field in root package.json
 
 **Solutions:**
 
 **Option A: Update Override**
+
 1. Update the version in root `package.json` overrides
 2. Run `pnpm install`
 3. Commit and push
 
 **Option B: Close Duplicate PRs**
+
 - Close older PRs, keep the newest
 - Renovate will rebase remaining PRs
 
 ### Issue: Lock File Out of Sync
 
 **Symptoms:**
+
 - CI fails with "Lock file out of sync" error
 - Local install differs from CI
 
 **Diagnosis:**
+
 - Lock file was manually edited or is corrupted
 
 **Solutions:**
 
 **Regenerate Lock File:**
+
 ```bash
 rm pnpm-lock.yaml
 pnpm install
@@ -1504,16 +1528,19 @@ git push
 ```
 
 **Enable Lock File Maintenance:**
+
 - Renovate has weekly lock file maintenance enabled
 - It will fix this automatically on Monday mornings
 
 ### Issue: Too Many Renovate PRs
 
 **Symptoms:**
+
 - 20+ open Renovate PRs
 - Overwhelming to review
 
 **Diagnosis:**
+
 - Rate limits may be too high
 - Grouping may not be configured correctly
 
@@ -1521,45 +1548,53 @@ git push
 
 **Option A: Lower Rate Limits**
 Edit `.github/renovate.json`:
+
 ```json
 {
-  "prHourlyLimit": 1,
-  "prConcurrentLimit": 5
+	"prHourlyLimit": 1,
+	"prConcurrentLimit": 5
 }
 ```
 
 **Option B: Review Dependency Dashboard**
+
 - Go to Dependency Dashboard issue
 - Uncheck PRs you want to postpone
 - Renovate will close them
 
 **Option C: Merge Auto-mergeable PRs**
+
 - Filter PRs by label "automerge"
 - Review and approve quickly (CI already passed)
 
 ### Issue: Renovate Bot Stops Working
 
 **Symptoms:**
+
 - No new PRs from Renovate
 - Dependency Dashboard is stale
 
 **Diagnosis:**
+
 - Configuration error in `.github/renovate.json`
 - Renovate Bot needs re-authorization
 
 **Solutions:**
 
 **Validate Configuration:**
+
 ```bash
 # Use Renovate's config validator
 npx -p renovate -c renovate-config-validator .github/renovate.json
 ```
 
 **Check Renovate Job Logs:**
+
 - Go to Renovate Bot app in GitHub repository settings
 - View recent job logs for errors
 
 **Re-install Renovate:**
+
 - Go to https://github.com/apps/renovate
 - Configure repository access
 - Re-authorize
@@ -1567,16 +1602,19 @@ npx -p renovate -c renovate-config-validator .github/renovate.json
 ### Issue: Security Update Needed Urgently
 
 **Symptoms:**
+
 - CVE disclosed in a dependency
 - Renovate hasn't created PR yet
 
 **Diagnosis:**
+
 - Renovate may be in rate limit window
 - Dependency may not be directly used
 
 **Solutions:**
 
 **Manual Update:**
+
 ```bash
 # Update the vulnerable package
 pnpm update <package-name> -r
@@ -1596,6 +1634,7 @@ git push
 ```
 
 **Trigger Renovate Manually:**
+
 - Go to Dependency Dashboard issue
 - Check the box next to the vulnerable package
 - Renovate will create PR immediately
@@ -1608,14 +1647,14 @@ To add a new update group, edit `.github/renovate.json`:
 
 ```json
 {
-  "packageRules": [
-    {
-      "groupName": "My Custom Group",
-      "matchPackageNames": ["package-a", "package-b"],
-      "matchPackagePatterns": ["^@my-scope/"],
-      "schedule": ["every weekend"]
-    }
-  ]
+	"packageRules": [
+		{
+			"groupName": "My Custom Group",
+			"matchPackageNames": ["package-a", "package-b"],
+			"matchPackagePatterns": ["^@my-scope/"],
+			"schedule": ["every weekend"]
+		}
+	]
 }
 ```
 
@@ -1625,12 +1664,12 @@ To prevent Renovate from updating a specific package:
 
 ```json
 {
-  "packageRules": [
-    {
-      "matchPackageNames": ["problematic-package"],
-      "enabled": false
-    }
-  ]
+	"packageRules": [
+		{
+			"matchPackageNames": ["problematic-package"],
+			"enabled": false
+		}
+	]
 }
 ```
 
@@ -1640,12 +1679,12 @@ To prevent updates until manually unblocked:
 
 ```json
 {
-  "packageRules": [
-    {
-      "matchPackageNames": ["stay-on-v3"],
-      "allowedVersions": "^3.0.0"
-    }
-  ]
+	"packageRules": [
+		{
+			"matchPackageNames": ["stay-on-v3"],
+			"allowedVersions": "^3.0.0"
+		}
+	]
 }
 ```
 
@@ -1699,7 +1738,8 @@ To prevent updates until manually unblocked:
 
 **Last Updated:** December 21, 2025  
 **Maintainer:** See CONTRIBUTING.md for contact information
-```
+
+````
 
 #### Step 5 Verification Checklist
 - [ ] Directory `docs/` exists (create if necessary)
@@ -1717,7 +1757,7 @@ To prevent updates until manually unblocked:
 ```bash
 git add docs/DEPENDENCY_MANAGEMENT.md
 git commit -m "docs: add comprehensive dependency management guide"
-```
+````
 
 ---
 
@@ -1734,6 +1774,7 @@ git commit -m "docs: add comprehensive dependency management guide"
 - [x] Click "Install" to complete setup
 
 #### Step 6 Verification Checklist
+
 - [ ] Renovate Bot is installed on the repository
 - [ ] Bot has necessary permissions
 - [ ] Within 1 hour, an "Configure Renovate" onboarding PR should be created
@@ -1741,11 +1782,13 @@ git commit -m "docs: add comprehensive dependency management guide"
 - [ ] Merge the onboarding PR to activate Renovate
 
 **What to Expect:**
+
 1. **Onboarding PR:** Renovate will create a PR titled "Configure Renovate" with a `renovate.json` file (close this PR since we already have configuration)
 2. **Dependency Dashboard:** An issue titled "Dependency Dashboard" will be created listing all detected dependencies
 3. **Initial Update PRs:** Renovate will scan for outdated dependencies and create grouped PRs according to the schedule
 
 #### Step 6 STOP & VERIFY
+
 **STOP & VERIFY:** Wait for Renovate onboarding PR or Dependency Dashboard issue to appear. This confirms Renovate is working.
 
 ---
@@ -1759,6 +1802,7 @@ git commit -m "docs: add comprehensive dependency management guide"
 - [x] Configure the following settings:
 
 **Required Settings:**
+
 - ☑ Require a pull request before merging
 - ☑ Require approvals: 1
 - ☑ Dismiss stale pull request approvals when new commits are pushed
@@ -1774,12 +1818,14 @@ git commit -m "docs: add comprehensive dependency management guide"
 - ☑ Do not allow bypassing the above settings
 
 **Optional Settings:**
+
 - ☑ Require linear history (forces squash or rebase)
 - ☑ Include administrators (applies rules to repo admins too)
 
 - [x] Click "Create" or "Save changes"
 
 #### Step 7 Verification Checklist
+
 - [ ] Branch protection rule exists for `master` branch
 - [ ] All CI checks are required before merge
 - [ ] At least 1 approval is required
@@ -1787,12 +1833,14 @@ git commit -m "docs: add comprehensive dependency management guide"
 - [ ] Test by creating a draft PR: status checks should appear as required
 
 **Benefits:**
+
 - Prevents accidental merge of failing PRs
 - Ensures all dependency updates pass CI
 - Blocks auto-merge if CI fails
 - Enforces code review process
 
 #### Step 7 STOP & COMMIT
+
 **STOP:** No Git commit needed for this step (GitHub web UI configuration only).
 
 ---
@@ -1811,6 +1859,7 @@ npx -p renovate -c renovate-config-validator .github/renovate.json
 - [ ] Expected output: "INFO: Renovate config file is valid"
 
 #### Step 8 Verification Checklist
+
 - [ ] Renovate configuration validation passes
 - [ ] "Dependency Dashboard" issue exists with list of dependencies
 - [ ] Issue includes checkboxes for all detected dependencies
@@ -1818,6 +1867,7 @@ npx -p renovate -c renovate-config-validator .github/renovate.json
 - [ ] No error messages in Renovate bot logs
 
 **Manual Testing:**
+
 - [ ] In Dependency Dashboard, check a box next to any dependency
 - [ ] Wait 5-10 minutes
 - [ ] A PR should be created for that dependency
@@ -1826,6 +1876,7 @@ npx -p renovate -c renovate-config-validator .github/renovate.json
 - [ ] Close the test PR (no need to merge)
 
 **Success Indicators:**
+
 - ✅ Renovate creates PRs according to schedule
 - ✅ PRs are grouped by ecosystem
 - ✅ PRs include detailed descriptions with changelogs
@@ -1834,6 +1885,7 @@ npx -p renovate -c renovate-config-validator .github/renovate.json
 - ✅ Security updates are labeled "security"
 
 #### Step 8 STOP & DOCUMENT
+
 **STOP:** Create a final commit documenting the implementation completion.
 
 ```bash
@@ -1862,6 +1914,7 @@ Related: plans/dependency-automation/plan.md"
 After completing all steps, verify the following:
 
 #### Configuration Files
+
 - [x] `.github/renovate.json` exists and is valid JSON
 - [x] `.github/workflows/ci.yml` exists and defines 5 jobs
 - [x] `.github/workflows/dependency-review.yml` exists
@@ -1869,24 +1922,28 @@ After completing all steps, verify the following:
 - [x] `docs/DEPENDENCY_MANAGEMENT.md` exists
 
 #### Renovate Bot
+
 - [ ] Renovate Bot is installed on repository
 - [ ] "Dependency Dashboard" issue exists
 - [ ] Issue shows grouped dependencies
 - [ ] Test PR creation works (via checkbox)
 
 #### CI/CD
+
 - [ ] CI workflow runs on pull requests
 - [ ] All 5 jobs execute (install, lint, typecheck, test, build)
 - [ ] Dependency review workflow runs on PRs
 - [ ] Status checks appear on PRs
 
 #### Documentation
+
 - [ ] CONTRIBUTING.md links to dependency management docs
 - [ ] DEPENDENCY_MANAGEMENT.md includes troubleshooting
 - [ ] All update groups are documented
 - [ ] Auto-merge rules are explained
 
 #### Branch Protection (Optional)
+
 - [ ] Branch protection rule exists for master
 - [ ] Required status checks include all CI jobs
 - [ ] At least 1 approval required
@@ -1925,7 +1982,7 @@ Edit `.github/renovate.json` and set:
 
 ```json
 {
-  "enabled": false
+	"enabled": false
 }
 ```
 
@@ -1957,12 +2014,14 @@ git branch -D chore/dependency-automation
 After 2-4 weeks of operation, you should see:
 
 ### Quantitative Metrics
+
 - **Time Savings:** 70-80% reduction in manual dependency update time
 - **PR Volume:** 5-10 dependency PRs per week (grouped)
 - **Auto-merge Rate:** 40-60% of PRs auto-merge (patch devDependencies)
 - **Security Response Time:** < 24 hours for vulnerability fixes
 
 ### Qualitative Metrics
+
 - **Developer Experience:** Less manual dependency management toil
 - **Code Quality:** Access to latest bug fixes and features
 - **Security Posture:** Faster patching of vulnerabilities

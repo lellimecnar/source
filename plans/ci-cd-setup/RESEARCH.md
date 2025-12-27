@@ -1,4 +1,5 @@
 # CI/CD Implementation Research Report
+
 **Date:** December 21, 2025  
 **Project:** @lellimecnar/source (pnpm + Turborepo monorepo)  
 **Purpose:** Comprehensive analysis for implementing GitHub Actions CI/CD pipeline
@@ -10,6 +11,7 @@
 This monorepo requires a GitHub Actions CI/CD pipeline that validates code quality across 4 applications and 12 shared packages. The project uses modern tooling (pnpm 9.12.2, Turborepo 2.6.1, Node.js ^20) with existing test, lint, build, and type-check infrastructure already in place. The recommended approach is to create parallel CI jobs leveraging Turborepo's caching and pnpm's efficient dependency management.
 
 **Key Findings:**
+
 - ✅ All necessary scripts already exist (`test`, `lint`, `build`, `type-check`)
 - ✅ Turborepo task definitions properly configured in `turbo.json`
 - ✅ Testing infrastructure using Jest is established (2 packages have tests)
@@ -25,19 +27,21 @@ This monorepo requires a GitHub Actions CI/CD pipeline that validates code quali
 ### 1.1 Root Configuration
 
 **File: `/package.json`**
+
 ```json
 {
-  "name": "@lellimecnar/source",
-  "private": true,
-  "packageManager": "pnpm@9.12.2",
-  "engines": {
-    "node": "^20",
-    "pnpm": "^9"
-  }
+	"name": "@lellimecnar/source",
+	"private": true,
+	"packageManager": "pnpm@9.12.2",
+	"engines": {
+		"node": "^20",
+		"pnpm": "^9"
+	}
 }
 ```
 
 **Available Scripts (Root Level):**
+
 - `pnpm build` → `turbo build`
 - `pnpm dev` → `turbo dev`
 - `pnpm lint` → `turbo lint`
@@ -48,6 +52,7 @@ This monorepo requires a GitHub Actions CI/CD pipeline that validates code quali
 - `pnpm format` → `turbo lint -- --fix --fix-type=directive,problem,suggestion,layout`
 
 **Workspace-Specific Shortcuts:**
+
 - `pnpm miller.pub` → Runs commands in miller.pub workspace
 - `pnpm readon.app` → Runs commands in readon.app workspace
 - `pnpm readon` → Runs commands in readon mobile workspace
@@ -56,52 +61,55 @@ This monorepo requires a GitHub Actions CI/CD pipeline that validates code quali
 ### 1.2 Workspace Structure
 
 **File: `/pnpm-workspace.yaml`**
+
 ```yaml
 packages:
-  - "web/*"      # Next.js applications
-  - "mobile/*"   # Expo applications
-  - "packages/*" # Shared libraries and configs
-  - "card-stack/*" # Domain logic packages
+  - 'web/*' # Next.js applications
+  - 'mobile/*' # Expo applications
+  - 'packages/*' # Shared libraries and configs
+  - 'card-stack/*' # Domain logic packages
 ```
 
 ### 1.3 Turborepo Configuration
 
 **File: `/turbo.json`**
+
 ```json
 {
-  "$schema": "https://turbo.build/schema.json",
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
-    },
-    "test": {
-      "outputs": ["coverage/**"],
-      "dependsOn": []
-    },
-    "test:watch": {
-      "cache": false,
-      "persistent": true
-    },
-    "lint": {
-      "dependsOn": ["^build"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "clean": {
-      "cache": false
-    },
-    "ui": {
-      "cache": false
-    }
-  }
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+		},
+		"test": {
+			"outputs": ["coverage/**"],
+			"dependsOn": []
+		},
+		"test:watch": {
+			"cache": false,
+			"persistent": true
+		},
+		"lint": {
+			"dependsOn": ["^build"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"clean": {
+			"cache": false
+		},
+		"ui": {
+			"cache": false
+		}
+	}
 }
 ```
 
 **Key Observations:**
+
 - `build` task requires upstream packages to build first (`^build`)
 - `lint` task depends on packages being built first
 - `test` task is independent and can run in parallel
@@ -149,6 +157,7 @@ All packages inherit from centralized configs:
 #### Web Applications (2)
 
 **1. miller.pub** (`web/miller.pub`)
+
 - **Type:** Next.js 15 (App Router)
 - **Scripts:**
   - `dev`: `next dev`
@@ -161,6 +170,7 @@ All packages inherit from centralized configs:
 - **CI Requirements:** Build, lint, type-check (no tests currently)
 
 **2. readon.app** (`web/readon.app`)
+
 - **Type:** Next.js 15 (App Router)
 - **Scripts:** Identical to miller.pub
 - **Dependencies:** Same as miller.pub
@@ -168,17 +178,19 @@ All packages inherit from centralized configs:
 
 **Next.js Configuration Pattern:**
 Both apps transpile the UI package:
+
 ```javascript
 // web/*/next.config.js
 module.exports = {
-  reactStrictMode: true,
-  transpilePackages: ['@lellimecnar/ui'],
+	reactStrictMode: true,
+	transpilePackages: ['@lellimecnar/ui'],
 };
 ```
 
 #### Mobile Applications (1)
 
 **3. readon** (`mobile/readon`)
+
 - **Type:** Expo 52 + Expo Router
 - **Scripts:**
   - `start`: `expo start`
@@ -199,6 +211,7 @@ module.exports = {
 #### UI Packages (2)
 
 **4. @lellimecnar/ui** (`packages/ui`)
+
 - **Type:** React component library (Web)
 - **Exports:** Granular exports (components, utils, icons, theme)
 - **Scripts:**
@@ -212,6 +225,7 @@ module.exports = {
 - **Important:** Must be built before consuming apps build
 
 **5. @lellimecnar/ui-nativewind** (`packages/ui-nativewind`)
+
 - **Type:** React Native component library (Mobile)
 - **Exports:** Components using NativeWind
 - **Scripts:** Similar to web UI (build, dev, lint, type-check)
@@ -221,6 +235,7 @@ module.exports = {
 #### Domain Packages (2)
 
 **6. @card-stack/core** (`card-stack/core`)
+
 - **Type:** Card game engine (pure TypeScript)
 - **Pattern:** Mixin composition via `ts-mixer`
 - **Scripts:**
@@ -232,6 +247,7 @@ module.exports = {
 - **Note:** No build step (source consumed directly)
 
 **7. @card-stack/standard-deck** (`card-stack/deck-standard`)
+
 - **Type:** Standard 52-card deck implementation
 - **Scripts:** lint, test, test:watch
 - **Dependencies:** Depends on `@card-stack/core`
@@ -241,6 +257,7 @@ module.exports = {
 #### Utility Packages (1)
 
 **8. @lellimecnar/utils** (`packages/utils`)
+
 - **Type:** Shared utilities (date-fns, lodash)
 - **Scripts:** `lint`: `eslint .`
 - **CI Requirements:** Lint only
@@ -249,36 +266,43 @@ module.exports = {
 #### Configuration Packages (7)
 
 **9. @lellimecnar/eslint-config** (`packages/config-eslint`)
+
 - **Exports:** `base.js`, `browser.js`, `next.js`, `node.js`
 - **Scripts:** `lint`
 - **CI Requirements:** Lint only
 
 **10. @lellimecnar/typescript-config** (`packages/config-typescript`)
+
 - **Exports:** `base.json`, `next.json`, `react.json`
 - **Scripts:** `lint`
 - **CI Requirements:** Lint only
 
 **11. @lellimecnar/jest-config** (`packages/config-jest`)
+
 - **Exports:** `jest-preset.js`, `browser/jest-preset.js`
 - **Scripts:** `lint`
 - **CI Requirements:** Lint only
 
 **12. @lellimecnar/tailwind-config** (`packages/config-tailwind`)
+
 - **Exports:** `tailwind.config.ts`
 - **Scripts:** `lint`
 - **CI Requirements:** Lint only
 
 **13. @lellimecnar/prettier-config** (`packages/config-prettier`)
+
 - **Exports:** `prettier-preset.js`
 - **Scripts:** None
 - **CI Requirements:** None (passive config)
 
 **14. @lellimecnar/babel-preset** (`packages/config-babel`)
+
 - **Exports:** `babel.config.js`
 - **Scripts:** None
 - **CI Requirements:** None (passive config)
 
 **15. @lellimecnar/expo-with-modify-gradle** (`packages/expo-with-modify-gradle`)
+
 - **Type:** Expo config plugin
 - **Scripts:** `lint`
 - **CI Requirements:** Lint only
@@ -290,32 +314,40 @@ module.exports = {
 ### 4.1 How Tests Are Run
 
 **Root Level:**
+
 ```bash
 pnpm test          # Runs Turborepo: turbo test
 pnpm test:watch    # Runs Turborepo: turbo test:watch (persistent)
 ```
 
 **Packages with Tests:**
+
 1. `@card-stack/core` - 58 test files
 2. `@card-stack/deck-standard` - 1 test file
 
 **Test Configuration:**
+
 ```javascript
 // card-stack/*/jest.config.js
 module.exports = {
-  preset: '@lellimecnar/jest-config',
+	preset: '@lellimecnar/jest-config',
 };
 ```
 
 **Jest Preset:**
+
 ```javascript
 // packages/config-jest/jest-preset.js
 module.exports = {
-  roots: ['<rootDir>'],
-  transform: { '^.+\\.tsx?$': 'ts-jest' },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  modulePathIgnorePatterns: ['<rootDir>/test/__fixtures__', '<rootDir>/node_modules', '<rootDir>/dist'],
-  preset: 'ts-jest',
+	roots: ['<rootDir>'],
+	transform: { '^.+\\.tsx?$': 'ts-jest' },
+	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+	modulePathIgnorePatterns: [
+		'<rootDir>/test/__fixtures__',
+		'<rootDir>/node_modules',
+		'<rootDir>/dist',
+	],
+	preset: 'ts-jest',
 };
 ```
 
@@ -324,21 +356,24 @@ module.exports = {
 ### 4.2 How Linting Is Done
 
 **Root Level:**
+
 ```bash
 pnpm lint    # Runs Turborepo: turbo lint
 pnpm format  # Runs Turborepo: turbo lint -- --fix
 ```
 
 **All 16 packages have a `lint` script:**
+
 ```json
 {
-  "scripts": {
-    "lint": "eslint ."
-  }
+	"scripts": {
+		"lint": "eslint ."
+	}
 }
 ```
 
 **ESLint Config Inheritance:**
+
 - Web apps: Extend `@lellimecnar/eslint-config/next`
 - Mobile app: Extend `@lellimecnar/eslint-config/browser`
 - Packages: Extend `@lellimecnar/eslint-config/base` or `@lellimecnar/eslint-config/node`
@@ -348,17 +383,20 @@ pnpm format  # Runs Turborepo: turbo lint -- --fix
 ### 4.3 How Builds Are Executed
 
 **Root Level:**
+
 ```bash
 pnpm build   # Runs Turborepo: turbo build
 ```
 
 **Packages with Build Steps:**
+
 1. `miller.pub` - `next build`
 2. `readon.app` - `next build`
 3. `@lellimecnar/ui` - `tailwindcss -i ./src/global.css -o ./dist/global.css`
 4. `@lellimecnar/ui-nativewind` - Same as ui
 
 **Build Dependencies (from turbo.json):**
+
 - `lint` task depends on `^build` (upstream packages must build first)
 - `build` outputs are cached in `.turbo/` directory
 
@@ -367,21 +405,24 @@ pnpm build   # Runs Turborepo: turbo build
 ### 4.4 How Type-Checking Is Done
 
 **Root Level:**
+
 ```bash
 pnpm type-check   # Runs Turborepo: turbo type-check
 ```
 
 **Packages with type-check:**
+
 1. `miller.pub` - `tsc --noEmit`
 2. `readon.app` - `tsc --noEmit`
 3. `@lellimecnar/ui` - `tsc --noEmit`
 4. `@lellimecnar/ui-nativewind` - `tsc --noEmit`
 
 **TypeScript Config Inheritance:**
+
 ```json
 // Example: web/miller.pub/tsconfig.json
 {
-  "extends": "@lellimecnar/typescript-config/next.json"
+	"extends": "@lellimecnar/typescript-config/next.json"
 }
 ```
 
@@ -396,6 +437,7 @@ No `.github/workflows/` directory found. This is a greenfield CI/CD setup.
 ### 4.6 Current Dependency Structure
 
 **Dependency Graph (Simplified):**
+
 ```
 ┌─ web/miller.pub
 │  └─ @lellimecnar/ui
@@ -486,6 +528,7 @@ No `.github/workflows/` directory found. This is a greenfield CI/CD setup.
 **Source:** [pnpm.io - Continuous Integration](https://pnpm.io/continuous-integration)
 
 **Recommended Setup:**
+
 ```yaml
 name: CI
 on: push
@@ -497,23 +540,24 @@ jobs:
         node-version: [20]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9  # Use pnpm 9.x
-      
+          version: 9 # Use pnpm 9.x
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'  # Enable pnpm caching
-      
+          cache: 'pnpm' # Enable pnpm caching
+
       - name: Install dependencies
         run: pnpm install
 ```
 
 **Key Points:**
+
 - Use `pnpm/action-setup@v4` to install pnpm
 - Enable caching with `cache: 'pnpm'` in `actions/setup-node`
 - Specify pnpm version (9 for this project)
@@ -524,11 +568,12 @@ jobs:
 **Source:** [Turborepo - GitHub Actions Guide](https://turbo.build/repo/docs/guides/ci-vendors/github-actions)
 
 **Recommended Workflow:**
+
 ```yaml
 name: CI
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
     types: [opened, synchronize]
 
@@ -545,7 +590,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # For diff detection
+          fetch-depth: 2 # For diff detection
 
       - uses: pnpm/action-setup@v3
         with:
@@ -568,6 +613,7 @@ jobs:
 ```
 
 **Cache Turborepo Artifacts:**
+
 ```yaml
 - name: Cache turbo build setup
   uses: actions/cache@v4
@@ -579,6 +625,7 @@ jobs:
 ```
 
 **Key Points:**
+
 - Use `fetch-depth: 2` for change detection
 - Turborepo automatically detects CI environment
 - Remote caching via Vercel (optional)
@@ -586,6 +633,7 @@ jobs:
 - Use `--affected` flag to run only changed packages
 
 **Affected Tasks:**
+
 ```bash
 pnpm turbo run build test --affected
 ```
@@ -595,6 +643,7 @@ pnpm turbo run build test --affected
 **Source:** [treosh/lighthouse-ci-action](https://github.com/treosh/lighthouse-ci-action)
 
 **Basic Setup:**
+
 ```yaml
 name: Lighthouse CI
 on: pull_request
@@ -606,7 +655,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      
+
       - name: Audit URLs using Lighthouse
         uses: treosh/lighthouse-ci-action@v12
         with:
@@ -619,27 +668,29 @@ jobs:
 ```
 
 **lighthouserc.json Example:**
+
 ```json
 {
-  "ci": {
-    "collect": {
-      "numberOfRuns": 1,
-      "settings": {
-        "chromeFlags": "--disable-gpu --no-sandbox"
-      }
-    },
-    "assert": {
-      "assertions": {
-        "first-contentful-paint": ["error", { "minScore": 0.6 }],
-        "interactive": ["error", { "minScore": 0.6 }],
-        "speed-index": ["error", { "minScore": 0.6 }]
-      }
-    }
-  }
+	"ci": {
+		"collect": {
+			"numberOfRuns": 1,
+			"settings": {
+				"chromeFlags": "--disable-gpu --no-sandbox"
+			}
+		},
+		"assert": {
+			"assertions": {
+				"first-contentful-paint": ["error", { "minScore": 0.6 }],
+				"interactive": ["error", { "minScore": 0.6 }],
+				"speed-index": ["error", { "minScore": 0.6 }]
+			}
+		}
+	}
 }
 ```
 
 **Key Points:**
+
 - Run Lighthouse against local or deployed URLs
 - Use `configPath` for custom assertions
 - Upload artifacts for detailed reports
@@ -650,12 +701,14 @@ jobs:
 **Source:** [Changesets GitHub](https://github.com/changesets/changesets)
 
 **Installation:**
+
 ```bash
 pnpm add -Dw @changesets/cli
 pnpm changeset init
 ```
 
 **GitHub Action:**
+
 ```yaml
 name: Release
 on:
@@ -670,14 +723,14 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
-      
+
       - run: pnpm install
-      
+
       - name: Create Release Pull Request
         uses: changesets/action@v1
         with:
@@ -688,6 +741,7 @@ jobs:
 ```
 
 **Key Points:**
+
 - Automates versioning and changelog generation
 - Creates release PRs automatically
 - Supports monorepo package versioning
@@ -700,17 +754,20 @@ jobs:
 ### 7.1 Caching Strategies
 
 **1. pnpm Cache (via actions/setup-node)**
+
 ```yaml
 - uses: actions/setup-node@v4
   with:
     node-version: 20
     cache: 'pnpm'
 ```
+
 - Caches `~/.pnpm-store/` directory
 - Key based on `pnpm-lock.yaml` hash
 - Restores dependencies in ~30 seconds vs 2-3 minutes
 
 **2. Turborepo Local Cache**
+
 ```yaml
 - uses: actions/cache@v4
   with:
@@ -719,11 +776,13 @@ jobs:
     restore-keys: |
       ${{ runner.os }}-turbo-
 ```
+
 - Caches build artifacts in `.turbo/` directory
 - Enables incremental builds
 - Shares cache across workflows
 
 **3. Next.js Cache (Optional)**
+
 ```yaml
 - uses: actions/cache@v4
   with:
@@ -734,16 +793,19 @@ jobs:
     restore-keys: |
       ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
 ```
+
 - Caches Next.js build cache
 - Speeds up subsequent builds
 - Note: Turborepo already handles this via `.turbo/`
 
 **4. Vercel Remote Caching (Optional)**
+
 ```yaml
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 ```
+
 - Share cache across team/machines
 - Faster than GitHub Actions cache
 - Requires Vercel account (free tier available)
@@ -753,6 +815,7 @@ env:
 ### 7.2 Parallelization Strategy
 
 **Option 1: Single Job with Sequential Steps**
+
 ```yaml
 jobs:
   ci:
@@ -761,16 +824,18 @@ jobs:
       - checkout
       - setup
       - pnpm install
-      - pnpm type-check  # Fast (~30s)
-      - pnpm lint        # Medium (~1min)
-      - pnpm test        # Medium (~1min)
-      - pnpm build       # Slow (~3min)
+      - pnpm type-check # Fast (~30s)
+      - pnpm lint # Medium (~1min)
+      - pnpm test # Medium (~1min)
+      - pnpm build # Slow (~3min)
 ```
+
 **Pros:** Simple, minimal setup overhead  
 **Cons:** Slower total time (sequential execution)  
 **Total Time:** ~6 minutes
 
 **Option 2: Parallel Jobs (Recommended)**
+
 ```yaml
 jobs:
   install:
@@ -809,11 +874,13 @@ jobs:
       - restore cache
       - pnpm build
 ```
+
 **Pros:** Faster (parallel execution), clear failure isolation  
 **Cons:** More complex setup, more GitHub Actions minutes  
 **Total Time:** ~3 minutes (longest job)
 
 **Option 3: Hybrid (Best Balance)**
+
 ```yaml
 jobs:
   quality:
@@ -836,6 +903,7 @@ jobs:
       - setup
       - pnpm build
 ```
+
 **Pros:** Good balance, reasonable complexity  
 **Cons:** Slight duplication of setup  
 **Total Time:** ~3 minutes
@@ -848,14 +916,14 @@ Based on root `package.json`:
 
 ```yaml
 # CI Workflow Commands (use these exactly)
-- run: pnpm type-check    # Runs turbo type-check
-- run: pnpm lint          # Runs turbo lint
-- run: pnpm test          # Runs turbo test
-- run: pnpm build         # Runs turbo build
+- run: pnpm type-check # Runs turbo type-check
+- run: pnpm lint # Runs turbo lint
+- run: pnpm test # Runs turbo test
+- run: pnpm build # Runs turbo build
 
 # Optional Commands
-- run: pnpm format        # Runs turbo lint --fix
-- run: pnpm clean         # Deep clean (not for CI)
+- run: pnpm format # Runs turbo lint --fix
+- run: pnpm clean # Deep clean (not for CI)
 ```
 
 **Important:** Always use `pnpm` commands, NOT `npm` or `yarn`.
@@ -864,8 +932,8 @@ Based on root `package.json`:
 
 ```yaml
 # Exact versions to use in CI
-- node-version: 20         # Major version only (tracks latest 20.x)
-- pnpm-version: 9          # Major version only (tracks latest 9.x)
+- node-version: 20 # Major version only (tracks latest 20.x)
+- pnpm-version: 9 # Major version only (tracks latest 9.x)
 
 # Or use exact versions
 - node-version: 20.11.0
@@ -877,16 +945,19 @@ Based on root `package.json`:
 ### 7.5 Existing Patterns to Follow
 
 **1. Workspace Protocol:**
+
 ```json
 {
-  "dependencies": {
-    "@lellimecnar/ui": "workspace:*"
-  }
+	"dependencies": {
+		"@lellimecnar/ui": "workspace:*"
+	}
 }
 ```
+
 Always use `workspace:*` for internal dependencies.
 
 **2. Script Naming:**
+
 - `dev` - Development server
 - `build` - Production build
 - `start` - Production server
@@ -896,23 +967,27 @@ Always use `workspace:*` for internal dependencies.
 
 **3. TypeScript Source Consumption:**
 Most packages export TypeScript source directly:
+
 ```json
 {
-  "exports": {
-    ".": "./src/index.ts"
-  }
+	"exports": {
+		".": "./src/index.ts"
+	}
 }
 ```
+
 This means consumers must handle TypeScript compilation (Next.js does this via `transpilePackages`).
 
 **4. Granular Exports:**
 The `@lellimecnar/ui` package uses granular exports:
+
 ```typescript
 // Import specific components
 import { Button } from '@lellimecnar/ui/button';
 import { cn } from '@lellimecnar/ui/lib/utils';
 import '@lellimecnar/ui/global.css';
 ```
+
 Never import from package root.
 
 ---
@@ -933,10 +1008,12 @@ Never import from package root.
 ### 8.2 CI Workflow (ci.yml)
 
 **Triggers:**
+
 - Push to `main`, `master`, `develop`
 - Pull requests (opened, synchronize, reopened)
 
 **Jobs:**
+
 1. **quality** (parallel)
    - Type-check
    - Lint
@@ -952,9 +1029,11 @@ Never import from package root.
 ### 8.3 Lighthouse Workflow (lighthouse.yml)
 
 **Triggers:**
+
 - Pull requests only
 
 **Jobs:**
+
 1. **audit-miller-pub**
    - Build and serve miller.pub
    - Run Lighthouse CI
@@ -969,9 +1048,11 @@ Never import from package root.
 ### 8.4 Release Workflow (release.yml)
 
 **Triggers:**
+
 - Push to `main` branch only
 
 **Jobs:**
+
 1. **release**
    - Check for changesets
    - Create release PR or publish
@@ -982,10 +1063,12 @@ Never import from package root.
 ### 8.5 Security Workflow (security.yml)
 
 **Triggers:**
+
 - Scheduled (weekly)
 - Manual trigger
 
 **Jobs:**
+
 1. **audit**
    - Run `pnpm audit`
    - Check for vulnerabilities
@@ -1024,6 +1107,7 @@ Never import from package root.
 ### 9.2 Optional Enhancements
 
 1. **Codecov Integration**
+
    ```yaml
    - uses: codecov/codecov-action@v3
      with:
@@ -1031,15 +1115,16 @@ Never import from package root.
    ```
 
 2. **Renovate Bot** (better than Dependabot for monorepos)
+
    ```json
    {
-     "extends": ["config:base", ":preserveSemverRanges"],
-     "packageRules": [
-       {
-         "groupName": "React",
-         "matchPackagePatterns": ["^react", "^@types/react"]
-       }
-     ]
+   	"extends": ["config:base", ":preserveSemverRanges"],
+   	"packageRules": [
+   		{
+   			"groupName": "React",
+   			"matchPackagePatterns": ["^react", "^@types/react"]
+   		}
+   	]
    }
    ```
 
@@ -1054,12 +1139,15 @@ Never import from package root.
 ### 9.3 Performance Optimization
 
 1. **Use `--affected` flag:**
+
    ```bash
    pnpm turbo run build test --affected
    ```
+
    Only runs tasks for changed packages.
 
 2. **Conditional jobs:**
+
    ```yaml
    if: contains(github.event.head_commit.message, '[skip ci]') == false
    ```
@@ -1079,16 +1167,17 @@ Never import from package root.
    - `CONTEXT7_API_KEY` - If used in CI (currently not needed)
 
 2. **Permissions:**
+
    ```yaml
    permissions:
      contents: read
-     pull-requests: write  # For PR comments
+     pull-requests: write # For PR comments
    ```
 
 3. **Audit schedule:**
    ```yaml
    schedule:
-     - cron: '0 0 * * 1'  # Weekly on Monday
+     - cron: '0 0 * * 1' # Weekly on Monday
    ```
 
 ---
@@ -1119,6 +1208,7 @@ Never import from package root.
 ### 10.2 CI Minutes Estimate
 
 **Per CI Run:**
+
 - Setup (checkout, install pnpm, install deps): ~2 min
 - Type-check: ~30 sec
 - Lint: ~1 min
@@ -1128,6 +1218,7 @@ Never import from package root.
 **Total (parallel):** ~4 min per workflow run
 
 **Monthly Estimate (assuming 100 PRs):**
+
 - 100 PRs × 4 min = 400 min
 - Plus main branch pushes: ~50 min
 - **Total:** ~450 min/month (~7.5 hours)
@@ -1139,22 +1230,26 @@ Never import from package root.
 ## 11. Next Steps
 
 ### Phase 1: Basic CI (1-2 hours)
+
 1. Create `.github/workflows/ci.yml`
 2. Test on feature branch
 3. Merge to main
 4. Configure branch protection
 
 ### Phase 2: Lighthouse CI (30 min)
+
 1. Create `lighthouserc.json`
 2. Create `.github/workflows/lighthouse.yml`
 3. Test on PR with web app changes
 
 ### Phase 3: Security & Releases (1 hour)
+
 1. Create `.github/workflows/security.yml`
 2. Install Changesets (if needed)
 3. Create `.github/workflows/release.yml`
 
 ### Phase 4: Refinement (ongoing)
+
 1. Monitor CI performance
 2. Adjust caching strategies
 3. Add E2E tests (future)
@@ -1177,25 +1272,26 @@ Never import from package root.
 
 ## Appendix A: Complete Package Manifest
 
-| Package                              | Path                             | Type         | Scripts                             | Tests  | Build | Priority |
-| ------------------------------------ | -------------------------------- | ------------ | ----------------------------------- | ------ | ----- | -------- |
-| miller.pub                           | web/miller.pub                   | Next.js      | dev, build, start, lint, type-check | ❌      | ✅     | High     |
-| readon.app                           | web/readon.app                   | Next.js      | dev, build, start, lint, type-check | ❌      | ✅     | High     |
-| readon                               | mobile/readon                    | Expo         | dev, lint, test                     | ⚠️      | ❌     | Medium   |
-| @lellimecnar/ui                      | packages/ui                      | React        | build, dev, lint, type-check, ui    | ❌      | ✅     | High     |
-| @lellimecnar/ui-nativewind           | packages/ui-nativewind           | React Native | build, dev, lint, type-check        | ❌      | ✅     | Medium   |
-| @card-stack/core                     | card-stack/core                  | TypeScript   | lint, test, test:watch              | ✅ (58) | ❌     | High     |
-| @card-stack/standard-deck            | card-stack/deck-standard         | TypeScript   | lint, test, test:watch              | ✅ (1)  | ❌     | Medium   |
-| @lellimecnar/utils                   | packages/utils                   | TypeScript   | lint                                | ❌      | ❌     | Low      |
-| @lellimecnar/eslint-config           | packages/config-eslint           | Config       | lint                                | ❌      | ❌     | Low      |
-| @lellimecnar/typescript-config       | packages/config-typescript       | Config       | lint                                | ❌      | ❌     | Low      |
-| @lellimecnar/jest-config             | packages/config-jest             | Config       | lint                                | ❌      | ❌     | Low      |
-| @lellimecnar/tailwind-config         | packages/config-tailwind         | Config       | lint                                | ❌      | ❌     | Low      |
-| @lellimecnar/prettier-config         | packages/config-prettier         | Config       | -                                   | ❌      | ❌     | Low      |
-| @lellimecnar/babel-preset            | packages/config-babel            | Config       | -                                   | ❌      | ❌     | Low      |
-| @lellimecnar/expo-with-modify-gradle | packages/expo-with-modify-gradle | Plugin       | lint                                | ❌      | ❌     | Low      |
+| Package                              | Path                             | Type         | Scripts                             | Tests   | Build | Priority |
+| ------------------------------------ | -------------------------------- | ------------ | ----------------------------------- | ------- | ----- | -------- |
+| miller.pub                           | web/miller.pub                   | Next.js      | dev, build, start, lint, type-check | ❌      | ✅    | High     |
+| readon.app                           | web/readon.app                   | Next.js      | dev, build, start, lint, type-check | ❌      | ✅    | High     |
+| readon                               | mobile/readon                    | Expo         | dev, lint, test                     | ⚠️      | ❌    | Medium   |
+| @lellimecnar/ui                      | packages/ui                      | React        | build, dev, lint, type-check, ui    | ❌      | ✅    | High     |
+| @lellimecnar/ui-nativewind           | packages/ui-nativewind           | React Native | build, dev, lint, type-check        | ❌      | ✅    | Medium   |
+| @card-stack/core                     | card-stack/core                  | TypeScript   | lint, test, test:watch              | ✅ (58) | ❌    | High     |
+| @card-stack/standard-deck            | card-stack/deck-standard         | TypeScript   | lint, test, test:watch              | ✅ (1)  | ❌    | Medium   |
+| @lellimecnar/utils                   | packages/utils                   | TypeScript   | lint                                | ❌      | ❌    | Low      |
+| @lellimecnar/eslint-config           | packages/config-eslint           | Config       | lint                                | ❌      | ❌    | Low      |
+| @lellimecnar/typescript-config       | packages/config-typescript       | Config       | lint                                | ❌      | ❌    | Low      |
+| @lellimecnar/jest-config             | packages/config-jest             | Config       | lint                                | ❌      | ❌    | Low      |
+| @lellimecnar/tailwind-config         | packages/config-tailwind         | Config       | lint                                | ❌      | ❌    | Low      |
+| @lellimecnar/prettier-config         | packages/config-prettier         | Config       | -                                   | ❌      | ❌    | Low      |
+| @lellimecnar/babel-preset            | packages/config-babel            | Config       | -                                   | ❌      | ❌    | Low      |
+| @lellimecnar/expo-with-modify-gradle | packages/expo-with-modify-gradle | Plugin       | lint                                | ❌      | ❌    | Low      |
 
 **Legend:**
+
 - ✅ Yes
 - ❌ No
 - ⚠️ Watch mode only

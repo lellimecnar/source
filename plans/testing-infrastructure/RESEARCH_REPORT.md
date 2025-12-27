@@ -12,8 +12,8 @@ The monorepo has **partial testing infrastructure** with Jest configured and act
 
 ### Current Testing Status by Package Type
 
-| Package Type               | Testing Status           | Test Files          | Jest Config   |
-| -------------------------- | ------------------------ | ------------------- | ------------- |
+| Package Type               | Testing Status            | Test Files          | Jest Config    |
+| -------------------------- | ------------------------- | ------------------- | -------------- |
 | `card-stack/core`          | ✅ Active                 | 54 `.spec.ts` files | ✅ Yes         |
 | `card-stack/deck-standard` | ✅ Active                 | 4 `.spec.ts` files  | ✅ Yes         |
 | `web/miller.pub`           | ❌ None                   | 0                   | ❌ No          |
@@ -33,22 +33,23 @@ The monorepo has **partial testing infrastructure** with Jest configured and act
 
 ```json
 {
-  "name": "@lellimecnar/source",
-  "private": true,
-  "scripts": {
-    "test": "turbo test",
-    "test:watch": "turbo test:watch"
-  },
-  "devDependencies": {
-    "jest": "^29"
-  },
-  "overrides": {
-    "jest": "^29"
-  }
+	"name": "@lellimecnar/source",
+	"private": true,
+	"scripts": {
+		"test": "turbo test",
+		"test:watch": "turbo test:watch"
+	},
+	"devDependencies": {
+		"jest": "^29"
+	},
+	"overrides": {
+		"jest": "^29"
+	}
 }
 ```
 
 **Key Observations:**
+
 - Root has `test` and `test:watch` scripts that delegate to Turborepo
 - Jest version 29 is enforced via overrides
 - No root-level jest.config.js (individual packages manage their own)
@@ -59,22 +60,21 @@ The monorepo has **partial testing infrastructure** with Jest configured and act
 
 ```json
 {
-  "tasks": {
-    "test": {
-      "outputs": [
-        "coverage/**"
-      ],
-      "dependsOn": []
-    },
-    "test:watch": {
-      "cache": false,
-      "persistent": true
-    }
-  }
+	"tasks": {
+		"test": {
+			"outputs": ["coverage/**"],
+			"dependsOn": []
+		},
+		"test:watch": {
+			"cache": false,
+			"persistent": true
+		}
+	}
 }
 ```
 
 **Key Observations:**
+
 - `test` task outputs to `coverage/**` (anticipating coverage reports)
 - `test:watch` is persistent and never cached (correct for watch mode)
 - No dependencies on `build` task (tests can run without building)
@@ -85,10 +85,10 @@ The monorepo has **partial testing infrastructure** with Jest configured and act
 
 ```yaml
 packages:
-  - "web/*"
-  - "mobile/*"
-  - "packages/*"
-  - "card-stack/*"
+  - 'web/*'
+  - 'mobile/*'
+  - 'packages/*'
+  - 'card-stack/*'
 ```
 
 ---
@@ -120,6 +120,7 @@ module.exports = {
 ```
 
 **Features:**
+
 - Uses `ts-jest` for TypeScript transformation
 - Supports `.ts`, `.tsx`, `.js`, `.jsx` files
 - Ignores `test/__fixtures__`, `node_modules`, and `dist` directories
@@ -146,6 +147,7 @@ module.exports = {
 ```
 
 **Features:**
+
 - Identical to base preset but adds `testEnvironment: 'jsdom'`
 - Suitable for testing React components and browser APIs
 - **Currently unused** in the monorepo
@@ -154,27 +156,25 @@ module.exports = {
 
 ```json
 {
-    "name": "@lellimecnar/jest-config",
-    "version": "0.0.0",
-    "private": true,
-    "files": [
-        "./jest-preset.js",
-        "./browser/jest-preset.js"
-    ],
-    "devDependencies": {
-        "@types/jest": "^29.5.14",
-        "jest": "^29",
-        "ts-jest": "^29",
-        "typescript": "~5.5"
-    },
-    "peerDependencies": {
-        "jest": "^29",
-        "typescript": "~5.5"
-    }
+	"name": "@lellimecnar/jest-config",
+	"version": "0.0.0",
+	"private": true,
+	"files": ["./jest-preset.js", "./browser/jest-preset.js"],
+	"devDependencies": {
+		"@types/jest": "^29.5.14",
+		"jest": "^29",
+		"ts-jest": "^29",
+		"typescript": "~5.5"
+	},
+	"peerDependencies": {
+		"jest": "^29",
+		"typescript": "~5.5"
+	}
 }
 ```
 
 **Missing Features:**
+
 - No coverage configuration (thresholds, reporters)
 - No module name mappers for TypeScript paths or assets
 - No setup files for global test utilities
@@ -191,6 +191,7 @@ module.exports = {
 **Location:** `/card-stack/core/`
 
 **Jest Configuration:**
+
 ```javascript
 /** @type {import('jest').Config} */
 module.exports = {
@@ -199,18 +200,19 @@ module.exports = {
 ```
 
 **Package.json:**
+
 ```json
 {
-  "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch"
-  },
-  "devDependencies": {
-    "@faker-js/faker": "^9.2.0",
-    "@lellimecnar/jest-config": "workspace:*",
-    "@types/jest": "^29.5.14",
-    "jest": "^29"
-  }
+	"scripts": {
+		"test": "jest",
+		"test:watch": "jest --watch"
+	},
+	"devDependencies": {
+		"@faker-js/faker": "^9.2.0",
+		"@lellimecnar/jest-config": "workspace:*",
+		"@types/jest": "^29.5.14",
+		"jest": "^29"
+	}
 }
 ```
 
@@ -219,6 +221,7 @@ module.exports = {
 **Test Pattern Examples:**
 
 **Simple Unit Test** (`card-deck/card-deck.spec.ts`):
+
 ```typescript
 import { Card, CardDeck, isCardDeck, isCardSet, isIndexable, Mix } from '..';
 
@@ -244,6 +247,7 @@ describe('cardDeck', () => {
 ```
 
 **Test with Setup/Teardown** (`card/card.spec.ts`):
+
 ```typescript
 import { Card, CardSet, isIndexable, isParentable, Mix } from '..';
 
@@ -291,6 +295,7 @@ describe('card', () => {
 ```
 
 **Test with Test Data Factory** (`card-set/groupable.spec.ts`):
+
 ```typescript
 import {
 	Card,
@@ -362,6 +367,7 @@ describe('groupable', () => {
 ```
 
 **Test with Snapshots** (`standard-deck.spec.ts`):
+
 ```typescript
 import { isStandardDeck, StandardDeck } from '.';
 
@@ -381,6 +387,7 @@ describe('standardDeck', () => {
 ```
 
 **Snapshot File** (`__snapshots__/standard-deck.spec.ts.snap`):
+
 ```jest-snapshot
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
@@ -411,23 +418,25 @@ exports[`standardDeck has cards 1`] = `
 **Location:** `/mobile/readon/`
 
 **Jest Configuration in `package.json`:**
+
 ```json
 {
-  "jest": {
-    "preset": "jest-expo"
-  },
-  "scripts": {
-    "test": "jest --watchAll"
-  },
-  "devDependencies": {
-    "jest": "^29.2.1",
-    "jest-expo": "~52.0.2",
-    "react-test-renderer": "18.3.1"
-  }
+	"jest": {
+		"preset": "jest-expo"
+	},
+	"scripts": {
+		"test": "jest --watchAll"
+	},
+	"devDependencies": {
+		"jest": "^29.2.1",
+		"jest-expo": "~52.0.2",
+		"react-test-renderer": "18.3.1"
+	}
 }
 ```
 
 **Observations:**
+
 - Uses `jest-expo` preset (appropriate for Expo/React Native)
 - Has `react-test-renderer` for component testing
 - No test files exist yet
@@ -442,6 +451,7 @@ exports[`standardDeck has cards 1`] = `
 Both `web/miller.pub` and `web/readon.app` have identical setups:
 
 **Package Structure:**
+
 ```
 web/miller.pub/
 ├── src/
@@ -455,24 +465,26 @@ web/miller.pub/
 ```
 
 **Dependencies (`package.json`):**
+
 ```json
 {
-  "dependencies": {
-    "@lellimecnar/ui": "workspace:*",
-    "next": "^15.2.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-use": "^17.6.0"
-  },
-  "devDependencies": {
-    "@lellimecnar/typescript-config": "workspace:*",
-    "@types/react": "^18.3.12",
-    "typescript": "~5.5"
-  }
+	"dependencies": {
+		"@lellimecnar/ui": "workspace:*",
+		"next": "^15.2.3",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"react-use": "^17.6.0"
+	},
+	"devDependencies": {
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@types/react": "^18.3.12",
+		"typescript": "~5.5"
+	}
 }
 ```
 
 **Next.js Config (`next.config.js`):**
+
 ```javascript
 /** @type {import('next').NextConfig} */
 module.exports = {
@@ -482,19 +494,21 @@ module.exports = {
 ```
 
 **TypeScript Config (`tsconfig.json`):**
+
 ```jsonc
 {
-  "extends": "@lellimecnar/typescript-config/next.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
+	"extends": "@lellimecnar/typescript-config/next.json",
+	"compilerOptions": {
+		"paths": {
+			"*": ["./*"],
+			"@/*": ["./src/*"],
+		},
+	},
 }
 ```
 
 **Key Testing Requirements:**
+
 - Must transpile `@lellimecnar/ui` in Jest config
 - Need to handle Next.js-specific imports (Image, Link, etc.)
 - Path aliases (`@/*`) must be mapped in Jest
@@ -507,6 +521,7 @@ module.exports = {
 **Location:** `/packages/ui/`
 
 **Structure:**
+
 ```
 packages/ui/
 ├── src/
@@ -521,6 +536,7 @@ packages/ui/
 ```
 
 **Component Example (`button.tsx`):**
+
 ```tsx
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -532,8 +548,8 @@ const buttonVariants = cva(
 	'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center ...',
 	{
 		variants: {
-			variant: { default: '...', destructive: '...', /* ... */ },
-			size: { default: 'h-10 px-4 py-2', sm: '...', /* ... */ },
+			variant: { default: '...', destructive: '...' /* ... */ },
+			size: { default: 'h-10 px-4 py-2', sm: '...' /* ... */ },
 		},
 		defaultVariants: { variant: 'default', size: 'default' },
 	},
@@ -563,40 +579,43 @@ export { Button, buttonVariants };
 ```
 
 **Dependencies (`package.json`):**
+
 ```json
 {
-  "dependencies": {
-    "@hookform/resolvers": "^3.9.1",
-    "@radix-ui/react-checkbox": "^1.3.3",
-    "@radix-ui/react-label": "^2.1.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.468.0",
-    "react-hook-form": "^7.66.1",
-    "zod": "^3.24.1"
-  },
-  "devDependencies": {
-    "@types/react": "^18",
-    "typescript": "~5.5"
-  }
+	"dependencies": {
+		"@hookform/resolvers": "^3.9.1",
+		"@radix-ui/react-checkbox": "^1.3.3",
+		"@radix-ui/react-label": "^2.1.0",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"lucide-react": "^0.468.0",
+		"react-hook-form": "^7.66.1",
+		"zod": "^3.24.1"
+	},
+	"devDependencies": {
+		"@types/react": "^18",
+		"typescript": "~5.5"
+	}
 }
 ```
 
 **Exports (Granular, Tree-Shakeable):**
+
 ```json
 {
-  "exports": {
-    "./global.css": "./dist/global.css",
-    "./lib": "./src/lib/index.ts",
-    "./lib/utils": "./src/lib/utils.ts",
-    "./button": "./src/components/button.tsx",
-    "./checkbox": "./src/components/checkbox.tsx",
-    // ... one export per component
-  }
+	"exports": {
+		"./global.css": "./dist/global.css",
+		"./lib": "./src/lib/index.ts",
+		"./lib/utils": "./src/lib/utils.ts",
+		"./button": "./src/components/button.tsx",
+		"./checkbox": "./src/components/checkbox.tsx"
+		// ... one export per component
+	}
 }
 ```
 
 **Key Testing Requirements:**
+
 - jsdom environment for React components
 - React Testing Library
 - Mock Radix UI components (if needed)
@@ -605,6 +624,7 @@ export { Button, buttonVariants };
 - Accessibility testing (aria attributes, keyboard navigation)
 
 **Utility Functions to Test (`lib/utils.ts`):**
+
 ```typescript
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -628,6 +648,7 @@ export const tw = { w } as const;
 **Location:** `/packages/ui-nativewind/`
 
 **Structure:**
+
 ```
 packages/ui-nativewind/
 ├── src/
@@ -642,19 +663,21 @@ packages/ui-nativewind/
 ```
 
 **Dependencies:**
+
 ```json
 {
-  "dependencies": {
-    "@expo/vector-icons": "^14.0.2",
-    "@lellimecnar/ui": "workspace:*",
-    "expo-router": "~4.0.11",
-    "nativewind": "^4.2.1",
-    "react-native": "0.76.3"
-  }
+	"dependencies": {
+		"@expo/vector-icons": "^14.0.2",
+		"@lellimecnar/ui": "workspace:*",
+		"expo-router": "~4.0.11",
+		"nativewind": "^4.2.1",
+		"react-native": "0.76.3"
+	}
 }
 ```
 
 **Key Testing Requirements:**
+
 - React Native testing environment (`@testing-library/react-native`)
 - Mock React Native modules (Animated, Platform, etc.)
 - NativeWind may need mocking
@@ -666,6 +689,7 @@ packages/ui-nativewind/
 **Location:** `/packages/utils/`
 
 **Structure:**
+
 ```
 packages/utils/
 ├── src/
@@ -676,6 +700,7 @@ packages/utils/
 ```
 
 **Code to Test (`lodash.ts`):**
+
 ```typescript
 import camelCase from 'lodash/camelCase';
 import flow from 'lodash/flow';
@@ -698,6 +723,7 @@ export {
 ```
 
 **Code to Test (`dates.ts`):**
+
 ```typescript
 import { setDefaultOptions } from 'date-fns';
 import { enUS } from 'date-fns/locale';
@@ -710,19 +736,21 @@ export * from 'date-fns';
 ```
 
 **Dependencies:**
+
 ```json
 {
-  "dependencies": {
-    "date-fns": "^4.1.0",
-    "lodash": "^4.17.21"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.17.21"
-  }
+	"dependencies": {
+		"date-fns": "^4.1.0",
+		"lodash": "^4.17.21"
+	},
+	"devDependencies": {
+		"@types/lodash": "^4.17.21"
+	}
 }
 ```
 
 **Key Testing Requirements:**
+
 - Simple unit tests for utility functions
 - No special environment needed (Node.js default)
 - Test `pascalCase` and `randomIndexes` custom utilities
@@ -737,6 +765,7 @@ export * from 'date-fns';
 #### Coverage Configuration
 
 **Recommended Settings:**
+
 ```javascript
 coverageDirectory: 'coverage',
 coverageReporters: ['text', 'lcov', 'html'],
@@ -759,24 +788,26 @@ coverageThresholds: {
 #### Next.js Testing Environment
 
 **Required Setup:**
+
 - `next/jest` configuration helper (Next.js 12+)
 - Automatic mocking of Next.js features (Image, Link, Router, etc.)
 - SWC transformation (faster than Babel)
 
 **Example Configuration:**
+
 ```javascript
 const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
-  dir: './',
+	dir: './',
 });
 
 const customJestConfig = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testEnvironment: 'jest-environment-jsdom',
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-  },
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+	testEnvironment: 'jest-environment-jsdom',
+	moduleNameMapper: {
+		'^@/(.*)$': '<rootDir>/src/$1',
+	},
 };
 
 module.exports = createJestConfig(customJestConfig);
@@ -785,11 +816,13 @@ module.exports = createJestConfig(customJestConfig);
 #### React Testing Library Setup
 
 **Required Packages:**
+
 - `@testing-library/react`
 - `@testing-library/jest-dom`
 - `@testing-library/user-event`
 
 **Setup File (`jest.setup.js`):**
+
 ```javascript
 import '@testing-library/jest-dom';
 ```
@@ -797,27 +830,31 @@ import '@testing-library/jest-dom';
 #### React Native Testing Environment
 
 **Required Packages:**
+
 - `@testing-library/react-native`
 - `jest-expo` (already installed in mobile app)
 - `react-test-renderer`
 
 **Configuration:**
+
 ```javascript
 module.exports = {
-  preset: 'jest-expo',
-  transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)',
-  ],
+	preset: 'jest-expo',
+	transformIgnorePatterns: [
+		'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)',
+	],
 };
 ```
 
 ### TypeScript Path Mapping in Jest
 
 **Current Path Aliases:**
+
 - Web apps: `@/*` → `./src/*`
 - No other aliases currently used
 
 **Jest Configuration:**
+
 ```javascript
 moduleNameMapper: {
   '^@/(.*)$': '<rootDir>/src/$1',
@@ -826,6 +863,7 @@ moduleNameMapper: {
 ```
 
 **Alternative (use ts-jest paths):**
+
 ```javascript
 globals: {
   'ts-jest': {
@@ -844,46 +882,51 @@ globals: {
 
 ### Current Testing Dependencies
 
-| Package               | Version  | Used In                    | Purpose                |
-| --------------------- | -------- | -------------------------- | ---------------------- |
-| `jest`                | ^29      | Root, card-stack/*, mobile | Test runner            |
-| `@types/jest`         | ^29.5.14 | card-stack/*               | Jest TypeScript types  |
-| `ts-jest`             | ^29      | config-jest                | TypeScript transformer |
-| `jest-expo`           | ~52.0.2  | mobile/readon              | Expo preset            |
-| `react-test-renderer` | 18.3.1   | mobile/readon              | React Native testing   |
-| `@faker-js/faker`     | ^9.2.0   | card-stack/core            | Test data generation   |
+| Package               | Version  | Used In                     | Purpose                |
+| --------------------- | -------- | --------------------------- | ---------------------- |
+| `jest`                | ^29      | Root, card-stack/\*, mobile | Test runner            |
+| `@types/jest`         | ^29.5.14 | card-stack/\*               | Jest TypeScript types  |
+| `ts-jest`             | ^29      | config-jest                 | TypeScript transformer |
+| `jest-expo`           | ~52.0.2  | mobile/readon               | Expo preset            |
+| `react-test-renderer` | 18.3.1   | mobile/readon               | React Native testing   |
+| `@faker-js/faker`     | ^9.2.0   | card-stack/core             | Test data generation   |
 
 ### Missing Testing Dependencies
 
 **For React Testing (Web Apps + UI Package):**
+
 ```json
 {
-  "@testing-library/react": "^14.x",
-  "@testing-library/jest-dom": "^6.x",
-  "@testing-library/user-event": "^14.x"
+	"@testing-library/react": "^14.x",
+	"@testing-library/jest-dom": "^6.x",
+	"@testing-library/user-event": "^14.x"
 }
 ```
 
 **For Next.js Testing:**
+
 ```json
 {
-  "@testing-library/react": "^14.x",
-  "@testing-library/jest-dom": "^6.x"
+	"@testing-library/react": "^14.x",
+	"@testing-library/jest-dom": "^6.x"
 }
 ```
-*Note: Next.js 15 has built-in jest support via `next/jest`*
+
+_Note: Next.js 15 has built-in jest support via `next/jest`_
 
 **For React Native Testing:**
+
 ```json
 {
-  "@testing-library/react-native": "^12.x"
+	"@testing-library/react-native": "^12.x"
 }
 ```
 
 **For All Browser Environments:**
+
 ```json
 {
-  "jest-environment-jsdom": "^29.x"
+	"jest-environment-jsdom": "^29.x"
 }
 ```
 
@@ -915,35 +958,35 @@ globals: {
 import { SomeClass, isSomeClass } from '..';
 
 describe('SomeClass', () => {
-  // Test data factory
-  const createTestData = () => {
-    const instance = new SomeClass();
-    return { instance };
-  };
+	// Test data factory
+	const createTestData = () => {
+		const instance = new SomeClass();
+		return { instance };
+	};
 
-  // Setup/teardown
-  beforeEach(() => {
-    // Reset state
-  });
+	// Setup/teardown
+	beforeEach(() => {
+		// Reset state
+	});
 
-  afterEach(() => {
-    // Cleanup
-  });
+	afterEach(() => {
+		// Cleanup
+	});
 
-  // Type guard tests
-  it('is SomeClass', () => {
-    const { instance } = createTestData();
-    expect(isSomeClass(instance)).toBe(true);
-  });
+	// Type guard tests
+	it('is SomeClass', () => {
+		const { instance } = createTestData();
+		expect(isSomeClass(instance)).toBe(true);
+	});
 
-  // Feature tests
-  describe('someMethod', () => {
-    it('does something', () => {
-      const { instance } = createTestData();
-      const result = instance.someMethod();
-      expect(result).toBe(expectedValue);
-    });
-  });
+	// Feature tests
+	describe('someMethod', () => {
+		it('does something', () => {
+			const { instance } = createTestData();
+			const result = instance.someMethod();
+			expect(result).toBe(expectedValue);
+		});
+	});
 });
 ```
 
@@ -956,6 +999,7 @@ describe('SomeClass', () => {
 **Goal:** Update `@lellimecnar/jest-config` to support all package types
 
 **Tasks:**
+
 1. Add coverage configuration
 2. Create Next.js preset (`next/jest-preset.js`)
 3. Create React Native preset (`react-native/jest-preset.js`)
@@ -967,6 +1011,7 @@ describe('SomeClass', () => {
 **Goal:** Add tests to `@lellimecnar/utils` (simplest package)
 
 **Tasks:**
+
 1. Create `jest.config.js` extending base preset
 2. Add test scripts to `package.json`
 3. Write tests for `pascalCase` and `randomIndexes`
@@ -978,6 +1023,7 @@ describe('SomeClass', () => {
 **Goal:** Add comprehensive component and utility tests
 
 **Tasks:**
+
 1. Create `jest.config.js` extending browser preset
 2. Install React Testing Library
 3. Write tests for `cn` and `tw` utilities
@@ -990,6 +1036,7 @@ describe('SomeClass', () => {
 **Goal:** Enable testing in Next.js apps
 
 **Tasks:**
+
 1. Create `jest.config.js` using `next/jest`
 2. Install React Testing Library
 3. Create example component tests
@@ -1002,6 +1049,7 @@ describe('SomeClass', () => {
 **Goal:** Add React Native component tests
 
 **Tasks:**
+
 1. Create `jest.config.js` extending React Native preset
 2. Install React Native Testing Library
 3. Write component tests
@@ -1013,6 +1061,7 @@ describe('SomeClass', () => {
 **Goal:** Add integration tests to Expo app
 
 **Tasks:**
+
 1. Update `jest.config.js` to match new presets
 2. Add screen/navigation tests
 3. Document mobile testing patterns
@@ -1054,6 +1103,7 @@ describe('SomeClass', () => {
 ### Next.js (Web Apps)
 
 **Required:**
+
 - `next/jest` configuration helper
 - `testEnvironment: 'jsdom'`
 - Path alias mapping for `@/*`
@@ -1061,34 +1111,35 @@ describe('SomeClass', () => {
 - Setup file for Testing Library
 
 **Example Configuration:**
+
 ```javascript
 const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
-  dir: './',
+	dir: './',
 });
 
 const customJestConfig = {
-  displayName: 'miller.pub',
-  testEnvironment: 'jest-environment-jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-  },
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/app/**/layout.tsx',
-    '!src/app/**/not-found.tsx',
-  ],
-  coverageThresholds: {
-    global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70,
-    },
-  },
+	displayName: 'miller.pub',
+	testEnvironment: 'jest-environment-jsdom',
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+	moduleNameMapper: {
+		'^@/(.*)$': '<rootDir>/src/$1',
+	},
+	collectCoverageFrom: [
+		'src/**/*.{ts,tsx}',
+		'!src/**/*.d.ts',
+		'!src/app/**/layout.tsx',
+		'!src/app/**/not-found.tsx',
+	],
+	coverageThresholds: {
+		global: {
+			branches: 70,
+			functions: 70,
+			lines: 70,
+			statements: 70,
+		},
+	},
 };
 
 module.exports = createJestConfig(customJestConfig);
@@ -1097,67 +1148,68 @@ module.exports = createJestConfig(customJestConfig);
 ### React (UI Package)
 
 **Required:**
+
 - `testEnvironment: 'jsdom'`
 - React Testing Library
 - Mock CSS imports
 - Handle Radix UI imports
 
 **Example Configuration:**
+
 ```javascript
 /** @type {import('jest').Config} */
 module.exports = {
-  displayName: '@lellimecnar/ui',
-  preset: '@lellimecnar/jest-config/browser',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-  },
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/*.stories.tsx',
-  ],
-  coverageThresholds: {
-    global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70,
-    },
-  },
+	displayName: '@lellimecnar/ui',
+	preset: '@lellimecnar/jest-config/browser',
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+	moduleNameMapper: {
+		'\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+	},
+	collectCoverageFrom: [
+		'src/**/*.{ts,tsx}',
+		'!src/**/*.d.ts',
+		'!src/**/*.stories.tsx',
+	],
+	coverageThresholds: {
+		global: {
+			branches: 70,
+			functions: 70,
+			lines: 70,
+			statements: 70,
+		},
+	},
 };
 ```
 
 ### React Native (UI NativeWind Package)
 
 **Required:**
+
 - React Native Testing Library
 - Mock React Native modules
 - Handle NativeWind imports
 - Expo Router mocking
 
 **Example Configuration:**
+
 ```javascript
 /** @type {import('jest').Config} */
 module.exports = {
-  displayName: '@lellimecnar/ui-nativewind',
-  preset: '@lellimecnar/jest-config/react-native',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|expo-router|nativewind)/)',
-  ],
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-  ],
-  coverageThresholds: {
-    global: {
-      branches: 60,
-      functions: 60,
-      lines: 60,
-      statements: 60,
-    },
-  },
+	displayName: '@lellimecnar/ui-nativewind',
+	preset: '@lellimecnar/jest-config/react-native',
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+	transformIgnorePatterns: [
+		'node_modules/(?!(react-native|@react-native|expo-router|nativewind)/)',
+	],
+	collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
+	coverageThresholds: {
+		global: {
+			branches: 60,
+			functions: 60,
+			lines: 60,
+			statements: 60,
+		},
+	},
 };
 ```
 
@@ -1177,40 +1229,47 @@ module.exports = {
 # Testing Guide
 
 ## Overview
+
 - Why we test
 - What to test
 - How to run tests
 
 ## Getting Started
+
 - Running tests locally
 - Running tests in CI
 - Debugging tests
 
 ## Writing Tests
+
 - Unit tests
 - Component tests
 - Integration tests
 - Snapshot tests
 
 ## Test Patterns
+
 - Test data factories
 - Setup/teardown
 - Mocking
 - Async testing
 
 ## Package-Specific Guides
+
 - Testing Next.js apps
 - Testing React components
 - Testing React Native components
 - Testing utility functions
 
 ## Best Practices
+
 - Coverage requirements
 - Test organization
 - Naming conventions
 - Performance tips
 
 ## Troubleshooting
+
 - Common errors
 - Debugging tips
 - FAQ
@@ -1221,13 +1280,16 @@ module.exports = {
 ## 12. Summary & Next Steps
 
 ### Current State
+
 ✅ **Working:**
+
 - Jest configuration shared package
 - Card stack packages fully tested (58 test files)
 - Turbo tasks for test and test:watch
 - Good test patterns established
 
 ❌ **Missing:**
+
 - Tests for web apps, UI packages, utils
 - React Testing Library setup
 - Coverage configuration
@@ -1274,52 +1336,55 @@ module.exports = {
 
 ```json
 {
-  "devDependencies": {
-    "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/react-native": "^12.0.0",
-    "@testing-library/user-event": "^14.0.0",
-    "identity-obj-proxy": "^3.0.0",
-    "jest-environment-jsdom": "^29.0.0"
-  }
+	"devDependencies": {
+		"@testing-library/jest-dom": "^6.0.0",
+		"@testing-library/react": "^14.0.0",
+		"@testing-library/react-native": "^12.0.0",
+		"@testing-library/user-event": "^14.0.0",
+		"identity-obj-proxy": "^3.0.0",
+		"jest-environment-jsdom": "^29.0.0"
+	}
 }
 ```
 
 ### Per-Package Additions
 
 **Web Apps (Next.js):**
+
 ```json
 {
-  "devDependencies": {
-    "@testing-library/jest-dom": "workspace:*",
-    "@testing-library/react": "workspace:*"
-  }
+	"devDependencies": {
+		"@testing-library/jest-dom": "workspace:*",
+		"@testing-library/react": "workspace:*"
+	}
 }
 ```
 
 **UI Package:**
+
 ```json
 {
-  "devDependencies": {
-    "@lellimecnar/jest-config": "workspace:*",
-    "@testing-library/jest-dom": "workspace:*",
-    "@testing-library/react": "workspace:*",
-    "@types/jest": "^29.0.0",
-    "identity-obj-proxy": "^3.0.0",
-    "jest": "^29",
-    "jest-environment-jsdom": "^29.0.0"
-  }
+	"devDependencies": {
+		"@lellimecnar/jest-config": "workspace:*",
+		"@testing-library/jest-dom": "workspace:*",
+		"@testing-library/react": "workspace:*",
+		"@types/jest": "^29.0.0",
+		"identity-obj-proxy": "^3.0.0",
+		"jest": "^29",
+		"jest-environment-jsdom": "^29.0.0"
+	}
 }
 ```
 
 **Utils Package:**
+
 ```json
 {
-  "devDependencies": {
-    "@lellimecnar/jest-config": "workspace:*",
-    "@types/jest": "^29.0.0",
-    "jest": "^29"
-  }
+	"devDependencies": {
+		"@lellimecnar/jest-config": "workspace:*",
+		"@types/jest": "^29.0.0",
+		"jest": "^29"
+	}
 }
 ```
 
@@ -1335,32 +1400,32 @@ module.exports = {
 import { pascalCase, randomIndexes } from './lodash';
 
 describe('lodash utilities', () => {
-  describe('pascalCase', () => {
-    it('converts string to PascalCase', () => {
-      expect(pascalCase('hello world')).toBe('HelloWorld');
-      expect(pascalCase('hello-world')).toBe('HelloWorld');
-      expect(pascalCase('hello_world')).toBe('HelloWorld');
-    });
-  });
+	describe('pascalCase', () => {
+		it('converts string to PascalCase', () => {
+			expect(pascalCase('hello world')).toBe('HelloWorld');
+			expect(pascalCase('hello-world')).toBe('HelloWorld');
+			expect(pascalCase('hello_world')).toBe('HelloWorld');
+		});
+	});
 
-  describe('randomIndexes', () => {
-    it('returns array of random indexes', () => {
-      const array = [1, 2, 3, 4, 5];
-      const indexes = randomIndexes(array, 3);
-      
-      expect(indexes).toHaveLength(3);
-      indexes.forEach(index => {
-        expect(index).toBeGreaterThanOrEqual(0);
-        expect(index).toBeLessThan(array.length);
-      });
-    });
+	describe('randomIndexes', () => {
+		it('returns array of random indexes', () => {
+			const array = [1, 2, 3, 4, 5];
+			const indexes = randomIndexes(array, 3);
 
-    it('defaults to 1 index', () => {
-      const array = [1, 2, 3];
-      const indexes = randomIndexes(array);
-      expect(indexes).toHaveLength(1);
-    });
-  });
+			expect(indexes).toHaveLength(3);
+			indexes.forEach((index) => {
+				expect(index).toBeGreaterThanOrEqual(0);
+				expect(index).toBeLessThan(array.length);
+			});
+		});
+
+		it('defaults to 1 index', () => {
+			const array = [1, 2, 3];
+			const indexes = randomIndexes(array);
+			expect(indexes).toHaveLength(1);
+		});
+	});
 });
 ```
 
@@ -1372,30 +1437,30 @@ describe('lodash utilities', () => {
 import { cn, tw } from './utils';
 
 describe('utils', () => {
-  describe('cn', () => {
-    it('merges classnames', () => {
-      expect(cn('foo', 'bar')).toBe('foo bar');
-    });
+	describe('cn', () => {
+		it('merges classnames', () => {
+			expect(cn('foo', 'bar')).toBe('foo bar');
+		});
 
-    it('handles conditional classnames', () => {
-      expect(cn('foo', false && 'bar')).toBe('foo');
-    });
+		it('handles conditional classnames', () => {
+			expect(cn('foo', false && 'bar')).toBe('foo');
+		});
 
-    it('merges Tailwind classes', () => {
-      expect(cn('p-4', 'p-2')).toBe('p-2');
-    });
-  });
+		it('merges Tailwind classes', () => {
+			expect(cn('p-4', 'p-2')).toBe('p-2');
+		});
+	});
 
-  describe('tw', () => {
-    it('converts units to rem', () => {
-      expect(tw.w(4)).toBe(1);
-      expect(tw.w(8)).toBe(2);
-    });
+	describe('tw', () => {
+		it('converts units to rem', () => {
+			expect(tw.w(4)).toBe(1);
+			expect(tw.w(8)).toBe(2);
+		});
 
-    it('includes unit when requested', () => {
-      expect(tw.w(4, true)).toBe('1rem');
-    });
-  });
+		it('includes unit when requested', () => {
+			expect(tw.w(4, true)).toBe('1rem');
+		});
+	});
 });
 ```
 
@@ -1406,25 +1471,27 @@ import { render, screen } from '@testing-library/react';
 import { Button } from './button';
 
 describe('Button', () => {
-  it('renders with text', () => {
-    render(<Button>Click me</Button>);
-    expect(screen.getByRole('button', { name: 'Click me' })).toBeInTheDocument();
-  });
+	it('renders with text', () => {
+		render(<Button>Click me</Button>);
+		expect(
+			screen.getByRole('button', { name: 'Click me' }),
+		).toBeInTheDocument();
+	});
 
-  it('applies variant classes', () => {
-    render(<Button variant="destructive">Delete</Button>);
-    const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-destructive');
-  });
+	it('applies variant classes', () => {
+		render(<Button variant="destructive">Delete</Button>);
+		const button = screen.getByRole('button');
+		expect(button).toHaveClass('bg-destructive');
+	});
 
-  it('renders as child component when asChild is true', () => {
-    render(
-      <Button asChild>
-        <a href="/test">Link</a>
-      </Button>
-    );
-    expect(screen.getByRole('link')).toBeInTheDocument();
-  });
+	it('renders as child component when asChild is true', () => {
+		render(
+			<Button asChild>
+				<a href="/test">Link</a>
+			</Button>,
+		);
+		expect(screen.getByRole('link')).toBeInTheDocument();
+	});
 });
 ```
 
@@ -1437,10 +1504,10 @@ import { render, screen } from '@testing-library/react';
 import Home from './page';
 
 describe('Home Page', () => {
-  it('renders heading', () => {
-    render(<Home />);
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-  });
+	it('renders heading', () => {
+		render(<Home />);
+		expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
+	});
 });
 ```
 

@@ -1,42 +1,47 @@
-FROM node:20-slim AS base
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME/bin:$PATH"
-RUN corepack enable
+# syntax=docker/dockerfile:1
 
-FROM base AS builder
-WORKDIR /app
-COPY . .
-RUN pnpm -s dlx turbo prune readon.app --docker
+# Build stage
+FROM node:20-alpine AS builder
 
-FROM base AS installer
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@9.12.2 --activate
+
 WORKDIR /app
 
-COPY --from=builder /app/out/json/ .
-RUN pnpm install
+# Copy root files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY turbo.json ./
 
-COPY --from=builder /app/out/full/ .
+# Copy workspace packages
+COPY packages ./packages
+COPY web/readon.app ./web/readon.app
 
-# Uncomment and use build args to enable remote caching
-ARG TURBO_TEAM
-ENV TURBO_TEAM=$TURBO_TEAM
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
-ARG TURBO_TOKEN
-ENV TURBO_TOKEN=$TURBO_TOKEN
+# Build the app
+RUN pnpm readon.app build
 
-RUN pnpm build --filter=readon.app...
+# Production stage
+FROM node:20-alpine AS runner
 
-FROM base AS runner
 WORKDIR /app
 
-# Don't run production as root
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy standalone output
+COPY --from=builder --chown=nextjs:nodejs /app/web/readon.app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/web/readon.app/.next/static ./web/readon.app/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/web/readon.app/public ./web/readon.app/public
+
 USER nextjs
 
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=installer --chown=nextjs:nodejs /app/web/readon.app/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/web/readon.app/.next/static ./web/readon.app/.next/static
-COPY --from=installer --chown=nextjs:nodejs /app/web/readon.app/public ./web/readon.app/public
+EXPOSE 3000
 
-CMD node web/readon.app/server.js
+# Start the application
+CMD ["node", "server.js"]

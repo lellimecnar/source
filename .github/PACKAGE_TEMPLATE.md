@@ -18,13 +18,14 @@ packages/<package-name>/
 ## Required package.json Fields
 
 ### Basic Metadata
+
 ```json
 {
-  "name": "@lellimecnar/<package-name>",
-  "version": "0.1.0",
-  "description": "Brief description of package purpose",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts"
+	"name": "@lellimecnar/<package-name>",
+	"version": "0.1.0",
+	"description": "Brief description of package purpose",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts"
 }
 ```
 
@@ -34,68 +35,73 @@ All packages MUST include these scripts:
 
 ```json
 {
-  "scripts": {
-    "lint": "eslint .",
-    "type-check": "tsc --noEmit"
-  }
+	"scripts": {
+		"lint": "eslint .",
+		"type-check": "tsc --noEmit"
+	}
 }
 ```
 
 ### Additional Scripts by Package Type
 
 **Library/Utility Packages:**
+
 ```json
 {
-  "scripts": {
-    "build": "tsc",
-    "test": "jest",
-    "test:watch": "jest --watch"
-  }
+	"scripts": {
+		"build": "tsc",
+		"test": "jest",
+		"test:watch": "jest --watch"
+	}
 }
 ```
 
 **UI Component Libraries:**
+
 ```json
 {
-  "scripts": {
-    "build": "tailwindcss -i ./src/global.css -o ./dist/global.css",
-    "dev": "tailwindcss -i ./src/global.css -o ./dist/global.css --watch"
-  }
+	"scripts": {
+		"build": "tailwindcss -i ./src/global.css -o ./dist/global.css",
+		"dev": "tailwindcss -i ./src/global.css -o ./dist/global.css --watch"
+	}
 }
 ```
 
 **Configuration Packages:**
+
 ```json
 {
-  "scripts": {
-    "lint": "eslint .",
-    "type-check": "tsc --noEmit"
-  }
+	"scripts": {
+		"lint": "eslint .",
+		"type-check": "tsc --noEmit"
+	}
 }
 ```
 
 ### Required Dependencies
 
 **TypeScript Packages:**
+
 ```json
 {
-  "devDependencies": {
-    "@lellimecnar/eslint-config": "workspace:*",
-    "@lellimecnar/typescript-config": "workspace:*",
-    "eslint": "^8.57.1",
-    "typescript": "~5.5"
-  }
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"eslint": "^8.57.1",
+		"typescript": "~5.5"
+	}
 }
 ```
 
 **Packages with Tests:**
+
 ```json
 {
-  "devDependencies": {
-    "@lellimecnar/jest-config": "workspace:*",
-    "@types/jest": "^29.5.14",
-    "jest": "^29.7.0"
-  }
+	"devDependencies": {
+		"@lellimecnar/jest-config": "workspace:*",
+		"@types/jest": "^29.5.14",
+		"jest": "^29.7.0"
+	}
 }
 ```
 
@@ -104,49 +110,58 @@ All packages MUST include these scripts:
 ### Base Configuration (tsconfig.json)
 
 **For Node.js Libraries:**
+
 ```json
 {
-  "extends": "@lellimecnar/typescript-config",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "./dist"
-  },
-  "include": ["src/**/*.ts"],
-  "exclude": ["dist", "node_modules"]
+	"extends": "@lellimecnar/typescript-config",
+	"compilerOptions": {
+		"paths": {
+			"*": [
+				"./*"
+			]
+		}
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"outDir": "./dist"
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["dist", "node_modules"]
 }
 ```
 
 **For React Libraries:**
+
 ```json
 {
-  "extends": "@lellimecnar/typescript-config/react.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "./dist"
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["dist", "node_modules"]
+	"extends": "@lellimecnar/typescript-config/react.json",
+	"compilerOptions": {
+		"paths": {
+			"*": ["./*"],
+			"@/*": ["./src/*"]
+		},
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"outDir": "./dist"
+	},
+	"include": ["src/**/*.ts", "src/**/*.tsx"],
+	"exclude": ["dist", "node_modules"]
 }
 ```
 
 **For Configuration Packages:**
+
 ```json
 {
-  "extends": "@lellimecnar/typescript-config",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext"
-  },
-  "include": ["**/*.ts", "*.js", ".*.js"],
-  "exclude": ["node_modules"]
+	"extends": "@lellimecnar/typescript-config",
+	"compilerOptions": {
+		"paths": {
+			"*": ["./*"]
+		},
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext"
+	},
+	"include": ["**/*.ts", "*.js", ".*.js"],
+	"exclude": ["node_modules"]
 }
 ```
 
@@ -171,25 +186,32 @@ Every package MUST include an `AGENTS.md` file for AI context:
 ## Development Commands
 
 \`\`\`bash
+
 # Type check
+
 pnpm --filter @lellimecnar/<package-name> type-check
 
 # Lint
+
 pnpm --filter @lellimecnar/<package-name> lint
 
 # Test (if applicable)
+
 pnpm --filter @lellimecnar/<package-name> test
 
 # Build (if applicable)
+
 pnpm --filter @lellimecnar/<package-name> build
 \`\`\`
 
 ## Dependencies
 
 ### Internal Dependencies
+
 - [List workspace dependencies]
 
 ### External Dependencies
+
 - [List major external dependencies with purpose]
 
 ## Architecture Notes
@@ -211,7 +233,7 @@ packages:
   - 'packages/*'
   - 'web/*'
   - 'mobile/*'
-  - 'your-new-category/*'  # Add this line if creating new category
+  - 'your-new-category/*' # Add this line if creating new category
 ```
 
 ## Checklist for New Packages

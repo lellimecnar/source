@@ -77,34 +77,36 @@ The package exports core abstractions:
 
 ```typescript
 // Core classes
-import { Card, CardSet, CardDeck, Player } from '@card-stack/core'
+import { Card, CardSet, CardDeck, Player } from '@card-stack/core';
 
 // Mixins
-import { 
-  Flippable, 
-  Rankable, 
-  Suitable,
-  Shuffleable,
-  Sortable,
-  // ... other mixins
-} from '@card-stack/core'
+import {
+	Flippable,
+	Rankable,
+	Suitable,
+	Shuffleable,
+	Sortable,
+	// ... other mixins
+} from '@card-stack/core';
 
 // Utilities
-import { 
-  Mix, 
-  hasMixin, 
-  createRankEnum, 
-  createSuitEnum 
-} from '@card-stack/core'
+import {
+	Mix,
+	hasMixin,
+	createRankEnum,
+	createSuitEnum,
+} from '@card-stack/core';
 ```
 
 ## Dependencies
 
 ### Runtime Dependencies
+
 - `@lellimecnar/utils` - Shared utilities (lodash, date-fns)
 - `ts-mixer` ^6.0.4 - TypeScript mixin library
 
 ### Development Dependencies
+
 - `@faker-js/faker` ^9.2.0 - Test data generation
 - `@lellimecnar/eslint-config` - Shared ESLint configuration
 - `@lellimecnar/jest-config` - Shared Jest configuration
@@ -113,39 +115,46 @@ import {
 - `@types/jest` - Jest TypeScript types
 
 ### Peer Dependencies
+
 - `typescript` ~5.5
 
 ## Architecture Notes
 
 ### Mixin Pattern
+
 - Uses `ts-mixer` for TypeScript mixins
 - Components are composed via `Mix()` function
 - Example: `class MyCard extends Mix(Card, Suitable, Rankable)`
 - Mixins provide specific capabilities (flippable, rankable, etc.)
 
 ### Card System
+
 - Base `Card` class with index management
 - Mixins add capabilities: `Flippable`, `Rankable`, `Suitable`
 - Cards can have parents (CardSet) and decks
 - Cards have unique IDs computed from various properties
 
 ### CardSet System
+
 - Base `CardSet` class manages collections of cards
 - Mixins add operations: shuffle, sort, find, group, etc.
 - Iterable via `Symbol.iterator`
 - Supports various array-like operations
 
 ### CardDeck System
+
 - Extends CardSet for deck-specific behavior
 - Manages deck of cards
 - Can be shuffled, dealt, etc.
 
 ### Player System
+
 - Base `Player` class
 - `Handable` mixin for hand management
 - `Scoreable` mixin for scoring
 
 ### Shared Mixins
+
 - `Indexable` - Index management
 - `Nameable` - Naming support
 - `Ownable` - Ownership tracking
@@ -155,45 +164,55 @@ import {
 ## Usage Examples
 
 ### Creating a Custom Card
-```typescript
-import { Card, Mix, Suitable, Rankable, createSuitEnum, createRankEnum } from '@card-stack/core'
 
-const SUIT = createSuitEnum(['Hearts', 'Diamonds', 'Spades', 'Clubs'])
-const RANK = createRankEnum(['Ace', 'Two', 'Three', /* ... */])
+```typescript
+import {
+	Card,
+	Mix,
+	Suitable,
+	Rankable,
+	createSuitEnum,
+	createRankEnum,
+} from '@card-stack/core';
+
+const SUIT = createSuitEnum(['Hearts', 'Diamonds', 'Spades', 'Clubs']);
+const RANK = createRankEnum(['Ace', 'Two', 'Three' /* ... */]);
 
 class MyCard extends Mix(Card, Suitable, Rankable) {
-  static readonly SUIT = SUIT
-  static readonly RANK = RANK
+	static readonly SUIT = SUIT;
+	static readonly RANK = RANK;
 
-  constructor(suit: number, rank: number) {
-    super()
-    this.suit = suit
-    this.rank = rank
-  }
+	constructor(suit: number, rank: number) {
+		super();
+		this.suit = suit;
+		this.rank = rank;
+	}
 }
 ```
 
 ### Creating a CardSet with Operations
+
 ```typescript
-import { CardSet, Mix, Shuffleable, Sortable } from '@card-stack/core'
+import { CardSet, Mix, Shuffleable, Sortable } from '@card-stack/core';
 
 class MyCardSet extends Mix(CardSet, Shuffleable, Sortable) {
-  // Automatically has shuffle() and sort() methods
+	// Automatically has shuffle() and sort() methods
 }
 
-const set = new MyCardSet()
-set.init([card1, card2, card3])
-set.shuffle()
-set.sort()
+const set = new MyCardSet();
+set.init([card1, card2, card3]);
+set.shuffle();
+set.sort();
 ```
 
 ### Checking for Mixins
+
 ```typescript
-import { hasMixin } from '@card-stack/core'
+import { hasMixin } from '@card-stack/core';
 
 if (hasMixin(card, Suitable)) {
-  // card has suit property
-  console.log(card.suit)
+	// card has suit property
+	console.log(card.suit);
 }
 ```
 
@@ -207,12 +226,14 @@ if (hasMixin(card, Suitable)) {
 ## Adding New Features
 
 ### Adding a New Mixin
+
 1. Create mixin file in appropriate directory
 2. Export mixin class
 3. Export from parent directory's `index.ts`
 4. Add tests in `*.spec.ts` file
 
 ### Adding a New CardSet Operation
+
 1. Create mixin file in `card-set/` directory
 2. Implement operation methods
 3. Export from `card-set/index.ts`

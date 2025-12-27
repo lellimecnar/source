@@ -75,30 +75,31 @@ The package uses **granular exports** to enable tree-shaking. Import components 
 
 ```typescript
 // Component imports
-import { Button } from '@lellimecnar/ui/button'
-import { Input } from '@lellimecnar/ui/input'
-import { Form } from '@lellimecnar/ui/form'
+import { Button } from '@lellimecnar/ui/button';
+import { Input } from '@lellimecnar/ui/input';
+import { Form } from '@lellimecnar/ui/form';
 
 // Utility imports
-import { cn } from '@lellimecnar/ui/lib/utils'
-import { useTheme } from '@lellimecnar/ui/theme'
+import { cn } from '@lellimecnar/ui/lib/utils';
+import { useTheme } from '@lellimecnar/ui/theme';
 
 // Hook imports
-import { useTheme } from '@lellimecnar/ui/hooks'
+import { useTheme } from '@lellimecnar/ui/hooks';
 
 // Icon imports
-import { IconName } from '@lellimecnar/ui/icons'
+import { IconName } from '@lellimecnar/ui/icons';
 
 // QR Code imports
-import { QRCode } from '@lellimecnar/ui/qrcode'
+import { QRCode } from '@lellimecnar/ui/qrcode';
 
 // Global CSS (required)
-import '@lellimecnar/ui/global.css'
+import '@lellimecnar/ui/global.css';
 ```
 
 ## Dependencies
 
 ### Runtime Dependencies
+
 - `@radix-ui/*` - UI primitives (checkbox, label, navigation-menu, radio-group, select, slot, switch, toggle)
 - `class-variance-authority` - Component variant management
 - `clsx` - Conditional class names
@@ -115,6 +116,7 @@ import '@lellimecnar/ui/global.css'
 - `react-use` - React hooks utilities
 
 ### Development Dependencies
+
 - `@lellimecnar/eslint-config` - Shared ESLint configuration
 - `@lellimecnar/tailwind-config` - Shared Tailwind configuration
 - `@lellimecnar/typescript-config` - Shared TypeScript configuration
@@ -130,18 +132,21 @@ import '@lellimecnar/ui/global.css'
 ## Architecture Notes
 
 ### Component Pattern
+
 - Components are built on Radix UI primitives for accessibility
 - Styled with Tailwind CSS using CSS variables for theming
 - Uses `class-variance-authority` (cva) for variant management
 - Uses `cn()` utility (from `lib/utils.ts`) for class merging
 
 ### Theming
+
 - Uses CSS variables defined in `global.css`
 - Supports dark mode via `next-themes`
 - Theme provider is exported from `theme/theme-provider.tsx`
 - Colors are managed via CSS variables (e.g., `--background`, `--foreground`)
 
 ### Build Process
+
 - `build` script compiles `src/global.css` to `dist/global.css`
 - Components are not compiled - they're TypeScript source files
 - Next.js apps transpile this package (see `next.config.js` in consuming apps)
@@ -150,12 +155,14 @@ import '@lellimecnar/ui/global.css'
 ### Adding New Components
 
 #### Using shadcn CLI
+
 ```bash
 pnpm ui ui
 # Follow prompts to add components from shadcn/ui
 ```
 
 #### Manual Component Creation
+
 1. Create component file in `src/components/[component-name].tsx`
 2. Add export to `package.json` exports field:
    ```json
@@ -167,6 +174,7 @@ pnpm ui ui
 6. Export types for component props
 
 ### Component Guidelines
+
 - Always use Radix UI primitives for accessibility
 - Use `cn()` utility for class merging
 - Support variants via `class-variance-authority`
@@ -177,24 +185,27 @@ pnpm ui ui
 ## Usage in Consuming Apps
 
 ### Next.js Apps
+
 1. Import global CSS in root layout:
    ```typescript
-   import '@lellimecnar/ui/global.css'
+   import '@lellimecnar/ui/global.css';
    ```
 2. Wrap app with ThemeProvider if using dark mode:
    ```typescript
-   import { ThemeProvider } from '@lellimecnar/ui/theme'
+   import { ThemeProvider } from '@lellimecnar/ui/theme';
    ```
 3. Import components as needed:
    ```typescript
-   import { Button } from '@lellimecnar/ui/button'
+   import { Button } from '@lellimecnar/ui/button';
    ```
 
 ### Next.js Configuration
+
 Consuming Next.js apps must transpile this package:
+
 ```javascript
 // next.config.js
-transpilePackages: ['@lellimecnar/ui']
+transpilePackages: ['@lellimecnar/ui'];
 ```
 
 ## Notes

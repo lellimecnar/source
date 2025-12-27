@@ -1,15 +1,18 @@
 # Monorepo Improvements
 
 ## Goal
+
 Implement tooling, performance, and developer experience improvements across the monorepo, including Changesets, Lefthook, Syncpack, Turbopack, React Compiler, Storybook, and Playwright.
 
 ## Prerequisites
+
 Make sure that the use is currently on the `feature/monorepo-improvements` branch before beginning implementation.
 If not, move them to the correct branch. If the branch does not exist, create it from main.
 
 ### Step-by-Step Instructions
 
 #### Step 1: Root Tooling (Changesets, Lefthook, Syncpack)
+
 - [ ] Install root dependencies
 - [ ] Copy and paste code below into `terminal`:
 
@@ -33,10 +36,10 @@ pre-commit:
   parallel: true
   commands:
     lint:
-      glob: "*.{js,ts,jsx,tsx}"
+      glob: '*.{js,ts,jsx,tsx}'
       run: pnpm eslint {staged_files}
     type-check:
-      glob: "*.{ts,tsx}"
+      glob: '*.{ts,tsx}'
       run: pnpm type-check
 ```
 
@@ -45,31 +48,40 @@ pre-commit:
 
 ```json
 {
-  "dependencyTypes": ["dev", "prod", "peer", "overrides", "resolutions"],
-  "filter": ".",
-  "indent": "  ",
-  "semverGroups": [
-    {
-      "range": "",
-      "dependencies": ["**"],
-      "packages": ["**"]
-    }
-  ],
-  "sortAz": ["dependencies", "devDependencies", "peerDependencies", "scripts", "keywords"],
-  "sortFirst": ["name", "description", "version", "author"],
-  "versionGroups": []
+	"dependencyTypes": ["dev", "prod", "peer", "overrides", "resolutions"],
+	"filter": ".",
+	"indent": "  ",
+	"semverGroups": [
+		{
+			"range": "",
+			"dependencies": ["**"],
+			"packages": ["**"]
+		}
+	],
+	"sortAz": [
+		"dependencies",
+		"devDependencies",
+		"peerDependencies",
+		"scripts",
+		"keywords"
+	],
+	"sortFirst": ["name", "description", "version", "author"],
+	"versionGroups": []
 }
 ```
 
 ##### Step 1 Verification Checklist
+
 - [ ] Run `pnpm changeset` and verify it prompts for changes.
 - [ ] Run `pnpm syncpack list-mismatches` and verify it runs.
 - [ ] Verify `lefthook.yml` exists.
 
 #### Step 1 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 #### Step 2: Web Performance (Turbopack, React Compiler, Bundle Analyzer)
+
 - [ ] Install Bundle Analyzer in web apps
 - [ ] Copy and paste code below into `terminal`:
 
@@ -83,16 +95,16 @@ pnpm --filter readon.app add -D @next/bundle-analyzer
 
 ```javascript
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
+	enabled: process.env.ANALYZE === 'true',
 });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  transpilePackages: ['@lellimecnar/ui'],
-  experimental: {
-    reactCompiler: true,
-  },
+	reactStrictMode: true,
+	transpilePackages: ['@lellimecnar/ui'],
+	experimental: {
+		reactCompiler: true,
+	},
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
@@ -103,16 +115,16 @@ module.exports = withBundleAnalyzer(nextConfig);
 
 ```javascript
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
+	enabled: process.env.ANALYZE === 'true',
 });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  transpilePackages: ['@lellimecnar/ui'],
-  experimental: {
-    reactCompiler: true,
-  },
+	reactStrictMode: true,
+	transpilePackages: ['@lellimecnar/ui'],
+	experimental: {
+		reactCompiler: true,
+	},
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
@@ -147,13 +159,16 @@ module.exports = withBundleAnalyzer(nextConfig);
 ```
 
 ##### Step 2 Verification Checklist
+
 - [ ] Run `pnpm miller.pub dev` and verify it starts with Turbopack.
 - [ ] Run `pnpm miller.pub analyze` and verify the bundle analyzer opens.
 
 #### Step 2 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 #### Step 3: UI Development (Storybook)
+
 - [ ] Initialize Storybook in UI package
 - [ ] Copy and paste code below into `terminal`:
 
@@ -169,39 +184,42 @@ cd ../..
 ```typescript
 import '../src/global.css';
 
-import type { Preview } from "@storybook/react";
+import type { Preview } from '@storybook/react';
 
 const preview: Preview = {
-  parameters: {
-    controls: {
-      matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/i,
-      },
-    },
-  },
+	parameters: {
+		controls: {
+			matchers: {
+				color: /(background|color)$/i,
+				date: /Date$/i,
+			},
+		},
+	},
 };
 
 export default preview;
 ```
 
 ##### Step 3 Verification Checklist
+
 - [ ] Run `pnpm --filter @lellimecnar/ui storybook` and verify Storybook loads.
 
 #### Step 3 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 #### Step 4: E2E Testing (Playwright)
+
 - [ ] Add `e2e` to workspace config
 - [ ] Copy and paste code below into `pnpm-workspace.yaml`:
 
 ```yaml
 packages:
-  - "web/*"
-  - "mobile/*"
-  - "packages/*"
-  - "card-stack/*"
-  - "e2e"
+  - 'web/*'
+  - 'mobile/*'
+  - 'packages/*'
+  - 'card-stack/*'
+  - 'e2e'
 ```
 
 - [ ] Create `e2e` directory and package.json
@@ -209,19 +227,19 @@ packages:
 
 ```json
 {
-  "name": "@lellimecnar/e2e",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "codegen": "playwright codegen"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.49.0",
-    "@types/node": "^20.0.0",
-    "typescript": "~5.5"
-  }
+	"name": "@lellimecnar/e2e",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"test": "playwright test",
+		"test:ui": "playwright test --ui",
+		"codegen": "playwright codegen"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.49.0",
+		"@types/node": "^20.0.0",
+		"typescript": "~5.5"
+	}
 }
 ```
 
@@ -232,22 +250,22 @@ packages:
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests',
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
-  use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
-  },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
+	testDir: './tests',
+	fullyParallel: true,
+	forbidOnly: !!process.env.CI,
+	retries: process.env.CI ? 2 : 0,
+	workers: process.env.CI ? 1 : undefined,
+	reporter: 'html',
+	use: {
+		baseURL: 'http://localhost:3000',
+		trace: 'on-first-retry',
+	},
+	projects: [
+		{
+			name: 'chromium',
+			use: { ...devices['Desktop Chrome'] },
+		},
+	],
 });
 ```
 
@@ -258,10 +276,10 @@ export default defineConfig({
 import { test, expect } from '@playwright/test';
 
 test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+	await page.goto('https://playwright.dev/');
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
+	// Expect a title "to contain" a substring.
+	await expect(page).toHaveTitle(/Playwright/);
 });
 ```
 
@@ -274,7 +292,9 @@ pnpm --filter @lellimecnar/e2e exec playwright install --with-deps
 ```
 
 ##### Step 4 Verification Checklist
+
 - [ ] Run `pnpm --filter @lellimecnar/e2e test` and verify the example test passes.
 
 #### Step 4 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.

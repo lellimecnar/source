@@ -1,32 +1,25 @@
 {
-  "extends": "@lellimecnar/typescript-config/next.json",
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "noEmit": true,
-    "isolatedModules": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
-  },
-  "include": [
-    "next-env.d.ts",
-    "./src/**/*.ts",
-    "./src/**/*.tsx",
-    ".next/types/**/*.ts",
-    "../../packages/ui/src/components/page.tsx",
-    ".*.js",
-    "*.js",
-    "*.ts",
-    "*.json"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+	"extends": "@lellimecnar/typescript-config/next.json",
+	"compilerOptions": {
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
+		"noEmit": true,
+		"isolatedModules": true,
+		"paths": {
+			"*": ["./*"],
+			"@/*": ["./src/*"],
+			"@lellimecnar/utils": ["../../packages/utils/src"],
+			"@lellimecnar/utils/*": ["../../packages/utils/src/*"]
+		}
+	},
+	"include": [
+		"next-env.d.ts",
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
+		".next/types/**/*.ts"
+	],
+	"exclude": ["node_modules"]
 }

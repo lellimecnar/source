@@ -6,11 +6,31 @@ This file serves as the primary entry point for AI agents and developers working
 
 This is a **pnpm + Turborepo** monorepo containing web applications, mobile applications, shared UI libraries, and a card game engine.
 
-**Key Documentation Blueprints:**
-- [Folder Structure](./Project_Folders_Structure_Blueprint.md) - Detailed directory hierarchy.
-- [Tech Stack](./Technology_Stack_Blueprint.md) - Comprehensive list of technologies and versions.
-- [Architecture](./Project_Architecture_Blueprint.md) - System design and data flow.
-- [Workflows](./Project_Workflow_Documentation.md) - Common development scenarios and code paths.
+## 📚 Documentation
+
+- **[Developer Guide (this file)](./AGENTS.md):** Primary entry point for developers and AI agents.
+- **[Contributing](./CONTRIBUTING.md):** Guidelines for contributing to the project.
+- **[Security](./SECURITY.md):** Security policy and secret management.
+- **[Changelog](./CHANGELOG.md):** Version history.
+- **[Code of Conduct](./CODE_OF_CONDUCT.md):** Community standards.
+
+### Blueprints
+
+- **[Architecture](./Project_Architecture_Blueprint.md):** High-level system design.
+- **[Folder Structure](./Project_Folders_Structure_Blueprint.md):** Detailed directory hierarchy.
+- **[Tech Stack](./Technology_Stack_Blueprint.md):** List of technologies used.
+- **[Workflows](./Project_Workflow_Documentation.md):** Common development scenarios.
+
+### API Reference
+
+- **[UI Components](./docs/api/ui-components.md):** Props and usage for `@lellimecnar/ui`.
+- **[Card Stack](./docs/api/card-stack.md):** Core classes and mixins for the game engine.
+- **[Utilities](./docs/api/utils.md):** Shared utility functions.
+
+### Architecture Decision Records (ADRs)
+
+- **[ADR-0001: Use Turborepo](./docs/adr/0001-use-turborepo.md)**
+- **[ADR-0002: Mixin Pattern for Cards](./docs/adr/0002-mixin-pattern-for-cards.md)**
 
 ## 2. Monorepo Structure
 
@@ -30,6 +50,16 @@ The repository is organized into the following workspaces:
   - `core`: Core card game engine using TypeScript mixins.
   - `deck-standard`: Standard 52-card deck implementation.
 
+### Documentation Map
+
+- **[README.md](./README.md)**: Project overview and quick start.
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)**: Contribution guidelines.
+- **[SECURITY.md](./SECURITY.md)**: Security policy.
+- **[CHANGELOG.md](./CHANGELOG.md)**: Version history.
+- **[CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)**: Community standards.
+- **[docs/adr](./docs/adr)**: Architecture Decision Records.
+- **[docs/api](./docs/api)**: API Documentation.
+
 ## 3. Tech Stack Summary
 
 - **Package Manager**: pnpm (v9.12.2)
@@ -43,10 +73,12 @@ The repository is organized into the following workspaces:
 ## 4. Setup & Installation
 
 **Prerequisites:**
-- Node.js ^20
+
+- Node.js ^24
 - pnpm ^9 (Enforced via `packageManager` in `package.json`)
 
 **Installation:**
+
 ```bash
 pnpm install
 ```
@@ -54,6 +86,7 @@ pnpm install
 ## 5. Development Commands
 
 ### Root Level
+
 Run these commands from the repository root:
 
 ```bash
@@ -77,9 +110,11 @@ pnpm clean
 ```
 
 ### Workspace Specific
+
 Use `pnpm --filter <workspace>` or the specific scripts defined in root `package.json`:
 
 **Web Apps:**
+
 ```bash
 # miller.pub
 pnpm miller.pub dev
@@ -91,6 +126,7 @@ pnpm readon.app build
 ```
 
 **Mobile App (readon):**
+
 ```bash
 pnpm readon dev              # Start Metro bundler (Android)
 pnpm readon dev:ios          # Start for iOS
@@ -98,6 +134,7 @@ pnpm readon dev:web          # Start for Web
 ```
 
 **Packages:**
+
 ```bash
 # UI Package (Watch mode for Tailwind)
 pnpm ui dev
@@ -107,6 +144,7 @@ pnpm ui ui
 ```
 
 **Card Stack (Testing):**
+
 ```bash
 pnpm --filter @card-stack/core test
 pnpm --filter @card-stack/core test:watch
@@ -115,26 +153,31 @@ pnpm --filter @card-stack/core test:watch
 ## 6. Architecture & Patterns
 
 ### Package Exports
+
 - **`@lellimecnar/ui`**: Uses granular exports for tree-shaking.
+
   ```typescript
   // ?Correct
   import { Button } from '@lellimecnar/ui/button';
-  
+
   // ❌ Incorre
   import { Button } from '@lellimecnar/ui';
   ```
 
 ### TypeScript Mixins (Card Stack)
+
 - The `@card-stack/core` package uses `ts-mixer` for composition over inheritance.
 - Classes like `StandardCard` mix behaviors (`Flippable`, `Rankable`, `Suitable`).
 
 ### Next.js Configuration
+
 - Web apps must transpile the UI package in `next.config.js`:
   ```javascript
-  transpilePackages: ['@lellimecnar/ui']
+  transpilePackages: ['@lellimecnar/ui'];
   ```
 
 ### Mobile Routing
+
 - Uses **Expo Router** with file-based routing in `app/`.
 - `_layout.tsx` defines the layout structure.
 - `(tabs)` group defines tab navigation.
@@ -158,10 +201,13 @@ pnpm --filter @card-stack/core test:watch
 ## 9. Troubleshooting
 
 **Issue: Build failures or weird caching issues.**
-*   **Fix**: Run `pnpm clean` to remove all artifacts and `node_modules`, then reinstall with `pnpm install`.
+
+- **Fix**: Run `pnpm clean` to remove all artifacts and `node_modules`, then reinstall with `pnpm install`.
 
 **Issue: Tailwind styles not applying in UI package.**
-*   **Fix**: Ensure `pnpm ui build` has been run or `pnpm ui dev` is running to generate the CSS.
+
+- **Fix**: Ensure `pnpm ui build` has been run or `pnpm ui dev` is running to generate the CSS.
 
 **Issue: "Module not found" for workspace packages.**
-*   **Fix**: Verify `pnpm-workspace.yaml` includes the package path and that `package.json` name matches the import.
+
+- **Fix**: Verify `pnpm-workspace.yaml` includes the package path and that `package.json` name matches the import.

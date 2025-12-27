@@ -1,26 +1,26 @@
 {
-    "name": "@card-stack/deck-standard",
-    "version": "0.1.0",
-    "description": "Standard 52-card deck implementation",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
-    "scripts": {
-        "lint": "eslint .",
-        "test": "jest",
-        "test:watch": "jest --watch",
-        "type-check": "tsc --noEmit"
-    },
-    "dependencies": {
-        "@card-stack/core": "workspace:*"
-    },
-    "devDependencies": {
-        "@lellimecnar/eslint-config": "workspace:*",
-        "@lellimecnar/jest-config": "workspace:*",
-        "@lellimecnar/typescript-config": "workspace:*",
-        "@types/jest": "^29.5.14",
-        "eslint": "^8.57.1",
-        "jest": "^29.7.0",
-        "ts-jest": "^29.2.5",
-        "typescript": "~5.5"
-    }
+	"name": "@card-stack/deck-standard",
+	"version": "0.1.0",
+	"description": "Standard 52-card deck implementation",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"lint": "eslint .",
+		"test": "jest",
+		"test:watch": "jest --watch",
+		"type-check": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@card-stack/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/jest-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@types/jest": "^29.5.14",
+		"eslint": "^8.57.1",
+		"jest": "^29.7.0",
+		"ts-jest": "^29.2.5",
+		"typescript": "~5.5"
+	}
 }

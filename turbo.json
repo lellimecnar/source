@@ -1,84 +1,53 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "tasks": {
-    "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ],
-      "outputs": [
-        "dist/**",
-        ".next/**",
-        "!.next/cache/**"
-      ]
-    },
-    "test": {
-      "outputs": [
-        "coverage/**"
-      ],
-      "dependsOn": []
-    },
-    "test:watch": {
-      "cache": false,
-      "persistent": true
-    },
-    "test:coverage": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "coverage/**"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "jest.config.js",
-        "jest.config.ts"
-      ]
-    },
-    "test:ci": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "coverage/**"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "jest.config.js",
-        "jest.config.ts"
-      ],
-      "env": [
-        "CI"
-      ]
-    },
-    "lint": {
-      "dependsOn": [
-        "^build"
-      ]
-    },
-    "format": {
-      "dependsOn": [],
-      "outputs": [],
-      "cache": false
-    },
-    "type-check": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": []
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "clean": {
-      "cache": false
-    },
-    "ui": {
-      "cache": false
-    }
-  }
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+			"env": ["NODE_ENV", "ANALYZE"]
+		},
+		"test": {
+			"outputs": ["coverage/**"],
+			"dependsOn": []
+		},
+		"test:watch": {
+			"cache": false,
+			"persistent": true
+		},
+		"test:coverage": {
+			"dependsOn": ["^build"],
+			"outputs": ["coverage/**"],
+			"inputs": ["$TURBO_DEFAULT$", "jest.config.js", "jest.config.ts"]
+		},
+		"test:ci": {
+			"dependsOn": ["^build"],
+			"outputs": ["coverage/**"],
+			"inputs": ["$TURBO_DEFAULT$", "jest.config.js", "jest.config.ts"],
+			"env": ["CI"]
+		},
+		"lint": {
+			"dependsOn": ["^build"],
+			"env": ["NODE_ENV", "ANALYZE"]
+		},
+		"format": {
+			"dependsOn": [],
+			"outputs": [],
+			"cache": false
+		},
+		"type-check": {
+			"dependsOn": ["^build"],
+			"outputs": []
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"clean": {
+			"cache": false
+		},
+		"ui": {
+			"cache": false
+		}
+	}
 }

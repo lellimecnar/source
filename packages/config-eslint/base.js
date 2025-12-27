@@ -3,7 +3,7 @@ const { resolve, dirname } = require('node:path');
 const project = resolve(process.cwd(), 'tsconfig.json');
 const tsconfigRootDir = dirname(project);
 
-/** @type {import('eslint').Linter.Config} */
+/** @type {import('eslint').ESLint.ConfigData} */
 module.exports = {
 	extends: [
 		...[
@@ -90,7 +90,7 @@ module.exports = {
 			),
 		},
 		{
-			files: ['*.[jt]s?(x)'],
+			files: ['*.[cm]?[jt]s?(x)'],
 			parser: '@typescript-eslint/parser',
 			parserOptions: {
 				project,
@@ -105,11 +105,11 @@ module.exports = {
 				project,
 			},
 			node: {
-				extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx'],
+				extensions: ['.mjs', '.cjs', '.js', '.jsx', '.ts', '.tsx'],
 			},
 		},
 		'import/parsers': {
-			'@typescript-eslint/parser': ['.ts', '.tsx'],
+			'@typescript-eslint/parser': ['.ts', '.tsx', '*.js', '*.jsx', '*.cjs'],
 		},
 		'import/internal-regex': '^@lellimecnar/',
 	},

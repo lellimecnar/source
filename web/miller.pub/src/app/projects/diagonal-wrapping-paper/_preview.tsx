@@ -35,14 +35,14 @@ export function Preview(): JSX.Element {
 			<ol className="max-w-2xl">
 				<li>
 					Cut out a{' '}
-					<span className="bg-foreground text-background border-background rounded-md border px-1 font-bold">
+					<span className="rounded-md border border-background bg-foreground px-1 font-bold text-background">
 						{sizeWFr}&quot;&nbsp;&times;&nbsp;{sizeHFr}&quot;
 					</span>{' '}
 					{isSquare ? `square` : 'rectangle'} of wrapping paper.
 				</li>
 				<li>
 					Measure{' '}
-					<span className="bg-foreground text-background border-background rounded-md border px-1 font-bold">
+					<span className="rounded-md border border-background bg-foreground px-1 font-bold text-background">
 						{centerFr}&quot;
 					</span>{' '}
 					from the top to mark the center line.{' '}
@@ -52,7 +52,7 @@ export function Preview(): JSX.Element {
 				</li>
 				<li>
 					Measure{' '}
-					<span className="bg-foreground text-background border-background rounded-md border px-1 font-bold">
+					<span className="rounded-md border border-background bg-foreground px-1 font-bold text-background">
 						{fromEdgeFr}&quot;
 					</span>{' '}
 					from the left edge to mark the first corner of the box.
@@ -62,7 +62,7 @@ export function Preview(): JSX.Element {
 					<span className="rounded-md border border-red-100 bg-red-700 px-1 font-semibold text-red-100">
 						(red dotted line)
 					</span>{' '}
-					<span className="bg-foreground text-background border-background rounded-md border px-1 font-bold">
+					<span className="rounded-md border border-background bg-foreground px-1 font-bold text-background">
 						{fromEdgeFr}&quot;
 					</span>{' '}
 					from the left edge, as shown in the diagram above.

@@ -1,4 +1,4 @@
-/** @type {import("eslint").Linter.Config} */
+/** @type {import('eslint').ESLint.ConfigData} */
 module.exports = {
 	extends: [
 		...['@vercel/style-guide/eslint/next', './node.js'].map((p) =>
