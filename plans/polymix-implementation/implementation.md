@@ -6,7 +6,7 @@ This file is the copy/paste-ready implementation guide for `packages/polymix`.
 
 - Steps 1–10: ✅ complete in repo
 - Step 11 (docs): ✅ complete
-- Polymix tests: ✅ 83 passed / 8 suites
+- Polymix tests: ✅ 122 passed / 8 suites
 
 Baseline verification (run from repo root):
 

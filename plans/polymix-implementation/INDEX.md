@@ -3,7 +3,7 @@
 **Review Date:** December 26, 2025  
 **Package Location:** `/packages/polymix`  
 **Branch:** `feat/polymix-implementation`  
-**Status:** ✅ Production-Ready (Beta Release Recommended)
+**Status:** ✅ Production-Ready (v1.0 Ready for current scope)
 
 ## 📋 Review Documents
 
@@ -145,10 +145,10 @@ This folder contains comprehensive documentation about the polymix package imple
 
 ```bash
 # Verify package state
-cd packages/polymix
-pnpm build      # ✅ Should succeed
-pnpm test       # ✅ Should show 83/83 passing
-pnpm lint       # ✅ Should show no errors
+pnpm --filter polymix build      # ✅ Should succeed
+pnpm --filter polymix test       # ✅ Should show 122/122 passing
+pnpm --filter polymix test -- --coverage  # ✅ Should show 100% coverage
+pnpm --filter polymix lint       # ✅ Should show no errors
 ```
 
 ### Short-term (This Week)

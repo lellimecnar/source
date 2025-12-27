@@ -259,6 +259,37 @@ new Pipeline().process(10); // 22
 
 Applies mixins to an existing class.
 
+##### `extends mix(...)` vs `@mixin(...)`
+
+Both approaches apply the same mixin machinery (method composition, `instanceof` support, and per-mixin initialization), but they differ in _how_ the final class is produced and how it fits into your type/constructor story.
+
+- `class X extends mix(A, B) {}`: **creates a new class** (a generated base class) that `X` extends.
+- `@mixin(A, B) class X {}`: **modifies an existing class** `X` in-place (via a class decorator).
+
+**Choose `extends mix(...)` when:**
+
+- You are defining a _new_ class and want the most explicit, portable form (no decorators required).
+- You want to use `mixWithBase(Base, ...mixins)` for an explicit base class (recommended whenever the base has constructor params).
+- You want the clearest mental model: “this class extends a mixed base”.
+
+**Choose `@mixin(...)` when:**
+
+- You already have an existing class declaration (or inheritance chain) and want to _add_ mixins without rewriting it into `extends mixWithBase(...)`.
+- You need to keep your `extends SomeBase` exactly as-is (e.g. framework base classes) and prefer to layer mixins on top.
+- You want to apply the same set of mixins across many classes with minimal syntax.
+
+**Key behavioral differences to be aware of:**
+
+- **Constructor/base-class handling**:
+  - With `extends mix(...)`, base selection follows `mix()`’s heuristic, or you can be explicit with `mixWithBase()`.
+  - With `@mixin(...)`, your class’s existing `extends` (if any) remains the base; mixins are applied “around” that class.
+- **Tooling requirements**:
+  - `extends mix(...)` works in plain TypeScript/JavaScript (no decorator support needed).
+  - `@mixin(...)` requires TypeScript legacy decorators (`experimentalDecorators`) or a compatible decorator pipeline.
+- **Readability/intent**:
+  - `extends mix(...)` makes the composition obvious at the inheritance site.
+  - `@mixin(...)` keeps the `extends` clause focused on the true base class and moves composition into a decorator.
+
 ```ts
 import { mixin } from 'polymix';
 

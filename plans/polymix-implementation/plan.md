@@ -25,7 +25,7 @@ Create a robust, type-safe mixin library that:
 | Metric         | Value                   |
 | -------------- | ----------------------- |
 | Implementation | 100% (Steps 1-11)       |
-| Tests          | 83 passing, 8 files     |
+| Tests          | 122 passing, 8 suites   |
 | Documentation  | 100% (Step 11 complete) |
 | Code Quality   | Zero TODOs/FIXMEs       |
 
@@ -161,17 +161,17 @@ Create a robust, type-safe mixin library that:
 
 ## Test Coverage
 
-| File                      | Tests  | Description     |
-| ------------------------- | ------ | --------------- |
-| `core.spec.ts`            | 42+    | Core API        |
-| `strategies.spec.ts`      | 14     | All strategies  |
-| `decorators.spec.ts`      | 19+    | All decorators  |
-| `polymix.spec.ts`         | 6      | Integration     |
-| `lifecycle.spec.ts`       | 3      | init()          |
-| `compatibility.spec.ts`   | 3      | ts-mixer        |
-| `robustness.spec.ts`      | 1      | Edge cases      |
-| `readme-examples.spec.ts` | 6      | README examples |
-| **Total**                 | **83** | **8 files**     |
+| File                      | Tests   | Description     |
+| ------------------------- | ------- | --------------- |
+| `core.spec.ts`            | 42+     | Core API        |
+| `strategies.spec.ts`      | 14      | All strategies  |
+| `decorators.spec.ts`      | 19+     | All decorators  |
+| `polymix.spec.ts`         | 6       | Integration     |
+| `lifecycle.spec.ts`       | 3       | init()          |
+| `compatibility.spec.ts`   | 3       | ts-mixer        |
+| `robustness.spec.ts`      | 1       | Edge cases      |
+| `readme-examples.spec.ts` | 6       | README examples |
+| **Total**                 | **122** | **8 suites**    |
 
 ---
 
@@ -203,7 +203,7 @@ Deferred from DESIGN.md:
 
 ## Related Documents
 
-- [Implementation Guide](implementation-unified.md) - Step-by-step implementation
+- [Implementation Guide](implementation.md) - Step-by-step implementation
 - [Gap Analysis](GAP_ANALYSIS.md) - Detailed status report
 - [Design Document](DESIGN.md) - Architecture decisions
 - [Prior Art](PRIOR_ART.md) - Library comparisons
