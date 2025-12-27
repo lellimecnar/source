@@ -3,15 +3,14 @@ import { cssInterop } from 'nativewind';
 import React from 'react';
 import { FlatList as ERFlatList, type ViewStyle } from 'react-native';
 
-interface ERFlatListProps
-	extends Omit<
-		React.ComponentProps<typeof ERFlatList>,
-		| 'style'
-		| 'contentContainerStyle'
-		| 'columnWrapperStyle'
-		| 'ListFooterComponentStyle'
-		| 'ListHeaderComponentStyle'
-	> {
+interface ERFlatListProps extends Omit<
+	React.ComponentProps<typeof ERFlatList>,
+	| 'style'
+	| 'contentContainerStyle'
+	| 'columnWrapperStyle'
+	| 'ListFooterComponentStyle'
+	| 'ListHeaderComponentStyle'
+> {
 	style?: ViewStyle;
 	contentContainerStyle?: ViewStyle;
 	columnWrapperStyle?: ViewStyle;

@@ -73,9 +73,8 @@ const nextConfig = {
 	webpack: (config) => {
 		config.resolve.alias = {
 			...config.resolve.alias,
-			'@lellimecnar/utils': require.resolve(
-				'../../packages/utils/src/index.ts',
-			),
+			'@lellimecnar/utils':
+				require.resolve('../../packages/utils/src/index.ts'),
 		};
 		return config;
 	},

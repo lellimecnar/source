@@ -46,8 +46,10 @@ export default function TabLayout(): JSX.Element {
 	);
 }
 
-interface ERTabsProps
-	extends Omit<React.ComponentProps<typeof ERTabs>, 'screenOptions'> {
+interface ERTabsProps extends Omit<
+	React.ComponentProps<typeof ERTabs>,
+	'screenOptions'
+> {
 	headerStyle?: ViewStyle & TextStyle;
 	headerBackgroundStyle?: ViewStyle;
 	headerBackgroundContainerStyle?: ViewStyle;

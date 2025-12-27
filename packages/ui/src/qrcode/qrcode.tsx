@@ -5,8 +5,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useDeepCompareEffect } from 'react-use';
 
 export interface QRCodeProps
-	extends Options,
-		React.HTMLAttributes<HTMLDivElement> {}
+	extends Options, React.HTMLAttributes<HTMLDivElement> {}
 
 export function QRCode(props: QRCodeProps): JSX.Element {
 	const qrCode = useMemo(

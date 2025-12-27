@@ -7,8 +7,10 @@ import {
 	type PokemonType,
 } from './_data';
 
-interface TypeIconProps
-	extends Omit<React.HTMLAttributes<HTMLImageElement>, 'src'> {
+interface TypeIconProps extends Omit<
+	React.HTMLAttributes<HTMLImageElement>,
+	'src'
+> {
 	type: PokemonType;
 }
 

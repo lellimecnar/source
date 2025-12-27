@@ -84,8 +84,10 @@ function RootLayoutNav(): React.JSX.Element {
 	);
 }
 
-interface ERStackProps
-	extends Omit<React.ComponentProps<typeof ERStack>, 'screenOptions'> {
+interface ERStackProps extends Omit<
+	React.ComponentProps<typeof ERStack>,
+	'screenOptions'
+> {
 	headerStyle?: ViewStyle;
 	headerBackgroundStyle?: ViewStyle;
 	headerTitleStyle?: ViewStyle;

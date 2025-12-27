@@ -50,8 +50,10 @@ export function SiteHeader(): JSX.Element {
 	);
 }
 
-interface LinkItemProps
-	extends Omit<React.ComponentProps<typeof Link>, 'href'> {
+interface LinkItemProps extends Omit<
+	React.ComponentProps<typeof Link>,
+	'href'
+> {
 	item: LinkItem;
 }
 

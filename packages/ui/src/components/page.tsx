@@ -17,7 +17,8 @@ export const pageVariants = cva(
 );
 
 export interface PageProps
-	extends React.ComponentPropsWithoutRef<'section'>,
+	extends
+		React.ComponentPropsWithoutRef<'section'>,
 		VariantProps<typeof pageVariants> {
 	notProse?: boolean;
 }

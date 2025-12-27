@@ -5,8 +5,10 @@ import { cssInterop } from 'nativewind';
 import React from 'react';
 import { type ViewStyle } from 'react-native';
 
-interface ERStackProps
-	extends Omit<React.ComponentProps<typeof ERStack>, 'screenOptions'> {
+interface ERStackProps extends Omit<
+	React.ComponentProps<typeof ERStack>,
+	'screenOptions'
+> {
 	headerStyle?: ViewStyle;
 	headerBackgroundStyle?: ViewStyle;
 	headerTitleStyle?: ViewStyle;
@@ -44,8 +46,10 @@ interface ERStackProps
 	>;
 }
 
-interface ERStackScreenProps
-	extends Omit<React.ComponentProps<typeof ERStack.Screen>, 'options'> {
+interface ERStackScreenProps extends Omit<
+	React.ComponentProps<typeof ERStack.Screen>,
+	'options'
+> {
 	contentStyle?: ViewStyle;
 	headerStyle?: ViewStyle;
 	headerTitleStyle?: ViewStyle;

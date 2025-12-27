@@ -61,33 +61,33 @@ const findCard = <C extends Card>(
 		return (card: C): boolean =>
 			Boolean(
 				card.id === predicate ||
-					card.index === predicate ||
-					Boolean(
-						'parent' in card &&
-							card.parent &&
-							typeof card.parent === 'object' &&
-							'index' in card.parent &&
-							typeof card.parent.index === 'number' &&
-							card.parent.index === predicate,
-					) ||
-					Boolean(
-						'deck' in card &&
-							card.deck &&
-							typeof card.deck === 'object' &&
-							'index' in card.deck &&
-							typeof card.deck.index === 'number' &&
-							card.deck.index === predicate,
-					) ||
-					Boolean(
-						'suit' in card &&
-							typeof card.suit === 'number' &&
-							card.suit === predicate,
-					) ||
-					Boolean(
-						'rank' in card &&
-							typeof card.rank === 'number' &&
-							card.rank === predicate,
-					),
+				card.index === predicate ||
+				Boolean(
+					'parent' in card &&
+					card.parent &&
+					typeof card.parent === 'object' &&
+					'index' in card.parent &&
+					typeof card.parent.index === 'number' &&
+					card.parent.index === predicate,
+				) ||
+				Boolean(
+					'deck' in card &&
+					card.deck &&
+					typeof card.deck === 'object' &&
+					'index' in card.deck &&
+					typeof card.deck.index === 'number' &&
+					card.deck.index === predicate,
+				) ||
+				Boolean(
+					'suit' in card &&
+					typeof card.suit === 'number' &&
+					card.suit === predicate,
+				) ||
+				Boolean(
+					'rank' in card &&
+					typeof card.rank === 'number' &&
+					card.rank === predicate,
+				),
 			);
 	}
 

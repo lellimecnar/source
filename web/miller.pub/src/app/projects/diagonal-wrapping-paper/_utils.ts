@@ -36,11 +36,11 @@ export const validate = (
 ): boolean =>
 	Boolean(
 		!isNaN(width) &&
-			width > 0 &&
-			!isNaN(length) &&
-			length > 0 &&
-			!isNaN(height) &&
-			height > 0,
+		width > 0 &&
+		!isNaN(length) &&
+		length > 0 &&
+		!isNaN(height) &&
+		height > 0,
 	);
 
 export const calcAngle = (

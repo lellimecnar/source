@@ -4,8 +4,10 @@ import { cssInterop } from 'nativewind';
 import React from 'react';
 import { type TextStyle, type ViewStyle } from 'react-native';
 
-interface ERTabsProps
-	extends Omit<React.ComponentProps<typeof ERTabs>, 'screenOptions'> {
+interface ERTabsProps extends Omit<
+	React.ComponentProps<typeof ERTabs>,
+	'screenOptions'
+> {
 	headerStyle?: ViewStyle;
 	headerBackgroundStyle?: ViewStyle;
 	headerTitleStyle?: TextStyle;
@@ -28,8 +30,10 @@ interface ERTabsProps
 	>;
 }
 
-interface ERTabsScreenProps
-	extends Omit<React.ComponentProps<typeof ERTabs.Screen>, 'options'> {
+interface ERTabsScreenProps extends Omit<
+	React.ComponentProps<typeof ERTabs.Screen>,
+	'options'
+> {
 	sceneStyle?: ViewStyle;
 	headerStyle?: ViewStyle;
 	tabBarStyle?: ViewStyle;
