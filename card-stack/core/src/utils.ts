@@ -165,10 +165,10 @@ export const getProps = (obj: unknown) => {
 	return allProps;
 };
 
-export const hasMixin = <T extends AnyConstructor>(
+export const hasMixin = <T extends object>(
 	obj: unknown,
-	mixin: T,
-): obj is InstanceType<T> => Boolean(obj && _hasMixin(obj, mixin));
+	mixin: new (...args: any[]) => T,
+): obj is T => Boolean(obj && _hasMixin(obj as object, mixin));
 
 export const isCard = (obj: unknown): obj is import('./card/card').Card =>
 	hasMixin(obj, require('./card/card').Card);

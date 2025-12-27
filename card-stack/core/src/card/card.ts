@@ -6,28 +6,19 @@ import { Parentable } from '../shared/parentable';
 import { HexByte } from '../types';
 import { isCardSet, mixin, toHex } from '../utils';
 
-export interface Card extends Indexable, Parentable<CardSet> {}
-
 class CardParentInit {
 	init(...args: unknown[]): void {
-		if ('parent' in (this as any) && (this as any).parent) {
-			return;
-		}
-
-		(this as any).parent = args.find((arg) => {
-			if (isCardSet(arg)) {
-				return true;
-			}
-
-			return (
-				Boolean(arg) &&
-				typeof arg === 'object' &&
-				'cards' in (arg as any) &&
-				Array.isArray((arg as any).cards)
+		(this as any).parent =
+			args.find((arg) => isCardSet(arg)) ??
+			args.find(
+				(arg): arg is CardSet =>
+					typeof arg === 'object' && arg !== null && !Array.isArray(arg),
 			);
-		});
 	}
 }
+
+// eslint-disable-next-line -- use interface, not type
+export interface Card extends Parentable<CardSet> {}
 
 @mixin(Parentable, CardParentInit)
 export class Card extends Indexable {
@@ -89,3 +80,6 @@ export class Card extends Indexable {
 		super(...args);
 	}
 }
+
+// `@mixin(...)` may replace the constructor; ensure required Indexable statics exist.
+(Card as any).HexByte ??= HexByte.CardIndex;

@@ -11,8 +11,9 @@ export interface CardDeck<C extends Card> extends CardSet<C>, Indexable {}
 @mixin(Indexable)
 export class CardDeck<C extends Card> extends CardSet<C> {
 	static HexByte = HexByte.DeckIndex;
+	static instances = new Map<number, any>();
 }
 
-// Some mixin decorators return a replacement constructor; ensure the exported
-// class has the expected static HexByte even in that case.
+// `@mixin(...)` may replace the constructor; ensure required Indexable statics exist.
 (CardDeck as any).HexByte ??= HexByte.DeckIndex;
+(CardDeck as any).instances ??= new Map<number, any>();
