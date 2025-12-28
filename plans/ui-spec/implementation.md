@@ -13,8 +13,8 @@ If not, move them to the correct branch. If the branch does not exist, create it
 
 #### Step 1: Scaffold `@ui-spec` packages + TypeScript types
 
-- [ ] Update the workspace globs so nested packages under `packages/ui-spec/*` are included.
-- [ ] Copy and paste the code below into `pnpm-workspace.yaml` (this replaces the full file):
+- [x] Update the workspace globs so nested packages under `packages/ui-spec/*` are included.
+- [x] Copy and paste the code below into `pnpm-workspace.yaml` (this replaces the full file):
 
 ```yaml
 packages:
@@ -25,11 +25,11 @@ packages:
   - 'card-stack/*'
 ```
 
-- [ ] Create the directories:
-  - [ ] `packages/ui-spec/core/src`
-  - [ ] `packages/ui-spec/react/src`
+- [x] Create the directories:
+  - [x] `packages/ui-spec/core/src`
+  - [x] `packages/ui-spec/react/src`
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/package.json`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/package.json`:
 
 ```json
 {
@@ -70,7 +70,7 @@ packages:
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/tsconfig.json`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/tsconfig.json`:
 
 ```json
 {
@@ -87,7 +87,7 @@ packages:
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/jest.config.js`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/jest.config.js`:
 
 ```js
 const base = require('@lellimecnar/jest-config/jest-preset');
@@ -99,7 +99,7 @@ module.exports = {
 };
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/schema.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/schema.ts`:
 
 ```ts
 export type UISpecVersion = '1.0';
@@ -142,7 +142,7 @@ export function isPathBinding(value: unknown): value is PathBinding {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/index.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/index.ts`:
 
 ```ts
 export * from './schema';
@@ -151,7 +151,7 @@ export * from './parse';
 export * from './store';
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/package.json`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/package.json`:
 
 ```json
 {
@@ -200,7 +200,7 @@ export * from './store';
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/tsconfig.json`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/tsconfig.json`:
 
 ```json
 {
@@ -217,7 +217,7 @@ export * from './store';
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/jest.config.js`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/jest.config.js`:
 
 ```js
 const base = require('@lellimecnar/jest-config/jest-preset');
@@ -229,7 +229,7 @@ module.exports = {
 };
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/index.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/index.ts`:
 
 ```ts
 export * from './types';
@@ -239,8 +239,8 @@ export * from './render';
 
 ##### Step 1 Verification Checklist
 
-- [ ] Run `pnpm install` from repo root (workspace metadata must update after `pnpm-workspace.yaml` changes).
-- [ ] Run `pnpm -w type-check` and confirm it succeeds.
+- [x] Run `pnpm install` from repo root (workspace metadata must update after `pnpm-workspace.yaml` changes).
+- [ ] Run `pnpm -w type-check` and confirm it succeeds. (Currently fails due to pre-existing `@lellimecnar/expo-with-modify-gradle` type-check errors.)
 
 #### Step 1 STOP & COMMIT
 

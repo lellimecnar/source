@@ -1,5 +1,6 @@
 packages:
-  - "web/*"
-  - "mobile/*"
-  - "packages/*"
-  - "card-stack/*"
+  - 'web/*'
+  - 'mobile/*'
+  - 'packages/*'
+  - 'packages/ui-spec/*'
+  - 'card-stack/*'
