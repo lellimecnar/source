@@ -483,11 +483,11 @@ describe('parseUISpecSchema', () => {
 
 #### Step 3: Store + JSONPath binding resolution (read-only MVP)
 
-- [ ] Create the directories:
-  - [ ] `packages/ui-spec/core/src/bindings`
-  - [ ] `packages/ui-spec/core/src/store`
+- [x] Create the directories:
+  - [x] `packages/ui-spec/core/src/bindings`
+  - [x] `packages/ui-spec/core/src/store`
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/bindings/jsonpath.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/bindings/jsonpath.ts`:
 
 ```ts
 import { JSONPath } from 'jsonpath-plus';
@@ -516,7 +516,7 @@ export function readJsonPath(
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/store/types.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/store/types.ts`:
 
 ```ts
 export type Unsubscribe = () => void;
@@ -530,7 +530,7 @@ export interface UISpecStore {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/store/store.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/store/store.ts`:
 
 ```ts
 import { readJsonPath } from '../bindings/jsonpath';
@@ -577,16 +577,16 @@ export function createStore(
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/store/index.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/store/index.ts`:
 
 ```ts
 export * from './types';
 export * from './store';
 ```
 
-- [ ] Update `packages/ui-spec/core/src/index.ts` exports (it already exports `./store`; this step is just to ensure it remains accurate).
+- [x] Update `packages/ui-spec/core/src/index.ts` exports (it already exports `./store`; this step is just to ensure it remains accurate).
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/bindings.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/bindings.spec.ts`:
 
 ```ts
 import { readJsonPath } from './bindings/jsonpath';
@@ -612,7 +612,7 @@ describe('readJsonPath', () => {
 });
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/store.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/store.spec.ts`:
 
 ```ts
 import { createStore } from './store';
@@ -642,8 +642,8 @@ describe('createStore', () => {
 
 ##### Step 3 Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core test` and confirm it succeeds.
-- [ ] Run `pnpm --filter @ui-spec/core type-check` and confirm it succeeds.
+- [x] Run `pnpm --filter @ui-spec/core test` and confirm it succeeds.
+- [x] Run `pnpm --filter @ui-spec/core type-check` and confirm it succeeds.
 
 #### Step 3 STOP & COMMIT
 
