@@ -2117,7 +2117,7 @@ describe('createStore (v1)', () => {
 
 **Instructions**
 
-- [ ] Create `packages/ui-spec/core/src/eval/index.ts` with:
+- [x] Create `packages/ui-spec/core/src/eval/index.ts` with:
 
 ```ts
 import type { UISpecStore } from '../store';
@@ -2150,7 +2150,7 @@ export * from './resolveClass';
 export * from './resolveStyle';
 ```
 
-- [ ] Create `packages/ui-spec/core/src/eval/resolveValue.ts` with:
+- [x] Create `packages/ui-spec/core/src/eval/resolveValue.ts` with:
 
 ```ts
 import { UISpecError } from '../errors';
@@ -2225,7 +2225,7 @@ export function resolveValue(value: ValueExpr, ctx: EvalContext): unknown {
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/eval/resolveClass.ts` with:
+- [x] Create `packages/ui-spec/core/src/eval/resolveClass.ts` with:
 
 ```ts
 export function resolveClass(value: unknown): string | undefined {
@@ -2241,7 +2241,7 @@ export function resolveClass(value: unknown): string | undefined {
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/eval/resolveStyle.ts` with:
+- [x] Create `packages/ui-spec/core/src/eval/resolveStyle.ts` with:
 
 ```ts
 export function resolveStyle(
@@ -2254,7 +2254,7 @@ export function resolveStyle(
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/eval.spec.ts` with:
+- [x] Create `packages/ui-spec/core/src/eval.spec.ts` with:
 
 ```ts
 import { createStore } from './store';
@@ -2278,7 +2278,7 @@ describe('eval.resolveValue', () => {
 
 #### Step 4 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm --filter @ui-spec/core test`.
 
 #### Step 4 (v1) STOP & COMMIT
 
