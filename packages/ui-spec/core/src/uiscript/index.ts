@@ -4,6 +4,9 @@ import type { UISpecSchema } from '../schema';
 import { compileRestrictedFunction } from './sandbox';
 import { defaultUIScriptOptions, type UIScriptOptions } from './spec';
 
+export { defaultUIScriptOptions } from './spec';
+export type { UIScriptAllowlist, UIScriptOptions } from './spec';
+
 export interface UISpecContext {
 	store: EvalContext['store'];
 	validate?: (

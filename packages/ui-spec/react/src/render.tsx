@@ -1,12 +1,17 @@
 import {
-	isPathBinding,
+	compileNode,
+	createUIScriptExec,
+	resolveValue,
+	isBindingExpr,
 	isPlainObject,
 	type NodeSchema,
 	type UISpecSchema,
 } from '@ui-spec/core';
 import * as React from 'react';
 
-import { useUISpecStore } from './provider';
+import { useLifecycle } from './hooks/useLifecycle';
+import { useUISpecRuntime } from './provider';
+import { toReactEventProp } from './runtime/events';
 
 function toChildArray(children: unknown): unknown[] {
 	if (children === undefined) return [];
@@ -23,54 +28,72 @@ function stringifyForText(value: unknown): string {
 
 function renderChild(
 	child: unknown,
-	readPath: (path: string) => unknown,
+	resolve: (value: unknown) => unknown,
 ): React.ReactNode {
 	if (typeof child === 'string') return child;
-	if (isPathBinding(child)) return stringifyForText(readPath(child.$path));
-	if (isPlainObject(child))
-		return renderNode(child as unknown as NodeSchema, readPath);
+	if (isBindingExpr(child)) return stringifyForText(resolve(child));
+	if (isPlainObject(child)) return renderNode(child as any, resolve);
 	return null;
 }
 
 function resolveProps(
 	props: Record<string, unknown> | undefined,
-	readPath: (path: string) => unknown,
+	resolve: (value: unknown) => unknown,
 ) {
 	if (!props) return undefined;
-
 	const resolved: Record<string, unknown> = {};
 	for (const [key, value] of Object.entries(props)) {
-		if (isPathBinding(value)) {
-			resolved[key] = readPath(value.$path);
-			continue;
-		}
-
-		resolved[key] = value;
+		resolved[key] = isBindingExpr(value) ? resolve(value) : value;
 	}
-
 	return resolved;
 }
 
 function renderNode(
 	node: NodeSchema,
-	readPath: (path: string) => unknown,
+	resolve: (value: unknown) => unknown,
 ): React.ReactElement {
-	const resolvedProps = resolveProps(node.props, readPath) ?? {};
+	if (node.type === 'fragment') {
+		const childArray = toChildArray(node.children);
+		return React.createElement(
+			React.Fragment,
+			null,
+			...childArray.map((c, i) =>
+				React.createElement(
+					React.Fragment,
+					{ key: i },
+					renderChild(c, resolve),
+				),
+			),
+		);
+	}
+
+	const resolvedProps = resolveProps(node.props, resolve) ?? {};
 
 	if (typeof node.class === 'string' && node.class.length > 0) {
-		resolvedProps.className = node.class;
+		(resolvedProps as any).className = node.class;
+	}
+
+	if (node.$on) {
+		for (const [eventName, handlerExpr] of Object.entries(node.$on)) {
+			const propName = toReactEventProp(eventName);
+			(resolvedProps as any)[propName] = (...args: unknown[]) => {
+				const result = resolve(handlerExpr);
+				if (typeof result === 'function') return (result as any)(...args);
+				return result;
+			};
+		}
 	}
 
 	const childArray = toChildArray(node.children);
 	const renderedChildren = childArray.map((c, index) => (
-		<React.Fragment key={index}>{renderChild(c, readPath)}</React.Fragment>
+		<React.Fragment key={index}>{renderChild(c, resolve)}</React.Fragment>
 	));
 
 	return React.createElement(node.type, resolvedProps, ...renderedChildren);
 }
 
-export function UISpecRenderer(props: { schema: UISpecSchema }) {
-	const store = useUISpecStore();
+export function UISpecNode(props: { node: NodeSchema }) {
+	const { schema, store, uiscript } = useUISpecRuntime();
 
 	React.useSyncExternalStore(
 		store.subscribe,
@@ -78,10 +101,44 @@ export function UISpecRenderer(props: { schema: UISpecSchema }) {
 		() => store.getData(),
 	);
 
-	const readPath = React.useCallback(
-		(path: string) => store.get(path),
-		[store],
+	const exec = React.useMemo(
+		() => createUIScriptExec(schema, uiscript),
+		[schema, uiscript],
 	);
 
-	return renderNode(props.schema.root, readPath);
+	const resolve = React.useCallback(
+		(value: unknown) => resolveValue(value as any, { store, exec }),
+		[store, exec],
+	);
+
+	const compiled = React.useMemo(
+		() => compileNode(props.node, { schema, store, exec }),
+		[props.node, schema, store, exec],
+	);
+
+	useLifecycle({
+		onMounted: () => {
+			if (!compiled.$mounted) return;
+			const fn = resolve(compiled.$mounted as any);
+			if (typeof fn === 'function') fn();
+		},
+		onUpdated: () => {
+			if (!compiled.$updated) return;
+			const fn = resolve(compiled.$updated as any);
+			if (typeof fn === 'function') fn();
+		},
+		onUnmounted: () => {
+			if (!compiled.$unmounted) return;
+			const fn = resolve(compiled.$unmounted as any);
+			if (typeof fn === 'function') fn();
+		},
+	});
+	return renderNode(compiled, resolve);
+}
+
+export function UISpecApp(props: { schema?: UISpecSchema }) {
+	const runtime = useUISpecRuntime();
+	const schema = props.schema ?? runtime.schema;
+	if (!schema.root) return null;
+	return <UISpecNode node={schema.root} />;
 }

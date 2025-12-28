@@ -2933,7 +2933,7 @@ describe('uiscript', () => {
 
 **Instructions**
 
-- [ ] Replace `packages/ui-spec/react/src/types.ts` with:
+- [x] Replace `packages/ui-spec/react/src/types.ts` with:
 
 ```ts
 import type {
@@ -2967,7 +2967,7 @@ export interface UISpecNodeProps {
 }
 ```
 
-- [ ] Replace `packages/ui-spec/react/src/provider.tsx` with:
+- [x] Replace `packages/ui-spec/react/src/provider.tsx` with:
 
 ```tsx
 import {
@@ -3019,7 +3019,7 @@ export function useUISpecRuntime(): UISpecRuntime {
 }
 ```
 
-- [ ] Replace `packages/ui-spec/react/src/render.tsx` with:
+- [x] Replace `packages/ui-spec/react/src/render.tsx` with:
 
 ```tsx
 import {
@@ -3167,7 +3167,7 @@ export function UISpecApp(props: { schema?: UISpecSchema }) {
 }
 ```
 
-- [ ] Replace `packages/ui-spec/react/src/index.ts` with:
+- [x] Replace `packages/ui-spec/react/src/index.ts` with:
 
 ```ts
 export * from './types';
@@ -3175,7 +3175,7 @@ export * from './provider';
 export * from './render';
 ```
 
-- [ ] Replace `packages/ui-spec/react/src/render.spec.tsx` with:
+- [x] Replace `packages/ui-spec/react/src/render.spec.tsx` with:
 
 ```tsx
 import { type UISpecSchema } from '@ui-spec/core';
@@ -3213,7 +3213,7 @@ describe('UISpecApp', () => {
 
 #### Step 8 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/react test`.
+- [x] Run `pnpm --filter @ui-spec/react test`.
 
 #### Step 8 (v1) STOP & COMMIT
 
