@@ -1049,7 +1049,7 @@ Evolve the existing MVP into the UI-Spec v1 surface described in [specs/ui-spec.
 
 **Instructions**
 
-- [ ] Replace `packages/ui-spec/core/src/schema.ts` with:
+- [x] Replace `packages/ui-spec/core/src/schema.ts` with:
 
 ```ts
 export type UISpecVersion = '1.0';
@@ -1262,7 +1262,7 @@ export function isBindingExpr(value: unknown): value is BindingExpr {
 }
 ```
 
-- [ ] Replace `packages/ui-spec/core/src/index.ts` with:
+- [x] Replace `packages/ui-spec/core/src/index.ts` with:
 
 ```ts
 export * from './schema';
@@ -1271,7 +1271,7 @@ export * from './parse';
 export * from './store';
 ```
 
-- [ ] Create `packages/ui-spec/core/src/fixtures/types.v1.ts` with:
+- [x] Create `packages/ui-spec/core/src/fixtures/types.v1.ts` with:
 
 ```ts
 import type {
@@ -1328,6 +1328,8 @@ void _schema;
 #### Step 1 (v1) Verification Checklist
 
 - [ ] Run `pnpm --filter @ui-spec/core type-check`.
+
+**Blocker:** `pnpm --filter @ui-spec/core type-check` currently fails because `packages/ui-spec/core/src/parse.spec.ts` assumes `schema.root` is always present, but v1 makes `root` optional (`root?: NodeSchema`). This is resolved by Step 2’s planned test updates (or by excluding spec files from `type-check`, but that is not specified in the plan).
 
 #### Step 1 (v1) STOP & COMMIT
 
