@@ -1,18 +1,23 @@
-import React, { createContext, useContext } from 'react';
+import type { UISpecStore } from '@ui-spec/core';
+import * as React from 'react';
 
-const UISpecContext = createContext<unknown>(undefined);
+const StoreContext = React.createContext<UISpecStore | null>(null);
 
-export interface UISpecProviderProps {
+export function UISpecProvider(props: {
+	store: UISpecStore;
 	children: React.ReactNode;
-	value: unknown;
-}
-
-export function UISpecProvider({ children, value }: UISpecProviderProps) {
+}) {
 	return (
-		<UISpecContext.Provider value={value}>{children}</UISpecContext.Provider>
+		<StoreContext.Provider value={props.store}>
+			{props.children}
+		</StoreContext.Provider>
 	);
 }
 
-export function useUISpecContext(): unknown {
-	return useContext(UISpecContext);
+export function useUISpecStore(): UISpecStore {
+	const store = React.useContext(StoreContext);
+	if (!store) {
+		throw new Error('UISpecProvider is missing in the component tree.');
+	}
+	return store;
 }

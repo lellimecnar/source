@@ -653,7 +653,7 @@ describe('createStore', () => {
 
 #### Step 4: React binding renders primitives + bindings
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/types.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/types.ts`:
 
 ```ts
 import type { UISpecSchema } from '@ui-spec/core';
@@ -669,7 +669,7 @@ export type UISpecRendererProps = {
 };
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/provider.tsx`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/provider.tsx`:
 
 ```tsx
 import * as React from 'react';
@@ -697,7 +697,7 @@ export function useUISpecStore(): UISpecStore {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/render.tsx`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/render.tsx`:
 
 ```tsx
 import * as React from 'react';
@@ -787,7 +787,7 @@ export function UISpecRenderer(props: { schema: UISpecSchema }) {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/render.spec.tsx`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/render.spec.tsx`:
 
 ```tsx
 import * as React from 'react';
@@ -855,8 +855,8 @@ describe('UISpecRenderer', () => {
 
 ##### Step 4 Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/react test` and confirm it succeeds.
-- [ ] Run `pnpm --filter @ui-spec/react type-check` and confirm it succeeds.
+- [x] Run `pnpm --filter @ui-spec/react test` and confirm it succeeds.
+- [x] Run `pnpm --filter @ui-spec/react type-check` and confirm it succeeds.
 
 #### Step 4 STOP & COMMIT
 
