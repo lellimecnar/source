@@ -1,26 +1,23 @@
 import * as React from 'react';
 
-export interface LifecycleHandlers {
+export function useLifecycle(options: {
 	onMounted?: () => void;
 	onUpdated?: () => void;
 	onUnmounted?: () => void;
-}
-
-export function useLifecycle(handlers: LifecycleHandlers) {
-	const isFirst = React.useRef(true);
+}) {
+	const mountedRef = React.useRef(false);
 
 	React.useEffect(() => {
-		handlers.onMounted?.();
+		mountedRef.current = true;
+		options.onMounted?.();
 		return () => {
-			handlers.onUnmounted?.();
+			options.onUnmounted?.();
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	React.useEffect(() => {
-		if (isFirst.current) {
-			isFirst.current = false;
-			return;
-		}
-		handlers.onUpdated?.();
+		if (!mountedRef.current) return;
+		options.onUpdated?.();
 	});
 }

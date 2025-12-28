@@ -3232,7 +3232,7 @@ describe('UISpecApp', () => {
 
 **Instructions**
 
-- [ ] Replace `packages/ui-spec/react/jest.config.js` with:
+- [x] Replace `packages/ui-spec/react/jest.config.js` with:
 
 ```js
 const base = require('@lellimecnar/jest-config/jest-preset');
@@ -3244,7 +3244,7 @@ module.exports = {
 };
 ```
 
-- [ ] Create `packages/ui-spec/react/src/runtime/events.ts` with:
+- [x] Create `packages/ui-spec/react/src/runtime/events.ts` with:
 
 ```ts
 export function toReactEventProp(eventName: string): string {
@@ -3254,7 +3254,7 @@ export function toReactEventProp(eventName: string): string {
 }
 ```
 
-- [ ] Create `packages/ui-spec/react/src/hooks/useLifecycle.ts` with:
+- [x] Create `packages/ui-spec/react/src/hooks/useLifecycle.ts` with:
 
 ```ts
 import * as React from 'react';
@@ -3282,7 +3282,7 @@ export function useLifecycle(options: {
 }
 ```
 
-- [ ] Create `packages/ui-spec/react/src/runtime.spec.tsx` with:
+- [x] Create `packages/ui-spec/react/src/runtime.spec.tsx` with:
 
 ```tsx
 import { type UISpecSchema } from '@ui-spec/core';

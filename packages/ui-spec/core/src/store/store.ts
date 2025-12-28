@@ -74,10 +74,9 @@ export function createStore(
 		}
 
 		// Ensure top-level reference changes for external-store semantics.
-		data =
-			isPlainObject(data) || Array.isArray(data)
-				? structuredClone(data as any)
-				: data;
+		if (isPlainObject(data) || Array.isArray(data)) {
+			data = JSON.parse(JSON.stringify(data));
+		}
 		scheduleNotify();
 		return result;
 	};
