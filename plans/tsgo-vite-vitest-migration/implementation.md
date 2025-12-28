@@ -1,4 +1,4 @@
-# tsgo + Vite + Vitest Migration (Monorepo-wide)
+## tsgo + Vite + Vitest Migration (Monorepo-wide)
 
 ## Goal
 
@@ -117,10 +117,18 @@ Copy/paste the full `turbo.json` below:
 
 #### Step 1 STOP & COMMIT
 
-```bash
-git add turbo.json
-git commit -m "chore(turbo): track vite/vitest configs in test tasks"
+Multiline conventional commit message:
+
+```txt
+chore(turbo): track vite/vitest configs in test tasks
+
+Update Turbo test task inputs to track `vite.config.*` and `vitest.config.*`.
+Keep existing Jest-era inputs during the migration.
+
+completes: step 1 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -259,10 +267,18 @@ For each file below, replace the `type-check` script value as shown.
 
 #### Step 2 STOP & COMMIT
 
-```bash
-git add package.json **/package.json
-git commit -m "chore(tsgo): switch type-check scripts to tsgo"
+Multiline conventional commit message:
+
+```txt
+chore(tsgo): switch type-check scripts to tsgo
+
+Add `@typescript/native-preview` as the monorepo type-check engine.
+Switch workspace `type-check` scripts from `tsc` to `tsgo`.
+
+completes: step 2 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -326,7 +342,7 @@ Create `packages/config-vitest/package.json`:
 Install Vitest dependencies for this config package:
 
 ```bash
-pnpm --filter @lellimecnar/vitest-config add -D vitest @vitest/coverage-v8
+pnpm --filter @lellimecnar/vitest-config add -D vitest @vitest/coverage-v8 vite-tsconfig-paths
 ```
 
 Create `packages/config-vitest/tsconfig.json`:
@@ -343,6 +359,7 @@ Create `packages/config-vitest/vitest.base.ts`:
 
 ```ts
 import { fileURLToPath } from 'node:url';
+import tsconfigPaths from 'vite-tsconfig-paths';
 import type { UserConfig } from 'vitest/config';
 
 function resolveLocalFile(pathFromRoot: string) {
@@ -351,7 +368,9 @@ function resolveLocalFile(pathFromRoot: string) {
 
 export function vitestBaseConfig(): UserConfig {
 	return {
+		plugins: [tsconfigPaths()],
 		test: {
+			globals: true,
 			passWithNoTests: true,
 			coverage: {
 				provider: 'v8',
@@ -433,7 +452,15 @@ export function vitestBrowserConfigJsdom(): UserConfig {
 Create `packages/config-vitest/setup/reflect-metadata.ts`:
 
 ```ts
-import 'reflect-metadata';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+
+try {
+	require('reflect-metadata');
+} catch {
+	// Optional dependency.
+}
 ```
 
 Create `packages/config-vitest/setup/testing-library.ts`:
@@ -543,10 +570,18 @@ pnpm --filter @lellimecnar/vitest-config lint
 
 #### Step 3 STOP & COMMIT
 
-```bash
-git add packages/config-vitest/
-git commit -m "feat(config-vitest): add shared vitest presets"
+Multiline conventional commit message:
+
+```txt
+feat(config-vitest): add shared vitest presets
+
+Add `@lellimecnar/vitest-config` with shared Node and browser presets.
+Include optional setup helpers and Next.js App Router mocks.
+
+completes: step 3 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -682,10 +717,18 @@ pnpm --filter @lellimecnar/vite-config lint
 
 #### Step 4 STOP & COMMIT
 
-```bash
-git add packages/config-vite/
-git commit -m "feat(config-vite): add shared vite presets"
+Multiline conventional commit message:
+
+```txt
+feat(config-vite): add shared vite presets
+
+Add `@lellimecnar/vite-config` with shared base, Node, and browser config builders.
+Provide a consistent foundation for per-package `vite.config.ts` composition.
+
+completes: step 4 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -818,10 +861,18 @@ For any tests that reference Jest APIs, apply these mechanical conversions:
 
 #### Step 5 STOP & COMMIT
 
-```bash
-git add packages/utils/ packages/polymix/ card-stack/core/ card-stack/deck-standard/
-git commit -m "feat(vitest): migrate core node packages off jest"
+Multiline conventional commit message:
+
+```txt
+feat(vitest): migrate core node packages off jest
+
+Migrate core Node packages to Vitest (`@lellimecnar/utils`, `polymix`, `@card-stack/core`, `@card-stack/deck-standard`).
+Add `vitest.config.ts`, update test scripts, remove Jest configs, and convert `jest.*` calls to `vi.*`.
+
+completes: step 5 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -849,7 +900,14 @@ pnpm --filter @ui-spec/cli add -D vitest @vitest/coverage-v8 @lellimecnar/vitest
 
 #### Step 6.2: Create per-package `vitest.config.ts`
 
-Create `packages/ui-spec/core/vitest.config.ts` (repeat for each package listed above):
+For these Node-only packages:
+
+- `@ui-spec/core`
+- `@ui-spec/router`
+- `@ui-spec/validate-jsonschema`
+- `@ui-spec/cli`
+
+Create `packages/ui-spec/core/vitest.config.ts` (repeat for each Node-only package listed above):
 
 ```ts
 import { defineConfig } from 'vitest/config';
@@ -857,6 +915,28 @@ import { defineConfig } from 'vitest/config';
 import { vitestBaseConfig } from '@lellimecnar/vitest-config';
 
 export default defineConfig(vitestBaseConfig());
+```
+
+For these React/browser packages:
+
+- `@ui-spec/react`
+- `@ui-spec/router-react`
+
+Install `happy-dom` in those packages:
+
+```bash
+pnpm --filter @ui-spec/react add -D happy-dom
+pnpm --filter @ui-spec/router-react add -D happy-dom
+```
+
+Create `packages/ui-spec/react/vitest.config.ts` (repeat for `router-react`):
+
+```ts
+import { defineConfig } from 'vitest/config';
+
+import { vitestBrowserConfigHappyDom } from '@lellimecnar/vitest-config/browser';
+
+export default defineConfig(vitestBrowserConfigHappyDom());
 ```
 
 #### Step 6.3: Update scripts and delete Jest configs
@@ -889,10 +969,18 @@ Delete these files:
 
 #### Step 6 STOP & COMMIT
 
-```bash
-git add packages/ui-spec/
-git commit -m "feat(vitest): migrate ui-spec packages off jest"
+Multiline conventional commit message:
+
+```txt
+feat(vitest): migrate ui-spec packages off jest
+
+Migrate `@ui-spec/*` packages from Jest to Vitest.
+Add per-package `vitest.config.ts` (Node + browser/Happy DOM), update scripts, and remove Jest configs.
+
+completes: step 6 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -915,8 +1003,7 @@ const base = vitestBrowserConfigHappyDom();
 
 export default defineConfig({
 	...base,
-	test: {
-		...base.test,
+	resolve: {
 		alias: {
 			'@/': new URL('./src/', import.meta.url).pathname,
 		},
@@ -937,10 +1024,18 @@ export default defineConfig({
 
 #### Step 7 STOP & COMMIT
 
-```bash
-git add packages/ui/
-git commit -m "feat(vitest): migrate ui package tests"
+Multiline conventional commit message:
+
+```txt
+feat(vitest): migrate ui package tests
+
+Switch `@lellimecnar/ui` tests from Jest to Vitest using the shared browser preset.
+Add `vitest.config.ts` and remove Jest config/setup files.
+
+completes: step 7 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -971,8 +1066,7 @@ const base = vitestBrowserConfigHappyDomNextAppRouter();
 
 export default defineConfig({
 	...base,
-	test: {
-		...base.test,
+	resolve: {
 		alias: {
 			'@/': new URL('./src/', import.meta.url).pathname,
 		},
@@ -1002,10 +1096,18 @@ Create `web/readon.app/vitest.config.ts` with the same content.
 
 #### Step 8 STOP & COMMIT
 
-```bash
-git add web/miller.pub/ web/readon.app/
-git commit -m "feat(vitest): migrate next app tests"
+Multiline conventional commit message:
+
+```txt
+feat(vitest): migrate next app tests
+
+Migrate Next.js app tests (`miller.pub`, `readon.app`) from Jest to Vitest.
+Add per-app `vitest.config.ts` with Next App Router mocks, update scripts, and remove Jest config/setup.
+
+completes: step 8 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -1023,10 +1125,18 @@ This step confirms Expo/RN continues to use Jest and does not depend on `ts-jest
 
 #### Step 9 STOP & COMMIT
 
-```bash
-git add mobile/readon/ packages/ui-nativewind/
-git commit -m "chore(rn): keep jest-expo tests intact"
+Multiline conventional commit message:
+
+```txt
+chore(rn): keep jest-expo tests intact
+
+Keep Jest-based testing in Expo/RN workspaces (`mobile/readon`, `@lellimecnar/ui-nativewind`).
+Confirm these workspaces remain compatible while the rest of the repo migrates to Vitest.
+
+completes: step 9 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -1745,10 +1855,18 @@ chmod +x packages/ui-spec/cli/bin/uispec.js
 
 #### Step 10 STOP & COMMIT
 
-```bash
-git add scripts/ package.json packages/**/package.json card-stack/**/package.json **/vite.config.ts
-git commit -m "feat(vite): add library builds and export verification"
+Multiline conventional commit message:
+
+```txt
+feat(vite): add library builds and export verification
+
+Introduce Vite-based library builds for publishable TypeScript packages (ESM-only outputs).
+Add export verification tooling and per-package `vite.config.ts` to produce `dist/**/*.js` and `dist/**/*.d.ts`.
+
+completes: step 10 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -1769,10 +1887,18 @@ Targets called out in the plan:
 
 #### Step 11 STOP & COMMIT
 
-```bash
-git add packages/utils/ card-stack/core/ card-stack/deck-standard/
-git commit -m "fix(build): ensure publishable packages emit dist outputs"
+Multiline conventional commit message:
+
+```txt
+fix(build): ensure publishable packages emit dist outputs
+
+Fix remaining "build-gap" packages so publishable workspaces emit real `dist/` outputs.
+Align build scripts and package exports with the Vite-based library build convention.
+
+completes: step 11 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -1845,10 +1971,18 @@ This step finalizes Turborepo inputs to prefer Vitest-era configs.
 
 #### Step 12 STOP & COMMIT
 
-```bash
-git add turbo.json
-git commit -m "chore(turbo): switch test cache inputs to vitest"
+Multiline conventional commit message:
+
+```txt
+chore(turbo): switch test cache inputs to vitest
+
+Update `turbo.json` test task inputs to the Vitest-era configuration.
+Remove Jest-era cache inputs now that the migration is complete.
+
+completes: step 12 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -1873,10 +2007,18 @@ Delete (where migrated to Vitest):
 
 #### Step 13 STOP & COMMIT
 
-```bash
-git add package.json **/package.json packages/config-jest/ || true
-git commit -m "chore(jest): remove jest tooling from vitest packages"
+Multiline conventional commit message:
+
+```txt
+chore(jest): remove jest tooling from vitest packages
+
+Remove Jest and ts-jest dependencies from workspaces that migrated to Vitest.
+Keep Jest tooling only where required for Expo/RN, and delete migrated Jest configs.
+
+completes: step 13 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
@@ -1903,7 +2045,15 @@ Files to update if they mention Jest/type-check tooling:
 
 #### Step 14 STOP & COMMIT
 
-```bash
-git add AGENTS.md docs/TESTING.md docs/DEPENDENCY_MANAGEMENT.md
-git commit -m "docs(tooling): document tsgo + vite + vitest"
+Multiline conventional commit message:
+
+```txt
+docs(tooling): document tsgo + vite + vitest
+
+Update docs to reflect Vitest as the default test runner (except Expo/RN).
+Document `tsgo` for type-checking and Vite for publishable library builds only.
+
+completes: step 14 of 14 for tsgo-vite-vitest-migration
 ```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
