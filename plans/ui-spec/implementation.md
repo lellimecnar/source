@@ -4042,7 +4042,7 @@ describe('UISpecRouter', () => {
 
 **Instructions**
 
-- [ ] Create `packages/ui-spec/cli/package.json` with:
+- [x] Create `packages/ui-spec/cli/package.json` with:
 
 ```json
 {
@@ -4085,7 +4085,7 @@ describe('UISpecRouter', () => {
 }
 ```
 
-- [ ] Create `packages/ui-spec/cli/tsconfig.json` with:
+- [x] Create `packages/ui-spec/cli/tsconfig.json` with:
 
 ```json
 {
@@ -4102,7 +4102,7 @@ describe('UISpecRouter', () => {
 }
 ```
 
-- [ ] Create `packages/ui-spec/cli/jest.config.js` with:
+- [x] Create `packages/ui-spec/cli/jest.config.js` with:
 
 ```js
 const base = require('@lellimecnar/jest-config/jest-preset');
@@ -4114,7 +4114,7 @@ module.exports = {
 };
 ```
 
-- [ ] Create `packages/ui-spec/cli/src/commands/validate.ts` with:
+- [x] Create `packages/ui-spec/cli/src/commands/validate.ts` with:
 
 ```ts
 import { parseUISpecSchema } from '@ui-spec/core';
@@ -4133,7 +4133,7 @@ export async function validateCommand(
 }
 ```
 
-- [ ] Create `packages/ui-spec/cli/src/commands/generateTypes.ts` with:
+- [x] Create `packages/ui-spec/cli/src/commands/generateTypes.ts` with:
 
 ```ts
 import type { UISpecSchema } from '@ui-spec/core';
@@ -4174,7 +4174,7 @@ export async function generateTypesCommand(
 }
 ```
 
-- [ ] Create `packages/ui-spec/cli/src/index.ts` with:
+- [x] Create `packages/ui-spec/cli/src/index.ts` with:
 
 ```ts
 #!/usr/bin/env node
@@ -4226,7 +4226,7 @@ async function main() {
 void main();
 ```
 
-- [ ] Create `packages/ui-spec/cli/src/index.spec.ts` with:
+- [x] Create `packages/ui-spec/cli/src/index.spec.ts` with:
 
 ```ts
 import { validateCommand } from './commands/validate';
@@ -4251,7 +4251,7 @@ describe('cli commands', () => {
 
 #### Step 12 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/cli test`.
+- [x] Run `pnpm --filter @ui-spec/cli test`.
 
 #### Step 12 (v1) STOP & COMMIT
 
