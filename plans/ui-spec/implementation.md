@@ -1686,7 +1686,7 @@ describe('parseUISpecSchema (v1)', () => {
 
 **Instructions**
 
-- [ ] Replace `packages/ui-spec/core/src/bindings/jsonpath.ts` with:
+- [x] Replace `packages/ui-spec/core/src/bindings/jsonpath.ts` with:
 
 ```ts
 import { JSONPath } from 'jsonpath-plus';
@@ -1833,7 +1833,7 @@ export function removeByJsonPointer(
 }
 ```
 
-- [ ] Replace `packages/ui-spec/core/src/store/types.ts` with:
+- [x] Replace `packages/ui-spec/core/src/store/types.ts` with:
 
 ```ts
 export type Unsubscribe = () => void;
@@ -1874,7 +1874,7 @@ export interface UISpecStore {
 }
 ```
 
-- [ ] Replace `packages/ui-spec/core/src/store/store.ts` with:
+- [x] Replace `packages/ui-spec/core/src/store/store.ts` with:
 
 ```ts
 import {
@@ -2058,7 +2058,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 ```
 
-- [ ] Replace `packages/ui-spec/core/src/store.spec.ts` with:
+- [x] Replace `packages/ui-spec/core/src/store.spec.ts` with:
 
 ```ts
 import { createStore } from './store';
@@ -2097,7 +2097,7 @@ describe('createStore (v1)', () => {
 
 #### Step 3 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm --filter @ui-spec/core test`.
 
 #### Step 3 (v1) STOP & COMMIT
 
