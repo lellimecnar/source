@@ -2709,7 +2709,7 @@ describe('compileNode', () => {
 
 **Instructions**
 
-- [ ] Create `packages/ui-spec/core/src/uiscript/spec.ts` with:
+- [x] Create `packages/ui-spec/core/src/uiscript/spec.ts` with:
 
 ```ts
 export type UIScriptAllowlist = {
@@ -2729,7 +2729,7 @@ export const defaultUIScriptOptions: Required<UIScriptOptions> = {
 };
 ```
 
-- [ ] Create `packages/ui-spec/core/src/uiscript/sandbox.ts` with:
+- [x] Create `packages/ui-spec/core/src/uiscript/sandbox.ts` with:
 
 ```ts
 import { UISpecError } from '../errors';
@@ -2803,7 +2803,7 @@ export async function runWithSoftTimeout<T>(
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/uiscript/index.ts` with:
+- [x] Create `packages/ui-spec/core/src/uiscript/index.ts` with:
 
 ```ts
 import type { UISpecSchema } from '../schema';
@@ -2873,7 +2873,7 @@ function toUISpecContext(ctx: EvalContext): UISpecContext {
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/uiscript.spec.ts` with:
+- [x] Create `packages/ui-spec/core/src/uiscript.spec.ts` with:
 
 ```ts
 import { createStore } from './store';
@@ -2913,7 +2913,7 @@ describe('uiscript', () => {
 
 #### Step 7 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm --filter @ui-spec/core test`.
 
 #### Step 7 (v1) STOP & COMMIT
 
