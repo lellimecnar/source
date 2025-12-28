@@ -898,12 +898,12 @@ Targets:
 #### Step 6.1: Install dependencies
 
 ```bash
-pnpm --filter @ui-spec/core add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
-pnpm --filter @ui-spec/react add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
-pnpm --filter @ui-spec/router add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
-pnpm --filter @ui-spec/router-react add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
-pnpm --filter @ui-spec/validate-jsonschema add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
-pnpm --filter @ui-spec/cli add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+pnpm --filter @ui-spec/core add -D vitest @vitest/coverage-v8 "@lellimecnar/vitest-config@workspace:*"
+pnpm --filter @ui-spec/react add -D vitest @vitest/coverage-v8 "@lellimecnar/vitest-config@workspace:*"
+pnpm --filter @ui-spec/router add -D vitest @vitest/coverage-v8 "@lellimecnar/vitest-config@workspace:*"
+pnpm --filter @ui-spec/router-react add -D vitest @vitest/coverage-v8 "@lellimecnar/vitest-config@workspace:*"
+pnpm --filter @ui-spec/validate-jsonschema add -D vitest @vitest/coverage-v8 "@lellimecnar/vitest-config@workspace:*"
+pnpm --filter @ui-spec/cli add -D vitest @vitest/coverage-v8 "@lellimecnar/vitest-config@workspace:*"
 ```
 
 #### Step 6.2: Create per-package `vitest.config.ts`
@@ -997,7 +997,7 @@ completes: step 6 of 14 for tsgo-vite-vitest-migration
 #### Step 7.1: Install dependencies
 
 ```bash
-pnpm --filter @lellimecnar/ui add -D vitest @vitest/coverage-v8 happy-dom @lellimecnar/vitest-config
+pnpm --filter @lellimecnar/ui add -D vitest @vitest/coverage-v8 happy-dom "@lellimecnar/vitest-config@workspace:*"
 ```
 
 #### Step 7.2: Create `packages/ui/vitest.config.ts`
@@ -1021,14 +1021,14 @@ export default defineConfig({
 
 #### Step 7.3: Remove Jest files and update setup
 
-- [ ] Delete `packages/ui/jest.config.js`
-- [ ] Delete `packages/ui/jest.setup.js`
+- [x] Delete `packages/ui/jest.config.js`
+- [x] Delete `packages/ui/jest.setup.js`
 
 > `@testing-library/jest-dom` is now loaded via `@lellimecnar/vitest-config` browser setup.
 
 #### Step 7 Verification Checklist
 
-- [ ] `pnpm --filter @lellimecnar/ui test`
+- [x] `pnpm --filter @lellimecnar/ui test`
 
 #### Step 7 STOP & COMMIT
 
@@ -1057,8 +1057,8 @@ Targets:
 #### Step 8.1: Install dependencies
 
 ```bash
-pnpm --filter miller.pub add -D vitest @vitest/coverage-v8 happy-dom @lellimecnar/vitest-config
-pnpm --filter readon.app add -D vitest @vitest/coverage-v8 happy-dom @lellimecnar/vitest-config
+pnpm --filter miller.pub add -D vitest @vitest/coverage-v8 happy-dom "@lellimecnar/vitest-config@workspace:*"
+pnpm --filter readon.app add -D vitest @vitest/coverage-v8 happy-dom "@lellimecnar/vitest-config@workspace:*"
 ```
 
 #### Step 8.2: Create per-app `vitest.config.ts`
