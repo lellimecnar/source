@@ -1,0 +1,28 @@
+{
+	"name": "@lellimecnar/vite-config",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		".": "./vite.base.ts",
+		"./node": "./node.ts",
+		"./browser": "./browser.ts"
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"type-check": "tsgo --noEmit"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@types/node": "^24",
+		"typescript": "~5.5",
+		"vite": "^7.3.0",
+		"vite-plugin-dts": "^4.5.4",
+		"vite-tsconfig-paths": "^6.0.3"
+	},
+	"peerDependencies": {
+		"typescript": "~5.5"
+	}
+}

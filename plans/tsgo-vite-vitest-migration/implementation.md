@@ -599,13 +599,13 @@ This step adds a shared Vite config package used to compose per-package `vite.co
 
 #### Step 4.1: Create package folder
 
-- [ ] Create `packages/config-vite/`
-- [ ] Create `packages/config-vite/AGENTS.md` (minimal)
-- [ ] Create `packages/config-vite/package.json`
-- [ ] Create `packages/config-vite/tsconfig.json`
-- [ ] Create `packages/config-vite/vite.base.ts`
-- [ ] Create `packages/config-vite/node.ts`
-- [ ] Create `packages/config-vite/browser.ts`
+- [x] Create `packages/config-vite/`
+- [x] Create `packages/config-vite/AGENTS.md` (minimal)
+- [x] Create `packages/config-vite/package.json`
+- [x] Create `packages/config-vite/tsconfig.json`
+- [x] Create `packages/config-vite/vite.base.ts`
+- [x] Create `packages/config-vite/node.ts`
+- [x] Create `packages/config-vite/browser.ts`
 
 #### Step 4.2: File contents
 
@@ -721,7 +721,7 @@ pnpm --filter @lellimecnar/vite-config lint
 
 #### Step 4 Verification Checklist
 
-- [ ] Run `pnpm --filter @lellimecnar/vite-config type-check`
+- [x] Run `pnpm --filter @lellimecnar/vite-config type-check`
 
 #### Step 4 STOP & COMMIT
 
