@@ -78,6 +78,7 @@ packages:
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist",
+		"noEmit": false,
 		"declaration": true,
 		"declarationMap": true,
 		"sourceMap": true
@@ -208,6 +209,7 @@ export * from './store';
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist",
+		"noEmit": false,
 		"declaration": true,
 		"declarationMap": true,
 		"sourceMap": true
@@ -3623,7 +3625,7 @@ describe('createJsonSchemaPlugin', () => {
 
 **Instructions**
 
-- [ ] Create `packages/ui-spec/router/package.json` with:
+- [x] Create `packages/ui-spec/router/package.json` with:
 
 ```json
 {
@@ -3664,7 +3666,7 @@ describe('createJsonSchemaPlugin', () => {
 }
 ```
 
-- [ ] Create `packages/ui-spec/router/tsconfig.json` with:
+- [x] Create `packages/ui-spec/router/tsconfig.json` with:
 
 ```json
 {
@@ -3681,7 +3683,7 @@ describe('createJsonSchemaPlugin', () => {
 }
 ```
 
-- [ ] Create `packages/ui-spec/router/jest.config.js` with:
+- [x] Create `packages/ui-spec/router/jest.config.js` with:
 
 ```js
 const base = require('@lellimecnar/jest-config/jest-preset');
@@ -3693,7 +3695,7 @@ module.exports = {
 };
 ```
 
-- [ ] Create `packages/ui-spec/router/src/match.ts` with:
+- [x] Create `packages/ui-spec/router/src/match.ts` with:
 
 ```ts
 export type Match = {
@@ -3707,8 +3709,8 @@ export function matchPath(pattern: string, pathname: string): Match | null {
 
 	const params: Record<string, string> = {};
 	for (let i = 0; i < pSegs.length; i += 1) {
-		const p = pSegs[i];
-		const u = uSegs[i];
+		const p = pSegs[i]!;
+		const u = uSegs[i]!;
 		if (p.startsWith(':')) {
 			params[p.slice(1)] = decodeURIComponent(u);
 			continue;
@@ -3720,7 +3722,7 @@ export function matchPath(pattern: string, pathname: string): Match | null {
 }
 ```
 
-- [ ] Create `packages/ui-spec/router/src/lazy.ts` with:
+- [x] Create `packages/ui-spec/router/src/lazy.ts` with:
 
 ```ts
 import { parseUISpecSchema, type UISpecSchema } from '@ui-spec/core';
@@ -3733,7 +3735,7 @@ export async function fetchSchema(url: string): Promise<UISpecSchema> {
 }
 ```
 
-- [ ] Create `packages/ui-spec/router/src/index.ts` with:
+- [x] Create `packages/ui-spec/router/src/index.ts` with:
 
 ```ts
 import type { RouteSchema, UISpecSchema } from '@ui-spec/core';
@@ -3832,7 +3834,7 @@ export * from './match';
 export * from './lazy';
 ```
 
-- [ ] Create `packages/ui-spec/router/src/index.spec.ts` with:
+- [x] Create `packages/ui-spec/router/src/index.spec.ts` with:
 
 ```ts
 import type { UISpecSchema } from '@ui-spec/core';
@@ -3855,7 +3857,7 @@ describe('createRouter', () => {
 });
 ```
 
-- [ ] Create `packages/ui-spec/router-react/package.json` with:
+- [x] Create `packages/ui-spec/router-react/package.json` with:
 
 ```json
 {
@@ -3906,7 +3908,7 @@ describe('createRouter', () => {
 }
 ```
 
-- [ ] Create `packages/ui-spec/router-react/tsconfig.json` with:
+- [x] Create `packages/ui-spec/router-react/tsconfig.json` with:
 
 ```json
 {
@@ -3923,7 +3925,7 @@ describe('createRouter', () => {
 }
 ```
 
-- [ ] Create `packages/ui-spec/router-react/jest.config.js` with:
+- [x] Create `packages/ui-spec/router-react/jest.config.js` with:
 
 ```js
 const base = require('@lellimecnar/jest-config/jest-preset');
@@ -3932,10 +3934,13 @@ module.exports = {
 	...base,
 	displayName: '@ui-spec/router-react',
 	testEnvironment: 'jsdom',
+	testEnvironmentOptions: {
+		customExportConditions: ['node', 'node-addons'],
+	},
 };
 ```
 
-- [ ] Create `packages/ui-spec/router-react/src/UISpecRouter.tsx` with:
+- [x] Create `packages/ui-spec/router-react/src/UISpecRouter.tsx` with:
 
 ```tsx
 import type { UISpecSchema } from '@ui-spec/core';
@@ -3976,13 +3981,13 @@ export function UISpecRouter(props: { schema: UISpecSchema }) {
 }
 ```
 
-- [ ] Create `packages/ui-spec/router-react/src/index.ts` with:
+- [x] Create `packages/ui-spec/router-react/src/index.ts` with:
 
 ```ts
 export * from './UISpecRouter';
 ```
 
-- [ ] Create `packages/ui-spec/router-react/src/index.spec.tsx` with:
+- [x] Create `packages/ui-spec/router-react/src/index.spec.tsx` with:
 
 ```tsx
 import type { UISpecSchema } from '@ui-spec/core';
@@ -4014,8 +4019,8 @@ describe('UISpecRouter', () => {
 
 #### Step 11 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/router test`.
-- [ ] Run `pnpm --filter @ui-spec/router-react test`.
+- [x] Run `pnpm --filter @ui-spec/router test`.
+- [x] Run `pnpm --filter @ui-spec/router-react test`.
 
 #### Step 11 (v1) STOP & COMMIT
 

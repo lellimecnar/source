@@ -1,5 +1,5 @@
 {
-	"extends": "@lellimecnar/typescript-config/react.json",
+	"extends": "@lellimecnar/typescript-config/base.json",
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist",
@@ -8,6 +8,6 @@
 		"declarationMap": true,
 		"sourceMap": true
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx"],
+	"include": ["src/**/*.ts"],
 	"exclude": ["dist", "node_modules"]
 }
