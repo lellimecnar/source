@@ -250,7 +250,7 @@ export * from './render';
 
 #### Step 2: Core parser + validation errors
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/errors.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/errors.ts`:
 
 ```ts
 export type UISpecErrorCode =
@@ -275,9 +275,9 @@ export class UISpecError extends Error {
 }
 ```
 
-- [ ] Create the directory `packages/ui-spec/core/src/parse`.
+- [x] Create the directory `packages/ui-spec/core/src/parse`.
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/parse/index.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/parse/index.ts`:
 
 ```ts
 import { UISpecError } from '../errors';
@@ -413,8 +413,8 @@ export function parseNode(input: unknown, path = '$'): NodeSchema {
 }
 ```
 
-- [ ] Update `packages/ui-spec/core/src/index.ts` to export the parser.
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/index.ts` (this replaces the full file):
+- [x] Update `packages/ui-spec/core/src/index.ts` to export the parser.
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/index.ts` (this replaces the full file):
 
 ```ts
 export * from './schema';
@@ -423,7 +423,7 @@ export * from './parse';
 export * from './store';
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/parse.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/parse.spec.ts`:
 
 ```ts
 import { parseUISpecSchema } from './parse';
@@ -473,7 +473,7 @@ describe('parseUISpecSchema', () => {
 
 ##### Step 2 Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core test` and confirm it succeeds.
+- [x] Run `pnpm --filter @ui-spec/core test` and confirm it succeeds.
 
 #### Step 2 STOP & COMMIT
 

@@ -1,4 +1,11 @@
-export type UISpecErrorCode = string;
+export type UISpecErrorCode =
+	| 'INVALID_SCHEMA'
+	| 'INVALID_SCHEMA_VERSION'
+	| 'MISSING_ROOT'
+	| 'INVALID_NODE'
+	| 'INVALID_NODE_TYPE'
+	| 'INVALID_CHILDREN'
+	| 'INVALID_BINDING';
 
 export class UISpecError extends Error {
 	public readonly code: UISpecErrorCode;
