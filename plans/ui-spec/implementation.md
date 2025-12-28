@@ -2297,7 +2297,7 @@ describe('eval.resolveValue', () => {
 
 **Instructions**
 
-- [ ] Create `packages/ui-spec/core/src/components/index.ts` with:
+- [x] Create `packages/ui-spec/core/src/components/index.ts` with:
 
 ```ts
 import type { ComponentSchema, NodeSchema, UISpecSchema } from '../schema';
@@ -2319,7 +2319,7 @@ export function resolveComponentTree(
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/components/resolveRef.ts` with:
+- [x] Create `packages/ui-spec/core/src/components/resolveRef.ts` with:
 
 ```ts
 import { UISpecError } from '../errors';
@@ -2402,7 +2402,7 @@ function deepResolve(schema: UISpecSchema, node: NodeSchema): NodeSchema {
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/components/slots.ts` with:
+- [x] Create `packages/ui-spec/core/src/components/slots.ts` with:
 
 ```ts
 import {
@@ -2452,7 +2452,7 @@ export function applySlots(schema: UISpecSchema, node: NodeSchema): NodeSchema {
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/components.spec.ts` with:
+- [x] Create `packages/ui-spec/core/src/components.spec.ts` with:
 
 ```ts
 import { resolveComponentTree } from './components';
@@ -2512,7 +2512,7 @@ describe('components', () => {
 
 #### Step 5 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm --filter @ui-spec/core test`.
 
 #### Step 5 (v1) STOP & COMMIT
 
