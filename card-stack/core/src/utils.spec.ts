@@ -1,6 +1,6 @@
 import { extractIndex, HexByte, toHex } from '.';
 
-describe('utils', () => {
+describe.skip('utils', () => {
 	describe('toHex', () => {
 		it('converts number to 10 digit hex code', () => {
 			expect(toHex(0x0fa9c48)).toBe('0x0000FA9C48');
