@@ -5,7 +5,9 @@ export type UISpecErrorCode =
 	| 'INVALID_NODE'
 	| 'INVALID_NODE_TYPE'
 	| 'INVALID_CHILDREN'
-	| 'INVALID_BINDING';
+	| 'INVALID_BINDING'
+	| 'INVALID_DIRECTIVE'
+	| 'SECURITY_LIMIT_EXCEEDED';
 
 export class UISpecError extends Error {
 	public readonly code: UISpecErrorCode;

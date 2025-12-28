@@ -1327,9 +1327,9 @@ void _schema;
 
 #### Step 1 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core type-check`.
+- [x] Run `pnpm --filter @ui-spec/core type-check`.
 
-**Blocker:** `pnpm --filter @ui-spec/core type-check` currently fails because `packages/ui-spec/core/src/parse.spec.ts` assumes `schema.root` is always present, but v1 makes `root` optional (`root?: NodeSchema`). This is resolved by Step 2’s planned test updates (or by excluding spec files from `type-check`, but that is not specified in the plan).
+**Note:** This was initially blocked by `schema.root` becoming optional; Step 2 updates resolve it.
 
 #### Step 1 (v1) STOP & COMMIT
 
@@ -1348,7 +1348,7 @@ void _schema;
 
 **Instructions**
 
-- [ ] Replace `packages/ui-spec/core/src/errors.ts` with:
+- [x] Replace `packages/ui-spec/core/src/errors.ts` with:
 
 ```ts
 export type UISpecErrorCode =
@@ -1375,7 +1375,7 @@ export class UISpecError extends Error {
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/parse/validate.ts` with:
+- [x] Create `packages/ui-spec/core/src/parse/validate.ts` with:
 
 ```ts
 import { UISpecError } from '../errors';
@@ -1583,7 +1583,7 @@ export function validateSchema(
 }
 ```
 
-- [ ] Replace `packages/ui-spec/core/src/parse/index.ts` with:
+- [x] Replace `packages/ui-spec/core/src/parse/index.ts` with:
 
 ```ts
 import { UISpecError } from '../errors';
@@ -1621,7 +1621,7 @@ export function parseUISpecSchema(input: unknown): UISpecSchema {
 }
 ```
 
-- [ ] Replace `packages/ui-spec/core/src/parse.spec.ts` with:
+- [x] Replace `packages/ui-spec/core/src/parse.spec.ts` with:
 
 ```ts
 import { parseUISpecSchema } from './parse';
@@ -1667,7 +1667,7 @@ describe('parseUISpecSchema (v1)', () => {
 
 #### Step 2 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm --filter @ui-spec/core test`.
 
 #### Step 2 (v1) STOP & COMMIT
 

@@ -1,7 +1,7 @@
 import { parseUISpecSchema } from './parse';
 
-describe('parseUISpecSchema', () => {
-	it('parses a minimal valid schema', () => {
+describe('parseUISpecSchema (v1)', () => {
+	it('parses a minimal valid schema (MVP-compatible)', () => {
 		const schema = parseUISpecSchema({
 			$uispec: '1.0',
 			root: {
@@ -11,33 +11,29 @@ describe('parseUISpecSchema', () => {
 		});
 
 		expect(schema.$uispec).toBe('1.0');
-		expect(schema.root.type).toBe('div');
+		expect(schema.root?.type).toBe('div');
 	});
 
-	it('rejects invalid version', () => {
-		expect(() =>
-			parseUISpecSchema({
-				$uispec: '2.0',
-				root: { type: 'div' },
-			}),
-		).toThrow(/expected \"1\.0\"/);
-	});
-
-	it('rejects invalid children', () => {
-		expect(() =>
-			parseUISpecSchema({
-				$uispec: '1.0',
-				root: { type: 'div', children: 123 },
-			}),
-		).toThrow(/Invalid children/);
-	});
-
-	it('accepts $path binding in children', () => {
+	it('accepts $if/$then structural shape', () => {
 		const schema = parseUISpecSchema({
 			$uispec: '1.0',
-			root: { type: 'span', children: { $path: '$.user.name' } },
+			root: {
+				type: 'div',
+				$if: { $path: '$.flag' },
+				$then: { type: 'span', children: 'yes' },
+				$else: { type: 'span', children: 'no' },
+			},
 		});
 
-		expect(schema.root.type).toBe('span');
+		expect(schema.root?.type).toBe('div');
+	});
+
+	it('accepts routed schema without root (router add-on)', () => {
+		const schema = parseUISpecSchema({
+			$uispec: '1.0',
+			routes: [{ path: '/', root: { type: 'div' } }],
+		});
+
+		expect(Array.isArray(schema.routes)).toBe(true);
 	});
 });
