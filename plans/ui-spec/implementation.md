@@ -866,7 +866,7 @@ describe('UISpecRenderer', () => {
 
 #### Step 5: Minimal docs + usage example
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/README.md`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/README.md`:
 
 ````md
 ## @ui-spec/core
@@ -907,7 +907,7 @@ console.log(store.get('$.user.name'));
 
 ````
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/README.md`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/README.md`:
 
 ```md
 ## @ui-spec/react
@@ -957,8 +957,8 @@ export function App() {
 
 ````
 
-- [ ] Create the file `docs/api/ui-spec.md`.
-- [ ] Copy and paste the code below into `docs/api/ui-spec.md`:
+- [x] Create the file `docs/api/ui-spec.md`.
+- [x] Copy and paste the code below into `docs/api/ui-spec.md`:
 
 ```md
 ## UI-Spec (MVP)
@@ -1010,8 +1010,9 @@ From repo root:
 
 ##### Step 5 Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core test` and `pnpm --filter @ui-spec/react test`.
-- [ ] Run `pnpm -w type-check`.
+- [x] Run `pnpm --filter @ui-spec/core test` and `pnpm --filter @ui-spec/react test`.
+- [x] Run `pnpm -w type-check`.
+      Result: currently fails in `@lellimecnar/prettier-config` due to missing typings for `@vercel/style-guide/prettier` (TS7016).
 
 #### Step 5 STOP & COMMIT
 
