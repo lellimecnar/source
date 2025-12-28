@@ -3337,7 +3337,7 @@ describe('react runtime', () => {
 
 #### Step 9 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/react test`.
+- [x] Run `pnpm --filter @ui-spec/react test`.
 
 #### Step 9 (v1) STOP & COMMIT
 
