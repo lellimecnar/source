@@ -1,0 +1,1909 @@
+# tsgo + Vite + Vitest Migration (Monorepo-wide)
+
+## Goal
+
+Standardize the monorepo on faster, modern tooling:
+
+- Use `tsgo` (`@typescript/native-preview`) for type-checking.
+- Use Vite for **publishable library** builds only (Next.js builds remain `next build`).
+- Migrate Jest → Vitest everywhere except Expo/RN workspaces (which keep `jest-expo`).
+- Enforce ESM-only outputs for publishable packages using `"type": "module"` and no `exports.require`.
+
+This document is a copy-paste ready implementation guide derived from `plans/tsgo-vite-vitest-migration/plan.md`.
+
+## Prerequisites
+
+Make sure you are currently on the `tsgo-vite-vitest-migration` branch before beginning implementation.
+
+```bash
+# Check current branch
+git branch --show-current
+
+# If not on tsgo-vite-vitest-migration, create and switch
+git checkout -b tsgo-vite-vitest-migration
+```
+
+---
+
+## Step-by-Step Instructions
+
+### Step 1: Add migration scaffolding + agree on conventions
+
+This step updates Turborepo inputs so changes to future Vite/Vitest configs are tracked correctly during the migration.
+
+- [ ] Open `turbo.json`
+- [ ] Update the `test`, `test:coverage`, and `test:ci` task inputs to include `vite.config.*` and `vitest.config.*` (keep the existing Jest-era inputs for now).
+
+Copy/paste the full `turbo.json` below:
+
+```json
+{
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+			"env": ["NODE_ENV", "ANALYZE"]
+		},
+		"test": {
+			"outputs": ["coverage/**"],
+			"dependsOn": [],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"jest.config.js",
+				"jest.config.ts",
+				"vitest.config.*",
+				"vite.config.*"
+			]
+		},
+		"test:watch": {
+			"cache": false,
+			"persistent": true
+		},
+		"test:coverage": {
+			"dependsOn": ["^build"],
+			"outputs": ["coverage/**"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"jest.config.js",
+				"jest.config.ts",
+				"vitest.config.*",
+				"vite.config.*"
+			]
+		},
+		"test:ci": {
+			"dependsOn": ["^build"],
+			"outputs": ["coverage/**"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"jest.config.js",
+				"jest.config.ts",
+				"vitest.config.*",
+				"vite.config.*"
+			],
+			"env": ["CI"]
+		},
+		"lint": {
+			"dependsOn": ["^build"],
+			"env": ["NODE_ENV", "ANALYZE"]
+		},
+		"format": {
+			"dependsOn": [],
+			"outputs": [],
+			"cache": false
+		},
+		"type-check": {
+			"dependsOn": ["^build"],
+			"outputs": []
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"clean": {
+			"cache": false
+		},
+		"ui": {
+			"cache": false
+		}
+	}
+}
+```
+
+#### Step 1 Verification Checklist
+
+- [ ] Run `pnpm -w lint`
+
+#### Step 1 STOP & COMMIT
+
+```bash
+git add turbo.json
+git commit -m "chore(turbo): track vite/vitest configs in test tasks"
+```
+
+---
+
+### Step 2: Introduce `tsgo` as the monorepo type-check engine
+
+This step installs `@typescript/native-preview` at the root and replaces all workspace `type-check` scripts from `tsc` → `tsgo`.
+
+#### Step 2.1: Add the dependency
+
+- [ ] Add `@typescript/native-preview` to root devDependencies:
+
+```bash
+pnpm -w add -D @typescript/native-preview
+```
+
+> Keep `typescript` installed (Next.js/Expo ecosystem expectation).
+
+#### Step 2.2: Update `type-check` scripts in every workspace
+
+For each file below, replace the `type-check` script value as shown.
+
+- [ ] `package.json`
+  - Replace `"type-check": "turbo type-check"` (no change needed)
+
+- [ ] `card-stack/core/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `card-stack/deck-standard/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `packages/utils/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `packages/polymix/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `packages/ui/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `packages/ui-nativewind/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `packages/ui-spec/core/package.json`
+  - Replace:
+    - `"type-check": "tsc -p tsconfig.json --noEmit"`
+    - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
+
+- [ ] `packages/ui-spec/react/package.json`
+  - Replace:
+    - `"type-check": "tsc -p tsconfig.json --noEmit"`
+    - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
+
+- [ ] `packages/ui-spec/router/package.json`
+  - Replace:
+    - `"type-check": "tsc -p tsconfig.json --noEmit"`
+    - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
+
+- [ ] `packages/ui-spec/router-react/package.json`
+  - Replace:
+    - `"type-check": "tsc -p tsconfig.json --noEmit"`
+    - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
+
+- [ ] `packages/ui-spec/validate-jsonschema/package.json`
+  - Replace:
+    - `"type-check": "tsc -p tsconfig.json --noEmit"`
+    - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
+
+- [ ] `packages/ui-spec/cli/package.json`
+  - Replace:
+    - `"type-check": "tsc -p tsconfig.json --noEmit"`
+    - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
+
+- [ ] `packages/config-eslint/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `packages/config-typescript/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `packages/config-prettier/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `packages/config-tailwind/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `packages/config-jest/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `packages/expo-with-modify-gradle/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `web/miller.pub/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `web/readon.app/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+- [ ] `mobile/readon/package.json`
+  - Replace:
+    - `"type-check": "tsc --noEmit"`
+    - with: `"type-check": "tsgo --noEmit"`
+
+#### Step 2 Verification Checklist
+
+- [ ] Run `pnpm -w type-check`
+- [ ] Spot-check:
+  - [ ] `pnpm --filter miller.pub type-check`
+  - [ ] `pnpm --filter readon.app type-check`
+
+#### Step 2 STOP & COMMIT
+
+```bash
+git add package.json **/package.json
+git commit -m "chore(tsgo): switch type-check scripts to tsgo"
+```
+
+---
+
+### Step 3: Create shared Vitest config package (`@lellimecnar/vitest-config`)
+
+This step introduces a shared Vitest config package patterned after existing config packages.
+
+#### Step 3.1: Create package folder
+
+- [ ] Create `packages/config-vitest/`
+- [ ] Create `packages/config-vitest/AGENTS.md` (minimal)
+- [ ] Create `packages/config-vitest/package.json`
+- [ ] Create `packages/config-vitest/tsconfig.json`
+- [ ] Create `packages/config-vitest/vitest.base.ts`
+- [ ] Create `packages/config-vitest/vitest.browser.ts`
+- [ ] Create `packages/config-vitest/vitest.browser-jsdom.ts`
+- [ ] Create `packages/config-vitest/setup/reflect-metadata.ts`
+- [ ] Create `packages/config-vitest/setup/testing-library.ts`
+- [ ] Create `packages/config-vitest/next/mocks/navigation.ts`
+- [ ] Create `packages/config-vitest/next/mocks/image.ts`
+- [ ] Create `packages/config-vitest/next/presets/app-router.ts`
+- [ ] Create `packages/config-vitest/setup/next-app-router.ts`
+
+#### Step 3.2: File contents
+
+Create `packages/config-vitest/package.json`:
+
+```json
+{
+	"name": "@lellimecnar/vitest-config",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"exports": {
+		".": "./vitest.base.ts",
+		"./browser": "./vitest.browser.ts",
+		"./browser-jsdom": "./vitest.browser-jsdom.ts",
+		"./setup/reflect-metadata": "./setup/reflect-metadata.ts",
+		"./setup/testing-library": "./setup/testing-library.ts",
+		"./setup/next-app-router": "./setup/next-app-router.ts",
+		"./next/mocks/navigation": "./next/mocks/navigation.ts",
+		"./next/mocks/image": "./next/mocks/image.ts",
+		"./next/presets/app-router": "./next/presets/app-router.ts"
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"type-check": "tsgo --noEmit"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@types/node": "^24",
+		"typescript": "~5.5"
+	},
+	"peerDependencies": {
+		"typescript": "~5.5"
+	}
+}
+```
+
+Install Vitest dependencies for this config package:
+
+```bash
+pnpm --filter @lellimecnar/vitest-config add -D vitest @vitest/coverage-v8
+```
+
+Create `packages/config-vitest/tsconfig.json`:
+
+```jsonc
+{
+	"extends": "@lellimecnar/typescript-config",
+	"include": ["**/*.ts"],
+	"exclude": ["dist", "build", "node_modules"],
+}
+```
+
+Create `packages/config-vitest/vitest.base.ts`:
+
+```ts
+import { fileURLToPath } from 'node:url';
+import type { UserConfig } from 'vitest/config';
+
+function resolveLocalFile(pathFromRoot: string) {
+	return fileURLToPath(new URL(pathFromRoot, import.meta.url));
+}
+
+export function vitestBaseConfig(): UserConfig {
+	return {
+		test: {
+			passWithNoTests: true,
+			coverage: {
+				provider: 'v8',
+				reportsDirectory: 'coverage',
+				reporter: ['text', 'text-summary', 'html', 'lcov', 'json'],
+				// Coverage target is 80% monorepo-wide, but is not enforced yet.
+				// To enforce later, add thresholds behind an env flag.
+			},
+			setupFiles: [resolveLocalFile('./setup/reflect-metadata.ts')],
+		},
+	};
+}
+```
+
+Create `packages/config-vitest/vitest.browser.ts`:
+
+```ts
+import { fileURLToPath } from 'node:url';
+import type { UserConfig } from 'vitest/config';
+
+import { vitestBaseConfig } from './vitest.base';
+
+function resolveLocalFile(pathFromRoot: string) {
+	return fileURLToPath(new URL(pathFromRoot, import.meta.url));
+}
+
+export function vitestBrowserConfigHappyDom(): UserConfig {
+	const base = vitestBaseConfig();
+
+	return {
+		...base,
+		test: {
+			...base.test,
+			environment: 'happy-dom',
+			setupFiles: [
+				...(base.test?.setupFiles ?? []),
+				resolveLocalFile('./setup/testing-library.ts'),
+			],
+		},
+	};
+}
+
+export function vitestBrowserConfigHappyDomNextAppRouter(): UserConfig {
+	const base = vitestBrowserConfigHappyDom();
+
+	return {
+		...base,
+		test: {
+			...base.test,
+			setupFiles: [
+				...(base.test?.setupFiles ?? []),
+				resolveLocalFile('./setup/next-app-router.ts'),
+			],
+		},
+	};
+}
+```
+
+Create `packages/config-vitest/vitest.browser-jsdom.ts`:
+
+```ts
+import type { UserConfig } from 'vitest/config';
+
+import { vitestBrowserConfigHappyDom } from './vitest.browser';
+
+export function vitestBrowserConfigJsdom(): UserConfig {
+	const base = vitestBrowserConfigHappyDom();
+
+	return {
+		...base,
+		test: {
+			...base.test,
+			environment: 'jsdom',
+		},
+	};
+}
+```
+
+Create `packages/config-vitest/setup/reflect-metadata.ts`:
+
+```ts
+import 'reflect-metadata';
+```
+
+Create `packages/config-vitest/setup/testing-library.ts`:
+
+```ts
+import '@testing-library/jest-dom/vitest';
+
+import { afterEach } from 'vitest';
+
+try {
+	// Optional dependency; only works when installed.
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const { cleanup } = require('@testing-library/react');
+	afterEach(() => cleanup());
+} catch {
+	// no-op
+}
+```
+
+Create `packages/config-vitest/next/mocks/navigation.ts`:
+
+```ts
+import { vi } from 'vitest';
+
+export function mockNextNavigation() {
+	vi.mock('next/navigation', () => {
+		return {
+			usePathname: () => '/',
+			useRouter: () => ({
+				push: vi.fn(),
+				replace: vi.fn(),
+				prefetch: vi.fn(),
+				back: vi.fn(),
+				forward: vi.fn(),
+				refresh: vi.fn(),
+			}),
+			useSearchParams: () => new URLSearchParams(),
+			useParams: () => ({}),
+		};
+	});
+}
+```
+
+Create `packages/config-vitest/next/mocks/image.ts`:
+
+```ts
+import React from 'react';
+import { vi } from 'vitest';
+
+export function mockNextImage() {
+	vi.mock('next/image', () => {
+		return {
+			__esModule: true,
+			default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
+				// eslint-disable-next-line jsx-a11y/alt-text
+				return React.createElement('img', props);
+			},
+		};
+	});
+}
+```
+
+Create `packages/config-vitest/next/presets/app-router.ts`:
+
+```ts
+import { mockNextImage } from '../mocks/image';
+import { mockNextNavigation } from '../mocks/navigation';
+
+export function installNextAppRouterMocks() {
+	mockNextNavigation();
+	mockNextImage();
+}
+```
+
+Create `packages/config-vitest/setup/next-app-router.ts`:
+
+```ts
+import { installNextAppRouterMocks } from '../next/presets/app-router';
+
+installNextAppRouterMocks();
+```
+
+Create `packages/config-vitest/AGENTS.md` (minimal):
+
+````markdown
+This file provides guidance when working with code in the `@lellimecnar/vitest-config` package.
+
+## Package Overview
+
+`@lellimecnar/vitest-config` is a shared Vitest configuration package.
+
+- Provides a base Node config (`@lellimecnar/vitest-config`).
+- Provides browser configs (`@lellimecnar/vitest-config/browser` and `.../browser-jsdom`).
+- Provides composable Next.js mocks and presets.
+
+## Development Commands
+
+```bash
+pnpm --filter @lellimecnar/vitest-config type-check
+pnpm --filter @lellimecnar/vitest-config lint
+```
+````
+
+#### Step 3 Verification Checklist
+
+- [ ] Run `pnpm --filter @lellimecnar/vitest-config type-check`
+
+#### Step 3 STOP & COMMIT
+
+```bash
+git add packages/config-vitest/
+git commit -m "feat(config-vitest): add shared vitest presets"
+```
+
+---
+
+### Step 4: Create shared Vite config package (`@lellimecnar/vite-config`)
+
+This step adds a shared Vite config package used to compose per-package `vite.config.ts` files.
+
+#### Step 4.1: Create package folder
+
+- [ ] Create `packages/config-vite/`
+- [ ] Create `packages/config-vite/AGENTS.md` (minimal)
+- [ ] Create `packages/config-vite/package.json`
+- [ ] Create `packages/config-vite/tsconfig.json`
+- [ ] Create `packages/config-vite/vite.base.ts`
+- [ ] Create `packages/config-vite/node.ts`
+- [ ] Create `packages/config-vite/browser.ts`
+
+#### Step 4.2: File contents
+
+Create `packages/config-vite/package.json`:
+
+```json
+{
+	"name": "@lellimecnar/vite-config",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"exports": {
+		".": "./vite.base.ts",
+		"./node": "./node.ts",
+		"./browser": "./browser.ts"
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"type-check": "tsgo --noEmit"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@types/node": "^24",
+		"typescript": "~5.5"
+	},
+	"peerDependencies": {
+		"typescript": "~5.5"
+	}
+}
+```
+
+Install Vite dependencies for this config package:
+
+```bash
+pnpm --filter @lellimecnar/vite-config add -D vite vite-tsconfig-paths vite-plugin-dts
+```
+
+Create `packages/config-vite/tsconfig.json`:
+
+```jsonc
+{
+	"extends": "@lellimecnar/typescript-config",
+	"include": ["**/*.ts"],
+	"exclude": ["dist", "build", "node_modules"],
+}
+```
+
+Create `packages/config-vite/vite.base.ts`:
+
+```ts
+import type { UserConfig } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
+
+export function viteBaseConfig(): UserConfig {
+	return {
+		plugins: [tsconfigPaths()],
+		build: {
+			// Each package defines its own lib entry/outDir.
+			emptyOutDir: true,
+		},
+	};
+}
+```
+
+Create `packages/config-vite/node.ts`:
+
+```ts
+import type { UserConfig } from 'vite';
+
+import { viteBaseConfig } from './vite.base';
+
+export function viteNodeConfig(): UserConfig {
+	const base = viteBaseConfig();
+	return {
+		...base,
+		// Node libraries can override target/externalization per-package.
+	};
+}
+```
+
+Create `packages/config-vite/browser.ts`:
+
+```ts
+import type { UserConfig } from 'vite';
+
+import { viteBaseConfig } from './vite.base';
+
+export function viteBrowserConfig(): UserConfig {
+	const base = viteBaseConfig();
+	return {
+		...base,
+	};
+}
+```
+
+Create `packages/config-vite/AGENTS.md` (minimal):
+
+````markdown
+This file provides guidance when working with code in the `@lellimecnar/vite-config` package.
+
+## Package Overview
+
+`@lellimecnar/vite-config` is a shared Vite configuration package used to compose per-package `vite.config.ts`.
+
+## Development Commands
+
+```bash
+pnpm --filter @lellimecnar/vite-config type-check
+pnpm --filter @lellimecnar/vite-config lint
+```
+````
+
+#### Step 4 Verification Checklist
+
+- [ ] Run `pnpm --filter @lellimecnar/vite-config type-check`
+
+#### Step 4 STOP & COMMIT
+
+```bash
+git add packages/config-vite/
+git commit -m "feat(config-vite): add shared vite presets"
+```
+
+---
+
+### Step 5: Migrate pure Node libraries from Jest → Vitest (low risk)
+
+Targets:
+
+- `@lellimecnar/utils`
+- `polymix`
+- `@card-stack/core`
+- `@card-stack/deck-standard`
+
+#### Step 5.1: Install dependencies (per package)
+
+Run the following:
+
+```bash
+pnpm --filter @lellimecnar/utils add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+pnpm --filter polymix add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+pnpm --filter @card-stack/core add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+pnpm --filter @card-stack/deck-standard add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+```
+
+#### Step 5.2: Create per-package `vitest.config.ts`
+
+Create `packages/utils/vitest.config.ts`:
+
+```ts
+import { defineConfig } from 'vitest/config';
+
+import { vitestBaseConfig } from '@lellimecnar/vitest-config';
+
+export default defineConfig(vitestBaseConfig());
+```
+
+Create `packages/polymix/vitest.config.ts`:
+
+```ts
+import { defineConfig } from 'vitest/config';
+
+import { vitestBaseConfig } from '@lellimecnar/vitest-config';
+
+export default defineConfig(vitestBaseConfig());
+```
+
+Create `card-stack/core/vitest.config.ts`:
+
+```ts
+import { defineConfig } from 'vitest/config';
+
+import { vitestBaseConfig } from '@lellimecnar/vitest-config';
+
+export default defineConfig(vitestBaseConfig());
+```
+
+Create `card-stack/deck-standard/vitest.config.ts`:
+
+```ts
+import { defineConfig } from 'vitest/config';
+
+import { vitestBaseConfig } from '@lellimecnar/vitest-config';
+
+export default defineConfig(vitestBaseConfig());
+```
+
+#### Step 5.3: Update package scripts
+
+Update these `package.json` scripts:
+
+- [ ] `packages/utils/package.json`
+  - Replace scripts block with:
+
+```json
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"lint": "eslint .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"type-check": "tsgo --noEmit"
+	},
+```
+
+- [ ] `packages/polymix/package.json`
+  - Replace script entries:
+    - `"test": "jest"` → `"test": "vitest run"`
+    - Add:
+      - `"test:watch": "vitest"`
+      - `"test:coverage": "vitest run --coverage"`
+
+- [ ] `card-stack/core/package.json`
+  - Replace:
+    - `"test": "jest"` → `"test": "vitest run"`
+    - `"test:watch": "jest --watch"` → `"test:watch": "vitest"`
+  - Add:
+    - `"test:coverage": "vitest run --coverage"`
+
+- [ ] `card-stack/deck-standard/package.json`
+  - Replace:
+    - `"test": "jest"` → `"test": "vitest run"`
+    - `"test:watch": "jest --watch"` → `"test:watch": "vitest"`
+  - Add:
+    - `"test:coverage": "vitest run --coverage"`
+
+#### Step 5.4: Remove Jest config files
+
+- [ ] Delete:
+  - `packages/utils/jest.config.js`
+  - `packages/polymix/jest.config.js`
+  - `card-stack/core/jest.config.js`
+  - `card-stack/deck-standard/jest.config.js`
+
+#### Step 5.5: Update tests from `jest.*` → `vi.*`
+
+For any tests that reference Jest APIs, apply these mechanical conversions:
+
+- `jest.fn()` → `vi.fn()`
+- `jest.spyOn()` → `vi.spyOn()`
+- `jest.mock()` → `vi.mock()`
+- `jest.useFakeTimers()` → `vi.useFakeTimers()`
+- `jest.useRealTimers()` → `vi.useRealTimers()`
+- `jest.requireActual()` → `await vi.importActual()`
+
+#### Step 5 Verification Checklist
+
+- [ ] `pnpm --filter @lellimecnar/utils test`
+- [ ] `pnpm --filter polymix test`
+- [ ] `pnpm --filter @card-stack/core test`
+- [ ] `pnpm --filter @card-stack/deck-standard test`
+
+#### Step 5 STOP & COMMIT
+
+```bash
+git add packages/utils/ packages/polymix/ card-stack/core/ card-stack/deck-standard/
+git commit -m "feat(vitest): migrate core node packages off jest"
+```
+
+---
+
+### Step 6: Migrate ui-spec packages from Jest → Vitest
+
+Targets:
+
+- `@ui-spec/core`
+- `@ui-spec/react`
+- `@ui-spec/router`
+- `@ui-spec/router-react`
+- `@ui-spec/validate-jsonschema`
+- `@ui-spec/cli`
+
+#### Step 6.1: Install dependencies
+
+```bash
+pnpm --filter @ui-spec/core add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+pnpm --filter @ui-spec/react add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+pnpm --filter @ui-spec/router add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+pnpm --filter @ui-spec/router-react add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+pnpm --filter @ui-spec/validate-jsonschema add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+pnpm --filter @ui-spec/cli add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+```
+
+#### Step 6.2: Create per-package `vitest.config.ts`
+
+Create `packages/ui-spec/core/vitest.config.ts` (repeat for each package listed above):
+
+```ts
+import { defineConfig } from 'vitest/config';
+
+import { vitestBaseConfig } from '@lellimecnar/vitest-config';
+
+export default defineConfig(vitestBaseConfig());
+```
+
+#### Step 6.3: Update scripts and delete Jest configs
+
+For each `packages/ui-spec/*/package.json` in this step:
+
+- [ ] Replace `"test": "jest"` with `"test": "vitest run"`
+- [ ] Add:
+  - `"test:watch": "vitest"`
+  - `"test:coverage": "vitest run --coverage"`
+- [ ] Delete `jest.config.js` and remove Jest-only devDependencies when safe (final cleanup happens in Step 13).
+
+Delete these files:
+
+- `packages/ui-spec/core/jest.config.js`
+- `packages/ui-spec/react/jest.config.js`
+- `packages/ui-spec/router/jest.config.js`
+- `packages/ui-spec/router-react/jest.config.js`
+- `packages/ui-spec/validate-jsonschema/jest.config.js`
+- `packages/ui-spec/cli/jest.config.js`
+
+#### Step 6 Verification Checklist
+
+- [ ] `pnpm --filter @ui-spec/core test`
+- [ ] `pnpm --filter @ui-spec/react test`
+- [ ] `pnpm --filter @ui-spec/router test`
+- [ ] `pnpm --filter @ui-spec/router-react test`
+- [ ] `pnpm --filter @ui-spec/validate-jsonschema test`
+- [ ] `pnpm --filter @ui-spec/cli test`
+
+#### Step 6 STOP & COMMIT
+
+```bash
+git add packages/ui-spec/
+git commit -m "feat(vitest): migrate ui-spec packages off jest"
+```
+
+---
+
+### Step 7: Migrate web UI library (`@lellimecnar/ui`) tests from Jest → Vitest (browser)
+
+#### Step 7.1: Install dependencies
+
+```bash
+pnpm --filter @lellimecnar/ui add -D vitest @vitest/coverage-v8 happy-dom @lellimecnar/vitest-config
+```
+
+#### Step 7.2: Create `packages/ui/vitest.config.ts`
+
+```ts
+import { defineConfig } from 'vitest/config';
+
+import { vitestBrowserConfigHappyDom } from '@lellimecnar/vitest-config/browser';
+
+const base = vitestBrowserConfigHappyDom();
+
+export default defineConfig({
+	...base,
+	test: {
+		...base.test,
+		alias: {
+			'@/': new URL('./src/', import.meta.url).pathname,
+		},
+	},
+});
+```
+
+#### Step 7.3: Remove Jest files and update setup
+
+- [ ] Delete `packages/ui/jest.config.js`
+- [ ] Delete `packages/ui/jest.setup.js`
+
+> `@testing-library/jest-dom` is now loaded via `@lellimecnar/vitest-config` browser setup.
+
+#### Step 7 Verification Checklist
+
+- [ ] `pnpm --filter @lellimecnar/ui test`
+
+#### Step 7 STOP & COMMIT
+
+```bash
+git add packages/ui/
+git commit -m "feat(vitest): migrate ui package tests"
+```
+
+---
+
+### Step 8: Migrate Next.js app tests from Jest → Vitest (browser)
+
+Targets:
+
+- `web/miller.pub`
+- `web/readon.app`
+
+#### Step 8.1: Install dependencies
+
+```bash
+pnpm --filter miller.pub add -D vitest @vitest/coverage-v8 happy-dom @lellimecnar/vitest-config
+pnpm --filter readon.app add -D vitest @vitest/coverage-v8 happy-dom @lellimecnar/vitest-config
+```
+
+#### Step 8.2: Create per-app `vitest.config.ts`
+
+Create `web/miller.pub/vitest.config.ts`:
+
+```ts
+import { defineConfig } from 'vitest/config';
+
+import { vitestBrowserConfigHappyDomNextAppRouter } from '@lellimecnar/vitest-config/browser';
+
+const base = vitestBrowserConfigHappyDomNextAppRouter();
+
+export default defineConfig({
+	...base,
+	test: {
+		...base.test,
+		alias: {
+			'@/': new URL('./src/', import.meta.url).pathname,
+		},
+	},
+});
+```
+
+Create `web/readon.app/vitest.config.ts` with the same content.
+
+#### Step 8.3: Remove Jest files and update scripts
+
+- [ ] Delete:
+  - `web/miller.pub/jest.config.js`
+  - `web/miller.pub/jest.setup.js`
+  - `web/readon.app/jest.config.js`
+  - `web/readon.app/jest.setup.js`
+
+- [ ] Update `package.json` scripts in both apps:
+  - `test`: `vitest run`
+  - `test:watch`: `vitest`
+  - `test:coverage`: `vitest run --coverage`
+
+#### Step 8 Verification Checklist
+
+- [ ] `pnpm --filter miller.pub test`
+- [ ] `pnpm --filter readon.app test`
+
+#### Step 8 STOP & COMMIT
+
+```bash
+git add web/miller.pub/ web/readon.app/
+git commit -m "feat(vitest): migrate next app tests"
+```
+
+---
+
+### Step 9: Expo/RN tests: keep Jest (jest-expo), stop using ts-jest
+
+This step confirms Expo/RN continues to use Jest and does not depend on `ts-jest`.
+
+- [ ] Ensure `mobile/readon` stays on `jest-expo` and continues to pass tests.
+- [ ] Ensure `packages/ui-nativewind` keeps `jest.config.cjs` and passes tests.
+
+#### Step 9 Verification Checklist
+
+- [ ] `pnpm --filter readon test`
+- [ ] `pnpm --filter @lellimecnar/ui-nativewind test`
+
+#### Step 9 STOP & COMMIT
+
+```bash
+git add mobile/readon/ packages/ui-nativewind/
+git commit -m "chore(rn): keep jest-expo tests intact"
+```
+
+---
+
+### Step 10: Introduce Vite library builds for publishable TS packages (ESM-only)
+
+This step adds per-package `vite.config.ts` files and updates package manifests so they produce real `dist/` JS + `.d.ts`.
+
+> Important: Next.js apps and Expo/RN app do NOT switch build tooling.
+
+#### Step 10.1: Convert `scripts/node` into a directory
+
+There is currently an empty file at `scripts/node`. Replace it with a folder so we can add node scripts.
+
+- [ ] Delete the file `scripts/node`
+- [ ] Create folder `scripts/node/`
+
+#### Step 10.2: Add dist-export verification script
+
+Create `scripts/node/verify-dist-exports.mjs`:
+
+```js
+import fs from 'node:fs';
+import path from 'node:path';
+
+const repoRoot = process.cwd();
+
+function readJson(filePath) {
+	return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function listWorkspacePackageJsons() {
+	const candidates = [
+		path.join(repoRoot, 'packages'),
+		path.join(repoRoot, 'card-stack'),
+	];
+
+	const results = [];
+	for (const baseDir of candidates) {
+		if (!fs.existsSync(baseDir)) continue;
+		for (const entry of fs.readdirSync(baseDir)) {
+			const pkgDir = path.join(baseDir, entry);
+			const pkgJson = path.join(pkgDir, 'package.json');
+			if (fs.existsSync(pkgJson)) results.push(pkgJson);
+		}
+	}
+	return results;
+}
+
+function assertFileExists(relativeToRepoRoot) {
+	const abs = path.join(repoRoot, relativeToRepoRoot);
+	if (!fs.existsSync(abs)) {
+		throw new Error(`Missing file: ${relativeToRepoRoot}`);
+	}
+}
+
+function collectExportTargets(exportsField, targets = new Set()) {
+	if (!exportsField) return targets;
+	if (typeof exportsField === 'string') {
+		targets.add(exportsField);
+		return targets;
+	}
+	if (Array.isArray(exportsField)) {
+		for (const item of exportsField) collectExportTargets(item, targets);
+		return targets;
+	}
+	if (typeof exportsField === 'object') {
+		for (const value of Object.values(exportsField))
+			collectExportTargets(value, targets);
+		return targets;
+	}
+	return targets;
+}
+
+const packageJsonPaths = listWorkspacePackageJsons();
+
+const problems = [];
+
+for (const pkgJsonPath of packageJsonPaths) {
+	const pkgDir = path.dirname(pkgJsonPath);
+	const pkg = readJson(pkgJsonPath);
+
+	// Only validate packages that claim to ship dist output.
+	const distLike =
+		String(pkg.main ?? '').startsWith('./dist/') ||
+		String(pkg.types ?? '').startsWith('./dist/') ||
+		JSON.stringify(pkg.exports ?? '').includes('./dist/');
+
+	if (!distLike) continue;
+
+	try {
+		const relPkgDir = path.relative(repoRoot, pkgDir);
+
+		if (pkg.main) assertFileExists(path.join(relPkgDir, pkg.main));
+		if (pkg.types) assertFileExists(path.join(relPkgDir, pkg.types));
+
+		const exportTargets = [...collectExportTargets(pkg.exports)];
+		for (const t of exportTargets) {
+			if (typeof t === 'string' && t.startsWith('./dist/')) {
+				assertFileExists(path.join(relPkgDir, t));
+			}
+		}
+	} catch (err) {
+		problems.push({
+			package: pkg.name ?? pkgJsonPath,
+			error: err.message,
+		});
+	}
+}
+
+if (problems.length) {
+	console.error('Export verification failed:');
+	for (const p of problems) console.error(`- ${p.package}: ${p.error}`);
+	process.exit(1);
+}
+
+console.log('Export verification passed.');
+```
+
+Add a root script in `package.json`:
+
+```json
+		"verify:exports": "node scripts/node/verify-dist-exports.mjs",
+```
+
+#### Step 10.3: Add Vite builds per package
+
+This step makes these packages truly publishable by producing real `dist/**/*.js` and `dist/**/*.d.ts`.
+
+Common rules (apply to every package in this step):
+
+- Output format: ESM only.
+- Preserve modules:
+  - `preserveModules: true`
+  - `preserveModulesRoot: 'src'`
+  - `entryFileNames: '[name].js'` (ensures `.js` under `dist/`)
+- Types: emitted to `dist/` using `vite-plugin-dts`.
+
+##### Step 10.3.1: Install build dependencies
+
+Run these commands:
+
+```bash
+pnpm --filter @lellimecnar/utils add -D vite vite-tsconfig-paths vite-plugin-dts @lellimecnar/vite-config
+pnpm --filter polymix add -D vite vite-tsconfig-paths vite-plugin-dts @lellimecnar/vite-config
+pnpm --filter @ui-spec/core add -D vite vite-tsconfig-paths vite-plugin-dts @lellimecnar/vite-config
+pnpm --filter @ui-spec/router add -D vite vite-tsconfig-paths vite-plugin-dts @lellimecnar/vite-config
+pnpm --filter @ui-spec/validate-jsonschema add -D vite vite-tsconfig-paths vite-plugin-dts @lellimecnar/vite-config
+pnpm --filter @ui-spec/cli add -D vite vite-tsconfig-paths vite-plugin-dts @lellimecnar/vite-config
+pnpm --filter @card-stack/core add -D vite vite-tsconfig-paths vite-plugin-dts @lellimecnar/vite-config
+pnpm --filter @card-stack/deck-standard add -D vite vite-tsconfig-paths vite-plugin-dts @lellimecnar/vite-config
+
+# React/JSX libraries also need the React plugin
+pnpm --filter @ui-spec/react add -D vite vite-tsconfig-paths vite-plugin-dts @lellimecnar/vite-config @vitejs/plugin-react
+pnpm --filter @ui-spec/router-react add -D vite vite-tsconfig-paths vite-plugin-dts @lellimecnar/vite-config @vitejs/plugin-react
+```
+
+##### Step 10.3.2: Create `vite.config.ts` per package
+
+Create `packages/utils/vite.config.ts`:
+
+```ts
+import { createRequire } from 'node:module';
+import { defineConfig, mergeConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+
+import { viteNodeConfig } from '@lellimecnar/vite-config/node';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
+const external = [
+	...Object.keys(pkg.dependencies ?? {}),
+	...Object.keys(pkg.peerDependencies ?? {}),
+];
+
+export default defineConfig(
+	mergeConfig(viteNodeConfig(), {
+		plugins: [
+			dts({
+				entryRoot: 'src',
+				tsconfigPath: 'tsconfig.json',
+				outDir: 'dist',
+			}),
+		],
+		build: {
+			outDir: 'dist',
+			lib: {
+				entry: 'src/index.ts',
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external,
+				output: {
+					preserveModules: true,
+					preserveModulesRoot: 'src',
+					entryFileNames: '[name].js',
+				},
+			},
+		},
+	}),
+);
+```
+
+Create `packages/polymix/vite.config.ts`:
+
+```ts
+import { createRequire } from 'node:module';
+import { defineConfig, mergeConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+
+import { viteNodeConfig } from '@lellimecnar/vite-config/node';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
+const external = [
+	...Object.keys(pkg.dependencies ?? {}),
+	...Object.keys(pkg.peerDependencies ?? {}),
+];
+
+export default defineConfig(
+	mergeConfig(viteNodeConfig(), {
+		plugins: [
+			dts({
+				entryRoot: 'src',
+				tsconfigPath: 'tsconfig.json',
+				outDir: 'dist',
+			}),
+		],
+		build: {
+			outDir: 'dist',
+			lib: {
+				entry: 'src/index.ts',
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external,
+				output: {
+					preserveModules: true,
+					preserveModulesRoot: 'src',
+					entryFileNames: '[name].js',
+				},
+			},
+		},
+	}),
+);
+```
+
+Create `card-stack/core/vite.config.ts`:
+
+```ts
+import { createRequire } from 'node:module';
+import { defineConfig, mergeConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+
+import { viteNodeConfig } from '@lellimecnar/vite-config/node';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
+const external = [
+	...Object.keys(pkg.dependencies ?? {}),
+	...Object.keys(pkg.peerDependencies ?? {}),
+];
+
+export default defineConfig(
+	mergeConfig(viteNodeConfig(), {
+		plugins: [
+			dts({
+				entryRoot: 'src',
+				tsconfigPath: 'tsconfig.json',
+				outDir: 'dist',
+			}),
+		],
+		build: {
+			outDir: 'dist',
+			lib: {
+				entry: 'src/index.ts',
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external,
+				output: {
+					preserveModules: true,
+					preserveModulesRoot: 'src',
+					entryFileNames: '[name].js',
+				},
+			},
+		},
+	}),
+);
+```
+
+Create `card-stack/deck-standard/vite.config.ts`:
+
+```ts
+import { createRequire } from 'node:module';
+import { defineConfig, mergeConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+
+import { viteNodeConfig } from '@lellimecnar/vite-config/node';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
+const external = [
+	...Object.keys(pkg.dependencies ?? {}),
+	...Object.keys(pkg.peerDependencies ?? {}),
+];
+
+export default defineConfig(
+	mergeConfig(viteNodeConfig(), {
+		plugins: [
+			dts({
+				entryRoot: 'src',
+				tsconfigPath: 'tsconfig.json',
+				outDir: 'dist',
+			}),
+		],
+		build: {
+			outDir: 'dist',
+			lib: {
+				entry: 'src/index.ts',
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external,
+				output: {
+					preserveModules: true,
+					preserveModulesRoot: 'src',
+					entryFileNames: '[name].js',
+				},
+			},
+		},
+	}),
+);
+```
+
+Create `packages/ui-spec/core/vite.config.ts`:
+
+```ts
+import { createRequire } from 'node:module';
+import { defineConfig, mergeConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+
+import { viteNodeConfig } from '@lellimecnar/vite-config/node';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
+const external = [
+	...Object.keys(pkg.dependencies ?? {}),
+	...Object.keys(pkg.peerDependencies ?? {}),
+];
+
+export default defineConfig(
+	mergeConfig(viteNodeConfig(), {
+		plugins: [
+			dts({
+				entryRoot: 'src',
+				tsconfigPath: 'tsconfig.json',
+				outDir: 'dist',
+			}),
+		],
+		build: {
+			outDir: 'dist',
+			lib: {
+				entry: 'src/index.ts',
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external,
+				output: {
+					preserveModules: true,
+					preserveModulesRoot: 'src',
+					entryFileNames: '[name].js',
+				},
+			},
+		},
+	}),
+);
+```
+
+Create `packages/ui-spec/router/vite.config.ts`:
+
+```ts
+import { createRequire } from 'node:module';
+import { defineConfig, mergeConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+
+import { viteNodeConfig } from '@lellimecnar/vite-config/node';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
+const external = [
+	...Object.keys(pkg.dependencies ?? {}),
+	...Object.keys(pkg.peerDependencies ?? {}),
+];
+
+export default defineConfig(
+	mergeConfig(viteNodeConfig(), {
+		plugins: [
+			dts({
+				entryRoot: 'src',
+				tsconfigPath: 'tsconfig.json',
+				outDir: 'dist',
+			}),
+		],
+		build: {
+			outDir: 'dist',
+			lib: {
+				entry: 'src/index.ts',
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external,
+				output: {
+					preserveModules: true,
+					preserveModulesRoot: 'src',
+					entryFileNames: '[name].js',
+				},
+			},
+		},
+	}),
+);
+```
+
+Create `packages/ui-spec/validate-jsonschema/vite.config.ts`:
+
+```ts
+import { createRequire } from 'node:module';
+import { defineConfig, mergeConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+
+import { viteNodeConfig } from '@lellimecnar/vite-config/node';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
+const external = [
+	...Object.keys(pkg.dependencies ?? {}),
+	...Object.keys(pkg.peerDependencies ?? {}),
+];
+
+export default defineConfig(
+	mergeConfig(viteNodeConfig(), {
+		plugins: [
+			dts({
+				entryRoot: 'src',
+				tsconfigPath: 'tsconfig.json',
+				outDir: 'dist',
+			}),
+		],
+		build: {
+			outDir: 'dist',
+			lib: {
+				entry: 'src/index.ts',
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external,
+				output: {
+					preserveModules: true,
+					preserveModulesRoot: 'src',
+					entryFileNames: '[name].js',
+				},
+			},
+		},
+	}),
+);
+```
+
+Create `packages/ui-spec/react/vite.config.ts`:
+
+```ts
+import { createRequire } from 'node:module';
+import { defineConfig, mergeConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import dts from 'vite-plugin-dts';
+
+import { viteNodeConfig } from '@lellimecnar/vite-config/node';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
+const external = [
+	...Object.keys(pkg.dependencies ?? {}),
+	...Object.keys(pkg.peerDependencies ?? {}),
+];
+
+export default defineConfig(
+	mergeConfig(viteNodeConfig(), {
+		plugins: [
+			react(),
+			dts({
+				entryRoot: 'src',
+				tsconfigPath: 'tsconfig.json',
+				outDir: 'dist',
+			}),
+		],
+		build: {
+			outDir: 'dist',
+			lib: {
+				entry: 'src/index.ts',
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external,
+				output: {
+					preserveModules: true,
+					preserveModulesRoot: 'src',
+					entryFileNames: '[name].js',
+				},
+			},
+		},
+	}),
+);
+```
+
+Create `packages/ui-spec/router-react/vite.config.ts`:
+
+```ts
+import { createRequire } from 'node:module';
+import { defineConfig, mergeConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import dts from 'vite-plugin-dts';
+
+import { viteNodeConfig } from '@lellimecnar/vite-config/node';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
+const external = [
+	...Object.keys(pkg.dependencies ?? {}),
+	...Object.keys(pkg.peerDependencies ?? {}),
+];
+
+export default defineConfig(
+	mergeConfig(viteNodeConfig(), {
+		plugins: [
+			react(),
+			dts({
+				entryRoot: 'src',
+				tsconfigPath: 'tsconfig.json',
+				outDir: 'dist',
+			}),
+		],
+		build: {
+			outDir: 'dist',
+			lib: {
+				entry: 'src/index.ts',
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external,
+				output: {
+					preserveModules: true,
+					preserveModulesRoot: 'src',
+					entryFileNames: '[name].js',
+				},
+			},
+		},
+	}),
+);
+```
+
+Create `packages/ui-spec/cli/vite.config.ts`:
+
+```ts
+import { createRequire } from 'node:module';
+import { defineConfig, mergeConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+
+import { viteNodeConfig } from '@lellimecnar/vite-config/node';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
+const external = [
+	...Object.keys(pkg.dependencies ?? {}),
+	...Object.keys(pkg.peerDependencies ?? {}),
+];
+
+export default defineConfig(
+	mergeConfig(viteNodeConfig(), {
+		plugins: [
+			dts({
+				entryRoot: 'src',
+				tsconfigPath: 'tsconfig.json',
+				outDir: 'dist',
+			}),
+		],
+		build: {
+			outDir: 'dist',
+			lib: {
+				entry: 'src/index.ts',
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external,
+				output: {
+					preserveModules: true,
+					preserveModulesRoot: 'src',
+					entryFileNames: '[name].js',
+				},
+			},
+		},
+	}),
+);
+```
+
+##### Step 10.3.3: Update package manifests and scripts (ESM-only)
+
+Update each package’s `package.json` as follows.
+
+`packages/utils/package.json`:
+
+- [ ] Add: `"type": "module"`
+- [ ] Add/replace `exports`:
+
+```json
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+```
+
+- [ ] Replace `build` script with `"build": "vite build"`
+
+`packages/polymix/package.json`:
+
+- [ ] Add: `"type": "module"`
+- [ ] Remove `exports.require` and keep ESM-only:
+
+```json
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+```
+
+- [ ] Replace `build` with `"build": "pnpm run clean && vite build"`
+- [ ] Replace `dev` with `"dev": "vite build --watch"`
+
+`card-stack/core/package.json`:
+
+- [ ] Replace `exports`, `main`, and `types` to point to `dist/` instead of `src/`:
+
+```json
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": ["dist"],
+```
+
+- [ ] Add `"build": "vite build"`
+
+`card-stack/deck-standard/package.json`:
+
+- [ ] Add: `"type": "module"`
+- [ ] Ensure `build` exists and points to `vite build`.
+
+`packages/ui-spec/*/package.json` (all packages in this step):
+
+- [ ] Add: `"type": "module"`
+- [ ] Replace `"build": "tsc -p tsconfig.json"` with `"build": "vite build"`
+
+`packages/ui-spec/cli/package.json` (CLI-specific additions):
+
+- [ ] Create `packages/ui-spec/cli/bin/uispec.js`:
+
+```js
+#!/usr/bin/env node
+import '../index.js';
+```
+
+- [ ] Make it executable:
+
+```bash
+chmod +x packages/ui-spec/cli/bin/uispec.js
+```
+
+- [ ] Add a postbuild to copy `bin/` into dist:
+
+```json
+	"scripts": {
+		"build": "vite build",
+		"postbuild": "node -e \"require('node:fs').cpSync('bin', 'dist/bin', { recursive: true })\"",
+		...
+	},
+```
+
+- [ ] Point `bin` at the copied shim:
+
+```json
+	"bin": {
+		"uispec": "./dist/bin/uispec.js"
+	},
+```
+
+#### Step 10 Verification Checklist
+
+- [ ] `pnpm -w build`
+- [ ] `pnpm -w verify:exports`
+
+#### Step 10 STOP & COMMIT
+
+```bash
+git add scripts/ package.json packages/**/package.json card-stack/**/package.json **/vite.config.ts
+git commit -m "feat(vite): add library builds and export verification"
+```
+
+---
+
+### Step 11: Fix “build-gap” packages to ensure dist outputs exist
+
+This step is a safety net. If Step 10 was applied exactly as written, these “build gap” cases should already be fixed.
+
+Targets called out in the plan:
+
+- `packages/utils` (currently emits declarations only)
+- `card-stack/core` (currently exports TS source)
+- `card-stack/deck-standard` (currently claims dist but has no build)
+
+#### Step 11 Verification Checklist
+
+- [ ] `pnpm -w build`
+- [ ] `pnpm -w verify:exports`
+
+#### Step 11 STOP & COMMIT
+
+```bash
+git add packages/utils/ card-stack/core/ card-stack/deck-standard/
+git commit -m "fix(build): ensure publishable packages emit dist outputs"
+```
+
+---
+
+### Step 12: Update Turborepo test pipeline to Vitest-era inputs
+
+This step finalizes Turborepo inputs to prefer Vitest-era configs.
+
+- [ ] Replace `turbo.json` with the following full content:
+
+```json
+{
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+			"env": ["NODE_ENV", "ANALYZE"]
+		},
+		"test": {
+			"outputs": ["coverage/**"],
+			"dependsOn": []
+		},
+		"test:watch": {
+			"cache": false,
+			"persistent": true
+		},
+		"test:coverage": {
+			"dependsOn": ["^build"],
+			"outputs": ["coverage/**"],
+			"inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "vite.config.*"]
+		},
+		"test:ci": {
+			"dependsOn": ["^build"],
+			"outputs": ["coverage/**"],
+			"inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "vite.config.*"],
+			"env": ["CI"]
+		},
+		"lint": {
+			"dependsOn": ["^build"],
+			"env": ["NODE_ENV", "ANALYZE"]
+		},
+		"format": {
+			"dependsOn": [],
+			"outputs": [],
+			"cache": false
+		},
+		"type-check": {
+			"dependsOn": ["^build"],
+			"outputs": []
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"clean": {
+			"cache": false
+		},
+		"ui": {
+			"cache": false
+		}
+	}
+}
+```
+
+#### Step 12 Verification Checklist
+
+- [ ] `pnpm -w test`
+- [ ] `pnpm -w test:coverage`
+
+#### Step 12 STOP & COMMIT
+
+```bash
+git add turbo.json
+git commit -m "chore(turbo): switch test cache inputs to vitest"
+```
+
+---
+
+### Step 13: Remove Jest + ts-jest tooling and clean up configs
+
+This step removes Jest tooling from packages that migrated to Vitest, while keeping Jest only where required (Expo/RN).
+
+- [ ] Remove `jest` and `ts-jest` from root and from any Vitest-migrated package devDependencies.
+- [ ] Keep `jest-expo`, `babel-jest`, and `@lellimecnar/jest-config` only for Expo/RN workspaces.
+- [ ] Delete `packages/config-jest` only if no remaining consumers exist outside Expo/RN.
+
+Delete (where migrated to Vitest):
+
+- [ ] Any remaining `**/jest.config.*`
+- [ ] Any remaining `jest.setup.js` that was replaced
+
+#### Step 13 Verification Checklist
+
+- [ ] `pnpm -w test`
+- [ ] `pnpm -w type-check`
+- [ ] `pnpm -w build`
+
+#### Step 13 STOP & COMMIT
+
+```bash
+git add package.json **/package.json packages/config-jest/ || true
+git commit -m "chore(jest): remove jest tooling from vitest packages"
+```
+
+---
+
+### Step 14: Final validation + documentation updates
+
+Update documentation to reflect:
+
+- Vitest as the test runner (except Expo/RN)
+- `tsgo` as the type-check engine
+- Vite for library builds only (Next builds unchanged)
+
+Files to update if they mention Jest/type-check tooling:
+
+- `AGENTS.md`
+- `docs/TESTING.md`
+- `docs/DEPENDENCY_MANAGEMENT.md`
+
+#### Step 14 Verification Checklist
+
+- [ ] `pnpm -w lint`
+- [ ] `pnpm -w test`
+- [ ] `pnpm -w build`
+- [ ] `pnpm -w type-check`
+
+#### Step 14 STOP & COMMIT
+
+```bash
+git add AGENTS.md docs/TESTING.md docs/DEPENDENCY_MANAGEMENT.md
+git commit -m "docs(tooling): document tsgo + vite + vitest"
+```
