@@ -3361,7 +3361,7 @@ describe('react runtime', () => {
 
 **Instructions**
 
-- [ ] Replace `packages/ui-spec/core/src/index.ts` with:
+- [x] Replace `packages/ui-spec/core/src/index.ts` with:
 
 ```ts
 export * from './schema';
@@ -3375,7 +3375,7 @@ export * from './uiscript';
 export * from './validation';
 ```
 
-- [ ] Create `packages/ui-spec/core/src/validation/types.ts` with:
+- [x] Create `packages/ui-spec/core/src/validation/types.ts` with:
 
 ```ts
 export type ValidationOk = { ok: true };
@@ -3394,7 +3394,7 @@ export interface ValidationPlugin {
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/validation/index.ts` with:
+- [x] Create `packages/ui-spec/core/src/validation/index.ts` with:
 
 ```ts
 import type { ValidationPlugin, ValidationResult } from './types';
@@ -3441,7 +3441,7 @@ export function createValidationRegistry(plugins: ValidationPlugin[]) {
 export * from './types';
 ```
 
-- [ ] Create `packages/ui-spec/core/src/validation.spec.ts` with:
+- [x] Create `packages/ui-spec/core/src/validation.spec.ts` with:
 
 ```ts
 import { createValidationRegistry } from './validation';
@@ -3464,7 +3464,7 @@ describe('validation registry', () => {
 });
 ```
 
-- [ ] Create `packages/ui-spec/validate-jsonschema/package.json` with:
+- [x] Create `packages/ui-spec/validate-jsonschema/package.json` with:
 
 ```json
 {
@@ -3506,7 +3506,7 @@ describe('validation registry', () => {
 }
 ```
 
-- [ ] Create `packages/ui-spec/validate-jsonschema/tsconfig.json` with:
+- [x] Create `packages/ui-spec/validate-jsonschema/tsconfig.json` with:
 
 ```json
 {
@@ -3523,7 +3523,7 @@ describe('validation registry', () => {
 }
 ```
 
-- [ ] Create `packages/ui-spec/validate-jsonschema/jest.config.js` with:
+- [x] Create `packages/ui-spec/validate-jsonschema/jest.config.js` with:
 
 ```js
 const base = require('@lellimecnar/jest-config/jest-preset');
@@ -3535,7 +3535,7 @@ module.exports = {
 };
 ```
 
-- [ ] Create `packages/ui-spec/validate-jsonschema/src/index.ts` with:
+- [x] Create `packages/ui-spec/validate-jsonschema/src/index.ts` with:
 
 ```ts
 import Ajv from 'ajv';
@@ -3548,7 +3548,7 @@ export function createJsonSchemaPlugin(options: {
 }): ValidationPlugin {
 	const ajv = new Ajv({ allErrors: true, strict: false });
 	for (const [key, schema] of Object.entries(options.schemas)) {
-		ajv.addSchema(schema, key);
+		ajv.addSchema(schema as any, key);
 	}
 
 	return {
@@ -3568,7 +3568,7 @@ export function createJsonSchemaPlugin(options: {
 }
 ```
 
-- [ ] Create `packages/ui-spec/validate-jsonschema/src/index.spec.ts` with:
+- [x] Create `packages/ui-spec/validate-jsonschema/src/index.spec.ts` with:
 
 ```ts
 import { createJsonSchemaPlugin } from './index';
@@ -3594,8 +3594,8 @@ describe('createJsonSchemaPlugin', () => {
 
 #### Step 10 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core test`.
-- [ ] Run `pnpm --filter @ui-spec/validate-jsonschema test`.
+- [x] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm --filter @ui-spec/validate-jsonschema test`.
 
 #### Step 10 (v1) STOP & COMMIT
 
