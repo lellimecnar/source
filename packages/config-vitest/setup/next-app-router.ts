@@ -1,3 +1,3 @@
-import { installNextAppRouterMocks } from '../next/presets/app-router.js';
+import { installNextAppRouterMocks } from '../next/presets/app-router.ts';
 
 installNextAppRouterMocks();

@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { createStore } from './store';
 
 describe('createStore (v1)', () => {
@@ -8,7 +10,7 @@ describe('createStore (v1)', () => {
 
 	it('notifies subscribers on setData', () => {
 		const store = createStore({ count: 0 });
-		const listener = jest.fn();
+		const listener = vi.fn();
 
 		const unsubscribe = store.subscribe(listener);
 		store.setData({ count: 1 });

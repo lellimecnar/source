@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import type { ViteUserConfig } from 'vitest/config';
 
-import { vitestBaseConfig } from './vitest.base.js';
+import { vitestBaseConfig } from './vitest.base.ts';
 
 function resolveLocalFile(pathFromRoot: string) {
 	return fileURLToPath(new URL(pathFromRoot, import.meta.url));

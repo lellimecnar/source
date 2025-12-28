@@ -951,11 +951,11 @@ export default defineConfig(vitestBrowserConfigHappyDom());
 
 For each `packages/ui-spec/*/package.json` in this step:
 
-- [ ] Replace `"test": "jest"` with `"test": "vitest run"`
-- [ ] Add:
+- [x] Replace `"test": "jest"` with `"test": "vitest run"`
+- [x] Add:
   - `"test:watch": "vitest"`
   - `"test:coverage": "vitest run --coverage"`
-- [ ] Delete `jest.config.js` and remove Jest-only devDependencies when safe (final cleanup happens in Step 13).
+- [x] Delete `jest.config.js` and remove Jest-only devDependencies when safe (final cleanup happens in Step 13).
 
 Delete these files:
 
@@ -968,12 +968,12 @@ Delete these files:
 
 #### Step 6 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/core test`
-- [ ] `pnpm --filter @ui-spec/react test`
-- [ ] `pnpm --filter @ui-spec/router test`
-- [ ] `pnpm --filter @ui-spec/router-react test`
-- [ ] `pnpm --filter @ui-spec/validate-jsonschema test`
-- [ ] `pnpm --filter @ui-spec/cli test`
+- [x] `pnpm --filter @ui-spec/core test`
+- [x] `pnpm --filter @ui-spec/react test`
+- [x] `pnpm --filter @ui-spec/router test`
+- [x] `pnpm --filter @ui-spec/router-react test`
+- [x] `pnpm --filter @ui-spec/validate-jsonschema test`
+- [x] `pnpm --filter @ui-spec/cli test`
 
 #### Step 6 STOP & COMMIT
 
