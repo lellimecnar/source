@@ -99,9 +99,6 @@ pnpm build
 # Lint all workspaces
 pnpm lint
 
-# Run all tests
-pnpm test
-
 # Type-check all workspaces
 pnpm type-check
 
@@ -145,10 +142,7 @@ pnpm ui ui
 
 **Card Stack (Testing):**
 
-```bash
-pnpm --filter @card-stack/core test
-pnpm --filter @card-stack/core test:watch
-```
+- Use `#tool:execute/runTests` (preferred) and target test files under `card-stack/*/src/**/*.spec.ts`.
 
 ## 6. Architecture & Patterns
 
@@ -186,14 +180,14 @@ pnpm --filter @card-stack/core test:watch
 
 - **Unit Tests**: Jest is configured per-package.
 - **Running Tests**:
-  - Root: `pnpm test` (runs all)
-  - Package: `pnpm --filter <package-name> test`
+  - Use `#tool:execute/runTests` (preferred).
+  - To run a subset, pass absolute paths to the relevant `*.spec.*` files under the workspace.
 - **Test Location**: Co-located with source files (e.g., `src/utils.spec.ts`).
 
 ## 8. Pull Request Guidelines
 
 1.  **Scope**: Keep changes focused on a single task or feature.
-2.  **Tests**: Ensure all tests pass (`pnpm test`) before submitting.
+2.  **Tests**: Ensure all tests pass (run via `#tool:execute/runTests`) before submitting.
 3.  **Linting**: Run `pnpm lint` to verify code style.
 4.  **Type Check**: Run `pnpm type-check` to ensure no TypeScript errors.
 5.  **Documentation**: Update relevant blueprints or `AGENTS.md` if architectural changes are made.

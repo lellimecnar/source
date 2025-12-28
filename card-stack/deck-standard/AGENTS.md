@@ -25,11 +25,7 @@ src/
 ## Development Commands
 
 ```bash
-# Run tests
-pnpm --filter @card-stack/deck-standard test
-
-# Run tests in watch mode
-pnpm --filter @card-stack/deck-standard test:watch
+# Run unit tests via #tool:execute/runTests (preferred)
 
 # Lint code
 pnpm --filter @card-stack/deck-standard lint

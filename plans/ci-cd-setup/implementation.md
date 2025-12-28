@@ -577,7 +577,7 @@ Create a pull request template with quality checklists and document branch prote
 
 <!-- These should pass automatically via GitHub Actions -->
 
-- [ ] ✅ All tests pass (`pnpm test`)
+- [ ] ✅ All tests pass (run via `#tool:execute/runTests`)
 - [ ] ✅ Type checking passes (`pnpm type-check`)
 - [ ] ✅ Linting passes (`pnpm lint`)
 - [ ] ✅ Build succeeds (`pnpm build`)
@@ -1091,7 +1091,7 @@ After all workflows are committed and pushed, enable branch protection and verif
 - Common issues:
   - Missing dependencies: Run `pnpm install` locally first
   - Build failures: Ensure `pnpm build` works locally
-  - Test failures: Ensure `pnpm test` passes locally
+  - Test failures: Ensure tests pass locally (run via `#tool:execute/runTests`)
   - Type errors: Ensure `pnpm type-check` passes locally
 
 ### Changesets Not Creating PRs

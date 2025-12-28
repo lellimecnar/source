@@ -64,14 +64,14 @@ This will start all applications and packages in development mode:
 
 ## 🛠️ Key Commands
 
-| Command      | Description                                        |
-| ------------ | -------------------------------------------------- |
-| `pnpm dev`   | Start all apps in development mode                 |
-| `pnpm build` | Build all apps and packages                        |
-| `pnpm test`  | Run tests across the monorepo                      |
-| `pnpm lint`  | Lint all code                                      |
-| `pnpm clean` | Remove all build artifacts and node_modules        |
-| `pnpm ui ui` | Add a new shadcn/ui component to `@lellimecnar/ui` |
+| Command                  | Description                                        |
+| ------------------------ | -------------------------------------------------- |
+| `pnpm dev`               | Start all apps in development mode                 |
+| `pnpm build`             | Build all apps and packages                        |
+| `#tool:execute/runTests` | Run unit tests (preferred VS Code tool)            |
+| `pnpm lint`              | Lint all code                                      |
+| `pnpm clean`             | Remove all build artifacts and node_modules        |
+| `pnpm ui ui`             | Add a new shadcn/ui component to `@lellimecnar/ui` |
 
 ## 📄 License
 

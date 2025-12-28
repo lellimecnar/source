@@ -368,7 +368,7 @@ If any CI check fails, auto-merge is automatically blocked regardless of other r
    git checkout renovate-major
    pnpm install
    pnpm build
-   pnpm test
+   # Run unit tests via #tool:execute/runTests (preferred)
    ```
 4. **Apply Code Changes:**
    - Update APIs per migration guide
@@ -651,7 +651,7 @@ pnpm update <package-name> -r
 
 # Install and test
 pnpm install
-pnpm test
+# Run unit tests via #tool:execute/runTests (preferred)
 pnpm build
 
 # Commit

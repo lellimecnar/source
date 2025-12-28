@@ -38,8 +38,7 @@
 # Build (uses tsconfig.build.json to exclude tests)
 pnpm --filter polymix build
 
-# Run tests
-pnpm --filter polymix test
+# Run unit tests via #tool:execute/runTests (preferred)
 
 # Type check (uses main tsconfig.json)
 pnpm --filter polymix type-check

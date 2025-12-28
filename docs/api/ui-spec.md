@@ -40,6 +40,5 @@ Bindings use JSONPath:
 
 From repo root:
 
-- `pnpm --filter @ui-spec/core test`
-- `pnpm --filter @ui-spec/react test`
+- Use `#tool:execute/runTests` (preferred) and target `*.spec.*` files under the relevant `@ui-spec/*` package.
 - `pnpm -w type-check`

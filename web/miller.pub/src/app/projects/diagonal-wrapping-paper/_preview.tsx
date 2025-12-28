@@ -35,14 +35,14 @@ export function Preview(): JSX.Element {
 			<ol className="max-w-2xl">
 				<li>
 					Cut out a{' '}
-					<span className="rounded-md border border-background bg-foreground px-1 font-bold text-background">
+					<span className="border-background bg-foreground text-background rounded-md border px-1 font-bold">
 						{sizeWFr}&quot;&nbsp;&times;&nbsp;{sizeHFr}&quot;
 					</span>{' '}
 					{isSquare ? `square` : 'rectangle'} of wrapping paper.
 				</li>
 				<li>
 					Measure{' '}
-					<span className="rounded-md border border-background bg-foreground px-1 font-bold text-background">
+					<span className="border-background bg-foreground text-background rounded-md border px-1 font-bold">
 						{centerFr}&quot;
 					</span>{' '}
 					from the top to mark the center line.{' '}
@@ -52,7 +52,7 @@ export function Preview(): JSX.Element {
 				</li>
 				<li>
 					Measure{' '}
-					<span className="rounded-md border border-background bg-foreground px-1 font-bold text-background">
+					<span className="border-background bg-foreground text-background rounded-md border px-1 font-bold">
 						{fromEdgeFr}&quot;
 					</span>{' '}
 					from the left edge to mark the first corner of the box.
@@ -62,7 +62,7 @@ export function Preview(): JSX.Element {
 					<span className="rounded-md border border-red-100 bg-red-700 px-1 font-semibold text-red-100">
 						(red dotted line)
 					</span>{' '}
-					<span className="rounded-md border border-background bg-foreground px-1 font-bold text-background">
+					<span className="border-background bg-foreground text-background rounded-md border px-1 font-bold">
 						{fromEdgeFr}&quot;
 					</span>{' '}
 					from the left edge, as shown in the diagram above.
@@ -158,7 +158,7 @@ function Grid(): JSX.Element {
 						<text
 							x={6}
 							y={IN * i + IN - 6}
-							dominantBaseline="end"
+							dominantBaseline="text-after-edge"
 							fontSize="14"
 						>
 							{n}
@@ -489,7 +489,7 @@ function Dimensions(): JSX.Element {
 			<text
 				x={sizeW - 24}
 				y={sizeH - 24}
-				dominantBaseline="end"
+				dominantBaseline="text-after-edge"
 				textAnchor="end"
 				fontSize="24"
 				fontWeight={700}

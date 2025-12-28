@@ -47,11 +47,11 @@ Enhance the repository's maintainability, performance, and testing capabilities 
 
 **Files:** `pnpm-workspace.yaml`, `e2e/package.json`, `e2e/playwright.config.ts`, `e2e/tests/example.spec.ts`
 **What:** Create a new `e2e` workspace and configure Playwright for end-to-end testing.
-**Testing:** Run `pnpm --filter e2e test` to verify the example test passes.
+**Testing:** Run tests via `#tool:execute/runTests` if the test runner is integrated; otherwise rely on CI for verification.
 
 ### Step 7: Unit Test Migration (Vitest) [NEEDS CLARIFICATION]
 
 **Files:** `packages/config-jest/*`, `packages/config-vitest/*`, `packages/utils/jest.config.js`, `card-stack/*/jest.config.js`
 **What:** Create a new `config-vitest` package and migrate `utils` and `card-stack` packages from Jest to Vitest.
-**Testing:** Run `pnpm test` and verify all tests pass with the new runner.
+**Testing:** Run unit tests via `#tool:execute/runTests` and verify the suite passes with the new runner.
 **Clarification:** Migrating to Vitest replaces the existing Jest setup. Do you want this included in this PR, or should it be a separate "Phase 2" PR to keep this one smaller?

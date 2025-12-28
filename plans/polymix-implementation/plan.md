@@ -178,8 +178,7 @@ Create a robust, type-safe mixin library that:
 ## Commands
 
 ```bash
-# Run all tests
-pnpm --filter polymix test
+# Run all tests via #tool:execute/runTests
 
 # Build package
 pnpm --filter polymix build

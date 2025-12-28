@@ -33,7 +33,7 @@
 
 <!-- These should pass automatically via GitHub Actions -->
 
-- [ ] ✅ All tests pass (`pnpm test`)
+- [ ] ✅ All tests pass (run via `#tool:execute/runTests`)
 - [ ] ✅ Type checking passes (`pnpm type-check`)
 - [ ] ✅ Linting passes (`pnpm lint`)
 - [ ] ✅ Build succeeds (`pnpm build`)

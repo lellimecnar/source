@@ -264,7 +264,7 @@ export function PlayingCard({ card }: PlayingCardProps) {
     - Update `ui` packages next.
 3.  **Integrate in App**:
     - Update the App to use the new package versions.
-4.  **Verify**: Run `pnpm test` and `pnpm lint`.
+4.  **Verify**: Run unit tests via `#tool:execute/runTests` and run `pnpm lint`.
 
 ### Common Pitfalls
 

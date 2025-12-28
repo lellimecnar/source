@@ -25,8 +25,7 @@ pnpm ui dev                  # Watch mode for Tailwind
 pnpm ui ui
 
 # Test specific package
-pnpm --filter @card-stack/core test
-pnpm --filter @card-stack/core test:watch
+# Run unit tests via #tool:execute/runTests (preferred)
 
 # Deep clean (removes all node_modules, .turbo, .next, .expo)
 pnpm clean
@@ -136,7 +135,7 @@ Jest is configured per-package, NOT at monorepo root:
 
 - Config location: `<package>/jest.config.js`
 - Tests alongside source: `<package>/src/**/*.spec.ts`
-- Run from root: `pnpm --filter <package-name> test`
+- Run tests via `#tool:execute/runTests` (preferred)
 
 Card-stack packages have comprehensive tests using Jest. Follow existing patterns when adding tests.
 

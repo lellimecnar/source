@@ -197,7 +197,7 @@ pnpm --filter @lellimecnar/<package-name> lint
 
 # Test (if applicable)
 
-pnpm --filter @lellimecnar/<package-name> test
+# Run unit tests via #tool:execute/runTests (preferred)
 
 # Build (if applicable)
 

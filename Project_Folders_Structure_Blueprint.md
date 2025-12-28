@@ -157,7 +157,7 @@ Pure TypeScript packages for business logic.
 - **Common Tasks**:
   - **Add UI Component**: Run `pnpm ui ui` in the root to add a shadcn/ui component to `@lellimecnar/ui`.
   - **Run Dev Server**: `pnpm dev` (runs all), or `pnpm <workspace-name> dev` (e.g., `pnpm miller.pub dev`).
-  - **Testing**: `pnpm test` (runs all), or `pnpm --filter <package> test`.
+  - **Testing**: Use `#tool:execute/runTests` (preferred) and target relevant `*.spec.*` files.
 
 - **Dependencies**:
   - Apps depend on `packages/ui` and `packages/utils`.

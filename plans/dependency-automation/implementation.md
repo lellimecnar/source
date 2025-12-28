@@ -202,7 +202,7 @@ git checkout -b chore/dependency-automation
 		"- [ ] All CI checks pass",
 		"- [ ] `pnpm install` completes without errors",
 		"- [ ] `pnpm build` succeeds for all workspaces",
-		"- [ ] `pnpm test` passes for all workspaces",
+		"- [ ] Unit tests pass (run via `#tool:execute/runTests`)",
 		"- [ ] `pnpm lint` passes with no errors",
 		"- [ ] Manual smoke testing of affected applications",
 		"",
@@ -829,11 +829,8 @@ describe('formatDate', () => {
 To generate coverage reports:
 
 ```bash
-# Run tests with coverage
-pnpm test -- --coverage
-
-# View coverage report
-open coverage/lcov-report/index.html
+# Run unit tests via #tool:execute/runTests with mode="coverage"
+# Open coverage/lcov-report/index.html in your browser
 ```
 
 ## Pull Requests
@@ -857,11 +854,12 @@ open coverage/lcov-report/index.html
    - List any breaking changes
 
 4. **Before Submitting:**
-   - [ ] All tests pass (`pnpm test`)
-   - [ ] Linting passes (`pnpm lint`)
-   - [ ] Type checking passes (`pnpm type-check`)
-   - [ ] Build succeeds (`pnpm build`)
-   - [ ] Manual testing completed
+
+- [ ] All tests pass (run via `#tool:execute/runTests`)
+- [ ] Linting passes (`pnpm lint`)
+- [ ] Type checking passes (`pnpm type-check`)
+- [ ] Build succeeds (`pnpm build`)
+- [ ] Manual testing completed
 
 ### CI Requirements
 

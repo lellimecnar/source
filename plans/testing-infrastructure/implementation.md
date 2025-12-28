@@ -515,49 +515,19 @@ We follow the **Testing Pyramid** approach:
 
 ## Running Tests
 
-### From Root
-```bash
-# Run all tests across all packages
-pnpm test
+Run unit tests via `#tool:execute/runTests` (preferred).
 
-# Run tests in watch mode
-pnpm test:watch
-
-# Run tests with coverage
-pnpm test:coverage
-
-# Run tests in CI mode
-pnpm test:ci
-````
+- To run the full suite, omit `files`.
+- To run a subset, pass absolute `*.spec.*` paths in `files`.
+- For coverage, use `mode="coverage"`.
 
 ### From Specific Package
 
-```bash
-# Run tests in a specific package
-pnpm --filter @lellimecnar/ui test
-
-# Run with coverage
-pnpm --filter @lellimecnar/ui test:coverage
-
-# Watch mode
-pnpm --filter @lellimecnar/ui test:watch
-```
+Use `#tool:execute/runTests` and target the relevant test file(s) for that package.
 
 ### From Package Directory
 
-```bash
-# Navigate to package
-cd packages/ui
-
-# Run tests
-pnpm test
-
-# With coverage
-pnpm test:coverage
-
-# Watch mode
-pnpm test:watch
-```
+Prefer `#tool:execute/runTests` rather than running tests from a package directory.
 
 ## Coverage Requirements
 
@@ -894,29 +864,19 @@ jest.spyOn(apiClient, 'fetchData').mockResolvedValue({ data: 'mocked' });
 
 ### Run a Single Test File
 
-```bash
-pnpm test path/to/test.spec.ts
-```
+- Use `#tool:execute/runTests` and pass the absolute path to the test file in `files`.
 
 ### Run Tests Matching a Pattern
 
-```bash
-pnpm test --testNamePattern="Button"
-```
+- Use `#tool:execute/runTests` and pass `testNames`.
 
 ### Run in Debug Mode
 
-```bash
-node --inspect-brk node_modules/.bin/jest --runInBand
-```
-
-Then open `chrome://inspect` in Chrome and click "inspect" on the target.
+Prefer running tests via `#tool:execute/runTests`; debugging configuration is environment-specific and should be done through VS Code's JS/TS debugging tooling.
 
 ### View Coverage for Specific File
 
-```bash
-pnpm test:coverage --collectCoverageFrom="src/components/Button/**"
-```
+- Use `#tool:execute/runTests` with `mode="coverage"` and set `coverageFiles` to the absolute path(s) you want detailed coverage for.
 
 ## CI Integration
 
@@ -948,18 +908,20 @@ Tests run automatically in CI on every push and pull request. The CI pipeline:
 ````
 
 #### Step 5 Verification Checklist
+
 - [x] Verify `docs/TESTING.md` file exists and contains comprehensive documentation
 - [x] Review the documentation for completeness
 - [x] Ensure all package types are covered with examples
 - [x] Verify code examples are syntactically correct
 
 #### Step 5 STOP & COMMIT
+
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ```bash
 git add docs/TESTING.md
 git commit -m "docs: add comprehensive testing guide"
-````
+```
 
 ---
 

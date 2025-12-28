@@ -62,8 +62,7 @@ pnpm readon ios
 # Lint code
 pnpm readon lint
 
-# Run tests
-pnpm readon test
+# Run unit tests via #tool:execute/runTests (preferred)
 ```
 
 ## Dependencies

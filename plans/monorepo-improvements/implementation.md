@@ -293,7 +293,7 @@ pnpm --filter @lellimecnar/e2e exec playwright install --with-deps
 
 ##### Step 4 Verification Checklist
 
-- [ ] Run `pnpm --filter @lellimecnar/e2e test` and verify the example test passes.
+- [ ] Run tests via `#tool:execute/runTests` if the test runner is integrated; otherwise rely on CI for verification.
 
 #### Step 4 STOP & COMMIT
 

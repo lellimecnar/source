@@ -13,7 +13,7 @@ Establish comprehensive testing infrastructure with coverage reporting, add test
 
 **Files:** `packages/config-jest/jest-preset.js`, `packages/config-jest/browser/jest-preset.js`
 **What:** Add coverage configuration to shared Jest presets including coverage thresholds (80% branches, lines, functions), reporters (text, html, lcov), and coverage directory setup.
-**Testing:** Run `pnpm test:coverage` from any package with tests; verify coverage report is generated with appropriate thresholds
+**Testing:** Use `#tool:execute/runTests` with `mode="coverage"`; verify a coverage report is generated with appropriate thresholds
 
 ### Step 2: Add Jest Configuration - Web Apps
 
@@ -49,7 +49,7 @@ Establish comprehensive testing infrastructure with coverage reporting, add test
 
 **Files:** `package.json` (root)
 **What:** Add `test:coverage` and `test:ci` scripts to root package.json that run tests with coverage across all workspaces.
-**Testing:** Run `pnpm test:coverage` from root; verify coverage reports are generated for all tested packages
+**Testing:** Use `#tool:execute/runTests` with `mode="coverage"`; verify coverage reports are generated for all tested packages
 
 ### Step 8: Configure Coverage Upload for CI
 

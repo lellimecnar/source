@@ -67,16 +67,8 @@ pnpm --filter @lellimecnar/ui build
 
 ### Testing
 
-```bash
-# Run all tests
-pnpm test
-
-# Run tests in watch mode
-pnpm test:watch
-
-# Run tests for specific package
-pnpm --filter @card-stack/core test
-```
+- Run unit tests using `#tool:execute/runTests` (preferred).
+- For a focused run, provide absolute paths to the relevant `*.spec.*` files.
 
 ### Linting and Type Checking
 
@@ -135,13 +127,8 @@ describe('formatDate', () => {
 
 To generate coverage reports:
 
-```bash
-# Run tests with coverage
-pnpm test -- --coverage
-
-# View coverage report
-open coverage/lcov-report/index.html
-```
+- Use `#tool:execute/runTests` with `mode="coverage"`.
+- Open the HTML report at `coverage/lcov-report/index.html`.
 
 ## Pull Requests
 
@@ -164,7 +151,7 @@ open coverage/lcov-report/index.html
    - List any breaking changes
 
 4. **Before Submitting:**
-   - [ ] All tests pass (`pnpm test`)
+   - [ ] All tests pass (run via `#tool:execute/runTests`)
    - [ ] Linting passes (`pnpm lint`)
    - [ ] Type checking passes (`pnpm type-check`)
    - [ ] Build succeeds (`pnpm build`)
@@ -223,16 +210,8 @@ pnpm --filter @lellimecnar/ui build
 
 ### Testing
 
-```bash
-# Run all tests
-pnpm test
-
-# Run tests in watch mode
-pnpm test:watch
-
-# Run tests for specific package
-pnpm --filter @card-stack/core test
-```
+- Run unit tests using `#tool:execute/runTests` (preferred).
+- For a focused run, pass absolute paths to `*.spec.*` files in `files`.
 
 ### Linting and Type Checking
 
@@ -456,13 +435,8 @@ describe('formatDate', () => {
 
 To generate coverage reports:
 
-```bash
-# Run tests with coverage
-pnpm test -- --coverage
-
-# View coverage report
-open coverage/lcov-report/index.html
-```
+- Use `#tool:execute/runTests` with `mode="coverage"`.
+- Open `coverage/lcov-report/index.html` in your browser.
 
 ## Pull Requests
 
@@ -485,7 +459,7 @@ open coverage/lcov-report/index.html
    - List any breaking changes
 
 4. **Before Submitting:**
-   - [ ] All tests pass (`pnpm test`)
+   - [ ] All tests pass (run via `#tool:execute/runTests`)
    - [ ] Linting passes (`pnpm lint`)
    - [ ] Type checking passes (`pnpm type-check`)
    - [ ] Build succeeds (`pnpm build`)

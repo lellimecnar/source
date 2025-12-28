@@ -43,7 +43,7 @@ describe('react runtime', () => {
 			);
 		});
 
-		const btn = container.querySelector('#btn')!;
+		const btn = container.querySelector<HTMLButtonElement>('#btn')!;
 		expect(btn).toBeTruthy();
 
 		await act(async () => {

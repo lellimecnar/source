@@ -111,7 +111,7 @@ Before starting ANY plan:
 
 After completing ANY plan:
 
-- [ ] All tests pass locally (`pnpm test`)
+- [ ] All unit tests pass (run via `#tool:execute/runTests`)
 - [ ] Type-check passes (`pnpm type-check`)
 - [ ] Linting passes (`pnpm lint`)
 - [ ] Build succeeds (`pnpm build`)
@@ -137,7 +137,7 @@ pnpm type-check 2>&1 | grep "error TS" | wc -l  # Count errors
 ```bash
 # Check GitHub Actions logs
 # Verify secrets are configured
-# Test locally: pnpm lint && pnpm test && pnpm build
+# Test locally: pnpm lint && pnpm build (run unit tests via #tool:execute/runTests)
 ```
 
 **Renovate creates too many PRs:**

@@ -61,11 +61,7 @@ src/
 ## Development Commands
 
 ```bash
-# Run tests
-pnpm --filter @card-stack/core test
-
-# Run tests in watch mode
-pnpm --filter @card-stack/core test:watch
+# Run unit tests via #tool:execute/runTests (preferred)
 
 # Lint code
 pnpm --filter @card-stack/core lint

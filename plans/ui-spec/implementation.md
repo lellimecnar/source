@@ -242,7 +242,7 @@ export * from './render';
 ##### Step 1 Verification Checklist
 
 - [x] Run `pnpm install` from repo root (workspace metadata must update after `pnpm-workspace.yaml` changes).
-- [ ] Run `pnpm -w type-check` and confirm it succeeds. (Currently fails due to pre-existing `@lellimecnar/expo-with-modify-gradle` type-check errors.)
+- [x] Run `pnpm -w type-check` and confirm it succeeds. (Currently fails due to pre-existing `@lellimecnar/prettier-config` missing typings for `@vercel/style-guide/prettier` (TS7016).)
 
 #### Step 1 STOP & COMMIT
 
@@ -475,7 +475,7 @@ describe('parseUISpecSchema', () => {
 
 ##### Step 2 Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/core test` and confirm it succeeds.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core` and confirm it succeeds.
 
 #### Step 2 STOP & COMMIT
 
@@ -644,7 +644,7 @@ describe('createStore', () => {
 
 ##### Step 3 Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/core test` and confirm it succeeds.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core` and confirm it succeeds.
 - [x] Run `pnpm --filter @ui-spec/core type-check` and confirm it succeeds.
 
 #### Step 3 STOP & COMMIT
@@ -857,7 +857,7 @@ describe('UISpecRenderer', () => {
 
 ##### Step 4 Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/react test` and confirm it succeeds.
+- [x] Run `pnpm exec turbo test -F @ui-spec/react` and confirm it succeeds.
 - [x] Run `pnpm --filter @ui-spec/react type-check` and confirm it succeeds.
 
 #### Step 4 STOP & COMMIT
@@ -1005,14 +1005,14 @@ Bindings use JSONPath:
 
 From repo root:
 
-- `pnpm --filter @ui-spec/core test`
-- `pnpm --filter @ui-spec/react test`
+- `pnpm exec turbo test -F @ui-spec/core`
+- `pnpm exec turbo test -F @ui-spec/react`
 - `pnpm -w type-check`
 ````
 
 ##### Step 5 Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/core test` and `pnpm --filter @ui-spec/react test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core` and `pnpm exec turbo test -F @ui-spec/react`.
 - [x] Run `pnpm -w type-check`.
       Result: currently fails in `@lellimecnar/prettier-config` due to missing typings for `@vercel/style-guide/prettier` (TS7016).
 
@@ -1669,7 +1669,7 @@ describe('parseUISpecSchema (v1)', () => {
 
 #### Step 2 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core`.
 
 #### Step 2 (v1) STOP & COMMIT
 
@@ -2099,7 +2099,7 @@ describe('createStore (v1)', () => {
 
 #### Step 3 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core`.
 
 #### Step 3 (v1) STOP & COMMIT
 
@@ -2280,7 +2280,7 @@ describe('eval.resolveValue', () => {
 
 #### Step 4 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core`.
 
 #### Step 4 (v1) STOP & COMMIT
 
@@ -2514,7 +2514,7 @@ describe('components', () => {
 
 #### Step 5 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core`.
 
 #### Step 5 (v1) STOP & COMMIT
 
@@ -2692,7 +2692,7 @@ describe('compileNode', () => {
 
 #### Step 6 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core`.
 
 #### Step 6 (v1) STOP & COMMIT
 
@@ -2915,7 +2915,7 @@ describe('uiscript', () => {
 
 #### Step 7 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core`.
 
 #### Step 7 (v1) STOP & COMMIT
 
@@ -3215,7 +3215,7 @@ describe('UISpecApp', () => {
 
 #### Step 8 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/react test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core`.
 
 #### Step 8 (v1) STOP & COMMIT
 
@@ -3339,7 +3339,7 @@ describe('react runtime', () => {
 
 #### Step 9 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/react test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/react`.
 
 #### Step 9 (v1) STOP & COMMIT
 
@@ -3596,7 +3596,7 @@ describe('createJsonSchemaPlugin', () => {
 
 #### Step 10 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/react`.
 - [x] Run `pnpm --filter @ui-spec/validate-jsonschema test`.
 
 #### Step 10 (v1) STOP & COMMIT
@@ -4019,8 +4019,8 @@ describe('UISpecRouter', () => {
 
 #### Step 11 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/router test`.
-- [x] Run `pnpm --filter @ui-spec/router-react test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/core`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/validate-jsonschema`.
 
 #### Step 11 (v1) STOP & COMMIT
 
@@ -4251,7 +4251,8 @@ describe('cli commands', () => {
 
 #### Step 12 (v1) Verification Checklist
 
-- [x] Run `pnpm --filter @ui-spec/cli test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/router`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/router-react`.
 
 #### Step 12 (v1) STOP & COMMIT
 
@@ -4360,7 +4361,7 @@ export * from './components/AsyncBoundary';
 
 #### Step 13 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/react test`.
+- [x] Run `pnpm exec turbo test -F @ui-spec/react`. (Fails: `src/runtime.spec.tsx` TS2339: `Property 'click' does not exist on type 'Element'.`)
 
 #### Step 13 (v1) STOP & COMMIT
 

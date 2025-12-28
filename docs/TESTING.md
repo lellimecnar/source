@@ -42,50 +42,10 @@ We follow the **Testing Pyramid** approach:
 
 ## Running Tests
 
-### From Root
-
-```bash
-# Run all tests across all packages
-pnpm test
-
-# Run tests in watch mode
-pnpm test:watch
-
-# Run tests with coverage
-pnpm test:coverage
-
-# Run tests in CI mode
-pnpm test:ci
-```
-
-### From Specific Package
-
-```bash
-# Run tests in a specific package
-pnpm --filter @lellimecnar/ui test
-
-# Run with coverage
-pnpm --filter @lellimecnar/ui test:coverage
-
-# Watch mode
-pnpm --filter @lellimecnar/ui test:watch
-```
-
-### From Package Directory
-
-```bash
-# Navigate to package
-cd packages/ui
-
-# Run tests
-pnpm test
-
-# With coverage
-pnpm test:coverage
-
-# Watch mode
-pnpm test:watch
-```
+- Use `#tool:execute/runTests` (preferred) to execute unit tests.
+- Run everything by omitting `files`.
+- Run a subset by passing absolute paths to specific `*.spec.*` files.
+- Collect coverage by using `mode="coverage"` (and optionally `coverageFiles` for focused reporting).
 
 ## Coverage Requirements
 
@@ -420,15 +380,11 @@ jest.spyOn(apiClient, 'fetchData').mockResolvedValue({ data: 'mocked' });
 
 ### Run a Single Test File
 
-```bash
-pnpm test path/to/test.spec.ts
-```
+- Use `#tool:execute/runTests` and pass the absolute path to the test file in `files`.
 
 ### Run Tests Matching a Pattern
 
-```bash
-pnpm test --testNamePattern="Button"
-```
+- Use `#tool:execute/runTests` and pass `testNames` to target a specific test name.
 
 ### Run in Debug Mode
 
@@ -440,9 +396,7 @@ Then open `chrome://inspect` in Chrome and click "inspect" on the target.
 
 ### View Coverage for Specific File
 
-```bash
-pnpm test:coverage --collectCoverageFrom="src/components/Button/**"
-```
+- Use `#tool:execute/runTests` with `mode="coverage"` and set `coverageFiles` to the absolute path(s) you want detailed coverage for.
 
 ## CI Integration
 

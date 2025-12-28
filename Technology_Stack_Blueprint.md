@@ -241,7 +241,7 @@ export default function Page() {
 2.  **Create Shared Logic**: If shared, implement in `packages/utils` or a new package.
 3.  **Create UI Components**: If reusable, implement in `@lellimecnar/ui` (web) or `@lellimecnar/ui-nativewind` (mobile).
 4.  **Implement Feature**: Build the feature in the respective app (`web/*` or `mobile/*`).
-5.  **Test**: Write unit tests (`.spec.ts`) and run `pnpm test`.
+5.  **Test**: Write unit tests (`.spec.ts`) and run them via `#tool:execute/runTests`.
 6.  **Lint & Format**: Run `pnpm lint` and `pnpm format`.
 
 ## 8. Technology Relationship Diagrams
