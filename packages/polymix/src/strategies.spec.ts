@@ -1,10 +1,12 @@
+import { vi } from 'vitest';
+
 import { applyStrategy } from './strategies';
 
 describe('composition Strategies', () => {
 	describe('override', () => {
 		it('should return the result of the last function', () => {
-			const fn1 = jest.fn().mockReturnValue(1);
-			const fn2 = jest.fn().mockReturnValue(2);
+			const fn1 = vi.fn().mockReturnValue(1);
+			const fn2 = vi.fn().mockReturnValue(2);
 			const result = applyStrategy('override', [fn1, fn2], null, 10);
 			expect(result).toBe(2);
 			expect(fn1).toHaveBeenCalledWith(10);
@@ -12,8 +14,8 @@ describe('composition Strategies', () => {
 		});
 
 		it('should default to override for unknown strategies (including symbols)', () => {
-			const fn1 = jest.fn().mockReturnValue('first');
-			const fn2 = jest.fn().mockReturnValue('last');
+			const fn1 = vi.fn().mockReturnValue('first');
+			const fn2 = vi.fn().mockReturnValue('last');
 			const result = applyStrategy(Symbol('unknown'), [fn1, fn2], null, 1, 2);
 			expect(result).toBe('last');
 			expect(fn1).toHaveBeenCalledWith(1, 2);
@@ -59,8 +61,8 @@ describe('composition Strategies', () => {
 			const a = createDeferred<number>();
 			const b = createDeferred<number>();
 
-			const fn1 = jest.fn(async () => a.promise);
-			const fn2 = jest.fn(async () => b.promise);
+			const fn1 = vi.fn(async () => a.promise);
+			const fn2 = vi.fn(async () => b.promise);
 
 			const p = applyStrategy('parallel', [fn1, fn2], null) as Promise<
 				number[]
@@ -76,8 +78,8 @@ describe('composition Strategies', () => {
 		});
 
 		it('should pass arguments to all functions', async () => {
-			const fn1 = jest.fn().mockResolvedValue(1);
-			const fn2 = jest.fn().mockResolvedValue(2);
+			const fn1 = vi.fn().mockResolvedValue(1);
+			const fn2 = vi.fn().mockResolvedValue(2);
 			await applyStrategy('parallel', [fn1, fn2], null, 'arg1', 'arg2');
 			expect(fn1).toHaveBeenCalledWith('arg1', 'arg2');
 			expect(fn2).toHaveBeenCalledWith('arg1', 'arg2');
@@ -165,8 +167,8 @@ describe('composition Strategies', () => {
 			const slow = createDeferred<string>();
 			const fast = createDeferred<string>();
 
-			const slowFn = jest.fn(() => slow.promise);
-			const fastFn = jest.fn(() => fast.promise);
+			const slowFn = vi.fn(() => slow.promise);
+			const fastFn = vi.fn(() => fast.promise);
 
 			const p = applyStrategy(
 				'race',
@@ -223,9 +225,9 @@ describe('composition Strategies', () => {
 			];
 
 			for (const c of cases) {
-				const fn1 = jest.fn(() => c.value);
-				const fn2 = jest.fn(() => 'should-not-run');
-				const fn3 = jest.fn(() => 'also-should-not-run');
+				const fn1 = vi.fn(() => c.value);
+				const fn2 = vi.fn(() => 'should-not-run');
+				const fn3 = vi.fn(() => 'also-should-not-run');
 
 				const result = applyStrategy('first', [fn1, fn2, fn3], null);
 				expect(result).toBe(c.value);
@@ -236,9 +238,9 @@ describe('composition Strategies', () => {
 		});
 
 		it('first: returns undefined when all are undefined', () => {
-			const fn1 = jest.fn(() => undefined);
-			const fn2 = jest.fn(() => undefined);
-			const fn3 = jest.fn(() => undefined);
+			const fn1 = vi.fn(() => undefined);
+			const fn2 = vi.fn(() => undefined);
+			const fn3 = vi.fn(() => undefined);
 
 			const result = applyStrategy('first', [fn1, fn2, fn3], null);
 			expect(result).toBeUndefined();
@@ -248,9 +250,9 @@ describe('composition Strategies', () => {
 		});
 
 		it('any: short-circuits when a truthy value is found', async () => {
-			const fn1 = jest.fn(() => 0);
-			const fn2 = jest.fn(() => 'truthy');
-			const fn3 = jest.fn(() => true);
+			const fn1 = vi.fn(() => 0);
+			const fn2 = vi.fn(() => 'truthy');
+			const fn3 = vi.fn(() => true);
 
 			const result = await applyStrategy('any', [fn1, fn2, fn3], null);
 			expect(result).toBe(true);
@@ -260,9 +262,9 @@ describe('composition Strategies', () => {
 		});
 
 		it('all: short-circuits when a falsy value is found', async () => {
-			const fn1 = jest.fn(() => true);
-			const fn2 = jest.fn(() => 0);
-			const fn3 = jest.fn(() => true);
+			const fn1 = vi.fn(() => true);
+			const fn2 = vi.fn(() => 0);
+			const fn3 = vi.fn(() => true);
 
 			const result = await applyStrategy('all', [fn1, fn2, fn3], null);
 			expect(result).toBe(false);
@@ -272,8 +274,8 @@ describe('composition Strategies', () => {
 		});
 
 		it('override: does not short-circuit (all functions are called)', () => {
-			const fn1 = jest.fn(() => 'first');
-			const fn2 = jest.fn(() => 'last');
+			const fn1 = vi.fn(() => 'first');
+			const fn2 = vi.fn(() => 'last');
 
 			const result = applyStrategy('override', [fn1, fn2], null);
 			expect(result).toBe('last');
@@ -282,8 +284,8 @@ describe('composition Strategies', () => {
 		});
 
 		it('parallel: does not short-circuit (all functions are called)', async () => {
-			const fn1 = jest.fn(async () => 1);
-			const fn2 = jest.fn(async () => 2);
+			const fn1 = vi.fn(async () => 1);
+			const fn2 = vi.fn(async () => 2);
 
 			const result = await applyStrategy('parallel', [fn1, fn2], null);
 			expect(result).toEqual([1, 2]);
@@ -305,8 +307,8 @@ describe('composition Strategies', () => {
 			const slow = createDeferred<string>();
 			const fast = createDeferred<string>();
 
-			const fn1 = jest.fn(() => slow.promise);
-			const fn2 = jest.fn(() => fast.promise);
+			const fn1 = vi.fn(() => slow.promise);
+			const fn2 = vi.fn(() => fast.promise);
 
 			const promise = applyStrategy(
 				'race',
@@ -323,15 +325,15 @@ describe('composition Strategies', () => {
 
 		it('pipe: executes sequentially and passes the previous result', async () => {
 			const seen: number[] = [];
-			const fn1 = jest.fn((a: number) => {
+			const fn1 = vi.fn((a: number) => {
 				seen.push(a);
 				return a + 1;
 			});
-			const fn2 = jest.fn((a: number) => {
+			const fn2 = vi.fn((a: number) => {
 				seen.push(a);
 				return a * 2;
 			});
-			const fn3 = jest.fn((a: number) => {
+			const fn3 = vi.fn((a: number) => {
 				seen.push(a);
 				return a - 3;
 			});
@@ -346,15 +348,15 @@ describe('composition Strategies', () => {
 
 		it('compose: executes in reverse order (right-to-left)', async () => {
 			const seen: number[] = [];
-			const fn1 = jest.fn((a: number) => {
+			const fn1 = vi.fn((a: number) => {
 				seen.push(a);
 				return a + 1;
 			});
-			const fn2 = jest.fn((a: number) => {
+			const fn2 = vi.fn((a: number) => {
 				seen.push(a);
 				return a * 2;
 			});
-			const fn3 = jest.fn((a: number) => {
+			const fn3 = vi.fn((a: number) => {
 				seen.push(a);
 				return a - 3;
 			});
@@ -368,8 +370,8 @@ describe('composition Strategies', () => {
 		});
 
 		it('merge: calls all functions and deep-merges results', () => {
-			const fn1 = jest.fn(() => ({ a: { x: 1 }, items: [1] }));
-			const fn2 = jest.fn(() => ({ a: { y: 2 }, items: [2], b: 'new' }));
+			const fn1 = vi.fn(() => ({ a: { x: 1 }, items: [1] }));
+			const fn2 = vi.fn(() => ({ a: { y: 2 }, items: [2], b: 'new' }));
 
 			const result = applyStrategy('merge', [fn1, fn2], null);
 			expect(result).toEqual({ a: { x: 1, y: 2 }, items: [1, 2], b: 'new' });
@@ -381,10 +383,10 @@ describe('composition Strategies', () => {
 	describe('error propagation (behavioral)', () => {
 		it('first: sync throw propagates immediately', () => {
 			const boom = new Error('boom');
-			const fn1 = jest.fn(() => {
+			const fn1 = vi.fn(() => {
 				throw boom;
 			});
-			const fn2 = jest.fn(() => 'should-not-run');
+			const fn2 = vi.fn(() => 'should-not-run');
 
 			expect(() => applyStrategy('first', [fn1, fn2], null)).toThrow(boom);
 			expect(fn1).toHaveBeenCalledTimes(1);
@@ -392,10 +394,10 @@ describe('composition Strategies', () => {
 		});
 
 		it('first: async rejection propagates', async () => {
-			const fn1 = jest.fn(async () => {
+			const fn1 = vi.fn(async () => {
 				throw new Error('nope');
 			});
-			const fn2 = jest.fn(async () => 'should-not-run');
+			const fn2 = vi.fn(async () => 'should-not-run');
 
 			await expect(
 				applyStrategy('first', [fn1, fn2], null) as Promise<unknown>,
@@ -405,8 +407,8 @@ describe('composition Strategies', () => {
 		});
 
 		it('parallel: one rejection propagates (Promise.all behavior)', async () => {
-			const fn1 = jest.fn(async () => 1);
-			const fn2 = jest.fn(async () => {
+			const fn1 = vi.fn(async () => 1);
+			const fn2 = vi.fn(async () => {
 				throw new Error('fail');
 			});
 
@@ -431,8 +433,8 @@ describe('composition Strategies', () => {
 			const a = createDeferred<string>();
 			const b = createDeferred<string>();
 
-			const fn1 = jest.fn(() => a.promise);
-			const fn2 = jest.fn(() => b.promise);
+			const fn1 = vi.fn(() => a.promise);
+			const fn2 = vi.fn(() => b.promise);
 
 			const p = applyStrategy('race', [fn1, fn2], null) as Promise<string>;
 			a.reject(new Error('first-reject'));
@@ -444,11 +446,11 @@ describe('composition Strategies', () => {
 		});
 
 		it('pipe: early throw stops the pipeline', async () => {
-			const fn1 = jest.fn((x: number) => x + 1);
-			const fn2 = jest.fn(() => {
+			const fn1 = vi.fn((x: number) => x + 1);
+			const fn2 = vi.fn(() => {
 				throw new Error('stop');
 			});
-			const fn3 = jest.fn(() => 'should-not-run');
+			const fn3 = vi.fn(() => 'should-not-run');
 
 			expect(() => applyStrategy('pipe', [fn1, fn2, fn3], null, 10)).toThrow(
 				'stop',
@@ -459,11 +461,11 @@ describe('composition Strategies', () => {
 		});
 
 		it('merge: error in any function propagates', () => {
-			const fn1 = jest.fn(() => ({ a: 1 }));
-			const fn2 = jest.fn(() => {
+			const fn1 = vi.fn(() => ({ a: 1 }));
+			const fn2 = vi.fn(() => {
 				throw new Error('merge-fail');
 			});
-			const fn3 = jest.fn(() => ({ b: 2 }));
+			const fn3 = vi.fn(() => ({ b: 2 }));
 
 			expect(() => applyStrategy('merge', [fn1, fn2, fn3], null)).toThrow(
 				'merge-fail',

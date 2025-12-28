@@ -754,10 +754,10 @@ Targets:
 Run the following:
 
 ```bash
-pnpm --filter @lellimecnar/utils add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
-pnpm --filter polymix add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
-pnpm --filter @card-stack/core add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
-pnpm --filter @card-stack/deck-standard add -D vitest @vitest/coverage-v8 @lellimecnar/vitest-config
+pnpm --filter @lellimecnar/utils add -D vitest @vitest/coverage-v8 "@lellimecnar/vitest-config@workspace:*"
+pnpm --filter polymix add -D vitest @vitest/coverage-v8 "@lellimecnar/vitest-config@workspace:*"
+pnpm --filter @card-stack/core add -D vitest @vitest/coverage-v8 "@lellimecnar/vitest-config@workspace:*"
+pnpm --filter @card-stack/deck-standard add -D vitest @vitest/coverage-v8 "@lellimecnar/vitest-config@workspace:*"
 ```
 
 #### Step 5.2: Create per-package `vitest.config.ts`
@@ -806,7 +806,7 @@ export default defineConfig(vitestBaseConfig());
 
 Update these `package.json` scripts:
 
-- [ ] `packages/utils/package.json`
+- [x] `packages/utils/package.json`
   - Replace scripts block with:
 
 ```json
@@ -820,21 +820,21 @@ Update these `package.json` scripts:
 	},
 ```
 
-- [ ] `packages/polymix/package.json`
+- [x] `packages/polymix/package.json`
   - Replace script entries:
     - `"test": "jest"` → `"test": "vitest run"`
     - Add:
       - `"test:watch": "vitest"`
       - `"test:coverage": "vitest run --coverage"`
 
-- [ ] `card-stack/core/package.json`
+- [x] `card-stack/core/package.json`
   - Replace:
     - `"test": "jest"` → `"test": "vitest run"`
     - `"test:watch": "jest --watch"` → `"test:watch": "vitest"`
   - Add:
     - `"test:coverage": "vitest run --coverage"`
 
-- [ ] `card-stack/deck-standard/package.json`
+- [x] `card-stack/deck-standard/package.json`
   - Replace:
     - `"test": "jest"` → `"test": "vitest run"`
     - `"test:watch": "jest --watch"` → `"test:watch": "vitest"`
@@ -843,7 +843,7 @@ Update these `package.json` scripts:
 
 #### Step 5.4: Remove Jest config files
 
-- [ ] Delete:
+- [x] Delete:
   - `packages/utils/jest.config.js`
   - `packages/polymix/jest.config.js`
   - `card-stack/core/jest.config.js`
@@ -862,10 +862,10 @@ For any tests that reference Jest APIs, apply these mechanical conversions:
 
 #### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @lellimecnar/utils test`
-- [ ] `pnpm --filter polymix test`
-- [ ] `pnpm --filter @card-stack/core test`
-- [ ] `pnpm --filter @card-stack/deck-standard test`
+- [x] `pnpm --filter @lellimecnar/utils test`
+- [x] `pnpm --filter polymix test`
+- [x] `pnpm --filter @card-stack/core test`
+- [x] `pnpm --filter @card-stack/deck-standard test`
 
 #### Step 5 STOP & COMMIT
 

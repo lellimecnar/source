@@ -16,8 +16,11 @@
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
+		"@lellimecnar/vitest-config": "workspace:*",
 		"@types/lodash": "^4.17.13",
+		"@vitest/coverage-v8": "^4.0.16",
 		"eslint": "^8.57.1",
-		"typescript": "~5.5"
+		"typescript": "~5.5",
+		"vitest": "^4.0.16"
 	}
 }

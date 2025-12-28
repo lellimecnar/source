@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { vi } from 'vitest';
 
 import { Card, CardSet, isTakeable, Mix, Takeable } from '..';
 
@@ -99,13 +100,13 @@ describe('takeable', () => {
 		beforeEach(() => {
 			faker.seed(1234567890);
 
-			jest.spyOn(Math, 'random').mockImplementation(() => {
+			vi.spyOn(Math, 'random').mockImplementation(() => {
 				return faker.number.float();
 			});
 		});
 
 		afterEach(() => {
-			jest.spyOn(Math, 'random').mockRestore();
+			vi.spyOn(Math, 'random').mockRestore();
 		});
 
 		it('accepts a count', () => {

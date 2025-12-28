@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`standardDeck has cards 1`] = `
+exports[`standardDeck > has cards 1`] = `
 [
   "Ace of Hearts",
   "Two of Hearts",

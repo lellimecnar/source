@@ -12,6 +12,8 @@ import { strategies } from './strategies';
 import { from, hasMixin, when, MIXIN_METADATA } from './utils';
 import 'reflect-metadata';
 
+import { vi } from 'vitest';
+
 describe('polymix Core: mix()', () => {
 	// 1. Basic Mixin Composition
 	describe('basic Composition', () => {
@@ -317,7 +319,7 @@ describe('polymix Core: mix()', () => {
 		}
 
 		it('should extend a base class correctly', () => {
-			const warn = jest
+			const warn = vi
 				.spyOn(console, 'warn')
 				.mockImplementation(() => undefined);
 			try {
@@ -716,7 +718,7 @@ describe('polymix Core: mix()', () => {
 			}
 
 			const original = Object.getOwnPropertyDescriptor;
-			const spy = jest
+			const spy = vi
 				.spyOn(Object, 'getOwnPropertyDescriptor')
 				.mockImplementation((obj: any, prop: any) => {
 					if (obj === WithMethod.prototype && prop === 'foo') {

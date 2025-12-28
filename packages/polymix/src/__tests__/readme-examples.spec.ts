@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { from, hasMixin, mix, mixWithBase, when } from '..';
 
 describe('rEADME examples', () => {
@@ -102,9 +104,7 @@ describe('rEADME examples', () => {
 	});
 
 	it('mix() heuristic warns when last class has constructor params', () => {
-		const warn = jest
-			.spyOn(console, 'warn')
-			.mockImplementation(() => undefined);
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 		try {
 			class MixinA {
 				a = true;
