@@ -288,19 +288,19 @@ This step introduces a shared Vitest config package patterned after existing con
 
 #### Step 3.1: Create package folder
 
-- [ ] Create `packages/config-vitest/`
-- [ ] Create `packages/config-vitest/AGENTS.md` (minimal)
-- [ ] Create `packages/config-vitest/package.json`
-- [ ] Create `packages/config-vitest/tsconfig.json`
-- [ ] Create `packages/config-vitest/vitest.base.ts`
-- [ ] Create `packages/config-vitest/vitest.browser.ts`
-- [ ] Create `packages/config-vitest/vitest.browser-jsdom.ts`
-- [ ] Create `packages/config-vitest/setup/reflect-metadata.ts`
-- [ ] Create `packages/config-vitest/setup/testing-library.ts`
-- [ ] Create `packages/config-vitest/next/mocks/navigation.ts`
-- [ ] Create `packages/config-vitest/next/mocks/image.ts`
-- [ ] Create `packages/config-vitest/next/presets/app-router.ts`
-- [ ] Create `packages/config-vitest/setup/next-app-router.ts`
+- [x] Create `packages/config-vitest/`
+- [x] Create `packages/config-vitest/AGENTS.md` (minimal)
+- [x] Create `packages/config-vitest/package.json`
+- [x] Create `packages/config-vitest/tsconfig.json`
+- [x] Create `packages/config-vitest/vitest.base.ts`
+- [x] Create `packages/config-vitest/vitest.browser.ts`
+- [x] Create `packages/config-vitest/vitest.browser-jsdom.ts`
+- [x] Create `packages/config-vitest/setup/reflect-metadata.ts`
+- [x] Create `packages/config-vitest/setup/testing-library.ts`
+- [x] Create `packages/config-vitest/next/mocks/navigation.ts`
+- [x] Create `packages/config-vitest/next/mocks/image.ts`
+- [x] Create `packages/config-vitest/next/presets/app-router.ts`
+- [x] Create `packages/config-vitest/setup/next-app-router.ts`
 
 #### Step 3.2: File contents
 
@@ -312,6 +312,7 @@ Create `packages/config-vitest/package.json`:
 	"version": "0.0.0",
 	"private": true,
 	"license": "MIT",
+	"type": "module",
 	"exports": {
 		".": "./vitest.base.ts",
 		"./browser": "./vitest.browser.ts",
@@ -350,6 +351,10 @@ Create `packages/config-vitest/tsconfig.json`:
 ```jsonc
 {
 	"extends": "@lellimecnar/typescript-config",
+	"compilerOptions": {
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+	},
 	"include": ["**/*.ts"],
 	"exclude": ["dist", "build", "node_modules"],
 }
@@ -360,13 +365,13 @@ Create `packages/config-vitest/vitest.base.ts`:
 ```ts
 import { fileURLToPath } from 'node:url';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import type { UserConfig } from 'vitest/config';
+import type { ViteUserConfig } from 'vitest/config';
 
 function resolveLocalFile(pathFromRoot: string) {
 	return fileURLToPath(new URL(pathFromRoot, import.meta.url));
 }
 
-export function vitestBaseConfig(): UserConfig {
+export function vitestBaseConfig(): ViteUserConfig {
 	return {
 		plugins: [tsconfigPaths()],
 		test: {
@@ -389,15 +394,15 @@ Create `packages/config-vitest/vitest.browser.ts`:
 
 ```ts
 import { fileURLToPath } from 'node:url';
-import type { UserConfig } from 'vitest/config';
+import type { ViteUserConfig } from 'vitest/config';
 
-import { vitestBaseConfig } from './vitest.base';
+import { vitestBaseConfig } from './vitest.base.js';
 
 function resolveLocalFile(pathFromRoot: string) {
 	return fileURLToPath(new URL(pathFromRoot, import.meta.url));
 }
 
-export function vitestBrowserConfigHappyDom(): UserConfig {
+export function vitestBrowserConfigHappyDom(): ViteUserConfig {
 	const base = vitestBaseConfig();
 
 	return {
@@ -413,7 +418,7 @@ export function vitestBrowserConfigHappyDom(): UserConfig {
 	};
 }
 
-export function vitestBrowserConfigHappyDomNextAppRouter(): UserConfig {
+export function vitestBrowserConfigHappyDomNextAppRouter(): ViteUserConfig {
 	const base = vitestBrowserConfigHappyDom();
 
 	return {
@@ -432,11 +437,11 @@ export function vitestBrowserConfigHappyDomNextAppRouter(): UserConfig {
 Create `packages/config-vitest/vitest.browser-jsdom.ts`:
 
 ```ts
-import type { UserConfig } from 'vitest/config';
+import type { ViteUserConfig } from 'vitest/config';
 
-import { vitestBrowserConfigHappyDom } from './vitest.browser';
+import { vitestBrowserConfigHappyDom } from './vitest.browser.js';
 
-export function vitestBrowserConfigJsdom(): UserConfig {
+export function vitestBrowserConfigJsdom(): ViteUserConfig {
 	const base = vitestBrowserConfigHappyDom();
 
 	return {
@@ -466,9 +471,16 @@ try {
 Create `packages/config-vitest/setup/testing-library.ts`:
 
 ```ts
-import '@testing-library/jest-dom/vitest';
-
+import { createRequire } from 'node:module';
 import { afterEach } from 'vitest';
+
+const require = createRequire(import.meta.url);
+
+try {
+	require('@testing-library/jest-dom/vitest');
+} catch {
+	// Optional dependency.
+}
 
 try {
 	// Optional dependency; only works when installed.
@@ -507,17 +519,13 @@ export function mockNextNavigation() {
 Create `packages/config-vitest/next/mocks/image.ts`:
 
 ```ts
-import React from 'react';
 import { vi } from 'vitest';
 
 export function mockNextImage() {
 	vi.mock('next/image', () => {
 		return {
 			__esModule: true,
-			default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
-				// eslint-disable-next-line jsx-a11y/alt-text
-				return React.createElement('img', props);
-			},
+			default: () => null,
 		};
 	});
 }
@@ -526,8 +534,8 @@ export function mockNextImage() {
 Create `packages/config-vitest/next/presets/app-router.ts`:
 
 ```ts
-import { mockNextImage } from '../mocks/image';
-import { mockNextNavigation } from '../mocks/navigation';
+import { mockNextImage } from '../mocks/image.js';
+import { mockNextNavigation } from '../mocks/navigation.js';
 
 export function installNextAppRouterMocks() {
 	mockNextNavigation();
@@ -538,7 +546,7 @@ export function installNextAppRouterMocks() {
 Create `packages/config-vitest/setup/next-app-router.ts`:
 
 ```ts
-import { installNextAppRouterMocks } from '../next/presets/app-router';
+import { installNextAppRouterMocks } from '../next/presets/app-router.js';
 
 installNextAppRouterMocks();
 ```
@@ -566,7 +574,7 @@ pnpm --filter @lellimecnar/vitest-config lint
 
 #### Step 3 Verification Checklist
 
-- [ ] Run `pnpm --filter @lellimecnar/vitest-config type-check`
+- [x] Run `pnpm --filter @lellimecnar/vitest-config type-check`
 
 #### Step 3 STOP & COMMIT
 

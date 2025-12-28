@@ -1,0 +1,34 @@
+{
+	"name": "@lellimecnar/vitest-config",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		".": "./vitest.base.ts",
+		"./browser": "./vitest.browser.ts",
+		"./browser-jsdom": "./vitest.browser-jsdom.ts",
+		"./setup/reflect-metadata": "./setup/reflect-metadata.ts",
+		"./setup/testing-library": "./setup/testing-library.ts",
+		"./setup/next-app-router": "./setup/next-app-router.ts",
+		"./next/mocks/navigation": "./next/mocks/navigation.ts",
+		"./next/mocks/image": "./next/mocks/image.ts",
+		"./next/presets/app-router": "./next/presets/app-router.ts"
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"type-check": "tsgo --noEmit"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@types/node": "^24",
+		"@vitest/coverage-v8": "^4.0.16",
+		"typescript": "~5.5",
+		"vite-tsconfig-paths": "^6.0.3",
+		"vitest": "^4.0.16"
+	},
+	"peerDependencies": {
+		"typescript": "~5.5"
+	}
+}

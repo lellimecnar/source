@@ -1,0 +1,9 @@
+{
+	"extends": "@lellimecnar/typescript-config",
+	"compilerOptions": {
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext"
+	},
+	"include": ["**/*.ts"],
+	"exclude": ["dist", "build", "node_modules"]
+}
