@@ -113,7 +113,7 @@ Copy/paste the full `turbo.json` below:
 
 #### Step 1 Verification Checklist
 
-- [ ] Run `pnpm -w lint`
+- [x] Run `pnpm -w lint`
 
 #### Step 1 STOP & COMMIT
 
@@ -138,7 +138,7 @@ This step installs `@typescript/native-preview` at the root and replaces all wor
 
 #### Step 2.1: Add the dependency
 
-- [ ] Add `@typescript/native-preview` to root devDependencies:
+- [x] Add `@typescript/native-preview` to root devDependencies:
 
 ```bash
 pnpm -w add -D @typescript/native-preview
@@ -150,120 +150,120 @@ pnpm -w add -D @typescript/native-preview
 
 For each file below, replace the `type-check` script value as shown.
 
-- [ ] `package.json`
+- [x] `package.json`
   - Replace `"type-check": "turbo type-check"` (no change needed)
 
-- [ ] `card-stack/core/package.json`
+- [x] `card-stack/core/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `card-stack/deck-standard/package.json`
+- [x] `card-stack/deck-standard/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `packages/utils/package.json`
+- [x] `packages/utils/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `packages/polymix/package.json`
+- [x] `packages/polymix/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `packages/ui/package.json`
+- [x] `packages/ui/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `packages/ui-nativewind/package.json`
+- [x] `packages/ui-nativewind/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `packages/ui-spec/core/package.json`
+- [x] `packages/ui-spec/core/package.json`
   - Replace:
     - `"type-check": "tsc -p tsconfig.json --noEmit"`
     - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
 
-- [ ] `packages/ui-spec/react/package.json`
+- [x] `packages/ui-spec/react/package.json`
   - Replace:
     - `"type-check": "tsc -p tsconfig.json --noEmit"`
     - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
 
-- [ ] `packages/ui-spec/router/package.json`
+- [x] `packages/ui-spec/router/package.json`
   - Replace:
     - `"type-check": "tsc -p tsconfig.json --noEmit"`
     - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
 
-- [ ] `packages/ui-spec/router-react/package.json`
+- [x] `packages/ui-spec/router-react/package.json`
   - Replace:
     - `"type-check": "tsc -p tsconfig.json --noEmit"`
     - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
 
-- [ ] `packages/ui-spec/validate-jsonschema/package.json`
+- [x] `packages/ui-spec/validate-jsonschema/package.json`
   - Replace:
     - `"type-check": "tsc -p tsconfig.json --noEmit"`
     - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
 
-- [ ] `packages/ui-spec/cli/package.json`
+- [x] `packages/ui-spec/cli/package.json`
   - Replace:
     - `"type-check": "tsc -p tsconfig.json --noEmit"`
     - with: `"type-check": "tsgo -p tsconfig.json --noEmit"`
 
-- [ ] `packages/config-eslint/package.json`
+- [x] `packages/config-eslint/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `packages/config-typescript/package.json`
+- [x] `packages/config-typescript/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `packages/config-prettier/package.json`
+- [x] `packages/config-prettier/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `packages/config-tailwind/package.json`
+- [x] `packages/config-tailwind/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `packages/config-jest/package.json`
+- [x] `packages/config-jest/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `packages/expo-with-modify-gradle/package.json`
+- [x] `packages/expo-with-modify-gradle/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `web/miller.pub/package.json`
+- [x] `web/miller.pub/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `web/readon.app/package.json`
+- [x] `web/readon.app/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
-- [ ] `mobile/readon/package.json`
+- [x] `mobile/readon/package.json`
   - Replace:
     - `"type-check": "tsc --noEmit"`
     - with: `"type-check": "tsgo --noEmit"`
 
 #### Step 2 Verification Checklist
 
-- [ ] Run `pnpm -w type-check`
-- [ ] Spot-check:
-  - [ ] `pnpm --filter miller.pub type-check`
-  - [ ] `pnpm --filter readon.app type-check`
+- [x] Run `pnpm -w type-check`
+- [x] Spot-check:
+  - [x] `pnpm --filter miller.pub type-check`
+  - [x] `pnpm --filter readon.app type-check`
 
 #### Step 2 STOP & COMMIT
 

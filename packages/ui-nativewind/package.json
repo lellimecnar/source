@@ -23,7 +23,7 @@
 		"test": "jest",
 		"test:coverage": "jest --coverage",
 		"test:watch": "jest --watch",
-		"type-check": "tsc --noEmit"
+		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@expo/vector-icons": "^14.0.2",

@@ -9,7 +9,7 @@
 	],
 	"scripts": {
 		"lint": "eslint .",
-		"type-check": "tsc --noEmit"
+		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"ts-jest": "^29"

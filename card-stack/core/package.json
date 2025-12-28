@@ -11,7 +11,7 @@
 		"lint": "eslint .",
 		"test": "jest",
 		"test:watch": "jest --watch",
-		"type-check": "tsc --noEmit"
+		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@lellimecnar/utils": "workspace:*",

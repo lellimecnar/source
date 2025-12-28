@@ -9,5 +9,5 @@
 		"moduleResolution": "NodeNext"
 	},
 	"include": ["src/**/*.ts", "src/**/*.tsx", "*.ts", "*.js", ".*.js", "*.json"],
-	"exclude": ["dist", "build", "node_modules"]
+	"exclude": ["dist", "build", "node_modules", "postcss.config.js"]
 }

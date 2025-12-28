@@ -6,7 +6,7 @@
 	"main": "prettier-preset.js",
 	"scripts": {
 		"lint": "eslint .",
-		"type-check": "tsc --noEmit"
+		"type-check": "tsgo --noEmit"
 	},
 	"devDependencies": {
 		"@vercel/style-guide": "^6",

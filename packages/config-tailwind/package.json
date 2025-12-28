@@ -7,7 +7,7 @@
 	},
 	"scripts": {
 		"lint": "eslint .",
-		"type-check": "tsc --noEmit"
+		"type-check": "tsgo --noEmit"
 	},
 	"devDependencies": {
 		"@lellimecnar/typescript-config": "workspace:*",

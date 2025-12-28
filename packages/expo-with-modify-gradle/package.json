@@ -7,7 +7,7 @@
 		".": "./index.js"
 	},
 	"scripts": {
-		"type-check": "tsc --noEmit"
+		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@expo/config-plugins": "^9"

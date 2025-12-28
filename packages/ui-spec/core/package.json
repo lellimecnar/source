@@ -19,7 +19,7 @@
 		"build": "tsc -p tsconfig.json",
 		"lint": "eslint . --max-warnings 0",
 		"test": "jest",
-		"type-check": "tsc -p tsconfig.json --noEmit"
+		"type-check": "tsgo -p tsconfig.json --noEmit"
 	},
 	"dependencies": {
 		"jsonpath-plus": "^10.3.0"

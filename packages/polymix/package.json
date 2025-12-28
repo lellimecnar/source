@@ -40,7 +40,7 @@
 		"lint": "eslint .",
 		"prepack": "pnpm run build",
 		"test": "jest",
-		"type-check": "tsc --noEmit"
+		"type-check": "tsgo --noEmit"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

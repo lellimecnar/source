@@ -36,7 +36,7 @@
 		"test": "jest",
 		"test:coverage": "jest --coverage",
 		"test:watch": "jest --watch",
-		"type-check": "tsc --noEmit",
+		"type-check": "tsgo --noEmit",
 		"ui": "pnpm -s dlx shadcn@latest"
 	},
 	"dependencies": {

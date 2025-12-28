@@ -12,7 +12,7 @@
 		"lint": "eslint .",
 		"start": "expo start",
 		"test": "jest --watchAll",
-		"type-check": "tsc --noEmit"
+		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@expo/vector-icons": "^14.0.4",

@@ -8,7 +8,7 @@
 		"lint": "eslint .",
 		"test": "jest",
 		"test:watch": "jest --watch",
-		"type-check": "tsc --noEmit"
+		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@card-stack/core": "workspace:*"
