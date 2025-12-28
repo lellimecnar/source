@@ -31,8 +31,8 @@ git checkout -b tsgo-vite-vitest-migration
 
 This step updates Turborepo inputs so changes to future Vite/Vitest configs are tracked correctly during the migration.
 
-- [ ] Open `turbo.json`
-- [ ] Update the `test`, `test:coverage`, and `test:ci` task inputs to include `vite.config.*` and `vitest.config.*` (keep the existing Jest-era inputs for now).
+- [x] Open `turbo.json`
+- [x] Update the `test`, `test:coverage`, and `test:ci` task inputs to include `vite.config.*` and `vitest.config.*` (keep the existing Jest-era inputs for now).
 
 Copy/paste the full `turbo.json` below:
 
@@ -117,7 +117,7 @@ Copy/paste the full `turbo.json` below:
 
 #### Step 1 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 chore(turbo): track vite/vitest configs in test tasks
@@ -267,7 +267,7 @@ For each file below, replace the `type-check` script value as shown.
 
 #### Step 2 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 chore(tsgo): switch type-check scripts to tsgo
@@ -570,7 +570,7 @@ pnpm --filter @lellimecnar/vitest-config lint
 
 #### Step 3 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 feat(config-vitest): add shared vitest presets
@@ -717,7 +717,7 @@ pnpm --filter @lellimecnar/vite-config lint
 
 #### Step 4 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 feat(config-vite): add shared vite presets
@@ -861,7 +861,7 @@ For any tests that reference Jest APIs, apply these mechanical conversions:
 
 #### Step 5 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 feat(vitest): migrate core node packages off jest
@@ -969,7 +969,7 @@ Delete these files:
 
 #### Step 6 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 feat(vitest): migrate ui-spec packages off jest
@@ -1024,7 +1024,7 @@ export default defineConfig({
 
 #### Step 7 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 feat(vitest): migrate ui package tests
@@ -1096,7 +1096,7 @@ Create `web/readon.app/vitest.config.ts` with the same content.
 
 #### Step 8 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 feat(vitest): migrate next app tests
@@ -1125,7 +1125,7 @@ This step confirms Expo/RN continues to use Jest and does not depend on `ts-jest
 
 #### Step 9 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 chore(rn): keep jest-expo tests intact
@@ -1855,7 +1855,7 @@ chmod +x packages/ui-spec/cli/bin/uispec.js
 
 #### Step 10 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 feat(vite): add library builds and export verification
@@ -1887,7 +1887,7 @@ Targets called out in the plan:
 
 #### Step 11 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 fix(build): ensure publishable packages emit dist outputs
@@ -1971,7 +1971,7 @@ This step finalizes Turborepo inputs to prefer Vitest-era configs.
 
 #### Step 12 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 chore(turbo): switch test cache inputs to vitest
@@ -2007,7 +2007,7 @@ Delete (where migrated to Vitest):
 
 #### Step 13 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 chore(jest): remove jest tooling from vitest packages
@@ -2045,7 +2045,7 @@ Files to update if they mention Jest/type-check tooling:
 
 #### Step 14 STOP & COMMIT
 
-Multiline conventional commit message:
+Present the following multiline conventional commit message in the chat:
 
 ```txt
 docs(tooling): document tsgo + vite + vitest
