@@ -2530,13 +2530,13 @@ describe('components', () => {
 
 **Instructions**
 
-- [ ] Create `packages/ui-spec/core/src/compile/index.ts` with:
+- [x] Create `packages/ui-spec/core/src/compile/index.ts` with:
 
 ```ts
 export * from './compileNode';
 ```
 
-- [ ] Create `packages/ui-spec/core/src/compile/compileNode.ts` with:
+- [x] Create `packages/ui-spec/core/src/compile/compileNode.ts` with:
 
 ```ts
 import type { NodeSchema, UISpecSchema, ValueExpr } from '../schema';
@@ -2633,7 +2633,7 @@ export function compileNode(node: NodeSchema, ctx: CompileContext): NodeSchema {
 }
 ```
 
-- [ ] Create `packages/ui-spec/core/src/compile/compile.spec.ts` with:
+- [x] Create `packages/ui-spec/core/src/compile/compile.spec.ts` with:
 
 ```ts
 import { compileNode } from './compileNode';
@@ -2690,7 +2690,7 @@ describe('compileNode', () => {
 
 #### Step 6 (v1) Verification Checklist
 
-- [ ] Run `pnpm --filter @ui-spec/core test`.
+- [x] Run `pnpm --filter @ui-spec/core test`.
 
 #### Step 6 (v1) STOP & COMMIT
 
