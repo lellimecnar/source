@@ -4269,7 +4269,7 @@ describe('cli commands', () => {
 
 **Instructions**
 
-- [ ] Create `packages/ui-spec/react/src/components/AsyncBoundary.tsx` with:
+- [x] Create `packages/ui-spec/react/src/components/AsyncBoundary.tsx` with:
 
 ```tsx
 import * as React from 'react';
@@ -4311,7 +4311,7 @@ export function AsyncBoundary<T>(props: {
 }
 ```
 
-- [ ] Create `packages/ui-spec/react/src/components/AsyncBoundary.spec.tsx` with:
+- [x] Create `packages/ui-spec/react/src/components/AsyncBoundary.spec.tsx` with:
 
 ```tsx
 import * as React from 'react';
@@ -4349,7 +4349,7 @@ describe('AsyncBoundary', () => {
 });
 ```
 
-- [ ] Update `packages/ui-spec/react/src/index.ts` to export AsyncBoundary:
+- [x] Update `packages/ui-spec/react/src/index.ts` to export AsyncBoundary:
 
 ```ts
 export * from './types';
