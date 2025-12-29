@@ -34,7 +34,7 @@
 		"@lellimecnar/vitest-config": "workspace:*",
 		"@types/jest": "^29.5.12",
 		"@vitest/coverage-v8": "^4.0.16",
-		"eslint": "^8.57.1",
+		"eslint": "^9.39.2",
 		"reflect-metadata": "^0.2.2",
 		"typescript": "~5.5.0",
 		"vite": "^7.3.0",
