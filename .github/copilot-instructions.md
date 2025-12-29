@@ -7,7 +7,7 @@ This is a **pnpm + Turborepo** monorepo with strictly enforced workspace boundar
 - `web/*` - Next.js 14+ App Router apps (`miller.pub`, `readon.app`)
 - `mobile/*` - Expo 52 + Expo Router apps (`readon`)
 - `packages/*` - Shared libraries (`ui`, `ui-nativewind`, `utils`, `config-*`)
-- `card-stack/*` - Card game engine packages (`core`, `deck-standard`)
+- `packages/card-stack/*` - Card game engine packages (`core`, `deck-standard`)
 
 All workspace dependencies use `workspace:*` protocol, NOT file paths or versions.
 

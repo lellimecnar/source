@@ -42,7 +42,7 @@ This will start all applications and packages in development mode:
 │   ├── ui-nativewind    # Mobile UI components (NativeWind)
 │   ├── utils            # Shared utilities
 │   └── config-*         # Shared configurations (eslint, ts, etc.)
-└── card-stack/          # Domain logic
+└── packages/card-stack/ # Domain logic
     ├── core             # Card game engine
     └── deck-standard    # Standard 52-card deck
 ```

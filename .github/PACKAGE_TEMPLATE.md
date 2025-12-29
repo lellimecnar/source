@@ -229,7 +229,7 @@ Add new package to `pnpm-workspace.yaml` if creating a new workspace category:
 
 ```yaml
 packages:
-  - 'card-stack/*'
+	- 'packages/card-stack/*'
   - 'packages/*'
   - 'web/*'
   - 'mobile/*'

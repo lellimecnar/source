@@ -3,8 +3,9 @@
 	"version": "1.0.0",
 	"private": true,
 	"workspaces": [
-		"card-stack/*",
 		"packages/*",
+		"packages/card-stack/*",
+		"packages/ui-spec/*",
 		"web/*",
 		"mobile/*"
 	],

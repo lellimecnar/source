@@ -7,7 +7,7 @@ This project implements a **Modular Monorepo Architecture** using **TypeScript**
 ### Key Architectural Patterns
 
 - **Component-Based Architecture**: UI is composed of reusable, self-contained components managed in shared libraries (`@lellimecnar/ui`, `@lellimecnar/ui-nativewind`).
-- **Domain-Centric Design**: Core business logic (specifically the card game engine) is isolated in pure TypeScript packages (`card-stack/*`), decoupled from any presentation framework (React/Next.js/Expo).
+- **Domain-Centric Design**: Core business logic (specifically the card game engine) is isolated in pure TypeScript packages (`packages/card-stack/*`), decoupled from any presentation framework (React/Next.js/Expo).
 - **Mixin Composition**: The domain layer utilizes a mixin pattern (via `ts-mixer`) for entity composition, favoring flexibility over rigid inheritance hierarchies.
 - **File-System Routing**: Both web (Next.js) and mobile (Expo) applications utilize file-system based routing patterns for consistency.
 
@@ -95,8 +95,8 @@ graph TD
 
 - **Purpose**: Encapsulates the rules and entities of the card game domain.
 - **Components**:
-  - `card-stack/core`: Defines `Card`, `Deck`, `Player` and behaviors (`Flippable`, `Rankable`).
-  - `card-stack/deck-standard`: Implements specific deck types.
+  - `packages/card-stack/core`: Defines `Card`, `Deck`, `Player` and behaviors (`Flippable`, `Rankable`).
+  - `packages/card-stack/deck-standard`: Implements specific deck types.
 - **Pattern**: **Mixin Composition**. Entities are composed of behaviors.
   - _Example_: `class StandardCard extends Mix(Card, Flippable, Rankable)`
 
@@ -123,7 +123,7 @@ The project follows a strict dependency flow:
 
 ## 6. Data Architecture
 
-- **Domain Models**: Defined in `card-stack/core` using TypeScript classes and interfaces.
+- **Domain Models**: Defined in `packages/card-stack/core` using TypeScript classes and interfaces.
 - **State Management**:
   - **Apps**: React Context and Hooks (`useState`, `useReducer`) for UI state.
   - **Domain**: The `card-stack` entities encapsulate their own state (e.g., a `Deck` manages its list of `Card`s).
@@ -219,7 +219,7 @@ Components follow the "Headless UI + Tailwind" pattern:
 **Domain Logic (Pure TS):**
 
 ```typescript
-// card-stack/core/src/card/card.ts
+// packages/card-stack/core/src/card/card.ts
 export class Card {
 	public id: string;
 	constructor() {
@@ -269,7 +269,7 @@ export function PlayingCard({ card }: PlayingCardProps) {
 ### Common Pitfalls
 
 - **Direct Imports**: Avoid importing from `../../packages/ui/src/...`. Always use the package name `@lellimecnar/ui`.
-- **Leaking UI into Domain**: Never import React or UI libraries into `card-stack/*`.
+- **Leaking UI into Domain**: Never import React or UI libraries into `packages/card-stack/*`.
 - **Circular Dependencies**: Do not have `packages/ui` depend on `web/*`.
 
 ---

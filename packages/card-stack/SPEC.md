@@ -9,8 +9,8 @@ Finish building the `@card-stack/*` and `@card-game/*` packages, according to th
 
 ## Repo layout
 
-- `@card-stack/*` packages live under `card-stack/*`.
-- `@card-game/*` packages live under `card-stack/game/*`.
+- `@card-stack/*` packages live under `packages/card-stack/*`.
+- `@card-game/*` packages live under `packages/card-stack/game/*`.
 
 ## MVP
 
@@ -93,7 +93,7 @@ Core card game engine packages
 
 Game-specific card game packages, including gameplay logic, UI components, table layouts, game-specific decks, AI agents, game-specific configurations, etc.
 
-All `@card-game/*` packages in this repo live under `card-stack/game/*`.
+All `@card-game/*` packages in this repo live under `packages/card-stack/game/*`.
 
 For MVP, implement `@card-game/solitaire` rendered by `@card-game/ui-react`.
 
@@ -307,7 +307,7 @@ class SomeChild {
 
 ### Enum conventions (Rank/Suit)
 
-`Rankable` and `Suitable` should model “iterable enums” after `createEnum` in [card-stack/core/src/utils.ts](card-stack/core/src/utils.ts).
+`Rankable` and `Suitable` should model “iterable enums” after `createEnum` in [core/src/utils.ts](core/src/utils.ts).
 
 - The enum object MUST provide:
   - forward mapping: `Enum.Key -> number`

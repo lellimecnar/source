@@ -39,11 +39,11 @@ jobs:
       - name: Generate coverage summary
         id: coverage
         run: |
-          # Extract coverage from card-stack/core
-          if [ -f "card-stack/core/coverage/coverage-summary.json" ]; then
+          # Extract coverage from packages/card-stack/core
+          if [ -f "packages/card-stack/core/coverage/coverage-summary.json" ]; then
             CORE_COVERAGE=$(node -e "
               const fs = require('fs');
-              const coverage = JSON.parse(fs.readFileSync('card-stack/core/coverage/coverage-summary.json', 'utf8'));
+              const coverage = JSON.parse(fs.readFileSync('packages/card-stack/core/coverage/coverage-summary.json', 'utf8'));
               const total = coverage.total;
               console.log(JSON.stringify({
                 lines: total.lines.pct,
@@ -55,11 +55,11 @@ jobs:
             echo "core_coverage=$CORE_COVERAGE" >> $GITHUB_OUTPUT
           fi
 
-          # Extract coverage from card-stack/deck-standard
-          if [ -f "card-stack/deck-standard/coverage/coverage-summary.json" ]; then
+          # Extract coverage from packages/card-stack/deck-standard
+          if [ -f "packages/card-stack/deck-standard/coverage/coverage-summary.json" ]; then
             DECK_COVERAGE=$(node -e "
               const fs = require('fs');
-              const coverage = JSON.parse(fs.readFileSync('card-stack/deck-standard/coverage/coverage-summary.json', 'utf8'));
+              const coverage = JSON.parse(fs.readFileSync('packages/card-stack/deck-standard/coverage/coverage-summary.json', 'utf8'));
               const total = coverage.total;
               console.log(JSON.stringify({
                 lines: total.lines.pct,

@@ -46,7 +46,7 @@ The repository is organized into the following workspaces:
   - `ui-nativewind`: Mobile UI component library (NativeWind).
   - `utils`: Shared utilities (date-fns, lodash).
   - `config-*`: Shared configs (eslint, prettier, tailwind, typescript, vite, vitest).
-- **`card-stack/*`**: Domain logic packages.
+- **`packages/card-stack/*`**: Domain logic packages.
   - `core`: Core card game engine using TypeScript mixins.
   - `deck-standard`: Standard 52-card deck implementation.
 
@@ -144,7 +144,7 @@ pnpm ui ui
 
 **Card Stack (Testing):**
 
-- Use `#tool:execute/runTests` (preferred) and target test files under `card-stack/*/src/**/*.spec.ts`.
+- Use `#tool:execute/runTests` (preferred) and target test files under `packages/card-stack/*/src/**/*.spec.ts`.
 
 ## 6. Architecture & Patterns
 

@@ -10,7 +10,9 @@ function readJson(filePath) {
 function listWorkspacePackageJsons() {
 	const candidates = [
 		path.join(repoRoot, 'packages'),
-		path.join(repoRoot, 'card-stack'),
+		// Workspace groups under packages/ that contain multiple packages.
+		path.join(repoRoot, 'packages', 'card-stack'),
+		path.join(repoRoot, 'packages', 'ui-spec'),
 	];
 
 	const results = [];

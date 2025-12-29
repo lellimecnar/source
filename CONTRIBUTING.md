@@ -37,7 +37,7 @@ This is a **pnpm + Turborepo** monorepo with the following workspaces:
 - **`web/*`**: Next.js applications (miller.pub, readon.app)
 - **`mobile/*`**: Expo/React Native applications (readon)
 - **`packages/*`**: Shared libraries and configurations
-- **`card-stack/*`**: Domain logic packages (card game engine)
+- **`packages/card-stack/*`**: Domain logic packages (card game engine)
 
 See [AGENTS.md](./AGENTS.md) for comprehensive project documentation.
 

@@ -13,16 +13,16 @@ post_date: '2025-12-26'
 
 ## Scope
 
-This document reviews `packages/polymix` specifically through the lens of adopting it inside `card-stack/*`.
+This document reviews `packages/polymix` specifically through the lens of adopting it inside `packages/card-stack/*`.
 
 - `polymix` is a mixin composition library with method conflict strategies and `instanceof` support.
 - `card-stack` currently uses `ts-mixer` (including `settings`, `Mixin as Mix`, and `@mix(...)`), and relies heavily on an `init(...args)` lifecycle.
 
 ## What card-stack expects today
 
-Key observed expectations in `card-stack/core`:
+Key observed expectations in `packages/card-stack/core`:
 
-- `ts-mixer` is configured via `settings` in [card-stack/core/src/utils.ts](../../card-stack/core/src/utils.ts).
+- `ts-mixer` is configured via `settings` in [packages/card-stack/core/src/utils.ts](../../packages/card-stack/core/src/utils.ts).
   - `initFunction: 'init'`
   - `prototypeStrategy: 'copy'`
   - `staticsStrategy: 'copy'`

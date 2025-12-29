@@ -6,10 +6,10 @@ This project is a **TypeScript Monorepo** managed with **pnpm** and **Turborepo*
 
 ### Organizational Principles
 
-- **Workspace-Based**: The codebase is divided into distinct workspaces (`web`, `mobile`, `packages`, `card-stack`) defined in `pnpm-workspace.yaml`.
+- **Workspace-Based**: The codebase is divided into distinct workspaces (`web`, `mobile`, `packages`) defined in `pnpm-workspace.yaml`.
 - **Shared Configuration**: Configuration for tools like ESLint, TypeScript, Tailwind, and Jest is centralized in `packages/config-*` to ensure consistency across all projects.
 - **Component-Driven UI**: UI components are centralized in `@lellimecnar/ui` (Web) and `@lellimecnar/ui-nativewind` (Mobile) rather than being duplicated in apps.
-- **Domain Isolation**: Core business logic (like the card game engine) is isolated in `card-stack/` packages, keeping it framework-agnostic and testable.
+- **Domain Isolation**: Core business logic (like the card game engine) is isolated in `packages/card-stack/` packages, keeping it framework-agnostic and testable.
 - **App Router Pattern**: Both Web (Next.js) and Mobile (Expo) use file-system based routing in an `app/` directory.
 
 ### Monorepo Organization
@@ -17,13 +17,13 @@ This project is a **TypeScript Monorepo** managed with **pnpm** and **Turborepo*
 - **`web/`**: Contains Next.js 14+ applications using the App Router.
 - **`mobile/`**: Contains Expo/React Native applications using Expo Router.
 - **`packages/`**: Contains shared infrastructure, UI libraries, and configurations.
-- **`card-stack/`**: Contains domain-specific packages for the card game engine.
+- **`packages/card-stack/`**: Contains domain-specific packages for the card game engine.
 
 ## 2. Directory Visualization
 
 ```
 .
-├── card-stack/                 # Domain-specific logic packages
+├── packages/card-stack/        # Domain-specific logic packages
 │   ├── core/                   # Core game engine logic
 │   │   ├── src/                # Source code
 │   │   │   ├── card/           # Card entity definitions
@@ -95,7 +95,7 @@ A shared UI library based on shadcn/ui.
 - **`src/lib/`**: Utilities like `utils.ts` for class merging (`cn`).
 - **`src/theme/`**: Theme configuration and variables.
 
-### Domain Logic (`card-stack/*`)
+### Domain Logic (`packages/card-stack/*`)
 
 Pure TypeScript packages for business logic.
 

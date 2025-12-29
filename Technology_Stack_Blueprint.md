@@ -60,7 +60,7 @@ This project is a **TypeScript Monorepo** utilizing a modern full-stack JavaScri
 - **Monorepo Structure**:
   - `apps/` (or `web/`, `mobile/`): End-user applications.
   - `packages/`: Shared libraries and configurations.
-  - `card-stack/`: Domain-specific business logic.
+  - `packages/card-stack/`: Domain-specific business logic.
 - **Workspace Dependencies**: Internal packages are referenced via `workspace:*` protocol to ensure the latest local version is always used.
 - **Granular Exports**: The UI package exports components individually (e.g., `@lellimecnar/ui/button`) to enable tree-shaking and avoid circular dependencies.
 
@@ -144,7 +144,7 @@ export { Button, buttonVariants }
 ### Service Layer (Card Stack Mixin)
 
 ```typescript
-// card-stack/core/src/card/standard-card.ts
+// packages/card-stack/core/src/card/standard-card.ts
 import { Mix } from 'ts-mixer';
 import { Card } from './card';
 import { Flippable } from './behaviors/flippable';

@@ -54,17 +54,17 @@ Next.js compiles the JSX into HTML on the server (SSR) or at build time (SSG) an
 **Trigger**: `new CardDeck()` call in game logic.
 **Files Involved**:
 
-- `card-stack/core/src/card-deck/card-deck.ts`
-- `card-stack/core/src/card-set/index.ts`
-- `card-stack/core/src/shared/indexable.ts`
-- `card-stack/core/src/utils.ts`
+- `packages/card-stack/core/src/card-deck/card-deck.ts`
+- `packages/card-stack/core/src/card-set/index.ts`
+- `packages/card-stack/core/src/shared/indexable.ts`
+- `packages/card-stack/core/src/utils.ts`
 
 ### 1. Entry Point Implementation (Domain)
 
 The `CardDeck` class is defined using a **Mixin Pattern** to compose behaviors (`CardSet`, `Indexable`).
 
 ```typescript
-// card-stack/core/src/card-deck/card-deck.ts
+// packages/card-stack/core/src/card-deck/card-deck.ts
 import { mix } from '../utils';
 import { CardSet } from '../card-set';
 import { Indexable } from '../shared/indexable';
@@ -178,7 +178,7 @@ export function cn(...inputs: ClassValue[]) {
 
 ### Step-by-Step Implementation Process
 
-1.  **Domain Logic First**: If the feature involves game rules, implement it in `card-stack/core` first. Use mixins if adding a reusable behavior.
+1.  **Domain Logic First**: If the feature involves game rules, implement it in `packages/card-stack/core` first. Use mixins if adding a reusable behavior.
 2.  **UI Components Second**: If the feature needs new UI elements, check `@lellimecnar/ui`. If missing, add a new component there following the `cva` + `Radix` pattern.
 3.  **App Integration Last**: Import the domain logic and UI components into the specific App (`web` or `mobile`) and wire them up in a Page or Component.
 
@@ -190,7 +190,7 @@ export function cn(...inputs: ClassValue[]) {
 
 ### Extension Mechanisms
 
-- **New Card Behaviors**: Create a new class in `card-stack/core/src/behaviors/` and mix it into `Card` or `Deck`.
+- **New Card Behaviors**: Create a new class in `packages/card-stack/core/src/behaviors/` and mix it into `Card` or `Deck`.
 - **New UI Variants**: Add a new key to the `variants` object in the component's `cva` definition.
 
 ---
