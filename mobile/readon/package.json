@@ -11,8 +11,12 @@
 		"ios": "expo start --ios",
 		"lint": "eslint .",
 		"start": "expo start",
-		"test": "jest --watchAll",
+		"test": "jest --passWithNoTests",
 		"type-check": "tsgo --noEmit"
+	},
+	"jest": {
+		"preset": "jest-expo",
+		"watchman": false
 	},
 	"dependencies": {
 		"@expo/vector-icons": "^14.0.4",
@@ -46,7 +50,6 @@
 		"@lellimecnar/babel-preset": "workspace:*",
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/expo-with-modify-gradle": "workspace:*",
-		"@lellimecnar/jest-config": "workspace:*",
 		"@lellimecnar/tailwind-config": "workspace:*",
 		"@types/jest": "^29.5.14",
 		"@types/react": "~18.3.12",

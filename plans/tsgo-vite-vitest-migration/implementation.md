@@ -1123,13 +1123,13 @@ completes: step 8 of 14 for tsgo-vite-vitest-migration
 
 This step confirms Expo/RN continues to use Jest and does not depend on `ts-jest`.
 
-- [ ] Ensure `mobile/readon` stays on `jest-expo` and continues to pass tests.
-- [ ] Ensure `packages/ui-nativewind` keeps `jest.config.cjs` and passes tests.
+- [x] Ensure `mobile/readon` stays on `jest-expo` and continues to pass tests.
+- [x] Ensure `packages/ui-nativewind` keeps `jest.config.cjs` and passes tests.
 
 #### Step 9 Verification Checklist
 
-- [ ] `pnpm --filter readon test`
-- [ ] `pnpm --filter @lellimecnar/ui-nativewind test`
+- [x] `pnpm --filter readon test`
+- [x] `pnpm --filter @lellimecnar/ui-nativewind test`
 
 #### Step 9 STOP & COMMIT
 
