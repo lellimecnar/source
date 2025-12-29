@@ -1890,8 +1890,8 @@ Targets called out in the plan:
 
 #### Step 11 Verification Checklist
 
-- [ ] `pnpm -w build`
-- [ ] `pnpm -w verify:exports`
+- [x] `pnpm -w build`
+- [x] `pnpm -w verify:exports`
 
 #### Step 11 STOP & COMMIT
 
