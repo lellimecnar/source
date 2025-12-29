@@ -231,9 +231,9 @@ These keep Metro for bundling and Jest (`jest-expo`) for tests:
 **Files:**
 
 - `packages/config-vitest/package.json` (new)
-- `packages/config-vitest/vitest.base.ts` (new)
-- `packages/config-vitest/vitest.browser.ts` (new)
-- `packages/config-vitest/vitest.browser-jsdom.ts` (new)
+- `packages/config-vitest/base.ts` (new)
+- `packages/config-vitest/browser.ts` (new)
+- `packages/config-vitest/browser-jsdom.ts` (new)
 - `packages/config-vitest/AGENTS.md` (new, minimal)
 
 **What:**
@@ -272,7 +272,7 @@ These keep Metro for bundling and Jest (`jest-expo`) for tests:
 **Files:**
 
 - `packages/config-vite/package.json` (new)
-- `packages/config-vite/vite.base.ts` (new)
+- `packages/config-vite/base.ts` (new)
 - `packages/config-vite/browser.ts` (new)
 - `packages/config-vite/node.ts` (new)
 - `packages/config-vite/AGENTS.md` (new, minimal)

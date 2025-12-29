@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"type": "module",
 	"exports": {
-		".": "./vite.base.ts",
+		".": "./base.ts",
 		"./node": "./node.ts",
 		"./browser": "./browser.ts"
 	},

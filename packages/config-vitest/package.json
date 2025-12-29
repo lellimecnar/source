@@ -5,9 +5,9 @@
 	"license": "MIT",
 	"type": "module",
 	"exports": {
-		".": "./vitest.base.ts",
-		"./browser": "./vitest.browser.ts",
-		"./browser-jsdom": "./vitest.browser-jsdom.ts",
+		".": "./base.ts",
+		"./browser": "./browser.ts",
+		"./browser-jsdom": "./browser-jsdom.ts",
 		"./setup/reflect-metadata": "./setup/reflect-metadata.ts",
 		"./setup/testing-library": "./setup/testing-library.ts",
 		"./setup/next-app-router": "./setup/next-app-router.ts",

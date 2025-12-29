@@ -292,9 +292,9 @@ This step introduces a shared Vitest config package patterned after existing con
 - [x] Create `packages/config-vitest/AGENTS.md` (minimal)
 - [x] Create `packages/config-vitest/package.json`
 - [x] Create `packages/config-vitest/tsconfig.json`
-- [x] Create `packages/config-vitest/vitest.base.ts`
-- [x] Create `packages/config-vitest/vitest.browser.ts`
-- [x] Create `packages/config-vitest/vitest.browser-jsdom.ts`
+- [x] Create `packages/config-vitest/base.ts`
+- [x] Create `packages/config-vitest/browser.ts`
+- [x] Create `packages/config-vitest/browser-jsdom.ts`
 - [x] Create `packages/config-vitest/setup/reflect-metadata.ts`
 - [x] Create `packages/config-vitest/setup/testing-library.ts`
 - [x] Create `packages/config-vitest/next/mocks/navigation.ts`
@@ -314,9 +314,9 @@ Create `packages/config-vitest/package.json`:
 	"license": "MIT",
 	"type": "module",
 	"exports": {
-		".": "./vitest.base.ts",
-		"./browser": "./vitest.browser.ts",
-		"./browser-jsdom": "./vitest.browser-jsdom.ts",
+		".": "./base.ts",
+		"./browser": "./browser.ts",
+		"./browser-jsdom": "./browser-jsdom.ts",
 		"./setup/reflect-metadata": "./setup/reflect-metadata.ts",
 		"./setup/testing-library": "./setup/testing-library.ts",
 		"./setup/next-app-router": "./setup/next-app-router.ts",
@@ -360,7 +360,7 @@ Create `packages/config-vitest/tsconfig.json`:
 }
 ```
 
-Create `packages/config-vitest/vitest.base.ts`:
+Create `packages/config-vitest/base.ts`:
 
 ```ts
 import { fileURLToPath } from 'node:url';
@@ -390,13 +390,13 @@ export function vitestBaseConfig(): ViteUserConfig {
 }
 ```
 
-Create `packages/config-vitest/vitest.browser.ts`:
+Create `packages/config-vitest/browser.ts`:
 
 ```ts
 import { fileURLToPath } from 'node:url';
 import type { ViteUserConfig } from 'vitest/config';
 
-import { vitestBaseConfig } from './vitest.base.js';
+import { vitestBaseConfig } from './base.ts';
 
 function resolveLocalFile(pathFromRoot: string) {
 	return fileURLToPath(new URL(pathFromRoot, import.meta.url));
@@ -434,12 +434,12 @@ export function vitestBrowserConfigHappyDomNextAppRouter(): ViteUserConfig {
 }
 ```
 
-Create `packages/config-vitest/vitest.browser-jsdom.ts`:
+Create `packages/config-vitest/browser-jsdom.ts`:
 
 ```ts
 import type { ViteUserConfig } from 'vitest/config';
 
-import { vitestBrowserConfigHappyDom } from './vitest.browser.js';
+import { vitestBrowserConfigHappyDom } from './browser.ts';
 
 export function vitestBrowserConfigJsdom(): ViteUserConfig {
 	const base = vitestBrowserConfigHappyDom();
@@ -603,7 +603,7 @@ This step adds a shared Vite config package used to compose per-package `vite.co
 - [x] Create `packages/config-vite/AGENTS.md` (minimal)
 - [x] Create `packages/config-vite/package.json`
 - [x] Create `packages/config-vite/tsconfig.json`
-- [x] Create `packages/config-vite/vite.base.ts`
+- [x] Create `packages/config-vite/base.ts`
 - [x] Create `packages/config-vite/node.ts`
 - [x] Create `packages/config-vite/browser.ts`
 
@@ -618,7 +618,7 @@ Create `packages/config-vite/package.json`:
 	"private": true,
 	"license": "MIT",
 	"exports": {
-		".": "./vite.base.ts",
+		".": "./base.ts",
 		"./node": "./node.ts",
 		"./browser": "./browser.ts"
 	},
@@ -654,7 +654,7 @@ Create `packages/config-vite/tsconfig.json`:
 }
 ```
 
-Create `packages/config-vite/vite.base.ts`:
+Create `packages/config-vite/base.ts`:
 
 ```ts
 import type { UserConfig } from 'vite';
@@ -676,7 +676,7 @@ Create `packages/config-vite/node.ts`:
 ```ts
 import type { UserConfig } from 'vite';
 
-import { viteBaseConfig } from './vite.base';
+import { viteBaseConfig } from './base.ts';
 
 export function viteNodeConfig(): UserConfig {
 	const base = viteBaseConfig();
@@ -692,7 +692,7 @@ Create `packages/config-vite/browser.ts`:
 ```ts
 import type { UserConfig } from 'vite';
 
-import { viteBaseConfig } from './vite.base';
+import { viteBaseConfig } from './base.ts';
 
 export function viteBrowserConfig(): UserConfig {
 	const base = viteBaseConfig();
@@ -1158,8 +1158,8 @@ This step adds per-package `vite.config.ts` files and updates package manifests 
 
 There is currently an empty file at `scripts/node`. Replace it with a folder so we can add node scripts.
 
-- [ ] Delete the file `scripts/node`
-- [ ] Create folder `scripts/node/`
+- [x] Delete the file `scripts/node`
+- [x] Create folder `scripts/node/`
 
 #### Step 10.2: Add dist-export verification script
 
@@ -1763,8 +1763,8 @@ Update each package’s `package.json` as follows.
 
 `packages/utils/package.json`:
 
-- [ ] Add: `"type": "module"`
-- [ ] Add/replace `exports`:
+- [x] Add: `"type": "module"`
+- [x] Add/replace `exports`:
 
 ```json
 	"exports": {
@@ -1775,12 +1775,12 @@ Update each package’s `package.json` as follows.
 	},
 ```
 
-- [ ] Replace `build` script with `"build": "vite build"`
+- [x] Replace `build` script with `"build": "vite build"`
 
 `packages/polymix/package.json`:
 
-- [ ] Add: `"type": "module"`
-- [ ] Remove `exports.require` and keep ESM-only:
+- [x] Add: `"type": "module"`
+- [x] Remove `exports.require` and keep ESM-only:
 
 ```json
 	"exports": {
@@ -1791,12 +1791,12 @@ Update each package’s `package.json` as follows.
 	},
 ```
 
-- [ ] Replace `build` with `"build": "pnpm run clean && vite build"`
-- [ ] Replace `dev` with `"dev": "vite build --watch"`
+- [x] Replace `build` with `"build": "pnpm run clean && vite build"`
+- [x] Replace `dev` with `"dev": "vite build --watch"`
 
 `card-stack/core/package.json`:
 
-- [ ] Replace `exports`, `main`, and `types` to point to `dist/` instead of `src/`:
+- [x] Replace `exports`, `main`, and `types` to point to `dist/` instead of `src/`:
 
 ```json
 	"type": "module",
@@ -1811,34 +1811,34 @@ Update each package’s `package.json` as follows.
 	"files": ["dist"],
 ```
 
-- [ ] Add `"build": "vite build"`
+- [x] Add `"build": "vite build"`
 
 `card-stack/deck-standard/package.json`:
 
-- [ ] Add: `"type": "module"`
-- [ ] Ensure `build` exists and points to `vite build`.
+- [x] Add: `"type": "module"`
+- [x] Ensure `build` exists and points to `vite build`.
 
 `packages/ui-spec/*/package.json` (all packages in this step):
 
-- [ ] Add: `"type": "module"`
-- [ ] Replace `"build": "tsc -p tsconfig.json"` with `"build": "vite build"`
+- [x] Add: `"type": "module"`
+- [x] Replace `"build": "tsc -p tsconfig.json"` with `"build": "vite build"`
 
 `packages/ui-spec/cli/package.json` (CLI-specific additions):
 
-- [ ] Create `packages/ui-spec/cli/bin/uispec.js`:
+- [x] Create `packages/ui-spec/cli/bin/uispec.js`:
 
 ```js
 #!/usr/bin/env node
 import '../index.js';
 ```
 
-- [ ] Make it executable:
+- [x] Make it executable:
 
 ```bash
 chmod +x packages/ui-spec/cli/bin/uispec.js
 ```
 
-- [ ] Add a postbuild to copy `bin/` into dist:
+- [x] Add a postbuild to copy `bin/` into dist:
 
 ```json
 	"scripts": {
@@ -1848,7 +1848,7 @@ chmod +x packages/ui-spec/cli/bin/uispec.js
 	},
 ```
 
-- [ ] Point `bin` at the copied shim:
+- [x] Point `bin` at the copied shim:
 
 ```json
 	"bin": {
@@ -1858,8 +1858,8 @@ chmod +x packages/ui-spec/cli/bin/uispec.js
 
 #### Step 10 Verification Checklist
 
-- [ ] `pnpm -w build`
-- [ ] `pnpm -w verify:exports`
+- [x] `pnpm -w build`
+- [x] `pnpm -w verify:exports`
 
 #### Step 10 STOP & COMMIT
 

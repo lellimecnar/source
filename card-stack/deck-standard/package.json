@@ -2,9 +2,11 @@
 	"name": "@card-stack/deck-standard",
 	"version": "0.1.0",
 	"description": "Standard 52-card deck implementation",
+	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"scripts": {
+		"build": "vite build",
 		"lint": "eslint .",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
@@ -17,6 +19,7 @@
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
+		"@lellimecnar/vite-config": "workspace:^",
 		"@lellimecnar/vitest-config": "workspace:*",
 		"@types/jest": "^29.5.14",
 		"@vitest/coverage-v8": "^4.0.16",
@@ -24,6 +27,9 @@
 		"jest": "^29.7.0",
 		"ts-jest": "^29.2.5",
 		"typescript": "~5.5",
+		"vite": "^7.3.0",
+		"vite-plugin-dts": "^4.5.4",
+		"vite-tsconfig-paths": "^6.0.3",
 		"vitest": "^4.0.16"
 	}
 }

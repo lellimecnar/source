@@ -2,10 +2,17 @@
 	"name": "@lellimecnar/utils",
 	"version": "0.1.0",
 	"description": "Shared utility functions",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"scripts": {
-		"build": "tsc -p tsconfig.build.json",
+		"build": "vite build",
 		"lint": "eslint .",
 		"type-check": "tsgo --noEmit"
 	},
@@ -16,11 +23,15 @@
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
+		"@lellimecnar/vite-config": "workspace:^",
 		"@lellimecnar/vitest-config": "workspace:*",
 		"@types/lodash": "^4.17.13",
 		"@vitest/coverage-v8": "^4.0.16",
 		"eslint": "^8.57.1",
 		"typescript": "~5.5",
+		"vite": "^7.3.0",
+		"vite-plugin-dts": "^4.5.4",
+		"vite-tsconfig-paths": "^6.0.3",
 		"vitest": "^4.0.16"
 	}
 }

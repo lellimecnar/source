@@ -72,6 +72,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../../packages/config-vite
       '@lellimecnar/vitest-config':
         specifier: workspace:*
         version: link:../../packages/config-vitest
@@ -96,6 +99,15 @@ importers:
       typescript:
         specifier: ~5.5
         version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
@@ -112,6 +124,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../../packages/config-vite
       '@lellimecnar/vitest-config':
         specifier: workspace:*
         version: link:../../packages/config-vitest
@@ -133,6 +148,15 @@ importers:
       typescript:
         specifier: ~5.5
         version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
@@ -227,9 +251,6 @@ importers:
       '@lellimecnar/expo-with-modify-gradle':
         specifier: workspace:*
         version: link:../../packages/expo-with-modify-gradle
-      '@lellimecnar/jest-config':
-        specifier: workspace:*
-        version: link:../../packages/config-jest
       '@lellimecnar/tailwind-config':
         specifier: workspace:*
         version: link:../../packages/config-tailwind
@@ -448,6 +469,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../config-vite
       '@lellimecnar/vitest-config':
         specifier: workspace:*
         version: link:../config-vitest
@@ -472,6 +496,15 @@ importers:
       typescript:
         specifier: ~5.5
         version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
@@ -679,6 +712,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:../../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../../config-vite
       '@lellimecnar/vitest-config':
         specifier: workspace:*
         version: link:../../config-vitest
@@ -706,6 +742,15 @@ importers:
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
@@ -722,6 +767,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:../../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../../config-vite
       '@lellimecnar/vitest-config':
         specifier: workspace:*
         version: link:../../config-vitest
@@ -746,6 +794,15 @@ importers:
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
@@ -762,6 +819,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:../../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../../config-vite
       '@lellimecnar/vitest-config':
         specifier: workspace:*
         version: link:../../config-vitest
@@ -774,6 +834,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.7(@types/react@18.3.27)
+      '@vitejs/plugin-react':
+        specifier: ^5.1.2
+        version: 5.1.2(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       '@vitest/coverage-v8':
         specifier: ^4.0.16
         version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
@@ -801,6 +864,15 @@ importers:
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
@@ -817,6 +889,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:../../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../../config-vite
       '@lellimecnar/vitest-config':
         specifier: workspace:*
         version: link:../../config-vitest
@@ -841,6 +916,15 @@ importers:
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
@@ -863,6 +947,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:../../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../../config-vite
       '@lellimecnar/vitest-config':
         specifier: workspace:*
         version: link:../../config-vitest
@@ -875,6 +962,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.7(@types/react@18.3.27)
+      '@vitejs/plugin-react':
+        specifier: ^5.1.2
+        version: 5.1.2(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       '@vitest/coverage-v8':
         specifier: ^4.0.16
         version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
@@ -902,6 +992,15 @@ importers:
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
@@ -921,6 +1020,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:../../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../../config-vite
       '@lellimecnar/vitest-config':
         specifier: workspace:*
         version: link:../../config-vitest
@@ -945,6 +1047,15 @@ importers:
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
@@ -964,6 +1075,9 @@ importers:
       '@lellimecnar/typescript-config':
         specifier: workspace:*
         version: link:../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../config-vite
       '@lellimecnar/vitest-config':
         specifier: workspace:*
         version: link:../config-vitest
@@ -979,6 +1093,15 @@ importers:
       typescript:
         specifier: ~5.5
         version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
@@ -4708,6 +4831,12 @@ packages:
         integrity: sha512-1tJHg4KKRJuQ1/EvJxatrMef3NZXEPzwUIUZ3n1yJ2t7Q97siwRtbynRpQG9/69ebbtiZ8W3ScOZF/OmhvM4Rg==,
       }
 
+  '@rolldown/pluginutils@1.0.0-beta.53':
+    resolution:
+      {
+        integrity: sha512-vENRlFU4YbrwVqNDZ7fLvy+JR1CRkyr01jhSiDpE1u6py3OMzQfztQU2jxykW3ALNxO4kSlqIDeYyD0Y9RcQeQ==,
+      }
+
   '@rollup/pluginutils@5.3.0':
     resolution:
       {
@@ -5836,6 +5965,15 @@ packages:
         optional: true
       typescript:
         optional: true
+
+  '@vitejs/plugin-react@5.1.2':
+    resolution:
+      {
+        integrity: sha512-EcA07pHJouywpzsoTUqNh5NwGayl2PPVEJKUSinGGSxFGYn+shYbqMGBg6FXDqgXum9Ou/ecb+411ssw8HImJQ==,
+      }
+    engines: { node: ^20.19.0 || >=22.12.0 }
+    peerDependencies:
+      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
   '@vitest/coverage-v8@4.0.16':
     resolution:
@@ -13032,6 +13170,13 @@ packages:
       }
     engines: { node: '>=0.10.0' }
 
+  react-refresh@0.18.0:
+    resolution:
+      {
+        integrity: sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw==,
+      }
+    engines: { node: '>=0.10.0' }
+
   react-remove-scroll-bar@2.3.8:
     resolution:
       {
@@ -18988,6 +19133,8 @@ snapshots:
     dependencies:
       nanoid: 3.3.11
 
+  '@rolldown/pluginutils@1.0.0-beta.53': {}
+
   '@rollup/pluginutils@5.3.0(rollup@4.54.0)':
     dependencies:
       '@types/estree': 1.0.8
@@ -19722,6 +19869,18 @@ snapshots:
       - jest
       - supports-color
       - vitest
+
+  '@vitejs/plugin-react@5.1.2(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))':
+    dependencies:
+      '@babel/core': 7.28.5
+      '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.5)
+      '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.28.5)
+      '@rolldown/pluginutils': 1.0.0-beta.53
+      '@types/babel__core': 7.20.5
+      react-refresh: 0.18.0
+      vite: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+    transitivePeerDependencies:
+      - supports-color
 
   '@vitest/coverage-v8@4.0.16(vitest@4.0.16(@types/node@22.19.3)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))':
     dependencies:
@@ -25345,6 +25504,8 @@ snapshots:
       react: 18.3.1
 
   react-refresh@0.14.2: {}
+
+  react-refresh@0.18.0: {}
 
   react-remove-scroll-bar@2.3.8(@types/react@18.3.27)(react@18.3.1):
     dependencies:

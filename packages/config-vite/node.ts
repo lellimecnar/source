@@ -1,6 +1,6 @@
 import type { UserConfig } from 'vite';
 
-import { viteBaseConfig } from './vite.base.js';
+import { viteBaseConfig } from '@lellimecnar/vite-config';
 
 export function viteNodeConfig(): UserConfig {
 	const base = viteBaseConfig();

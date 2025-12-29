@@ -29,6 +29,7 @@
 		"type-check": "turbo type-check",
 		"ui": "turbo run -F @lellimecnar/ui",
 		"update-interactive": "pnpm update --interactive --recursive --latest",
+		"verify:exports": "node scripts/node/verify-dist-exports.mjs",
 		"why": "pnpm why"
 	},
 	"lint-staged": {

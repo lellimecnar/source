@@ -8,6 +8,8 @@
 		],
 		"noEmit": true,
 		"isolatedModules": true,
+		"module": "preserve",
+		"moduleResolution": "bundler",
 		"paths": {
 			"*": ["./*"],
 			"@/*": ["./src/*"],
