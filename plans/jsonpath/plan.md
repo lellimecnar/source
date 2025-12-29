@@ -171,23 +171,26 @@ Deliver a standards-first JSONPath ecosystem that is RFC 9535 compliant by defau
 
 ---
 
-### Commit 07 — `@jsonpath/core`: built-in functions + FunctionRegistry typings + I-Regexp
+### Commit 07 — `@jsonpath/extensions`: optional functions + FunctionRegistry typings + I-Regexp
 
 **Files**
 
-- `packages/jsonpath/core/src/functions/{defineFunction.ts,registry.ts,builtins.ts}`
-- `packages/jsonpath/core/src/iregexp/{index.ts,validate.ts,fromRegExp.ts}`
-- `packages/jsonpath/core/src/functions/*.spec.ts`
+- `packages/jsonpath/extensions/src/functions/{defineFunction.ts,registry.ts,builtins.ts}`
+- `packages/jsonpath/extensions/src/iregexp/{index.ts,validate.ts,fromRegExp.ts}`
+- `packages/jsonpath/extensions/src/**/*.spec.ts`
 
 **What**
 
-- Implement spec-required built-ins: `length`, `count`, `match`, `search`, `value`.
-- Provide `defineFunction` and `registerFunctions` APIs that support declaration merging (spec §9.5).
-- Implement I-Regexp validation/conversion utilities.
+- Move function/expression evaluation out of `@jsonpath/core`.
+- Provide an optional functions layer in `@jsonpath/extensions`:
+  - built-ins: `length`, `count`, `match`, `search`, `value`
+  - `defineFunction` and `registerFunctions` APIs (supports declaration merging)
+  - I-Regexp validation/conversion utilities
+- Core remains standards-first and does not depend on or execute function/expression evaluation.
 
 **Testing**
 
-- `pnpm --filter @jsonpath/core test`
+- `pnpm --filter @jsonpath/extensions test`
 
 ---
 
@@ -204,6 +207,10 @@ Deliver a standards-first JSONPath ecosystem that is RFC 9535 compliant by defau
   - `query<T>()`, `compile<T>()`, `nodes<T>()`, `paths()`, `first<T>()`, `exists()`, `count()`.
   - `createEngine({ extensions, functions, grammar, cache, security, csp, audit, accelerator })`.
 - Add early termination for `first/exists/count`.
+
+**Note**
+
+- The `functions` option exists for compatibility/extension wiring, but function/expression evaluation is provided by optional extensions (not by core).
 
 **Testing**
 
@@ -306,7 +313,7 @@ Deliver a standards-first JSONPath ecosystem that is RFC 9535 compliant by defau
 
 ---
 
-### Commit 14 — `@jsonpath/extensions`: official extension pack (selectors/functions/operators/bundles)
+### Commit 14 — `@jsonpath/extensions`: optional extension pack (selectors/operators/bundles)
 
 **Files**
 
@@ -319,7 +326,7 @@ Deliver a standards-first JSONPath ecosystem that is RFC 9535 compliant by defau
 - Implement and export the official extension groups (spec §4.7):
   - selectors: `parentSelector (^), propertyNameSelector (~), rootParentSelector (^^)`
   - type selectors: `@string(), @number(), ...`
-  - function bundles: string/math/array/object/date
+  - function bundles (optional / non-core): string/math/array/object/date
   - operator bundles: regex operators (`=~`, `!~`), contains operators (`in`, `contains`, etc.)
   - bundles: `jsonpathPlusCompat`, `fullExtensions`
 

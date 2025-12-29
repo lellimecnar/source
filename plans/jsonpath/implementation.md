@@ -288,10 +288,10 @@ ${extra_scripts_json}
 		"test:watch": "vitest",
 		"type-check": "tsgo -p tsconfig.json --noEmit"
 	},
-${extra*deps_json}
+${extra_deps_json}
 "devDependencies": {
-"@lellimecnar/eslint-config": "workspace:*",
-"@lellimecnar/typescript-config": "workspace:\_",
+"@lellimecnar/eslint-config": "workspace:_",
+"@lellimecnar/typescript-config": "workspace:_",
 "@lellimecnar/vite-config": "workspace:^",
 "@lellimecnar/vitest-config": "workspace:\*",
 "@types/node": "^24",
@@ -311,13 +311,13 @@ ${extra_fields_json}
 JSON
 }
 
-create*pkg "packages/jsonpath/core" "@jsonpath/core" "" "" ""
-create_pkg "packages/jsonpath/extensions" "@jsonpath/extensions" "\t\"dependencies\": {\n\t\t\"@jsonpath/core\": \"workspace:*\"\n\t},\n" "" ""
-create*pkg "packages/jsonpath/legacy" "@jsonpath/legacy" "\t\"dependencies\": {\n\t\t\"@jsonpath/core\": \"workspace:*\"\n\t},\n" "" ""
-create*pkg "packages/jsonpath/mutate" "@jsonpath/mutate" "\t\"dependencies\": {\n\t\t\"@jsonpath/core\": \"workspace:*\"\n\t},\n" "" ""
-create*pkg "packages/jsonpath/pointer" "@jsonpath/pointer" "" "" ""
-create_pkg "packages/jsonpath/patch" "@jsonpath/patch" "\t\"dependencies\": {\n\t\t\"@jsonpath/pointer\": \"workspace:*\"\n\t},\n" "" ""
-create*pkg "packages/jsonpath/complete" "@jsonpath/complete" "\t\"dependencies\": {\n\t\t\"@jsonpath/core\": \"workspace:*\",\n\t\t\"@jsonpath/extensions\": \"workspace:_\",\n\t\t\"@jsonpath/legacy\": \"workspace:_\",\n\t\t\"@jsonpath/mutate\": \"workspace:_\",\n\t\t\"@jsonpath/pointer\": \"workspace:_\",\n\t\t\"@jsonpath/patch\": \"workspace:\_\"\n\t},\n" "" ""
+create_pkg "packages/jsonpath/core" "@jsonpath/core" "" "" ""
+create_pkg "packages/jsonpath/extensions" "@jsonpath/extensions" "\t\"dependencies\": {\n\t\t\"@jsonpath/core\": \"workspace:_\"\n\t},\n" "" ""
+create_pkg "packages/jsonpath/legacy" "@jsonpath/legacy" "\t\"dependencies\": {\n\t\t\"@jsonpath/core\": \"workspace:_\"\n\t},\n" "" ""
+create_pkg "packages/jsonpath/mutate" "@jsonpath/mutate" "\t\"dependencies\": {\n\t\t\"@jsonpath/core\": \"workspace:_\"\n\t},\n" "" ""
+create_pkg "packages/jsonpath/pointer" "@jsonpath/pointer" "" "" ""
+create_pkg "packages/jsonpath/patch" "@jsonpath/patch" "\t\"dependencies\": {\n\t\t\"@jsonpath/pointer\": \"workspace:_\"\n\t},\n" "" ""
+create_pkg "packages/jsonpath/complete" "@jsonpath/complete" "\t\"dependencies\": {\n\t\t\"@jsonpath/core\": \"workspace:_\",\n\t\t\"@jsonpath/extensions\": \"workspace:_\",\n\t\t\"@jsonpath/legacy\": \"workspace:_\",\n\t\t\"@jsonpath/mutate\": \"workspace:_\",\n\t\t\"@jsonpath/pointer\": \"workspace:_\",\n\t\t\"@jsonpath/patch\": \"workspace:_\"\n\t},\n" "" ""
 
 # CLI (bin + postbuild)
 
@@ -1018,16 +1018,16 @@ completes: step 6 of 24 for jsonpath
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
-#### Step 7: `@jsonpath/core` built-in functions + registry + I-Regexp (scaffold)
+#### Step 7: `@jsonpath/extensions` optional functions + registry + I-Regexp (scaffold)
 
 - [ ] Add minimal function registry and iregexp validator.
 
 ```bash
 set -euo pipefail
 
-mkdir -p packages/jsonpath/core/src/functions packages/jsonpath/core/src/iregexp
+mkdir -p packages/jsonpath/extensions/src/functions packages/jsonpath/extensions/src/iregexp
 
-cat > packages/jsonpath/core/src/functions/defineFunction.ts <<'TS'
+cat > packages/jsonpath/extensions/src/functions/defineFunction.ts <<'TS'
 export type FunctionDefinition<Name extends string = string> = {
 	name: Name;
 	signature?: string;
@@ -1040,7 +1040,7 @@ export function defineFunction<const Name extends string>(def: FunctionDefinitio
 }
 TS
 
-cat > packages/jsonpath/core/src/functions/registry.ts <<'TS'
+cat > packages/jsonpath/extensions/src/functions/registry.ts <<'TS'
 import type { FunctionDefinition } from './defineFunction';
 
 export type FunctionRegistry = Record<string, FunctionDefinition>;
@@ -1050,7 +1050,7 @@ export function registerFunctions(defs: FunctionDefinition[]): FunctionRegistry 
 }
 TS
 
-cat > packages/jsonpath/core/src/functions/builtins.ts <<'TS'
+cat > packages/jsonpath/extensions/src/functions/builtins.ts <<'TS'
 import { defineFunction } from './defineFunction';
 
 export const length = defineFunction({
@@ -1090,13 +1090,13 @@ export const search = defineFunction({
 export const builtins = { length, count, value, match, search };
 TS
 
-cat > packages/jsonpath/core/src/functions/index.ts <<'TS'
+cat > packages/jsonpath/extensions/src/functions/index.ts <<'TS'
 export * from './builtins';
 export * from './defineFunction';
 export * from './registry';
 TS
 
-cat > packages/jsonpath/core/src/iregexp/validate.ts <<'TS'
+cat > packages/jsonpath/extensions/src/iregexp/validate.ts <<'TS'
 export function validate(pattern: string): boolean {
 	// Minimal: reject empty and reject unescaped backrefs as a conservative rule.
 	if (pattern.length === 0) return false;
@@ -1105,18 +1105,23 @@ export function validate(pattern: string): boolean {
 }
 TS
 
-cat > packages/jsonpath/core/src/iregexp/fromRegExp.ts <<'TS'
+cat > packages/jsonpath/extensions/src/iregexp/fromRegExp.ts <<'TS'
 export function fromRegExp(re: RegExp): string {
 	return re.source;
 }
 TS
 
-cat > packages/jsonpath/core/src/iregexp/index.ts <<'TS'
+cat > packages/jsonpath/extensions/src/iregexp/index.ts <<'TS'
 export * from './fromRegExp';
 export * from './validate';
 TS
 
-cat > packages/jsonpath/core/src/functions/functions.spec.ts <<'TS'
+cat > packages/jsonpath/extensions/src/index.ts <<'TS'
+export * as functions from './functions';
+export * as iregexp from './iregexp';
+TS
+
+cat > packages/jsonpath/extensions/src/functions/functions.spec.ts <<'TS'
 import { describe, expect, it } from 'vitest';
 
 import { builtins } from './builtins';
@@ -1135,15 +1140,15 @@ echo "Step 7 complete."
 
 ##### Step 7 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test`
+- [ ] `pnpm --filter @jsonpath/extensions test`
 
 #### Step 7 STOP & COMMIT
 
 ```txt
-feat(jsonpath-core): add functions + iregexp scaffolding
+feat(jsonpath-extensions): add functions + iregexp scaffolding
 
-- Add defineFunction/registerFunctions and RFC-required builtins
-- Add minimal iregexp helpers
+- Add optional defineFunction/registerFunctions and builtins
+- Add iregexp helpers (kept out of core)
 
 completes: step 7 of 24 for jsonpath
 ```
@@ -1238,8 +1243,6 @@ export * from './types';
 export * as parse from './parse';
 export * as security from './security';
 export * as filter from './filter';
-export * as functions from './functions';
-export * as iregexp from './iregexp';
 TS
 
 cat > packages/jsonpath/core/src/api.spec.ts <<'TS'
@@ -1718,6 +1721,9 @@ export * from './types';
 TS
 
 cat > packages/jsonpath/extensions/src/index.ts <<'TS'
+export * as functions from './functions';
+export * as iregexp from './iregexp';
+
 export const fullExtensions = [] as const;
 export const jsonpathPlusCompat = [] as const;
 
