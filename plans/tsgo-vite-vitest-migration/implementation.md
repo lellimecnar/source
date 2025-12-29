@@ -1914,7 +1914,11 @@ completes: step 11 of 14 for tsgo-vite-vitest-migration
 
 This step finalizes Turborepo inputs to prefer Vitest-era configs.
 
-- [ ] Replace `turbo.json` with the following full content:
+- [x] Replace `turbo.json` with the following full content:
+
+- [x] Update root `package.json` test scripts to be Vitest/Turbo compatible:
+  - [x] Replace `test` with: `turbo test -- --passWithNoTests`
+  - [x] Replace `test:coverage` with: `turbo test:coverage`
 
 ```json
 {
@@ -1974,8 +1978,8 @@ This step finalizes Turborepo inputs to prefer Vitest-era configs.
 
 #### Step 12 Verification Checklist
 
-- [ ] `pnpm -w test`
-- [ ] `pnpm -w test:coverage`
+- [x] `pnpm -w test`
+- [x] `pnpm -w test:coverage`
 
 #### Step 12 STOP & COMMIT
 

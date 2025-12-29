@@ -9,14 +9,7 @@
 		},
 		"test": {
 			"outputs": ["coverage/**"],
-			"dependsOn": [],
-			"inputs": [
-				"$TURBO_DEFAULT$",
-				"jest.config.js",
-				"jest.config.ts",
-				"vitest.config.*",
-				"vite.config.*"
-			]
+			"dependsOn": []
 		},
 		"test:watch": {
 			"cache": false,
@@ -25,24 +18,12 @@
 		"test:coverage": {
 			"dependsOn": ["^build"],
 			"outputs": ["coverage/**"],
-			"inputs": [
-				"$TURBO_DEFAULT$",
-				"jest.config.js",
-				"jest.config.ts",
-				"vitest.config.*",
-				"vite.config.*"
-			]
+			"inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "vite.config.*"]
 		},
 		"test:ci": {
 			"dependsOn": ["^build"],
 			"outputs": ["coverage/**"],
-			"inputs": [
-				"$TURBO_DEFAULT$",
-				"jest.config.js",
-				"jest.config.ts",
-				"vitest.config.*",
-				"vite.config.*"
-			],
+			"inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "vite.config.*"],
 			"env": ["CI"]
 		},
 		"lint": {
