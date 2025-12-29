@@ -4,11 +4,17 @@
 		"paths": {
 			"*": ["./*"]
 		},
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true
 	},
-	"include": ["**/*.ts", "*.js", ".*.js"],
-	"exclude": ["dist", "build", "node_modules"]
+	"include": ["src/**/*.ts"],
+	"exclude": [
+		"dist",
+		"build",
+		"node_modules",
+		"src/**/*.spec.ts",
+		"src/**/__tests__/**"
+	]
 }

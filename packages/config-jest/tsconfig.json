@@ -1,5 +1,0 @@
-{
-	"extends": "@lellimecnar/typescript-config",
-	"include": ["**/*.js", "*.js", ".*.js"],
-	"exclude": ["dist", "build", "node_modules"]
-}

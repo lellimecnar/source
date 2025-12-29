@@ -2002,20 +2002,20 @@ completes: step 12 of 14 for tsgo-vite-vitest-migration
 
 This step removes Jest tooling from packages that migrated to Vitest, while keeping Jest only where required (Expo/RN).
 
-- [ ] Remove `jest` and `ts-jest` from root and from any Vitest-migrated package devDependencies.
-- [ ] Keep `jest-expo`, `babel-jest`, and `@lellimecnar/jest-config` only for Expo/RN workspaces.
-- [ ] Delete `packages/config-jest` only if no remaining consumers exist outside Expo/RN.
+- [x] Remove `jest` and `ts-jest` from root and from any Vitest-migrated package devDependencies.
+- [x] Keep `jest-expo`, `babel-jest`, and `@lellimecnar/jest-config` only for Expo/RN workspaces.
+- [x] Delete `packages/config-jest` only if no remaining consumers exist outside Expo/RN.
 
 Delete (where migrated to Vitest):
 
-- [ ] Any remaining `**/jest.config.*`
-- [ ] Any remaining `jest.setup.js` that was replaced
+- [x] Any remaining `**/jest.config.*`
+- [x] Any remaining `jest.setup.js` that was replaced
 
 #### Step 13 Verification Checklist
 
-- [ ] `pnpm -w test`
-- [ ] `pnpm -w type-check`
-- [ ] `pnpm -w build`
+- [x] `pnpm -w test`
+- [x] `pnpm -w type-check`
+- [x] `pnpm -w build`
 
 #### Step 13 STOP & COMMIT
 

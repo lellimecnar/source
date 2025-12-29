@@ -1,6 +1,8 @@
 {
 	"extends": "@lellimecnar/typescript-config/react.json",
 	"compilerOptions": {
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
 		"rootDir": "./src",
 		"outDir": "./dist",
 		"noEmit": false,
@@ -9,5 +11,11 @@
 		"sourceMap": true
 	},
 	"include": ["src/**/*.ts", "src/**/*.tsx"],
-	"exclude": ["dist", "node_modules"]
+	"exclude": [
+		"dist",
+		"node_modules",
+		"src/**/*.spec.ts",
+		"src/**/*.spec.tsx",
+		"src/**/__tests__/**"
+	]
 }

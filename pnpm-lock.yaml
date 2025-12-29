@@ -38,9 +38,6 @@ importers:
       husky:
         specifier: ^9.1.7
         version: 9.1.7
-      jest:
-        specifier: ^30.2.0
-        version: 30.2.0(@types/node@24.10.4)
       lint-staged:
         specifier: ^16.2.7
         version: 16.2.7
@@ -90,12 +87,6 @@ importers:
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.4)
-      ts-jest:
-        specifier: ^29.2.5
-        version: 29.4.6(@babel/core@7.28.5)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.5))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.4))(typescript@5.5.4)
       typescript:
         specifier: ~5.5
         version: 5.5.4
@@ -139,12 +130,6 @@ importers:
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.4)
-      ts-jest:
-        specifier: ^29.2.5
-        version: 29.4.6(@babel/core@7.28.5)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.5))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.4))(typescript@5.5.4)
       typescript:
         specifier: ~5.5
         version: 5.5.4
@@ -484,15 +469,9 @@ importers:
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
-      jest:
-        specifier: ^29.0.0
-        version: 29.7.0(@types/node@24.10.4)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
-      ts-jest:
-        specifier: ^29.0.0
-        version: 29.4.6(@babel/core@7.28.5)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.5))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.4))(typescript@5.5.4)
       typescript:
         specifier: ~5.5
         version: 5.5.4
@@ -730,15 +709,9 @@ importers:
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.4)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
-      ts-jest:
-        specifier: ^29.2.5
-        version: 29.4.6(@babel/core@7.28.5)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.5))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.4))(typescript@5.5.4)
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
@@ -782,15 +755,9 @@ importers:
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.4)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
-      ts-jest:
-        specifier: ^29.2.5
-        version: 29.4.6(@babel/core@7.28.5)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.5))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.4))(typescript@5.5.4)
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
@@ -846,9 +813,6 @@ importers:
       happy-dom:
         specifier: ^20.0.11
         version: 20.0.11
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.4)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -858,9 +822,6 @@ importers:
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
-      ts-jest:
-        specifier: ^29.2.5
-        version: 29.4.6(@babel/core@7.28.5)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.5))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.4))(typescript@5.5.4)
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
@@ -904,15 +865,9 @@ importers:
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.4)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
-      ts-jest:
-        specifier: ^29.2.5
-        version: 29.4.6(@babel/core@7.28.5)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.5))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.4))(typescript@5.5.4)
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
@@ -974,9 +929,6 @@ importers:
       happy-dom:
         specifier: ^20.0.11
         version: 20.0.11
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.4)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -986,9 +938,6 @@ importers:
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
-      ts-jest:
-        specifier: ^29.2.5
-        version: 29.4.6(@babel/core@7.28.5)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.5))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.4))(typescript@5.5.4)
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
@@ -1035,15 +984,9 @@ importers:
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.4)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
-      ts-jest:
-        specifier: ^29.2.5
-        version: 29.4.6(@babel/core@7.28.5)(@jest/transform@30.2.0)(@jest/types@30.2.0)(babel-jest@30.2.0(@babel/core@7.28.5))(jest-util@30.2.0)(jest@29.7.0(@types/node@24.10.4))(typescript@5.5.4)
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
@@ -1116,7 +1059,7 @@ importers:
         version: link:../../packages/utils
       next:
         specifier: ^15.2.3
-        version: 15.5.9(@babel/core@7.28.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1172,9 +1115,6 @@ importers:
       happy-dom:
         specifier: ^20.0.11
         version: 20.0.11
-      jest:
-        specifier: ^30.2.0
-        version: 30.2.0(@types/node@22.19.3)
       jest-environment-jsdom:
         specifier: ^30.2.0
         version: 30.2.0
@@ -1198,7 +1138,7 @@ importers:
         version: link:../../packages/ui
       next:
         specifier: ^15.2.3
-        version: 15.5.9(@babel/core@7.28.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.5.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -17758,14 +17698,14 @@ snapshots:
       '@jest/test-result': 30.2.0
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 22.19.3
+      '@types/node': 24.10.4
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 4.3.1
       exit-x: 0.2.2
       graceful-fs: 4.2.11
       jest-changed-files: 30.2.0
-      jest-config: 30.2.0(@types/node@22.19.3)
+      jest-config: 30.2.0(@types/node@24.10.4)
       jest-haste-map: 30.2.0
       jest-message-util: 30.2.0
       jest-regex-util: 30.0.1
@@ -23108,25 +23048,6 @@ snapshots:
       - supports-color
       - ts-node
 
-  jest-cli@30.2.0(@types/node@22.19.3):
-    dependencies:
-      '@jest/core': 30.2.0
-      '@jest/test-result': 30.2.0
-      '@jest/types': 30.2.0
-      chalk: 4.1.2
-      exit-x: 0.2.2
-      import-local: 3.2.0
-      jest-config: 30.2.0(@types/node@22.19.3)
-      jest-util: 30.2.0
-      jest-validate: 30.2.0
-      yargs: 17.7.2
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - esbuild-register
-      - supports-color
-      - ts-node
-
   jest-cli@30.2.0(@types/node@24.10.4):
     dependencies:
       '@jest/core': 30.2.0
@@ -23172,38 +23093,6 @@ snapshots:
       strip-json-comments: 3.1.1
     optionalDependencies:
       '@types/node': 24.10.4
-    transitivePeerDependencies:
-      - babel-plugin-macros
-      - supports-color
-
-  jest-config@30.2.0(@types/node@22.19.3):
-    dependencies:
-      '@babel/core': 7.28.5
-      '@jest/get-type': 30.1.0
-      '@jest/pattern': 30.0.1
-      '@jest/test-sequencer': 30.2.0
-      '@jest/types': 30.2.0
-      babel-jest: 30.2.0(@babel/core@7.28.5)
-      chalk: 4.1.2
-      ci-info: 4.3.1
-      deepmerge: 4.3.1
-      glob: 10.5.0
-      graceful-fs: 4.2.11
-      jest-circus: 30.2.0
-      jest-docblock: 30.2.0
-      jest-environment-node: 30.2.0
-      jest-regex-util: 30.0.1
-      jest-resolve: 30.2.0
-      jest-runner: 30.2.0
-      jest-util: 30.2.0
-      jest-validate: 30.2.0
-      micromatch: 4.0.8
-      parse-json: 5.2.0
-      pretty-format: 30.2.0
-      slash: 3.0.0
-      strip-json-comments: 3.1.1
-    optionalDependencies:
-      '@types/node': 22.19.3
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -23806,19 +23695,6 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
-      - supports-color
-      - ts-node
-
-  jest@30.2.0(@types/node@22.19.3):
-    dependencies:
-      '@jest/core': 30.2.0
-      '@jest/types': 30.2.0
-      import-local: 3.2.0
-      jest-cli: 30.2.0(@types/node@22.19.3)
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - esbuild-register
       - supports-color
       - ts-node
 
@@ -24636,7 +24512,7 @@ snapshots:
       react: 18.3.1
       react-dom: 19.2.3(react@18.3.1)
 
-  next@15.5.9(@babel/core@7.28.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next@15.5.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@next/env': 15.5.9
       '@swc/helpers': 0.5.15
@@ -24644,7 +24520,7 @@ snapshots:
       postcss: 8.4.31
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      styled-jsx: 5.1.6(@babel/core@7.28.5)(react@18.3.1)
+      styled-jsx: 5.1.6(react@18.3.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.5.7
       '@next/swc-darwin-x64': 15.5.7
@@ -26332,12 +26208,10 @@ snapshots:
 
   structured-headers@0.4.1: {}
 
-  styled-jsx@5.1.6(@babel/core@7.28.5)(react@18.3.1):
+  styled-jsx@5.1.6(react@18.3.1):
     dependencies:
       client-only: 0.0.1
       react: 18.3.1
-    optionalDependencies:
-      '@babel/core': 7.28.5
 
   styleq@0.1.3: {}
 

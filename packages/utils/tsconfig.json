@@ -1,11 +1,13 @@
 {
 	"extends": "@lellimecnar/typescript-config/react.json",
 	"compilerOptions": {
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
 		"paths": {
 			"*": ["./*"],
 			"@/*": ["./src/*"]
 		}
 	},
-	"include": ["src/**/*.ts", ".*.js", "*.config.js", "src/lodash.mts"],
+	"include": ["src/**/*.ts", "src/**/*.mts"],
 	"exclude": ["dist", "build", "node_modules"]
 }

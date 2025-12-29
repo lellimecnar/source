@@ -1,5 +1,5 @@
-import { mockNextImage } from '../mocks/image.ts';
-import { mockNextNavigation } from '../mocks/navigation.ts';
+import { mockNextImage } from '../mocks/image.js';
+import { mockNextNavigation } from '../mocks/navigation.js';
 
 export function installNextAppRouterMocks() {
 	mockNextNavigation();
