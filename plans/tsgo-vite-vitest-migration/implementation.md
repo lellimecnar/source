@@ -2048,6 +2048,12 @@ Files to update if they mention Jest/type-check tooling:
 - `docs/TESTING.md`
 - `docs/DEPENDENCY_MANAGEMENT.md`
 
+Step 14 doc updates:
+
+- [x] Update `AGENTS.md`
+- [x] Update `docs/TESTING.md`
+- [x] Update `docs/DEPENDENCY_MANAGEMENT.md` (not needed)
+
 #### Step 14.1: Fix validation blockers (if needed)
 
 If the Step 14 validation commands fail due to known ESM/tooling edge-cases, apply the minimal fixes below before re-running Step 14 validation.
@@ -2087,6 +2093,10 @@ Then re-run:
 ```bash
 pnpm -w type-check
 ```
+
+##### Step 14.1c: Unblock monorepo lint (Next.js generated `next-env.d.ts`)
+
+If `pnpm -w lint` fails in a Next.js app `next-env.d.ts` (e.g. `web/readon.app/next-env.d.ts` or `web/miller.pub/next-env.d.ts`) with `@typescript-eslint/triple-slash-reference` for `./.next/types/routes.d.ts`, replace the triple-slash `path` reference with an import-style include (e.g. `import './.next/types/routes';`).
 
 #### Step 14 Verification Checklist
 

@@ -46,6 +46,7 @@ We follow the **Testing Pyramid** approach:
 - Run everything by omitting `files`.
 - Run a subset by passing absolute paths to specific `*.spec.*` files.
 - Collect coverage by using `mode="coverage"` (and optionally `coverageFiles` for focused reporting).
+- `pnpm -w test` runs workspace tests (Vitest in most workspaces; Expo/RN uses Jest via `jest-expo`).
 
 ## Coverage Requirements
 
@@ -424,7 +425,7 @@ Tests run automatically in CI on every push and pull request. The CI pipeline:
 ## Resources
 
 - [Vitest Documentation](https://vitest.dev/guide/)
-- [Jest Documentation](https://jestjs.io/docs/getting-started)
+- [Jest Documentation (Expo/RN)](https://jestjs.io/docs/getting-started)
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 - [React Native Testing Library](https://callstack.github.io/react-native-testing-library/)
 - [Testing Best Practices](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)

@@ -101,7 +101,7 @@ pnpm build
 # Lint all workspaces
 pnpm lint
 
-# Type-check all workspaces
+# Type-check all workspaces (tsgo)
 pnpm type-check
 
 # Deep clean (removes node_modules, .turbo, .next, .expo)
