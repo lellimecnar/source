@@ -2048,11 +2048,44 @@ Files to update if they mention Jest/type-check tooling:
 - `docs/TESTING.md`
 - `docs/DEPENDENCY_MANAGEMENT.md`
 
+#### Step 14.1: Fix validation blockers (if needed)
+
+If the Step 14 validation commands fail due to known ESM/tooling edge-cases, apply the minimal fixes below before re-running Step 14 validation.
+
+##### Step 14.1a: Unblock monorepo lint (ESLint config under `"type": "module"`)
+
+If `pnpm -w lint` fails with an ESLint config error similar to:
+
+- `ESLint configuration in .eslintrc.js is invalid: Unexpected top-level property "__esModule".`
+
+Apply this fix in `@lellimecnar/utils`:
+
+- [ ] Rename `packages/utils/.eslintrc.js`  `packages/utils/.eslintrc.cjs`
+- [ ] Convert the config export from ESM to CJS (`export default ...`  `module.exports = ...`)
+
+Then re-run:
+
+```bash
+pnpm -w lint
+```
+
+##### Step 14.1b: Unblock monorepo type-check (NodeNext/Node16 explicit extension exports)
+
+If `pnpm -w type-check` fails with TS2834/TS2835 requiring explicit file extensions for relative ESM exports (observed in `@lellimecnar/ui-nativewind`), apply this fix:
+
+- [ ] Update `packages/ui-nativewind/src/index.ts` to export using explicit `.js` extensions (e.g. `./components/index.js`, `./icons/index.js`)
+
+Then re-run:
+
+```bash
+pnpm -w type-check
+```
+
 #### Step 14 Verification Checklist
 
 - [ ] `pnpm -w lint`
-- [ ] `pnpm -w test`
-- [ ] `pnpm -w build`
+- [x] `pnpm -w test`
+- [x] `pnpm -w build`
 - [ ] `pnpm -w type-check`
 
 #### Step 14 STOP & COMMIT
