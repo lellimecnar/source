@@ -45,7 +45,7 @@ The repository is organized into the following workspaces:
   - `ui`: Web UI component library (React, Radix UI, Tailwind, shadcn/ui).
   - `ui-nativewind`: Mobile UI component library (NativeWind).
   - `utils`: Shared utilities (date-fns, lodash).
-  - `config-*`: Shared configs (eslint, jest, prettier, tailwind, typescript).
+  - `config-*`: Shared configs (eslint, prettier, tailwind, typescript, vite, vitest).
 - **`card-stack/*`**: Domain logic packages.
   - `core`: Core card game engine using TypeScript mixins.
   - `deck-standard`: Standard 52-card deck implementation.
@@ -68,7 +68,9 @@ The repository is organized into the following workspaces:
 - **Mobile Framework**: Expo 52 (Expo Router)
 - **Styling**: Tailwind CSS (Web) / NativeWind (Mobile)
 - **Language**: TypeScript 5.5
-- **Testing**: Jest
+- **Type Checking**: tsgo (`@typescript/native-preview`)
+- **Library Builds**: Vite (publishable packages only; Next.js stays `next build`)
+- **Testing**: Vitest (Jest via `jest-expo` for Expo/RN)
 
 ## 4. Setup & Installation
 
@@ -178,7 +180,7 @@ pnpm ui ui
 
 ## 7. Testing Strategy
 
-- **Unit Tests**: Jest is configured per-package.
+- **Unit Tests**: Vitest is configured per-package (Jest via `jest-expo` for Expo/RN only).
 - **Running Tests**:
   - Use `#tool:execute/runTests` (preferred).
   - To run a subset, pass absolute paths to the relevant `*.spec.*` files under the workspace.

@@ -26,19 +26,19 @@ We follow the **Testing Pyramid** approach:
 
 ### Core Testing Framework
 
-- **Jest**: JavaScript testing framework with built-in assertion library, mocking, and coverage
-- **ts-jest**: TypeScript preprocessor for Jest
+- **Vitest**: JavaScript/TypeScript test runner with fast watch mode, mocking (`vi`), and coverage
+- **@vitest/coverage-v8**: Coverage provider for Vitest
 
 ### React Testing
 
 - **React Testing Library**: For testing React components by simulating user interactions
-- **@testing-library/jest-dom**: Additional matchers for DOM assertions
+- **@testing-library/jest-dom**: Additional matchers for DOM assertions (via Vitest integration)
 - **@testing-library/user-event**: Simulate user interactions
 
 ### React Native Testing
 
 - **React Native Testing Library**: For testing React Native components
-- **jest-expo**: Jest preset for Expo applications
+- **jest-expo**: Jest preset for Expo applications (Expo/RN keeps Jest)
 
 ## Running Tests
 
@@ -140,6 +140,7 @@ describe('formatDate', () => {
 // src/components/Button/Button.spec.tsx
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 import { Button } from './Button';
 
 describe('Button', () => {
@@ -149,7 +150,7 @@ describe('Button', () => {
   });
 
   it('calls onClick when clicked', async () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     const user = userEvent.setup();
 
     render(<Button onClick={handleClick}>Click me</Button>);
@@ -218,12 +219,14 @@ describe('Button (React Native)', () => {
 
 ```typescript
 // src/components/Navigation/Navigation.spec.tsx
+import * as nextNavigation from 'next/navigation';
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 import { Navigation } from './Navigation';
 
 // Mock next/navigation
-jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(() => '/'),
+vi.mock('next/navigation', () => ({
+  usePathname: vi.fn(() => '/'),
 }));
 
 describe('Navigation', () => {
@@ -234,8 +237,7 @@ describe('Navigation', () => {
   });
 
   it('highlights active link', () => {
-    const { usePathname } = require('next/navigation');
-    usePathname.mockReturnValue('/about');
+    vi.mocked(nextNavigation.usePathname).mockReturnValue('/about');
 
     render(<Navigation />);
     const aboutLink = screen.getByRole('link', { name: /about/i });

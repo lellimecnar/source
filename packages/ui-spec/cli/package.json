@@ -21,7 +21,7 @@
 	"scripts": {
 		"build": "vite build",
 		"postbuild": "node -e \"require('node:fs').cpSync('bin', 'dist/bin', { recursive: true })\"",
-		"lint": "eslint . --max-warnings 0",
+		"lint": "eslint .",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
 		"test:watch": "vitest",

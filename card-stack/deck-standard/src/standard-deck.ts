@@ -35,6 +35,7 @@ export class StandardCard extends Card {
 	static readonly RANK = RANK;
 	static readonly SUIT = SUIT;
 
+	// eslint-disable-next-line @typescript-eslint/no-useless-constructor -- needed for types
 	constructor(suit: number, rank: number) {
 		super(suit, rank);
 	}

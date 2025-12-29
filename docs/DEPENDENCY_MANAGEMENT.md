@@ -123,8 +123,8 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 **Packages:**
 
 - typescript
+- @typescript/native-preview
 - @types/\* (all type definitions)
-- ts-jest
 - ts-mixer
 - @typescript-eslint/eslint-plugin
 - @typescript-eslint/parser
@@ -137,10 +137,9 @@ Dependencies are grouped by ecosystem to reduce the number of PRs and ensure rel
 
 **Packages:**
 
-- jest
+- vitest
+- @vitest/coverage-v8
 - jest-expo
-- ts-jest
-- @types/jest
 - @faker-js/faker
 
 **Schedule:** Every weekend

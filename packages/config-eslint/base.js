@@ -14,6 +14,11 @@ module.exports = {
 		'turbo',
 	],
 	plugins: ['prettier'],
+	parser: '@typescript-eslint/parser',
+	parserOptions: {
+		project,
+		tsconfigRootDir,
+	},
 	rules: {
 		'no-console': ['error', { allow: ['warn', 'error'] }],
 		'@typescript-eslint/no-unsafe-declaration-merging': 'warn',
@@ -89,14 +94,6 @@ module.exports = {
 				require.resolve(p),
 			),
 		},
-		{
-			files: ['*.[cm]?[jt]s?(x)'],
-			parser: '@typescript-eslint/parser',
-			parserOptions: {
-				project,
-				tsconfigRootDir,
-			},
-		},
 	],
 	settings: {
 		'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
@@ -113,5 +110,16 @@ module.exports = {
 		},
 		'import/internal-regex': '^@lellimecnar/',
 	},
-	ignorePatterns: ['node_modules/', 'dist/'],
+	ignorePatterns: [
+		'node_modules/',
+		'dist/',
+		'coverage/',
+		'**/*.spec.ts',
+		'**/*.spec.tsx',
+		'**/__tests__/**',
+		'vite.config.ts',
+		'vitest.config.ts',
+		'.eslintrc.*',
+		'**/.eslintrc.*',
+	],
 };

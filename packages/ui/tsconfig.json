@@ -6,6 +6,14 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx"],
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsx",
+		"*.ts",
+		"*.js",
+		".*.js",
+		".*.cjs",
+		"*.json"
+	],
 	"exclude": ["dist", "build", "node_modules"]
 }

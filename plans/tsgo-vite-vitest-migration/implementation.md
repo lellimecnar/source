@@ -2058,10 +2058,17 @@ If `pnpm -w lint` fails with an ESLint config error similar to:
 
 - `ESLint configuration in .eslintrc.js is invalid: Unexpected top-level property "__esModule".`
 
-Apply this fix in `@lellimecnar/utils`:
+Apply this fix in any workspace that:
 
-- [ ] Rename `packages/utils/.eslintrc.js`  `packages/utils/.eslintrc.cjs`
-- [ ] Convert the config export from ESM to CJS (`export default ...`  `module.exports = ...`)
+- has `"type": "module"` in its `package.json`, and
+- has an ESLint config named `.eslintrc.js` that ESLint attempts to load as legacy config.
+
+Applied in these workspaces:
+
+- [x] `packages/utils`: rename `.eslintrc.js`  `.eslintrc.cjs` and ensure CJS export (`module.exports = ...`)
+- [x] `packages/polymix`: rename `.eslintrc.js`  `.eslintrc.cjs` and ensure CJS export (`module.exports = ...`)
+- [x] `card-stack/core`: rename `.eslintrc.js`  `.eslintrc.cjs` and ensure CJS export (`module.exports = ...`)
+- [x] `card-stack/deck-standard`: rename `.eslintrc.js`  `.eslintrc.cjs` and ensure CJS export (`module.exports = ...`)
 
 Then re-run:
 
@@ -2086,7 +2093,7 @@ pnpm -w type-check
 - [ ] `pnpm -w lint`
 - [x] `pnpm -w test`
 - [x] `pnpm -w build`
-- [ ] `pnpm -w type-check`
+- [x] `pnpm -w type-check`
 
 #### Step 14 STOP & COMMIT
 

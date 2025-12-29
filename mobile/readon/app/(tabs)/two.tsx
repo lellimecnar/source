@@ -2,7 +2,8 @@ import { useColorScheme } from 'nativewind';
 import { Button, Text, View } from 'react-native';
 
 export default function TabTwoScreen(): JSX.Element {
-	const { colorScheme, toggleColorScheme } = useColorScheme();
+	// eslint-disable-next-line @typescript-eslint/unbound-method -- Don't care
+	const { toggleColorScheme } = useColorScheme();
 	return (
 		<View className="container">
 			<Text className="text-xl font-bold !text-sky-700">Tab Two</Text>

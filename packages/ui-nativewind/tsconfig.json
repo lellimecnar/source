@@ -8,6 +8,14 @@
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext"
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx", "*.ts", "*.js", ".*.js", "*.json"],
-	"exclude": ["dist", "build", "node_modules", "postcss.config.js"]
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsx",
+		"*.ts",
+		"*.js",
+		".*.js",
+		".*.cjs",
+		"*.json"
+	],
+	"exclude": ["dist", "build", "node_modules"]
 }
