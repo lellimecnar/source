@@ -1086,21 +1086,21 @@ Create `web/readon.app/vitest.config.ts` with the same content.
 
 #### Step 8.3: Remove Jest files and update scripts
 
-- [ ] Delete:
+- [x] Delete:
   - `web/miller.pub/jest.config.js`
   - `web/miller.pub/jest.setup.js`
   - `web/readon.app/jest.config.js`
   - `web/readon.app/jest.setup.js`
 
-- [ ] Update `package.json` scripts in both apps:
+- [x] Update `package.json` scripts in both apps:
   - `test`: `vitest run`
   - `test:watch`: `vitest`
   - `test:coverage`: `vitest run --coverage`
 
 #### Step 8 Verification Checklist
 
-- [ ] `pnpm --filter miller.pub test`
-- [ ] `pnpm --filter readon.app test`
+- [x] `pnpm --filter miller.pub test`
+- [x] `pnpm --filter readon.app test`
 
 #### Step 8 STOP & COMMIT
 
