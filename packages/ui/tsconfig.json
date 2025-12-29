@@ -1,6 +1,8 @@
 {
 	"extends": "@lellimecnar/typescript-config/react.json",
 	"compilerOptions": {
+		"moduleResolution": "bundler",
+		"module": "ESNext",
 		"paths": {
 			"*": ["./*"],
 			"@/*": ["./src/*"]

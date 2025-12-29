@@ -2090,7 +2090,7 @@ pnpm -w type-check
 
 #### Step 14 Verification Checklist
 
-- [ ] `pnpm -w lint`
+- [x] `pnpm -w lint`
 - [x] `pnpm -w test`
 - [x] `pnpm -w build`
 - [x] `pnpm -w type-check`

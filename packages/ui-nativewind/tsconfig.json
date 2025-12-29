@@ -5,8 +5,8 @@
 			"*": ["./*"],
 			"@/*": ["./src/*"]
 		},
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext"
+		"module": "esnext",
+		"moduleResolution": "bundler"
 	},
 	"include": [
 		"src/**/*.ts",

@@ -368,14 +368,16 @@ it('uses theme from context', () => {
 ### Mocking Modules
 
 ```typescript
+import { vi } from 'vitest';
+import * as apiClient from './apiClient';
+
 // Mock an entire module
-jest.mock('./apiClient', () => ({
-	fetchData: jest.fn(() => Promise.resolve({ data: 'mocked' })),
+vi.mock('./apiClient', () => ({
+	fetchData: vi.fn(() => Promise.resolve({ data: 'mocked' })),
 }));
 
 // Mock a specific function
-import { fetchData } from './apiClient';
-jest.spyOn(apiClient, 'fetchData').mockResolvedValue({ data: 'mocked' });
+vi.spyOn(apiClient, 'fetchData').mockResolvedValue({ data: 'mocked' });
 ```
 
 ## Debugging Tests
@@ -391,7 +393,7 @@ jest.spyOn(apiClient, 'fetchData').mockResolvedValue({ data: 'mocked' });
 ### Run in Debug Mode
 
 ```bash
-node --inspect-brk node_modules/.bin/jest --runInBand
+node --inspect-brk node_modules/.bin/vitest --run
 ```
 
 Then open `chrome://inspect` in Chrome and click "inspect" on the target.
@@ -421,6 +423,7 @@ Tests run automatically in CI on every push and pull request. The CI pipeline:
 
 ## Resources
 
+- [Vitest Documentation](https://vitest.dev/guide/)
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 - [React Native Testing Library](https://callstack.github.io/react-native-testing-library/)

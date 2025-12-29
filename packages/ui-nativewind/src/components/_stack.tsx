@@ -59,7 +59,7 @@ export const Stack = Object.assign(
 		tabBarLabelContainerClassName: 'tabBarLabelContainerStyle',
 		tabBarIconClassName: 'tabBarIconStyle',
 		tabBarBadgeClassName: 'tabBarBadgeStyle',
-	}),
+	} as any),
 	{
 		Screen: cssInterop(DefaultStackScreen, {
 			contentClassName: 'options.contentStyle',

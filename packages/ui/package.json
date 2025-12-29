@@ -5,6 +5,7 @@
 	"sideEffects": [
 		"**/*.css"
 	],
+	"type": "module",
 	"exports": {
 		"./global.css": "./dist/global.css",
 		"./lib": "./src/lib/index.ts",

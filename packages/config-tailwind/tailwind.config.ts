@@ -1,8 +1,11 @@
 import twTypography from '@tailwindcss/typography';
+import { createRequire } from 'node:module';
 import { type Config } from 'tailwindcss';
-import { colors, fontFamily } from 'tailwindcss/defaultTheme';
 import twAnimate from 'tailwindcss-animate';
 import twOpenType from 'tailwindcss-opentype';
+
+const require = createRequire(import.meta.url);
+const { colors, fontFamily } = require('tailwindcss/defaultTheme');
 
 // We want each package to be responsible for its own content.
 const config: Omit<Config, 'content'> = {

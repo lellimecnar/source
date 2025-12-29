@@ -60,7 +60,7 @@ export const Tabs = Object.assign(
 		tabBarLabelContainerClassName: 'tabBarLabelContainerStyle',
 		tabBarIconClassName: 'tabBarIconStyle',
 		tabBarBadgeClassName: 'tabBarBadgeStyle',
-	}),
+	} as any),
 	{
 		Screen: cssInterop(DefaultTabsScreen, {
 			sceneClassName: 'options.sceneStyle',
