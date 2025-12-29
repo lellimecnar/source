@@ -4,6 +4,7 @@
 		"!src/**/*.{ts,tsx}",
 		"!*.{js,ts}",
 		".next/**",
+		"next-env.d.ts",
 		"**/node_modules/**"
 	]
 }
