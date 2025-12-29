@@ -1,262 +1,588 @@
-# @jsonpath/\* — Full Implementation Plan
+## @jsonpath/\* — Implementation Plan (Spec-Driven, Repo-Conformant)
 
-**Branch:** `jsonpath-packages`
-**Description:** Implement the complete `@jsonpath/*` suite (core engine + extensions + legacy + mutate + pointer + patch + cli + wasm + complete) with security guarantees, performance features, tests, and docs.
+**Branch:** `jsonpath`  
+**PR shape:** one PR with many small, independently-verifiable commits  
+**Scope:** implement all `@jsonpath/*` packages described in [specs/jsonpath.md](../../specs/jsonpath.md) under `packages/jsonpath/*`.
 
-This plan is intended to land as a single PR composed of multiple commits; each **Step** below is designed to be independently testable and corresponds to one commit.
+### Goal
 
-## Goal
+Deliver a standards-first JSONPath ecosystem that is RFC 9535 compliant by default, secure-by-design (no `eval` / no `new Function`), tree-shakeable, TypeScript-native, and validated by comprehensive unit + compliance tests.
 
-Deliver a standards-first JSONPath ecosystem for this monorepo that is RFC 9535 compliant by default, secure-by-design (no `eval` / no `new Function`), tree-shakeable, TypeScript-native, and validated by a comprehensive test suite.
+### Repo conventions to follow (observed in existing packages)
 
-## Implementation Steps
+- **Build:** Vite library builds, ESM-only, `dist/**` output, `preserveModules`, `vite-plugin-dts`, shared config via `@lellimecnar/vite-config/*`.
+- **Tests:** per-package `vitest.config.ts` using `@lellimecnar/vitest-config` (Node by default), scripts pattern `test` / `test:coverage` / `test:watch`.
+- **Type-check:** `tsgo --noEmit` (or `tsgo -p tsconfig.json --noEmit`).
+- **Exports:** `type: module`, `exports` map with `{ types, default }`, `main`, `types`, `files: ["dist"]`, `sideEffects: false`.
+- **CLI packaging:** follow the [packages/ui-spec/cli](../../packages/ui-spec/cli/package.json) approach: `bin` points at `./dist/bin/<name>.js`, and `postbuild` copies a simple `bin/` shim into `dist/bin/`.
 
-### Step 1: Scaffold all workspaces + shared build/test conventions
+---
 
-**Files:**
+## Commit plan (one commit per section)
 
-- `pnpm-workspace.yaml`, `turbo.json`
-- `packages/jsonpath-core/{package.json,tsconfig.json,jest.config.js,README.md,src/index.ts}`
-- `packages/jsonpath-extensions/{package.json,tsconfig.json,jest.config.js,README.md,src/index.ts}`
-- `packages/jsonpath-legacy/{package.json,tsconfig.json,jest.config.js,README.md,src/index.ts}`
-- `packages/jsonpath-mutate/{package.json,tsconfig.json,jest.config.js,README.md,src/index.ts}`
-- `packages/jsonpath-pointer/{package.json,tsconfig.json,jest.config.js,README.md,src/index.ts}`
-- `packages/jsonpath-patch/{package.json,tsconfig.json,jest.config.js,README.md,src/index.ts}`
-- `packages/jsonpath-cli/{package.json,tsconfig.json,jest.config.js,README.md,src/index.ts}`
-- `packages/jsonpath-wasm/{package.json,tsconfig.json,jest.config.js,README.md,src/index.ts}`
-- `packages/jsonpath-complete/{package.json,tsconfig.json,jest.config.js,README.md,src/index.ts}`
-  **What:**
-- Create all packages as buildable workspaces with `dist/**` outputs, using `tsgo` (not `tsc`) for builds.
-- Align Jest configs with the repo’s existing per-package Jest preset approach (via `@lellimecnar/jest-config`) and the standard colocated `src/**/*.spec.ts` convention.
-- Ensure internal deps use `workspace:*` and Turbo recognizes outputs.
-  **Testing:** `pnpm -r build` and `pnpm -r test` (or Turbo equivalents) should run with placeholder tests.
+### Commit 01 — Monorepo wiring + scaffold all `@jsonpath/*` packages
 
-### Step 2: Core public contracts (types + options) and error hierarchy
+**Files**
 
-**Files:** `packages/jsonpath-core/src/{index.ts,types.ts,options.ts,errors.ts}`
-**What:** Define the full public surface types from the spec:
+- Repo-level
+  - [pnpm-workspace.yaml](../../pnpm-workspace.yaml)
+  - [package.json](../../package.json) (workspace globs)
+  - [vitest.config.ts](../../vitest.config.ts)
+- New workspaces (scaffold each)
+  - `packages/jsonpath/core/*`
+  - `packages/jsonpath/extensions/*`
+  - `packages/jsonpath/legacy/*`
+  - `packages/jsonpath/mutate/*`
+  - `packages/jsonpath/pointer/*`
+  - `packages/jsonpath/patch/*`
+  - `packages/jsonpath/cli/*`
+  - `packages/jsonpath/wasm/*`
+  - `packages/jsonpath/complete/*`
 
-- `QueryOptions`, `CompileOptions`
-- `NormalizedPath`, `Node<T>`, `CompiledPath<T>`
-- error classes: `JSONPathError`, `JSONPathSyntaxError`, `JSONPathRuntimeError`, `JSONPathSecurityError`, `JSONPathTimeoutError`
-  Ensure error instances carry safe metadata (`code`, `path`, `position`, etc.) without leaking huge data blobs.
-  **Testing:** Unit tests asserting error shape, inheritance, and stable codes.
+**What**
 
-### Step 3: Security primitives (no-eval sandbox, access guards, CSP/security modes)
+- Add `packages/jsonpath/*` to pnpm workspace globs and to root `package.json` `workspaces` (repo currently lists only one-level `packages/*`).
+- Update root Vitest projects to include `packages/jsonpath/*/vitest.config.ts` (root config currently misses that glob).
+- Scaffold each package with:
+  - `package.json` matching `packages/polymix` + `packages/utils` conventions (ESM-only, exports map, scripts, `files: ["dist"]`).
+    - Prefer **granular exports** (subpath exports) to preserve tree-shaking and keep browser bundles small. Avoid barrel imports in examples and internal docs.
+    - Provide multiple subpaths for anything that is reasonably useful standalone or for composition (e.g. `@jsonpath/core/parse`, `@jsonpath/core/security`, `@jsonpath/core/functions`, `@jsonpath/core/compliance`, `@jsonpath/core/stream`, `@jsonpath/core/secure-eval`).
+  - Set `publishConfig.access: "public"` for all `@jsonpath/*` packages.
+  - `tsconfig.json` extending `@lellimecnar/typescript-config` (set `rootDir: src`, `outDir: dist`).
+  - `vite.config.ts` using `viteNodeConfig()` + `preserveModulesRoot: 'src'` + `vite-plugin-dts`.
+  - `vitest.config.ts` using `vitestBaseConfig()` with `include: ['src/**/*.spec.ts']` and `exclude: ['dist/**']`.
+  - Minimal `src/index.ts` and at least one smoke `src/*.spec.ts` per package.
+- Dependency graph (workspace deps only):
+  - `@jsonpath/extensions` depends on `@jsonpath/core`
+  - `@jsonpath/legacy` depends on `@jsonpath/core`
+  - `@jsonpath/mutate` depends on `@jsonpath/core`
+  - `@jsonpath/pointer` standalone
+  - `@jsonpath/patch` depends on `@jsonpath/pointer` (and optionally `@jsonpath/core` only for `applyWithJSONPath`)
+  - `@jsonpath/cli` depends on `@jsonpath/complete` (or `core` + others; decide in later commit)
+  - `@jsonpath/complete` depends on `core/extensions/legacy/mutate/pointer/patch`
+  - `@jsonpath/wasm` depends on `@jsonpath/core` (interface-level)
 
-**Files:** `packages/jsonpath-core/src/{security/{index.ts,levels.ts,guards.ts,sandbox.ts},engine.ts}`
-**What:** Implement the spec’s security model foundations:
+**Testing**
 
-- Hard block prototype pollution vectors (`__proto__`, `constructor`, `prototype`) at traversal and during mutation-path resolution.
-- Introduce `SecurityLevel` and `CSPMode` (or equivalent) with strict defaults.
-- Implement a `Sandbox` abstraction that enforces:
-  - timeouts / step budgets (for filters and legacy scripts)
-  - optional `freezeInputs`
-  - no dynamic code generation.
-    **Testing:** Security regression tests (prototype access attempts must throw `JSONPathSecurityError`), CSP-mode invariants (no dynamic code paths).
+- `pnpm -w lint`
+- `pnpm -w build`
+- `pnpm -w test`
 
-### Step 4: RFC 9535 lexer + parser (AST) with precise syntax errors
+---
 
-**Files:** `packages/jsonpath-core/src/{lexer.ts,parser.ts,ast.ts,parse.ts}`
-**What:** Parse RFC 9535 JSONPath into a stable AST:
+### Commit 02 — `@jsonpath/core`: public types + error hierarchy + options contract
 
-- `$` root, member selectors (dot/bracket), wildcards, unions, slices, recursive descent `..`
-- filter expression grammar with correct precedence
-- strict syntax diagnostics with positions
-  **Testing:** Golden tests for valid paths → AST snapshots; invalid paths → `JSONPathSyntaxError` with accurate `position`/`found`.
+**Files**
 
-### Step 5: Evaluator core (selectors, traversal, node/path tracking)
+- `packages/jsonpath/core/src/{index.ts,types.ts,options.ts,errors.ts}`
+- `packages/jsonpath/core/src/*.spec.ts`
 
-**Files:** `packages/jsonpath-core/src/{walk.ts,evaluate/*.ts,nodes.ts,paths.ts}`
-**What:** Evaluate AST against JSON data safely and deterministically:
+**What**
 
-- correct object/array semantics, negative indices, slice semantics, recursive descent behavior
-- `nodes()` returns `{ path, value, parent, parentProperty }`
-- `paths()` returns normalized paths
-  **Testing:** Selector-by-selector behavior tests plus mixed-type edge cases.
+- Define the public surface described in the spec:
+  - `QueryOptions`, `CompileOptions` (include `strict`, `maxDepth`, `maxResults`, `timeout`, `cache`, `mode`, `extensions`, `functions`).
+  - `NormalizedPath`, `Node<T>`, `CompiledPath<T>`.
+  - Error classes: `JSONPathError`, `JSONPathSyntaxError`, `JSONPathRuntimeError`, `JSONPathSecurityError`, `JSONPathTimeoutError`.
+- Ensure errors carry safe metadata (`code`, `message`, `position`, etc.) without retaining whole input JSON.
 
-### Step 6: Filters + RFC 9535 operators (no JS execution)
+**Testing**
 
-**Files:** `packages/jsonpath-core/src/{filter/*.ts}`
-**What:** Implement filter evaluation with RFC 9535 operators:
+- `pnpm --filter @jsonpath/core test`
 
-- comparisons: `== != < <= > >=`
-- logical: `&& || !`
-- existence tests
-  Ensure filter evaluation runs inside sandbox limits and does not allow property access bypass.
-  **Testing:** Operator precedence tests and truthiness edge cases.
+---
 
-### Step 7: Built-in functions + I-Regexp (`iregexp`)
+### Commit 03 — `@jsonpath/core`: security primitives (sandbox + guards + CSP/security modes)
 
-**Files:** `packages/jsonpath-core/src/{functions/{builtins.ts,registry.ts},iregexp/{index.ts,validate.ts,fromRegExp.ts}}`
-**What:** Implement RFC 9535 mandatory functions:
+**Files**
 
-- `length()`, `count()`, `match()`, `search()`, `value()`
-  Implement I-Regexp validation and best-effort conversion (`iregexp.fromRegExp`).
-  **Testing:** Function tests across input types; I-Regexp accept/reject fixtures.
+- `packages/jsonpath/core/src/security/{Sandbox.ts,levels.ts,guards.ts,index.ts}`
+- `packages/jsonpath/core/src/security/*.spec.ts`
 
-### Step 8: Core API surface (`query/compile/first/exists/count/nodes/paths`)
+**What**
 
-**Files:** `packages/jsonpath-core/src/{index.ts,api.ts,compile.ts,cache.ts}`
-**What:** Implement the specified ergonomic API:
+- Implement the security model scaffolding from spec §7:
+  - `Sandbox` with configurable limits (max execution time, iterations, recursion depth) and blocked patterns list.
+  - Prototype-pollution guardrails: hard-block `__proto__`, `constructor`, `prototype` at traversal and at mutation-path resolution.
+  - `SecurityLevel` and `CSPMode` enums; default to strict.
+- Make “no dynamic code generation” a non-negotiable invariant (no `eval`, no `new Function`).
+  - Any feature that must execute a JavaScript string (legacy/CLI) SHALL do so via **a single, shared SES wrapper located in `@jsonpath/core`** (using SES `Compartment`, npm `ses`), not via direct dynamic code generation.
+  - The wrapper API SHALL be a normal runtime export under a subpath (e.g. `@jsonpath/core/secure-eval`).
+    - Default `@jsonpath/core` APIs should not import it unless the caller explicitly opts into a legacy/CLI path that requires it.
 
-- `query<T>()`, `compile<T>()`, `nodes<T>()`, `paths()`, `first<T>()`, `exists()`, `count()`
-- compile-time `optimize` option and runtime caching hooks (internal cache first)
-- early termination for `first/exists/count` where feasible
-  **Testing:** End-to-end API tests reflecting spec examples.
+**Testing**
 
-### Step 9: `validate()` and `sanitize()` APIs for untrusted paths
+- `pnpm --filter @jsonpath/core test`
+- `pnpm --filter @jsonpath/core test:coverage`
 
-**Files:** `packages/jsonpath-core/src/{validate.ts,sanitize.ts,index.ts}`
-**What:** Add:
+---
 
-- `validate(path)` returns `{ valid, errors[] }` (no throw)
-- `sanitize(userPath, policy)` that can disable recursion, limit depth, whitelist segments, etc.
-  Policies must align with security model and provide safe defaults.
-  **Testing:** Policy enforcement tests and “sanitize then parse” tests.
+### Commit 04 — `@jsonpath/core`: RFC 9535 lexer/parser → AST with precise diagnostics
 
-### Step 10: Compliance harness + curated test corpus
+**Files**
 
-**Files:** `packages/jsonpath-core/src/{compliance/index.ts,compliance/suite.ts,compliance/verify.ts,compliance/fixtures/*.json}`
-**What:** Implement the compliance runner API from the spec:
+- `packages/jsonpath/core/src/parse/{tokenize.ts,parser.ts,ast.ts,index.ts}`
+- `packages/jsonpath/core/src/parse/*.spec.ts`
 
-- `compliance.runSuite()` and `compliance.verify()`
-  Start with an internal corpus mapped to RFC 9535 mandatory features, then expand toward a full compliance set.
+**What**
 
-Compliance suite source strategy:
+- Parse RFC 9535 JSONPath into a stable AST with source positions.
+- Produce `JSONPathSyntaxError` for invalid input with `{ position, found, expected }`-style metadata.
 
-- Pull an external JSONPath compliance suite as a **devDependency** of `@jsonpath/core`.
-- Treat the external suite as test-only input: it must not be imported from the runtime entrypoints, and must remain excluded from the published package output.
-- Mirror/curate any fixtures needed for stability (and add a small in-repo smoke corpus) while keeping the external suite as the comprehensive reference.
-  **Testing:** Compliance suite runs within CI timeouts; asserts pass totals.
+**Testing**
 
-### Step 11: Performance features (compilation cache, lazy evaluation, multi-query)
+- `pnpm --filter @jsonpath/core test`
 
-**Files:** `packages/jsonpath-core/src/{lazy.ts,multiQuery.ts,querySet.ts,cache.ts}`
-**What:** Implement spec performance APIs:
+---
 
-- compiled query caching (bounded) and reuse
-- `lazyQuery()` iterator-based evaluation
-- `multiQuery()` and `createQuerySet()` for single-traversal multi-query execution
-  Guarantee identical semantics to single-query execution.
-  **Testing:** Cross-check multiQuery/querySet/lazyQuery results against baseline `query()`.
+### Commit 05 — `@jsonpath/core`: evaluator core (selectors, traversal, nodes/paths)
 
-### Step 12: Audit logging hooks
+**Files**
 
-**Files:** `packages/jsonpath-core/src/{audit/logger.ts,engine.ts}`
-**What:** Add an `AuditLogger` (or hook interface) that can observe:
+- `packages/jsonpath/core/src/eval/{evaluate.ts,walk.ts,selectors/*}`
+- `packages/jsonpath/core/src/{nodes.ts,paths.ts}`
+- `packages/jsonpath/core/src/eval/*.spec.ts`
 
-- parsed query info (redacted)
-- execution timing, timeouts, blocked security access
-- optionally call-site metadata (if provided)
-  Must be opt-in and never log sensitive data by default.
-  **Testing:** Hook invocation tests and redaction tests.
+**What**
 
-### Step 13: Extension system + `@jsonpath/extensions` official pack
+- Implement safe traversal semantics for objects/arrays and normalized path tracking.
+- Implement `nodes()` and `paths()` output shapes per spec.
 
-**Files:**
+**Testing**
 
-- Core: `packages/jsonpath-core/src/{extension/*.ts,engine.ts,grammar/*.ts}`
-- Extensions: `packages/jsonpath-extensions/src/{index.ts,selectors/*.ts,operators/*.ts,functions/*.ts}`
-  **What:** Implement the extension interface and authoring utilities:
-- `defineSelector`, `defineOperator`, `defineFunction`, `registerFunctions`
-- `createEngine({ extensions, functions, grammar })`
-  Ship the “official” extension pack (selectors like parent `^`, type selectors, etc.) as described in the spec.
-  **Testing:** Extension registration tests, plus “core remains RFC 9535” tests when no extensions loaded.
+- `pnpm --filter @jsonpath/core test`
 
-### Step 14: Legacy compatibility (`@jsonpath/legacy`)
+---
 
-**Files:** `packages/jsonpath-legacy/src/{index.ts,modes/*.ts,normalize.ts,convert.ts,adapters/*,sandbox/*}`
-**What:** Provide:
+### Commit 06 — `@jsonpath/core`: filters + operators (no JS execution)
 
-- modes (`auto`, `goessner`, `jsonpath-plus`)
-- syntax normalization/conversion
-- sandboxed legacy script expressions (capability-limited interpreter; no JS eval)
-- adapters for `jsonpath` (dchester), `jsonpath-plus`, `json-p3`
-  **Testing:** Adapter behavior tests; sandbox escape tests; mode auto-detect tests.
+**Files**
 
-### Step 15: Mutation operations (`@jsonpath/mutate`)
+- `packages/jsonpath/core/src/filter/{expression.ts,operators.ts,evalFilter.ts}`
+- `packages/jsonpath/core/src/filter/*.spec.ts`
 
-**Files:** `packages/jsonpath-mutate/src/{index.ts,mutate.ts,immutable.ts,batch.ts,selector.ts,ops/*}`
-**What:** Implement:
+**What**
 
-- mutable ops: `set`, `update`, `delete`, `insert`, `rename`
-- immutable variants with structural sharing
-- batch/transaction APIs and reusable mutation selectors (as in spec)
-  Use `@jsonpath/core` resolution (nodes/paths) where appropriate.
-  **Testing:** Structural sharing tests (reference equality) and correctness tests for all operations.
+- Implement filter evaluation with RFC 9535 operators and correct precedence.
+- Ensure filter evaluation always runs under Sandbox limits and cannot bypass guards.
 
-### Step 16: JSON Pointer RFC 6901 (`@jsonpath/pointer`)
+**Testing**
 
-**Files:** `packages/jsonpath-pointer/src/{index.ts,parse.ts,stringify.ts,escape.ts,get.ts,set.ts,remove.ts}`
-**What:** Implement strict RFC 6901 pointer parsing/encoding and helpers.
-**Testing:** RFC 6901 fixtures; round-trip tests.
+- `pnpm --filter @jsonpath/core test`
 
-### Step 17: JSON Patch RFC 6902 (`@jsonpath/patch`)
+---
 
-**Files:** `packages/jsonpath-patch/src/{index.ts,apply.ts,validate.ts,ops/*,errors.ts}`
-**What:** Implement RFC 6902 operations: `add`, `remove`, `replace`, `move`, `copy`, `test` using `@jsonpath/pointer`.
-**Testing:** RFC 6902 fixtures; operation-specific edge cases.
+### Commit 07 — `@jsonpath/core`: built-in functions + FunctionRegistry typings + I-Regexp
 
-### Step 18: CLI (`@jsonpath/cli`)
+**Files**
 
-**Files:** `packages/jsonpath-cli/src/{main.ts,commands/*,format/*}`
-**What:** Implement a CLI supporting:
+- `packages/jsonpath/core/src/functions/{defineFunction.ts,registry.ts,builtins.ts}`
+- `packages/jsonpath/core/src/iregexp/{index.ts,validate.ts,fromRegExp.ts}`
+- `packages/jsonpath/core/src/functions/*.spec.ts`
 
-- query execution (stdin/file JSON)
-- output formats: values, nodes, paths
-- `validate` and `ast`
-  Keep dependencies minimal (prefer none unless unavoidable).
-  **Testing:** CLI argument parsing tests; snapshot output tests.
+**What**
 
-### Step 19: Unified package (`@jsonpath/complete`)
+- Implement spec-required built-ins: `length`, `count`, `match`, `search`, `value`.
+- Provide `defineFunction` and `registerFunctions` APIs that support declaration merging (spec §9.5).
+- Implement I-Regexp validation/conversion utilities.
 
-**Files:** `packages/jsonpath-complete/src/index.ts`, `packages/jsonpath-complete/package.json`
-**What:** Re-export core APIs plus common extension bundles per spec.
-**Testing:** Type-check and basic runtime tests verifying re-exports.
+**Testing**
 
-### Step 20: Optional WASM accelerator (`@jsonpath/wasm`)
+- `pnpm --filter @jsonpath/core test`
 
-**Files:** `packages/jsonpath-wasm/src/{index.ts,bridge/*}`
-**What:** Add an optional WASM backend with identical semantics. Ensure it is lazy-loaded and never required.
-**Testing:** Cross-validate results vs JS engine on the same fixtures.
+---
 
-### Step 21: Documentation + migration notes
+### Commit 08 — `@jsonpath/core`: primary API (`query/compile/first/exists/count/nodes/paths`)
 
-**Files:** `docs/api/jsonpath.md` (new), root `README.md` (light reference), per-package `README.md`
-**What:** Document:
+**Files**
 
-- each package’s purpose + install + usage
-- security model (CSP, sandbox, prototype-pollution prevention)
-- extension authoring
-- legacy compatibility and migration paths
-  **Testing:** Ensure doc examples are mirrored in tests (compile-time) to prevent drift.
+- `packages/jsonpath/core/src/{engine.ts,createEngine.ts,compile.ts,cache.ts,index.ts}`
+- `packages/jsonpath/core/src/api/*.spec.ts`
 
-### Step 22: Hardening + release readiness
+**What**
 
-**Files:** targeted across packages
-**What:** Finish:
+- Implement:
+  - `query<T>()`, `compile<T>()`, `nodes<T>()`, `paths()`, `first<T>()`, `exists()`, `count()`.
+  - `createEngine({ extensions, functions, grammar, cache, security, csp, audit, accelerator })`.
+- Add early termination for `first/exists/count`.
 
-- timeout/maxDepth/maxResults enforcement across APIs
-- DoS mitigations (path length caps, recursion caps, budgeted filter evaluation)
-- fuzz/regression suite for parser + filters
-- confirm public API stability and export layout
-  **Testing:** Full repo tests + stress tests remain within CI budget.
+**Testing**
 
-## Review Notes (Plan Completeness)
+- `pnpm --filter @jsonpath/core test`
 
-- This revision explicitly covers spec sections that were missing/under-specified before: `Sandbox`, `SecurityLevel`, `CSPMode`, `validate()`, `sanitize()`, `AuditLogger`, `lazyQuery`, `multiQuery`, and `createQuerySet`.
-- It also aligns package creation with existing monorepo conventions (Turbo output expectations and per-package Jest configs).
+---
 
-## Open Questions
+### Commit 09 — `@jsonpath/core`: `validate()` + `sanitize()` for untrusted paths
 
-## Decisions (Confirmed)
+**Files**
 
-- **Bundle size:** Aim for small bundles, but do not add strict size gates (no size-limit CI budget) in this PR.
-- **Build tool:** Use `tsgo` for builds (not `tsc`).
-- **Testing conventions:** Match existing per-package Jest conventions via `@lellimecnar/jest-config`.
-- **Compliance suite:** Pull the compliance suite as a devDependency and ensure it is excluded from published/runtime artifacts.
-- **Scope:** Do not migrate `packages/ui-spec` off `jsonpath-plus` in this PR.
+- `packages/jsonpath/core/src/{validate.ts,sanitize.ts}`
+- `packages/jsonpath/core/src/{validate.spec.ts,sanitize.spec.ts}`
+
+**What**
+
+- `validate(path)` returns `{ valid, errors[] }` without throwing.
+- `sanitize(userPath, policy)` with policy knobs from spec §7.4 (e.g. disable recursion, disable filters, maxLength, allowedSegments).
+
+**Testing**
+
+- `pnpm --filter @jsonpath/core test`
+
+---
+
+### Commit 10 — `@jsonpath/core`: audit logging hooks
+
+**Files**
+
+- `packages/jsonpath/core/src/audit/{AuditLogger.ts,events.ts}`
+- `packages/jsonpath/core/src/audit/*.spec.ts`
+
+**What**
+
+- Implement opt-in audit hooks per spec §7.5.
+- Redact sensitive data by default (no payload dumps).
+
+**Testing**
+
+- `pnpm --filter @jsonpath/core test`
+
+---
+
+### Commit 11 — `@jsonpath/core`: performance features (cache, lazyQuery, multiQuery, createQuerySet)
+
+**Files**
+
+- `packages/jsonpath/core/src/perf/{createCache.ts,lazyQuery.ts,multiQuery.ts,querySet.ts}`
+- `packages/jsonpath/core/src/perf/*.spec.ts`
+
+**What**
+
+- Implement compilation caching and bounded query cache.
+- Implement `lazyQuery()` and multi-query APIs (`multiQuery`, `createQuerySet`).
+- Cross-check correctness against `query()` baseline.
+
+**Testing**
+
+- `pnpm --filter @jsonpath/core test`
+
+---
+
+### Commit 12 — `@jsonpath/core`: compliance harness (runSuite/verify) + curated fixtures
+
+**Files**
+
+- `packages/jsonpath/core/src/compliance/{index.ts,runSuite.ts,verify.ts}`
+- `packages/jsonpath/core/src/compliance/fixtures/*`
+- `packages/jsonpath/core/src/compliance/*.spec.ts`
+
+**What**
+
+- Provide `compliance.runSuite()` and `compliance.verify()` per spec §3.5.
+- Add a small in-repo fixture set (smoke corpus).
+- Integrate the official RFC 9535 compliance suite from https://github.com/jsonpath-standard/jsonpath-compliance-test-suite as **test-only** input:
+  - add it as a `devDependency` via a git URL pinned to a commit SHA (that repo has no tags)
+  - ensure it is never imported from runtime entrypoints and never shipped in published artifacts.
+
+**Testing**
+
+- `pnpm --filter @jsonpath/core test`
+
+---
+
+### Commit 13 — `@jsonpath/core`: benchmarking + profiling utilities
+
+**Files**
+
+- `packages/jsonpath/core/src/benchmark/{benchmark.ts,profile.ts,stats.ts}`
+- `packages/jsonpath/core/src/benchmark/*.spec.ts`
+
+**What**
+
+- Add `benchmark()` and `profile()` utilities per spec §8.6.
+- Ensure they are deterministic enough for tests (avoid flaky timing assertions; assert shape and basic invariants).
+
+**Testing**
+
+- `pnpm --filter @jsonpath/core test`
+
+---
+
+### Commit 14 — `@jsonpath/extensions`: official extension pack (selectors/functions/operators/bundles)
+
+**Files**
+
+- `packages/jsonpath/core/src/extension/{types.ts,defineSelector.ts,defineOperator.ts,extendGrammar.ts}`
+- `packages/jsonpath/extensions/src/{index.ts,selectors/*,operators/*,functions/*,bundles/*}`
+
+**What**
+
+- Implement the Extension interface + lifecycle hooks per spec §4.
+- Implement and export the official extension groups (spec §4.7):
+  - selectors: `parentSelector (^), propertyNameSelector (~), rootParentSelector (^^)`
+  - type selectors: `@string(), @number(), ...`
+  - function bundles: string/math/array/object/date
+  - operator bundles: regex operators (`=~`, `!~`), contains operators (`in`, `contains`, etc.)
+  - bundles: `jsonpathPlusCompat`, `fullExtensions`
+
+**Testing**
+
+- `pnpm --filter @jsonpath/extensions test`
+- `pnpm --filter @jsonpath/core test` (smoke that core works without extensions)
+
+---
+
+### Commit 15 — `@jsonpath/legacy`: compatibility modes + adapters + normalization/convert
+
+**Files**
+
+- `packages/jsonpath/legacy/src/{index.ts,legacyMode.ts,normalize.ts,convert.ts}`
+- `packages/jsonpath/legacy/src/adapters/{jsonpath.ts,jsonpath-plus.ts,json-p3.ts}`
+- `packages/jsonpath/legacy/package.json` (exports map for subpaths)
+
+**What**
+
+- Implement mode handling per spec §5:
+  - `mode: 'auto' | 'goessner' | 'jsonpath-plus'`.
+- Provide adapter entrypoints matching spec examples:
+  - `@jsonpath/legacy/jsonpath`
+  - `@jsonpath/legacy/jsonpath-plus`
+  - `@jsonpath/legacy/json-p3`
+- Implement syntax normalization + conversion (at minimum: normalization to RFC 9535 and conversion back to goessner where required).
+- Where legacy modes require evaluating script-like expressions, execute them using the SES `Compartment` API (npm `ses`) instead of `eval`/`new Function`.
+  - Route all script-like evaluation through the shared `@jsonpath/core` SES wrapper.
+  - Provide zero/strict endowments by default.
+  - Enforce budgets/timeouts by running expression evaluation in a worker/isolated execution context and aborting on timeout.
+
+**Testing**
+
+- `pnpm --filter @jsonpath/legacy test`
+
+---
+
+### Commit 16 — `@jsonpath/mutate`: mutable + immutable + batch/transaction + MutationSelector
+
+**Files**
+
+- `packages/jsonpath/mutate/src/{index.ts,mutate.ts,immutable.ts,batch.ts,MutationSelector.ts,ops/*}`
+- `packages/jsonpath/mutate/src/*.spec.ts`
+
+**What**
+
+- Implement spec §6:
+  - mutable ops: `set`, `update`, `delete`, `insert`, `rename`
+  - immutable variants with structural sharing
+  - batch builder + beginTransaction/commit/rollback
+  - `MutationSelector` with chaining (e.g. `.filter().update().apply()`)
+- Reuse `@jsonpath/core` path resolution and apply prototype-pollution guards.
+
+**Testing**
+
+- `pnpm --filter @jsonpath/mutate test`
+
+---
+
+### Commit 17 — `@jsonpath/pointer`: RFC 6901 + compile + JSONPath conversion
+
+**Files**
+
+- `packages/jsonpath/pointer/src/{index.ts,pointer.ts,escape.ts,compile.ts,convert.ts}`
+- `packages/jsonpath/pointer/src/*.spec.ts`
+
+**What**
+
+- Implement pointer helpers per spec §11.1:
+  - `get`, `set`, `has`, `remove`
+  - `compile(pointer)` returning `{ get, set, has }`-style API
+  - `toJSONPath(pointer)` and `fromJSONPath(jsonpath)` conversions
+
+**Testing**
+
+- `pnpm --filter @jsonpath/pointer test`
+
+---
+
+### Commit 18 — `@jsonpath/patch`: RFC 6902 apply/validate + diff + applyWithJSONPath
+
+**Files**
+
+- `packages/jsonpath/patch/src/{index.ts,apply.ts,validate.ts,diff.ts}`
+- `packages/jsonpath/patch/src/ops/*`
+- `packages/jsonpath/patch/src/*.spec.ts`
+
+**What**
+
+- Implement patch operations per spec §11.2:
+  - `patch.apply(data, ops)`
+  - `diff(original, modified)`
+  - `applyWithJSONPath(data, opsWithJsonpath)` (integrate `@jsonpath/core` for JSONPath resolution).
+
+**Testing**
+
+- `pnpm --filter @jsonpath/patch test`
+
+---
+
+### Commit 19 — `@jsonpath/complete`: unified convenience entrypoint
+
+**Files**
+
+- `packages/jsonpath/complete/src/index.ts`
+- `packages/jsonpath/complete/src/*.spec.ts`
+
+**What**
+
+- Implement `@jsonpath/complete` re-exports per spec:
+  - `query`, `compile` from core
+  - `mutate`, `immutable`, `batch` from mutate
+  - `pointer` from pointer
+  - `patch`, `diff` from patch
+  - `legacy` helpers from legacy
+  - `extensions` bundles from extensions
+
+**Testing**
+
+- `pnpm --filter @jsonpath/complete test`
+- `pnpm -w verify:exports`
+
+---
+
+### Commit 20 — `@jsonpath/cli`: command-line interface + bin shim
+
+**Files**
+
+- `packages/jsonpath/cli/package.json` (bin + postbuild)
+- `packages/jsonpath/cli/bin/jsonpath.js` (shim)
+- `packages/jsonpath/cli/src/{index.ts,main.ts,args.ts,io/*,formats/*,repl/*,config/*}`
+- `packages/jsonpath/cli/src/*.spec.ts`
+
+**What**
+
+- Implement CLI behavior from spec §10:
+  - stdin/file input; `--url` fetch; multi-`-q` queries
+  - output: default JSON, `--pretty`, `--compact`, `--ndjson`, `--csv`, `--raw`, `--paths`, `--count`
+  - `--validate`, `--ast`, `--benchmark`, `--repl`
+- CLI should be **minimal by default** (safe defaults, simple output, no optional features enabled), but expandable via config and/or args:
+  - by default, it covers the official RFC 9535 JSONPath behavior only.
+  - config/args can enable extensions bundles, legacy adapters, wasm acceleration, or additional output formats as needed.
+- JSON-only config file support (no YAML):
+  - support `.jsonpathrc.json` and `--config <path>`
+  - merge order: CLI flags override config file, which overrides defaults
+- Follow repo CLI packaging pattern: `bin` points to `./dist/bin/jsonpath.js`, and `postbuild` copies `bin/` to `dist/bin/`.
+- Enforce security constraints for all “expression-like” inputs:
+  - absolutely no `eval` / `new Function`.
+  - if `--update` accepts JavaScript (per spec examples), execute the string via the shared `@jsonpath/core` SES wrapper with locked-down endowments and timeout enforcement.
+
+**Testing**
+
+- `pnpm --filter @jsonpath/cli test`
+
+---
+
+### Commit 21 — `@jsonpath/wasm`: accelerator interface + lazy-loading integration
+
+**Files**
+
+- `packages/jsonpath/wasm/src/{index.ts,wasmAccelerator.ts,loader.ts}`
+- `packages/jsonpath/wasm/rust/*` (Rust crate source)
+- `packages/jsonpath/wasm/package.json` (build scripts for Rust → wasm)
+- `packages/jsonpath/wasm/src/*.spec.ts`
+- `packages/jsonpath/core/src/accelerator/types.ts` (if needed)
+
+**What**
+
+- Implement `wasmAccelerator({ threshold, operations })` API per spec §8.5.
+- Use Rust to implement the WASM backend (wasm32 target), producing a real `.wasm` artifact shipped with the package.
+  - Build strategy: `wasm-pack` + `wasm-bindgen` to generate the wasm + JS bindings into `dist/`.
+  - Pin the Rust crate/tooling versions (and document the required Rust toolchain + `wasm-pack` installation) so CI is reproducible.
+  - Ensure the wrapper stays ESM-only and is safe to tree-shake.
+- Ensure the WASM module is optional and lazily loaded (never required for non-WASM users).
+- Integrate accelerator selection in `createEngine({ accelerator })` without changing semantics.
+- Target environments: **Node and browsers**.
+  - Avoid Node-only globals in the default import path; use `fetch`/`WebAssembly.instantiateStreaming` where available and provide a fallback loader.
+  - Support both bundlers and direct ESM usage:
+    - bundlers: allow importing the package normally and loading the `.wasm` via a bundled URL or emitted asset.
+    - direct usage: allow configuring/providing an explicit `.wasm` URL/path via options.
+
+**Testing**
+
+- `pnpm --filter @jsonpath/wasm test`
+- `pnpm --filter @jsonpath/core test`
+
+---
+
+### Commit 22 — `@jsonpath/core`: streaming support (`streamQuery`) [Node-only entrypoint]
+
+**Files**
+
+- `packages/jsonpath/core/src/stream/{streamQuery.ts,index.ts}`
+- `packages/jsonpath/core/package.json` (exports map for `./stream`)
+- `packages/jsonpath/core/src/stream/*.spec.ts`
+
+**What**
+
+- Implement `streamQuery()` per spec §8.4.
+- Keep Node-only IO in a separate subpath export (`@jsonpath/core/stream`) to avoid pulling Node APIs into browser builds.
+
+**Testing**
+
+- `pnpm --filter @jsonpath/core test`
+
+---
+
+### Commit 23 — Documentation: docs/api + per-package READMEs (examples are test-backed)
+
+**Files**
+
+- `docs/api/jsonpath.md`
+- `packages/jsonpath/*/README.md`
+- `packages/jsonpath/*/src/examples/*.spec.ts` (or colocated specs)
+
+**What**
+
+- Write a full API doc page for the suite and short READMEs per package:
+  - installation, minimal examples, security notes, and common recipes.
+- Ensure every doc snippet is mirrored by a test so docs can’t drift.
+
+**Testing**
+
+- `pnpm -w test`
+
+---
+
+### Commit 24 — Hardening pass: budgets/timeouts/limits + prototype-pollution regression matrix
+
+**Files**
+
+- `packages/jsonpath/core/src/{security/*,engine.ts,options.ts}`
+- `packages/jsonpath/*/src/**/*.spec.ts`
+
+**What**
+
+- Ensure `timeout`, `maxDepth`, `maxResults` are enforced consistently across:
+  - query evaluation
+  - filters/functions
+  - legacy adapters
+  - mutation operations
+- Add a regression matrix for prototype-pollution attempts across:
+  - query traversal
+  - mutations
+  - pointer/patch interop
+
+**Testing**
+
+- `pnpm -w test:coverage`
+
+---
+
+## Locked-in decisions
+
+- **WASM backend:** Rust implementation producing a real shipped `.wasm` artifact, targeting **Node and browsers**.
+- **JS string execution:** all JavaScript-string execution is routed through a shared SES `Compartment` wrapper located in `@jsonpath/core` (no `eval`/`new Function`).
+- **SES wrapper export:** exposed as a normal runtime subpath export (e.g. `@jsonpath/core/secure-eval`), and only used when explicitly opted into.
+- **CLI config:** JSON-only.
+- **Compliance suite:** https://github.com/jsonpath-standard/jsonpath-compliance-test-suite via git URL `devDependency` pinned to a commit SHA (test-only).
+- **Exports:** allow granular exports (subpath exports) for tree-shaking, with multiple standalone/composable subpaths.
+- **CLI behavior:** minimal by default; covers RFC 9535 by default; expandable via config and/or args.
+- **Publishing:** all `@jsonpath/*` packages are public (`publishConfig.access: public`).
 
 ## Notes
 

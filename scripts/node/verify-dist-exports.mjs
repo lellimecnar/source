@@ -45,8 +45,9 @@ function collectExportTargets(exportsField, targets = new Set()) {
 		return targets;
 	}
 	if (typeof exportsField === 'object') {
-		for (const value of Object.values(exportsField))
+		for (const value of Object.values(exportsField)) {
 			collectExportTargets(value, targets);
+		}
 		return targets;
 	}
 	return targets;
