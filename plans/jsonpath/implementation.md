@@ -17,7 +17,7 @@ If the branch does not exist, create it from `master`.
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -294,7 +294,7 @@ completes: step 1 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -370,7 +370,7 @@ completes: step 2 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -451,7 +451,7 @@ completes: step 3 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -496,7 +496,7 @@ completes: step 4 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -543,7 +543,7 @@ completes: step 5 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -589,7 +589,7 @@ completes: step 6 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -634,7 +634,7 @@ completes: step 7 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -685,17 +685,17 @@ completes: step 8 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/plugin-syntax-root add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/lexer@workspace:* @jsonpath/parser@workspace:*
-pnpm --filter @jsonpath/plugin-syntax-current add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/lexer@workspace:* @jsonpath/parser@workspace:*
-pnpm --filter @jsonpath/plugin-syntax-child-member add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/lexer@workspace:* @jsonpath/parser@workspace:*
-pnpm --filter @jsonpath/plugin-syntax-wildcard add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/lexer@workspace:* @jsonpath/parser@workspace:*
+pnpm --filter @jsonpath/plugin-syntax-root add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
+pnpm --filter @jsonpath/plugin-syntax-current add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
+pnpm --filter @jsonpath/plugin-syntax-child-member add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
+pnpm --filter @jsonpath/plugin-syntax-wildcard add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
 ```
 
 - [ ] In each package, replace `src/index.ts` with a wiring-only export of `plugin` (metadata only) and add `src/index.spec.ts` verifying `plugin.meta.id` and `plugin.meta.capabilities`.
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -772,15 +772,15 @@ completes: step 9 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/plugin-syntax-child-index add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/lexer@workspace:* @jsonpath/parser@workspace:*
-pnpm --filter @jsonpath/plugin-syntax-union add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/lexer@workspace:* @jsonpath/parser@workspace:*
+pnpm --filter @jsonpath/plugin-syntax-child-index add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
+pnpm --filter @jsonpath/plugin-syntax-union add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
 ```
 
 - [ ] Replace `src/index.ts` in each package with a wiring-only `plugin` export + add `src/index.spec.ts`.
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -847,15 +847,15 @@ completes: step 10 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/plugin-syntax-descendant add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/lexer@workspace:* @jsonpath/parser@workspace:*
-pnpm --filter @jsonpath/plugin-syntax-filter add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/lexer@workspace:* @jsonpath/parser@workspace:*
+pnpm --filter @jsonpath/plugin-syntax-descendant add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
+pnpm --filter @jsonpath/plugin-syntax-filter add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
 ```
 
 - [ ] Replace `src/index.ts` in each package with a wiring-only `plugin` export + add `src/index.spec.ts`.
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -922,16 +922,16 @@ completes: step 11 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/plugin-filter-literals add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/parser@workspace:*
-pnpm --filter @jsonpath/plugin-filter-boolean add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/parser@workspace:*
-pnpm --filter @jsonpath/plugin-filter-comparison add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/parser@workspace:*
+pnpm --filter @jsonpath/plugin-filter-literals add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/parser@workspace:*'
+pnpm --filter @jsonpath/plugin-filter-boolean add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/parser@workspace:*'
+pnpm --filter @jsonpath/plugin-filter-comparison add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/parser@workspace:*'
 ```
 
 - [ ] Replace `src/index.ts` in each package with wiring-only `plugin` exports + add tests.
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1003,18 +1003,18 @@ completes: step 12 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/plugin-filter-existence add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/parser@workspace:*
-pnpm --filter @jsonpath/plugin-functions-core add @jsonpath/core@workspace:*
-pnpm --filter @jsonpath/plugin-filter-functions add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/parser@workspace:* @jsonpath/plugin-functions-core@workspace:*
-pnpm --filter @jsonpath/plugin-iregexp add @jsonpath/core@workspace:*
-pnpm --filter @jsonpath/plugin-filter-regex add @jsonpath/core@workspace:* @jsonpath/ast@workspace:* @jsonpath/parser@workspace:* @jsonpath/plugin-iregexp@workspace:*
+pnpm --filter @jsonpath/plugin-filter-existence add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/parser@workspace:*'
+pnpm --filter @jsonpath/plugin-functions-core add '@jsonpath/core@workspace:*'
+pnpm --filter @jsonpath/plugin-filter-functions add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/parser@workspace:*' '@jsonpath/plugin-functions-core@workspace:*'
+pnpm --filter @jsonpath/plugin-iregexp add '@jsonpath/core@workspace:*'
+pnpm --filter @jsonpath/plugin-filter-regex add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/parser@workspace:*' '@jsonpath/plugin-iregexp@workspace:*'
 ```
 
 - [ ] Replace `src/index.ts` in each package with wiring-only `plugin` exports + add tests.
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1101,7 +1101,7 @@ completes: step 13 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1156,12 +1156,12 @@ completes: step 14 of 30 for jsonpath
 - [ ] Add required deps:
 
 ```bash
-pnpm --filter @jsonpath/plugin-result-value add @jsonpath/core@workspace:*
-pnpm --filter @jsonpath/plugin-result-node add @jsonpath/core@workspace:*
-pnpm --filter @jsonpath/plugin-result-path add @jsonpath/core@workspace:* @jsonpath/printer@workspace:*
-pnpm --filter @jsonpath/plugin-result-pointer add @jsonpath/core@workspace:* @jsonpath/pointer@workspace:*
-pnpm --filter @jsonpath/plugin-result-parent add @jsonpath/core@workspace:*
-pnpm --filter @jsonpath/plugin-result-types add @jsonpath/core@workspace:* @jsonpath/plugin-result-value@workspace:* @jsonpath/plugin-result-node@workspace:* @jsonpath/plugin-result-path@workspace:* @jsonpath/plugin-result-pointer@workspace:* @jsonpath/plugin-result-parent@workspace:*
+pnpm --filter @jsonpath/plugin-result-value add '@jsonpath/core@workspace:*'
+pnpm --filter @jsonpath/plugin-result-node add '@jsonpath/core@workspace:*'
+pnpm --filter @jsonpath/plugin-result-path add '@jsonpath/core@workspace:*' '@jsonpath/printer@workspace:*'
+pnpm --filter @jsonpath/plugin-result-pointer add '@jsonpath/core@workspace:*' '@jsonpath/pointer@workspace:*'
+pnpm --filter @jsonpath/plugin-result-parent add '@jsonpath/core@workspace:*'
+pnpm --filter @jsonpath/plugin-result-types add '@jsonpath/core@workspace:*' '@jsonpath/plugin-result-value@workspace:*' '@jsonpath/plugin-result-node@workspace:*' '@jsonpath/plugin-result-path@workspace:*' '@jsonpath/plugin-result-pointer@workspace:*' '@jsonpath/plugin-result-parent@workspace:*'
 ```
 
 - [ ] For each `@jsonpath/plugin-result-*` package: export wiring-only `plugin` + unit test.
@@ -1169,7 +1169,7 @@ pnpm --filter @jsonpath/plugin-result-types add @jsonpath/core@workspace:* @json
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1243,7 +1243,7 @@ completes: step 15 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1299,35 +1299,35 @@ completes: step 16 of 30 for jsonpath
 
 ```bash
 pnpm --filter @jsonpath/plugin-rfc-9535 add \
-	@jsonpath/core@workspace:* \
-	@jsonpath/plugin-syntax-root@workspace:* \
-	@jsonpath/plugin-syntax-current@workspace:* \
-	@jsonpath/plugin-syntax-child-member@workspace:* \
-	@jsonpath/plugin-syntax-child-index@workspace:* \
-	@jsonpath/plugin-syntax-wildcard@workspace:* \
-	@jsonpath/plugin-syntax-union@workspace:* \
-	@jsonpath/plugin-syntax-descendant@workspace:* \
-	@jsonpath/plugin-syntax-filter@workspace:* \
-	@jsonpath/plugin-filter-literals@workspace:* \
-	@jsonpath/plugin-filter-boolean@workspace:* \
-	@jsonpath/plugin-filter-comparison@workspace:* \
-	@jsonpath/plugin-filter-existence@workspace:* \
-	@jsonpath/plugin-functions-core@workspace:* \
-	@jsonpath/plugin-filter-functions@workspace:* \
-	@jsonpath/plugin-iregexp@workspace:* \
-	@jsonpath/plugin-filter-regex@workspace:* \
-	@jsonpath/plugin-result-value@workspace:* \
-	@jsonpath/plugin-result-node@workspace:* \
-	@jsonpath/plugin-result-path@workspace:* \
-	@jsonpath/plugin-result-pointer@workspace:* \
-	@jsonpath/plugin-result-parent@workspace:* \
-	@jsonpath/plugin-result-types@workspace:*
+	'@jsonpath/core@workspace:*' \
+	'@jsonpath/plugin-syntax-root@workspace:*' \
+	'@jsonpath/plugin-syntax-current@workspace:*' \
+	'@jsonpath/plugin-syntax-child-member@workspace:*' \
+	'@jsonpath/plugin-syntax-child-index@workspace:*' \
+	'@jsonpath/plugin-syntax-wildcard@workspace:*' \
+	'@jsonpath/plugin-syntax-union@workspace:*' \
+	'@jsonpath/plugin-syntax-descendant@workspace:*' \
+	'@jsonpath/plugin-syntax-filter@workspace:*' \
+	'@jsonpath/plugin-filter-literals@workspace:*' \
+	'@jsonpath/plugin-filter-boolean@workspace:*' \
+	'@jsonpath/plugin-filter-comparison@workspace:*' \
+	'@jsonpath/plugin-filter-existence@workspace:*' \
+	'@jsonpath/plugin-functions-core@workspace:*' \
+	'@jsonpath/plugin-filter-functions@workspace:*' \
+	'@jsonpath/plugin-iregexp@workspace:*' \
+	'@jsonpath/plugin-filter-regex@workspace:*' \
+	'@jsonpath/plugin-result-value@workspace:*' \
+	'@jsonpath/plugin-result-node@workspace:*' \
+	'@jsonpath/plugin-result-path@workspace:*' \
+	'@jsonpath/plugin-result-pointer@workspace:*' \
+	'@jsonpath/plugin-result-parent@workspace:*' \
+	'@jsonpath/plugin-result-types@workspace:*'
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1380,13 +1380,13 @@ completes: step 17 of 30 for jsonpath
 - [ ] Add required deps:
 
 ```bash
-pnpm --filter @jsonpath/plugin-script-expressions add @jsonpath/core@workspace:* ses
+pnpm --filter @jsonpath/plugin-script-expressions add '@jsonpath/core@workspace:*' ses
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1443,7 +1443,7 @@ completes: step 18 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1515,13 +1515,13 @@ completes: step 19 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/patch add @jsonpath/pointer@workspace:*
+pnpm --filter @jsonpath/patch add '@jsonpath/pointer@workspace:*'
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1583,13 +1583,13 @@ completes: step 20 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/mutate add @jsonpath/pointer@workspace:*
+pnpm --filter @jsonpath/mutate add '@jsonpath/pointer@workspace:*'
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1646,13 +1646,13 @@ completes: step 21 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/plugin-validate add @jsonpath/core@workspace:*
+pnpm --filter @jsonpath/plugin-validate add '@jsonpath/core@workspace:*'
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1718,15 +1718,15 @@ completes: step 22 of 30 for jsonpath
 - [ ] Add required deps:
 
 ```bash
-pnpm --filter @jsonpath/validator-json-schema add @jsonpath/plugin-validate@workspace:* ajv
-pnpm --filter @jsonpath/validator-zod add @jsonpath/plugin-validate@workspace:* zod
-pnpm --filter @jsonpath/validator-yup add @jsonpath/plugin-validate@workspace:* yup
+pnpm --filter @jsonpath/validator-json-schema add '@jsonpath/plugin-validate@workspace:*' ajv
+pnpm --filter @jsonpath/validator-zod add '@jsonpath/plugin-validate@workspace:*' zod
+pnpm --filter @jsonpath/validator-yup add '@jsonpath/plugin-validate@workspace:*' yup
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1809,15 +1809,15 @@ completes: step 23 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/plugin-parent-selector add @jsonpath/core@workspace:*
-pnpm --filter @jsonpath/plugin-property-name-selector add @jsonpath/core@workspace:*
-pnpm --filter @jsonpath/plugin-type-selectors add @jsonpath/core@workspace:*
+pnpm --filter @jsonpath/plugin-parent-selector add '@jsonpath/core@workspace:*'
+pnpm --filter @jsonpath/plugin-property-name-selector add '@jsonpath/core@workspace:*'
+pnpm --filter @jsonpath/plugin-type-selectors add '@jsonpath/core@workspace:*'
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1885,7 +1885,7 @@ pnpm --filter @jsonpath/compat-jsonpath-plus add jsonpath-plus
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -1955,14 +1955,14 @@ completes: step 25 of 30 for jsonpath
 ```bash
 pnpm --filter @lellimecnar/jsonpath-compat-harness add \
 	@lellimecnar/jsonpath-conformance@workspace:* \
-	@jsonpath/compat-jsonpath-plus@workspace:* \
+	'@jsonpath/compat-jsonpath-plus@workspace:*' \
 	jsonpath-plus
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -2027,13 +2027,13 @@ completes: step 26 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/cli add @jsonpath/plugin-rfc-9535@workspace:*
+pnpm --filter @jsonpath/cli add '@jsonpath/plugin-rfc-9535@workspace:*'
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -2098,13 +2098,13 @@ completes: step 27 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @jsonpath/complete add @jsonpath/plugin-rfc-9535@workspace:*
+pnpm --filter @jsonpath/complete add '@jsonpath/plugin-rfc-9535@workspace:*'
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -2152,13 +2152,13 @@ completes: step 28 of 30 for jsonpath
 - [ ] Add required workspace deps:
 
 ```bash
-pnpm --filter @lellimecnar/jsonpath-conformance add @jsonpath/pointer@workspace:*
+pnpm --filter @lellimecnar/jsonpath-conformance add '@jsonpath/pointer@workspace:*'
 ```
 
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -2204,7 +2204,7 @@ completes: step 29 of 30 for jsonpath
 - [ ] Copy and paste code below into `terminal`:
 
 ```bash
-node - <<'NODE'
+node - <<NODE
 const fs = require('node:fs');
 const path = require('node:path');
 
