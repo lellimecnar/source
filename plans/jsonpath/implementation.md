@@ -155,81 +155,81 @@ const eslintRc = `module.exports = {
 
 /**
  * Package inventory (from plans/jsonpath/plan.md Step 1).
- * Directory names remain flat under packages/ so pnpm-workspace.yaml already includes them.
+ * Packages live under packages/jsonpath/* (so pnpm-workspace.yaml must include 'packages/jsonpath/*').
  */
 const packages = [
 	// Framework
-	{ dir: 'jsonpath-core', name: '@jsonpath/core', description: 'JSONPath engine framework (plugin-first; no features).', privatePkg: false },
-	{ dir: 'jsonpath-ast', name: '@jsonpath/ast', description: 'Feature-agnostic JSONPath AST node types.', privatePkg: false },
-	{ dir: 'jsonpath-lexer', name: '@jsonpath/lexer', description: 'Feature-agnostic JSONPath lexer infrastructure.', privatePkg: false },
-	{ dir: 'jsonpath-parser', name: '@jsonpath/parser', description: 'Feature-agnostic JSONPath parser infrastructure.', privatePkg: false },
-	{ dir: 'jsonpath-printer', name: '@jsonpath/printer', description: 'Feature-agnostic JSONPath printer infrastructure.', privatePkg: false },
+	{ dir: 'jsonpath/core', name: '@jsonpath/core', description: 'JSONPath engine framework (plugin-first; no features).', privatePkg: false },
+	{ dir: 'jsonpath/ast', name: '@jsonpath/ast', description: 'Feature-agnostic JSONPath AST node types.', privatePkg: false },
+	{ dir: 'jsonpath/lexer', name: '@jsonpath/lexer', description: 'Feature-agnostic JSONPath lexer infrastructure.', privatePkg: false },
+	{ dir: 'jsonpath/parser', name: '@jsonpath/parser', description: 'Feature-agnostic JSONPath parser infrastructure.', privatePkg: false },
+	{ dir: 'jsonpath/printer', name: '@jsonpath/printer', description: 'Feature-agnostic JSONPath printer infrastructure.', privatePkg: false },
 
 	// RFC bundle + feature plugins
-	{ dir: 'jsonpath-plugin-rfc-9535', name: '@jsonpath/plugin-rfc-9535', description: 'RFC 9535 bundle plugin preset wiring.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-rfc-9535', name: '@jsonpath/plugin-rfc-9535', description: 'RFC 9535 bundle plugin preset wiring.', privatePkg: false },
 
 	// Syntax plugins
-	{ dir: 'jsonpath-plugin-syntax-root', name: '@jsonpath/plugin-syntax-root', description: 'RFC 9535 root selector syntax plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-syntax-current', name: '@jsonpath/plugin-syntax-current', description: 'RFC 9535 current selector syntax plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-syntax-child-member', name: '@jsonpath/plugin-syntax-child-member', description: 'RFC 9535 child member selector syntax plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-syntax-child-index', name: '@jsonpath/plugin-syntax-child-index', description: 'RFC 9535 child index + slice selector syntax plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-syntax-wildcard', name: '@jsonpath/plugin-syntax-wildcard', description: 'RFC 9535 wildcard selector syntax plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-syntax-union', name: '@jsonpath/plugin-syntax-union', description: 'RFC 9535 union selector syntax plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-syntax-descendant', name: '@jsonpath/plugin-syntax-descendant', description: 'RFC 9535 descendant selector syntax plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-syntax-filter', name: '@jsonpath/plugin-syntax-filter', description: 'RFC 9535 filter selector container syntax plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-syntax-root', name: '@jsonpath/plugin-syntax-root', description: 'RFC 9535 root selector syntax plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-syntax-current', name: '@jsonpath/plugin-syntax-current', description: 'RFC 9535 current selector syntax plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-syntax-child-member', name: '@jsonpath/plugin-syntax-child-member', description: 'RFC 9535 child member selector syntax plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-syntax-child-index', name: '@jsonpath/plugin-syntax-child-index', description: 'RFC 9535 child index + slice selector syntax plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-syntax-wildcard', name: '@jsonpath/plugin-syntax-wildcard', description: 'RFC 9535 wildcard selector syntax plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-syntax-union', name: '@jsonpath/plugin-syntax-union', description: 'RFC 9535 union selector syntax plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-syntax-descendant', name: '@jsonpath/plugin-syntax-descendant', description: 'RFC 9535 descendant selector syntax plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-syntax-filter', name: '@jsonpath/plugin-syntax-filter', description: 'RFC 9535 filter selector container syntax plugin.', privatePkg: false },
 
 	// Filter expression plugins
-	{ dir: 'jsonpath-plugin-filter-literals', name: '@jsonpath/plugin-filter-literals', description: 'RFC 9535 filter literals plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-filter-comparison', name: '@jsonpath/plugin-filter-comparison', description: 'RFC 9535 filter comparison operators plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-filter-boolean', name: '@jsonpath/plugin-filter-boolean', description: 'RFC 9535 filter boolean operators plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-filter-existence', name: '@jsonpath/plugin-filter-existence', description: 'RFC 9535 filter existence semantics plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-filter-functions', name: '@jsonpath/plugin-filter-functions', description: 'RFC 9535 filter function call plugin.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-filter-regex', name: '@jsonpath/plugin-filter-regex', description: 'RFC 9535 filter regex wiring plugin (delegates to iregexp).', privatePkg: false },
+	{ dir: 'jsonpath/plugin-filter-literals', name: '@jsonpath/plugin-filter-literals', description: 'RFC 9535 filter literals plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-filter-comparison', name: '@jsonpath/plugin-filter-comparison', description: 'RFC 9535 filter comparison operators plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-filter-boolean', name: '@jsonpath/plugin-filter-boolean', description: 'RFC 9535 filter boolean operators plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-filter-existence', name: '@jsonpath/plugin-filter-existence', description: 'RFC 9535 filter existence semantics plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-filter-functions', name: '@jsonpath/plugin-filter-functions', description: 'RFC 9535 filter function call plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-filter-regex', name: '@jsonpath/plugin-filter-regex', description: 'RFC 9535 filter regex wiring plugin (delegates to iregexp).', privatePkg: false },
 
 	// RFC functions
-	{ dir: 'jsonpath-plugin-functions-core', name: '@jsonpath/plugin-functions-core', description: 'RFC 9535 functions core plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-functions-core', name: '@jsonpath/plugin-functions-core', description: 'RFC 9535 functions core plugin.', privatePkg: false },
 
 	// Result views
-	{ dir: 'jsonpath-plugin-result-value', name: '@jsonpath/plugin-result-value', description: 'Result view: value.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-result-node', name: '@jsonpath/plugin-result-node', description: 'Result view: node.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-result-path', name: '@jsonpath/plugin-result-path', description: 'Result view: path.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-result-pointer', name: '@jsonpath/plugin-result-pointer', description: 'Result view: pointer.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-result-parent', name: '@jsonpath/plugin-result-parent', description: 'Result view: parent.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-result-types', name: '@jsonpath/plugin-result-types', description: 'Result view aggregator: types.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-result-value', name: '@jsonpath/plugin-result-value', description: 'Result view: value.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-result-node', name: '@jsonpath/plugin-result-node', description: 'Result view: node.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-result-path', name: '@jsonpath/plugin-result-path', description: 'Result view: path.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-result-pointer', name: '@jsonpath/plugin-result-pointer', description: 'Result view: pointer.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-result-parent', name: '@jsonpath/plugin-result-parent', description: 'Result view: parent.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-result-types', name: '@jsonpath/plugin-result-types', description: 'Result view aggregator: types.', privatePkg: false },
 
 	// Standards-adjacent
-	{ dir: 'jsonpath-plugin-iregexp', name: '@jsonpath/plugin-iregexp', description: 'RFC 9485 I-Regexp support plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-iregexp', name: '@jsonpath/plugin-iregexp', description: 'RFC 9485 I-Regexp support plugin.', privatePkg: false },
 
 	// Security/tooling
-	{ dir: 'jsonpath-plugin-script-expressions', name: '@jsonpath/plugin-script-expressions', description: 'SES sandboxed script expressions plugin (opt-in).', privatePkg: false },
-	{ dir: 'jsonpath-plugin-validate', name: '@jsonpath/plugin-validate', description: 'Validation orchestration plugin.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-script-expressions', name: '@jsonpath/plugin-script-expressions', description: 'SES sandboxed script expressions plugin (opt-in).', privatePkg: false },
+	{ dir: 'jsonpath/plugin-validate', name: '@jsonpath/plugin-validate', description: 'Validation orchestration plugin.', privatePkg: false },
 
 	// Optional non-RFC extensions
-	{ dir: 'jsonpath-plugin-parent-selector', name: '@jsonpath/plugin-parent-selector', description: 'Optional extension: parent selector.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-property-name-selector', name: '@jsonpath/plugin-property-name-selector', description: 'Optional extension: property-name selector.', privatePkg: false },
-	{ dir: 'jsonpath-plugin-type-selectors', name: '@jsonpath/plugin-type-selectors', description: 'Optional extension: type selectors.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-parent-selector', name: '@jsonpath/plugin-parent-selector', description: 'Optional extension: parent selector.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-property-name-selector', name: '@jsonpath/plugin-property-name-selector', description: 'Optional extension: property-name selector.', privatePkg: false },
+	{ dir: 'jsonpath/plugin-type-selectors', name: '@jsonpath/plugin-type-selectors', description: 'Optional extension: type selectors.', privatePkg: false },
 
 	// Compat
-	{ dir: 'jsonpath-compat-jsonpath', name: '@jsonpath/compat-jsonpath', description: 'Compatibility adapter for dchester/jsonpath.', privatePkg: false },
-	{ dir: 'jsonpath-compat-jsonpath-plus', name: '@jsonpath/compat-jsonpath-plus', description: 'Compatibility adapter for jsonpath-plus.', privatePkg: false },
+	{ dir: 'jsonpath/compat-jsonpath', name: '@jsonpath/compat-jsonpath', description: 'Compatibility adapter for dchester/jsonpath.', privatePkg: false },
+	{ dir: 'jsonpath/compat-jsonpath-plus', name: '@jsonpath/compat-jsonpath-plus', description: 'Compatibility adapter for jsonpath-plus.', privatePkg: false },
 
 	// Mutation
-	{ dir: 'jsonpath-pointer', name: '@jsonpath/pointer', description: 'RFC 6901 JSON Pointer helpers (hardened).', privatePkg: false },
-	{ dir: 'jsonpath-patch', name: '@jsonpath/patch', description: 'RFC 6902 JSON Patch helpers (hardened).', privatePkg: false },
-	{ dir: 'jsonpath-mutate', name: '@jsonpath/mutate', description: 'Mutation utilities built on pointers/patch.', privatePkg: false },
+	{ dir: 'jsonpath/pointer', name: '@jsonpath/pointer', description: 'RFC 6901 JSON Pointer helpers (hardened).', privatePkg: false },
+	{ dir: 'jsonpath/patch', name: '@jsonpath/patch', description: 'RFC 6902 JSON Patch helpers (hardened).', privatePkg: false },
+	{ dir: 'jsonpath/mutate', name: '@jsonpath/mutate', description: 'Mutation utilities built on pointers/patch.', privatePkg: false },
 
 	// Validators
-	{ dir: 'jsonpath-validator-json-schema', name: '@jsonpath/validator-json-schema', description: 'JSON Schema validator adapter (Ajv).', privatePkg: false },
-	{ dir: 'jsonpath-validator-zod', name: '@jsonpath/validator-zod', description: 'Zod validator adapter.', privatePkg: false },
-	{ dir: 'jsonpath-validator-yup', name: '@jsonpath/validator-yup', description: 'Yup validator adapter.', privatePkg: false },
+	{ dir: 'jsonpath/validator-json-schema', name: '@jsonpath/validator-json-schema', description: 'JSON Schema validator adapter (Ajv).', privatePkg: false },
+	{ dir: 'jsonpath/validator-zod', name: '@jsonpath/validator-zod', description: 'Zod validator adapter.', privatePkg: false },
+	{ dir: 'jsonpath/validator-yup', name: '@jsonpath/validator-yup', description: 'Yup validator adapter.', privatePkg: false },
 
 	// CLI + bundle
-	{ dir: 'jsonpath-cli', name: '@jsonpath/cli', description: 'JSONPath CLI (JSON config only).', privatePkg: false, bin: { jsonpath: './dist/bin/jsonpath.js' } },
-	{ dir: 'jsonpath-complete', name: '@jsonpath/complete', description: 'Convenience bundle (wiring only).', privatePkg: false },
+	{ dir: 'jsonpath/cli', name: '@jsonpath/cli', description: 'JSONPath CLI (JSON config only).', privatePkg: false, bin: { jsonpath: './dist/bin/jsonpath.js' } },
+	{ dir: 'jsonpath/complete', name: '@jsonpath/complete', description: 'Convenience bundle (wiring only).', privatePkg: false },
 
 	// Internal (NOT published)
-	{ dir: 'jsonpath-compat-harness', name: '@lellimecnar/jsonpath-compat-harness', description: 'Internal: compares upstream jsonpath/jsonpath-plus vs @jsonpath compat.', privatePkg: true },
-	{ dir: 'jsonpath-conformance', name: '@lellimecnar/jsonpath-conformance', description: 'Internal: conformance corpus fixtures + helpers.', privatePkg: true },
+	{ dir: 'jsonpath/compat-harness', name: '@lellimecnar/jsonpath-compat-harness', description: 'Internal: compares upstream jsonpath/jsonpath-plus vs @jsonpath compat.', privatePkg: true },
+	{ dir: 'jsonpath/conformance', name: '@lellimecnar/jsonpath-conformance', description: 'Internal: conformance corpus fixtures + helpers.', privatePkg: true },
 ];
 
 for (const p of packages) {
@@ -264,14 +264,14 @@ for (const p of packages) {
 	}
 }
 
-console.log(`Scaffolded ${packages.length} packages under packages/`);
+console.log(`Scaffolded ${packages.length} packages under packages/jsonpath/`);
 NODE
 ```
 
 ##### Step 1 Verification Checklist
 
 - [ ] `pnpm -w turbo build --filter=@jsonpath/*` succeeds.
-- [ ] `pnpm -w test --filter=@jsonpath/* -- --passWithNoTests` succeeds.
+- [ ] `pnpm -w turbo test --filter=@jsonpath/* -- --passWithNoTests` succeeds.
 - [ ] `pnpm -w verify:exports` prints `Export verification passed.`
 
 #### Step 1 STOP & COMMIT
@@ -307,7 +307,7 @@ function write(filePath, content) {
 	fs.writeFileSync(filePath, content, 'utf8');
 }
 
-const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-core');
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'core');
 
 write(
 	path.join(pkgDir, 'src', 'errors', 'codes.ts'),
@@ -350,7 +350,7 @@ NODE
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
 
 #### Step 2 STOP & COMMIT
 
@@ -383,7 +383,7 @@ function write(filePath, content) {
 	fs.writeFileSync(filePath, content, 'utf8');
 }
 
-const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-core');
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'core');
 
 write(
 	path.join(pkgDir, 'src', 'plugins', 'types.ts'),
@@ -431,7 +431,7 @@ NODE
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
 
 #### Step 3 STOP & COMMIT
 
@@ -458,7 +458,7 @@ const path = require('node:path');
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function write(p, c) { ensureDir(path.dirname(p)); fs.writeFileSync(p, c, 'utf8'); }
 
-const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-ast');
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'ast');
 
 write(path.join(pkgDir, 'src', 'nodes.ts'), `export type AstNodeBase<TKind extends string> = {\n\tkind: TKind;\n};\n\nexport type JsonPathAst = PathNode;\n\nexport type PathNode = AstNodeBase<'Path'> & {\n\tsegments: SegmentNode[];\n};\n\nexport type SegmentNode = AstNodeBase<'Segment'> & {\n\tselectors: SelectorNode[];\n};\n\nexport type SelectorNode = AstNodeBase<string> & Record<string, unknown>;\n\nexport function path(segments: SegmentNode[]): PathNode {\n\treturn { kind: 'Path', segments };\n}\n\nexport function segment(selectors: SelectorNode[]): SegmentNode {\n\treturn { kind: 'Segment', selectors };\n}\n`);
 
@@ -476,7 +476,7 @@ NODE
 
 ##### Step 4 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/ast test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/ast` succeeds.
 
 #### Step 4 STOP & COMMIT
 
@@ -503,7 +503,7 @@ const path = require('node:path');
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function write(p, c) { ensureDir(path.dirname(p)); fs.writeFileSync(p, c, 'utf8'); }
 
-const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-lexer');
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'lexer');
 
 write(path.join(pkgDir, 'src', 'token.ts'), `export type TokenKind = string;\n\nexport type Token = {\n\tkind: TokenKind;\n\tlexeme: string;\n\toffset: number;\n};\n`);
 
@@ -523,7 +523,7 @@ NODE
 
 ##### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/lexer test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
 
 #### Step 5 STOP & COMMIT
 
@@ -550,7 +550,7 @@ const path = require('node:path');
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function write(p, c) { ensureDir(path.dirname(p)); fs.writeFileSync(p, c, 'utf8'); }
 
-const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-parser');
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'parser');
 
 write(path.join(pkgDir, 'src', 'context.ts'), `import type { TokenStream } from '@jsonpath/lexer';\n\nexport type ParserContext = {\n\tinput: string;\n\ttokens: TokenStream;\n};\n`);
 
@@ -569,7 +569,7 @@ NODE
 
 ##### Step 6 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/parser test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/ast` succeeds.
 
 #### Step 6 STOP & COMMIT
 
@@ -596,7 +596,7 @@ const path = require('node:path');
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function write(p, c) { ensureDir(path.dirname(p)); fs.writeFileSync(p, c, 'utf8'); }
 
-const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-printer');
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'printer');
 
 write(path.join(pkgDir, 'src', 'options.ts'), `export type PrintOptions = {\n\t// Reserved for future stable formatting options\n\tmode?: 'compact' | 'pretty';\n};\n`);
 
@@ -614,7 +614,7 @@ NODE
 
 ##### Step 7 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/printer test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/lexer` succeeds.
 
 #### Step 7 STOP & COMMIT
 
@@ -641,7 +641,7 @@ const path = require('node:path');
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function write(p, c) { ensureDir(path.dirname(p)); fs.writeFileSync(p, c, 'utf8'); }
 
-const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-core');
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'core');
 
 write(path.join(pkgDir, 'src', 'engine.ts'), `import type { PathNode } from '@jsonpath/ast';\n\nexport type CompileResult = {\n\texpression: string;\n\tast: PathNode;\n};\n\nexport type EvaluateOptions = {\n\tresultType?: 'value' | 'node' | 'path' | 'pointer' | 'parent';\n};\n\nexport type JsonPathEngine = {\n\tcompile: (expression: string) => CompileResult;\n\tparse: (expression: string) => PathNode;\n\tevaluateSync: (compiled: CompileResult, json: unknown, options?: EvaluateOptions) => unknown[];\n\tevaluateAsync: (compiled: CompileResult, json: unknown, options?: EvaluateOptions) => Promise<unknown[]>;\n};\n`);
 
@@ -666,7 +666,7 @@ NODE
 
 ##### Step 8 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/parser` succeeds.
 
 #### Step 8 STOP & COMMIT
 
@@ -692,10 +692,68 @@ pnpm --filter @jsonpath/plugin-syntax-wildcard add @jsonpath/core@workspace:* @j
 ```
 
 - [ ] In each package, replace `src/index.ts` with a wiring-only export of `plugin` (metadata only) and add `src/index.spec.ts` verifying `plugin.meta.id` and `plugin.meta.capabilities`.
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const repoRoot = process.cwd();
+
+const plugins = [
+	{
+		dir: 'jsonpath-plugin-syntax-root',
+		id: '@jsonpath/plugin-syntax-root',
+		capabilities: ['syntax:rfc9535:root'],
+	},
+	{
+		dir: 'jsonpath-plugin-syntax-current',
+		id: '@jsonpath/plugin-syntax-current',
+		capabilities: ['syntax:rfc9535:current'],
+	},
+	{
+		dir: 'jsonpath-plugin-syntax-child-member',
+		id: '@jsonpath/plugin-syntax-child-member',
+		capabilities: ['syntax:rfc9535:child-member'],
+	},
+	{
+		dir: 'jsonpath-plugin-syntax-wildcard',
+		id: '@jsonpath/plugin-syntax-wildcard',
+		capabilities: ['syntax:rfc9535:wildcard'],
+	},
+];
+
+for (const p of plugins) {
+	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: ${JSON.stringify(p.id)},\n\t\tcapabilities: ${JSON.stringify(p.capabilities)},\n\t},\n};\n`,
+	);
+
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { plugin } from './index';\n\ndescribe(${JSON.stringify(p.id)}, () => {\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe(${JSON.stringify(p.id)});\n\t\texpect(plugin.meta.capabilities).toEqual(${JSON.stringify(p.capabilities)});\n\t});\n});\n`,
+	);
+}
+
+console.log('Wrote RFC 9535 syntax plugin shells (part 1)');
+NODE
+```
 
 ##### Step 9 Verification Checklist
 
-- [ ] `pnpm -w test --filter @jsonpath/plugin-syntax-root --filter @jsonpath/plugin-syntax-current --filter @jsonpath/plugin-syntax-child-member --filter @jsonpath/plugin-syntax-wildcard` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-syntax-root --filter @jsonpath/plugin-syntax-current --filter @jsonpath/plugin-syntax-child-member --filter @jsonpath/plugin-syntax-wildcard` succeeds.
 
 #### Step 9 STOP & COMMIT
 
@@ -719,10 +777,58 @@ pnpm --filter @jsonpath/plugin-syntax-union add @jsonpath/core@workspace:* @json
 ```
 
 - [ ] Replace `src/index.ts` in each package with a wiring-only `plugin` export + add `src/index.spec.ts`.
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const repoRoot = process.cwd();
+
+const plugins = [
+	{
+		dir: 'jsonpath-plugin-syntax-child-index',
+		id: '@jsonpath/plugin-syntax-child-index',
+		capabilities: ['syntax:rfc9535:child-index', 'syntax:rfc9535:slice'],
+	},
+	{
+		dir: 'jsonpath-plugin-syntax-union',
+		id: '@jsonpath/plugin-syntax-union',
+		capabilities: ['syntax:rfc9535:union'],
+	},
+];
+
+for (const p of plugins) {
+	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: ${JSON.stringify(p.id)},\n\t\tcapabilities: ${JSON.stringify(p.capabilities)},\n\t},\n};\n`,
+	);
+
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { plugin } from './index';\n\ndescribe(${JSON.stringify(p.id)}, () => {\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe(${JSON.stringify(p.id)});\n\t\texpect(plugin.meta.capabilities).toEqual(${JSON.stringify(p.capabilities)});\n\t});\n});\n`,
+	);
+}
+
+console.log('Wrote RFC 9535 syntax plugin shells (part 2)');
+NODE
+```
 
 ##### Step 10 Verification Checklist
 
-- [ ] `pnpm -w test --filter @jsonpath/plugin-syntax-child-index --filter @jsonpath/plugin-syntax-union` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-syntax-child-index --filter @jsonpath/plugin-syntax-union` succeeds.
 
 #### Step 10 STOP & COMMIT
 
@@ -746,10 +852,58 @@ pnpm --filter @jsonpath/plugin-syntax-filter add @jsonpath/core@workspace:* @jso
 ```
 
 - [ ] Replace `src/index.ts` in each package with a wiring-only `plugin` export + add `src/index.spec.ts`.
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const repoRoot = process.cwd();
+
+const plugins = [
+	{
+		dir: 'jsonpath-plugin-syntax-descendant',
+		id: '@jsonpath/plugin-syntax-descendant',
+		capabilities: ['syntax:rfc9535:descendant'],
+	},
+	{
+		dir: 'jsonpath-plugin-syntax-filter',
+		id: '@jsonpath/plugin-syntax-filter',
+		capabilities: ['syntax:rfc9535:filter-container'],
+	},
+];
+
+for (const p of plugins) {
+	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: ${JSON.stringify(p.id)},\n\t\tcapabilities: ${JSON.stringify(p.capabilities)},\n\t},\n};\n`,
+	);
+
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { plugin } from './index';\n\ndescribe(${JSON.stringify(p.id)}, () => {\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe(${JSON.stringify(p.id)});\n\t\texpect(plugin.meta.capabilities).toEqual(${JSON.stringify(p.capabilities)});\n\t});\n});\n`,
+	);
+}
+
+console.log('Wrote RFC 9535 syntax plugin shells (part 3)');
+NODE
+```
 
 ##### Step 11 Verification Checklist
 
-- [ ] `pnpm -w test --filter @jsonpath/plugin-syntax-descendant --filter @jsonpath/plugin-syntax-filter` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-syntax-descendant --filter @jsonpath/plugin-syntax-filter` succeeds.
 
 #### Step 11 STOP & COMMIT
 
@@ -774,10 +928,63 @@ pnpm --filter @jsonpath/plugin-filter-comparison add @jsonpath/core@workspace:* 
 ```
 
 - [ ] Replace `src/index.ts` in each package with wiring-only `plugin` exports + add tests.
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const repoRoot = process.cwd();
+
+const plugins = [
+	{
+		dir: 'jsonpath-plugin-filter-literals',
+		id: '@jsonpath/plugin-filter-literals',
+		capabilities: ['filter:rfc9535:literals'],
+	},
+	{
+		dir: 'jsonpath-plugin-filter-boolean',
+		id: '@jsonpath/plugin-filter-boolean',
+		capabilities: ['filter:rfc9535:boolean'],
+	},
+	{
+		dir: 'jsonpath-plugin-filter-comparison',
+		id: '@jsonpath/plugin-filter-comparison',
+		capabilities: ['filter:rfc9535:comparison'],
+	},
+];
+
+for (const p of plugins) {
+	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: ${JSON.stringify(p.id)},\n\t\tcapabilities: ${JSON.stringify(p.capabilities)},\n\t},\n};\n`,
+	);
+
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { plugin } from './index';\n\ndescribe(${JSON.stringify(p.id)}, () => {\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe(${JSON.stringify(p.id)});\n\t\texpect(plugin.meta.capabilities).toEqual(${JSON.stringify(p.capabilities)});\n\t});\n});\n`,
+	);
+}
+
+console.log('Wrote filter plugin shells (part 1)');
+NODE
+```
 
 ##### Step 12 Verification Checklist
 
-- [ ] `pnpm -w test --filter @jsonpath/plugin-filter-literals --filter @jsonpath/plugin-filter-boolean --filter @jsonpath/plugin-filter-comparison` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-filter-literals --filter @jsonpath/plugin-filter-boolean --filter @jsonpath/plugin-filter-comparison` succeeds.
 
 #### Step 12 STOP & COMMIT
 
@@ -804,10 +1011,75 @@ pnpm --filter @jsonpath/plugin-filter-regex add @jsonpath/core@workspace:* @json
 ```
 
 - [ ] Replace `src/index.ts` in each package with wiring-only `plugin` exports + add tests.
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const repoRoot = process.cwd();
+
+const plugins = [
+	{
+		dir: 'jsonpath-plugin-filter-existence',
+		id: '@jsonpath/plugin-filter-existence',
+		capabilities: ['filter:rfc9535:existence'],
+	},
+	{
+		dir: 'jsonpath-plugin-functions-core',
+		id: '@jsonpath/plugin-functions-core',
+		capabilities: ['functions:rfc9535:core'],
+	},
+	{
+		dir: 'jsonpath-plugin-filter-functions',
+		id: '@jsonpath/plugin-filter-functions',
+		capabilities: ['filter:rfc9535:functions'],
+		dependsOn: ['@jsonpath/plugin-functions-core'],
+	},
+	{
+		dir: 'jsonpath-plugin-iregexp',
+		id: '@jsonpath/plugin-iregexp',
+		capabilities: ['regex:rfc9485:iregexp'],
+	},
+	{
+		dir: 'jsonpath-plugin-filter-regex',
+		id: '@jsonpath/plugin-filter-regex',
+		capabilities: ['filter:rfc9535:regex'],
+		dependsOn: ['@jsonpath/plugin-iregexp'],
+	},
+];
+
+for (const p of plugins) {
+	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: ${JSON.stringify(p.id)},\n\t\tcapabilities: ${JSON.stringify(p.capabilities)},${p.dependsOn ? `\n\t\tdependsOn: ${JSON.stringify(p.dependsOn)},` : ''}\n\t},\n};\n`,
+	);
+
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { plugin } from './index';\n\ndescribe(${JSON.stringify(p.id)}, () => {\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe(${JSON.stringify(p.id)});\n\t\texpect(plugin.meta.capabilities).toEqual(${JSON.stringify(p.capabilities)});${p.dependsOn ? `\n\t\texpect(plugin.meta.dependsOn).toEqual(${JSON.stringify(p.dependsOn)});` : ''}\n\t});\n});\n`,
+	);
+}
+
+console.log('Wrote filter plugin shells (part 2)');
+NODE
+```
 
 ##### Step 13 Verification Checklist
 
-- [ ] `pnpm -w test --filter @jsonpath/plugin-filter-existence --filter @jsonpath/plugin-functions-core --filter @jsonpath/plugin-filter-functions --filter @jsonpath/plugin-iregexp --filter @jsonpath/plugin-filter-regex` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-filter-existence --filter @jsonpath/plugin-functions-core --filter @jsonpath/plugin-filter-functions --filter @jsonpath/plugin-iregexp --filter @jsonpath/plugin-filter-regex` succeeds.
 
 #### Step 13 STOP & COMMIT
 
@@ -826,10 +1098,46 @@ completes: step 13 of 30 for jsonpath
 - [ ] Create `src/registry.ts` containing a `FunctionRegistry` with `register(name, fn)` and `get(name)`.
 - [ ] Ensure `src/index.ts` exports `FunctionRegistry` and a wiring-only `plugin` export.
 - [ ] Add `src/index.spec.ts` validating the registry and plugin metadata.
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'plugin-functions-core');
+
+write(
+	path.join(pkgDir, 'src', 'registry.ts'),
+	`export type JsonPathFunction = (...args: unknown[]) => unknown;\n\nexport class FunctionRegistry {\n\tprivate readonly fns: Map<string, JsonPathFunction> = new Map();\n\n\tpublic register(name: string, fn: JsonPathFunction): void {\n\t\tthis.fns.set(name, fn);\n\t}\n\n\tpublic get(name: string): JsonPathFunction | undefined {\n\t\treturn this.fns.get(name);\n\t}\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.ts'),
+	`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport { FunctionRegistry } from './registry';\nexport type { JsonPathFunction } from './registry';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: '@jsonpath/plugin-functions-core',\n\t\tcapabilities: ['functions:rfc9535:core'],\n\t},\n};\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { FunctionRegistry, plugin } from './index';\n\ndescribe('@jsonpath/plugin-functions-core', () => {\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe('@jsonpath/plugin-functions-core');\n\t\texpect(plugin.meta.capabilities).toEqual(['functions:rfc9535:core']);\n\t});\n\n\tit('registers and resolves functions', () => {\n\t\tconst r = new FunctionRegistry();\n\t\tr.register('len', (x) => String(x).length);\n\t\texpect(r.get('len')?.('abc')).toBe(3);\n\t});\n});\n`,
+);
+
+console.log('Wrote FunctionRegistry + plugin shell');
+NODE
+```
 
 ##### Step 14 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-functions-core test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-functions-core` succeeds.
 
 #### Step 14 STOP & COMMIT
 
@@ -858,10 +1166,62 @@ pnpm --filter @jsonpath/plugin-result-types add @jsonpath/core@workspace:* @json
 
 - [ ] For each `@jsonpath/plugin-result-*` package: export wiring-only `plugin` + unit test.
 - [ ] In `@jsonpath/plugin-result-types`, export a stable `plugins` array re-exporting the 5 result plugins.
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const repoRoot = process.cwd();
+
+const resultPlugins = [
+	{ dir: 'jsonpath-plugin-result-value', id: '@jsonpath/plugin-result-value', capabilities: ['result:value'] },
+	{ dir: 'jsonpath-plugin-result-node', id: '@jsonpath/plugin-result-node', capabilities: ['result:node'] },
+	{ dir: 'jsonpath-plugin-result-path', id: '@jsonpath/plugin-result-path', capabilities: ['result:path'] },
+	{ dir: 'jsonpath-plugin-result-pointer', id: '@jsonpath/plugin-result-pointer', capabilities: ['result:pointer'] },
+	{ dir: 'jsonpath-plugin-result-parent', id: '@jsonpath/plugin-result-parent', capabilities: ['result:parent'] },
+];
+
+for (const p of resultPlugins) {
+	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: ${JSON.stringify(p.id)},\n\t\tcapabilities: ${JSON.stringify(p.capabilities)},\n\t},\n};\n`,
+	);
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { plugin } from './index';\n\ndescribe(${JSON.stringify(p.id)}, () => {\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe(${JSON.stringify(p.id)});\n\t\texpect(plugin.meta.capabilities).toEqual(${JSON.stringify(p.capabilities)});\n\t});\n});\n`,
+	);
+}
+
+const typesDir = path.join(repoRoot, 'packages', 'jsonpath', 'plugin-result-types');
+write(
+	path.join(typesDir, 'src', 'index.ts'),
+	`import type { JsonPathPlugin } from '@jsonpath/core';\n\nimport { plugin as value } from '@jsonpath/plugin-result-value';\nimport { plugin as node } from '@jsonpath/plugin-result-node';\nimport { plugin as pathPlugin } from '@jsonpath/plugin-result-path';\nimport { plugin as pointer } from '@jsonpath/plugin-result-pointer';\nimport { plugin as parent } from '@jsonpath/plugin-result-parent';\n\nexport const plugins = [value, node, pathPlugin, pointer, parent] as const satisfies readonly JsonPathPlugin[];\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: '@jsonpath/plugin-result-types',\n\t\tcapabilities: ['result:types'],\n\t\tdependsOn: plugins.map((p) => p.meta.id),\n\t},\n};\n`,
+);
+
+write(
+	path.join(typesDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { plugin, plugins } from './index';\n\ndescribe('@jsonpath/plugin-result-types', () => {\n\tit('exports plugin list and metadata', () => {\n\t\texpect(plugin.meta.id).toBe('@jsonpath/plugin-result-types');\n\t\texpect(plugins).toHaveLength(5);\n\t});\n});\n`,
+);
+
+console.log('Wrote result view plugin shells + aggregator');
+NODE
+```
 
 ##### Step 15 Verification Checklist
 
-- [ ] `pnpm -w test --filter @jsonpath/plugin-result-* -- --passWithNoTests` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-result-* -- --passWithNoTests` succeeds.
 
 #### Step 15 STOP & COMMIT
 
@@ -880,10 +1240,46 @@ completes: step 15 of 30 for jsonpath
 - [ ] Add `src/iregexp.ts` exporting `matches(pattern: string, value: string): boolean` using `RegExp`.
 - [ ] Export `matches` and wiring-only `plugin` from `src/index.ts`.
 - [ ] Add unit tests.
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'plugin-iregexp');
+
+write(
+	path.join(pkgDir, 'src', 'iregexp.ts'),
+	`export function matches(pattern: string, value: string): boolean {\n\ttry {\n\t\treturn new RegExp(pattern).test(value);\n\t} catch {\n\t\treturn false;\n\t}\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.ts'),
+	`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport { matches } from './iregexp';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: '@jsonpath/plugin-iregexp',\n\t\tcapabilities: ['regex:rfc9485:iregexp'],\n\t},\n};\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { matches, plugin } from './index';\n\ndescribe('@jsonpath/plugin-iregexp', () => {\n\tit('matches via RegExp', () => {\n\t\texpect(matches('^a', 'abc')).toBe(true);\n\t\texpect(matches('^a', 'xbc')).toBe(false);\n\t});\n\n\tit('returns false on invalid patterns', () => {\n\t\texpect(matches('(', 'abc')).toBe(false);\n\t});\n\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe('@jsonpath/plugin-iregexp');\n\t});\n});\n`,
+);
+
+console.log('Wrote @jsonpath/plugin-iregexp baseline');
+NODE
+```
 
 ##### Step 16 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-iregexp test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-iregexp` succeeds.
 
 #### Step 16 STOP & COMMIT
 
@@ -899,13 +1295,70 @@ completes: step 16 of 30 for jsonpath
 
 #### Step 17: RFC 9535 preset bundle (`@jsonpath/plugin-rfc-9535`)
 
-- [ ] Add deps on all RFC syntax/filter/function/result plugins.
-- [ ] Implement `rfc9535Plugins` array and `createRfc9535Engine()` that calls `createEngine({ plugins: rfc9535Plugins })`.
-- [ ] Add unit tests verifying it creates an engine.
+- [ ] Add deps on all RFC syntax/filter/function/result plugins:
+
+```bash
+pnpm --filter @jsonpath/plugin-rfc-9535 add \
+	@jsonpath/core@workspace:* \
+	@jsonpath/plugin-syntax-root@workspace:* \
+	@jsonpath/plugin-syntax-current@workspace:* \
+	@jsonpath/plugin-syntax-child-member@workspace:* \
+	@jsonpath/plugin-syntax-child-index@workspace:* \
+	@jsonpath/plugin-syntax-wildcard@workspace:* \
+	@jsonpath/plugin-syntax-union@workspace:* \
+	@jsonpath/plugin-syntax-descendant@workspace:* \
+	@jsonpath/plugin-syntax-filter@workspace:* \
+	@jsonpath/plugin-filter-literals@workspace:* \
+	@jsonpath/plugin-filter-boolean@workspace:* \
+	@jsonpath/plugin-filter-comparison@workspace:* \
+	@jsonpath/plugin-filter-existence@workspace:* \
+	@jsonpath/plugin-functions-core@workspace:* \
+	@jsonpath/plugin-filter-functions@workspace:* \
+	@jsonpath/plugin-iregexp@workspace:* \
+	@jsonpath/plugin-filter-regex@workspace:* \
+	@jsonpath/plugin-result-value@workspace:* \
+	@jsonpath/plugin-result-node@workspace:* \
+	@jsonpath/plugin-result-path@workspace:* \
+	@jsonpath/plugin-result-pointer@workspace:* \
+	@jsonpath/plugin-result-parent@workspace:* \
+	@jsonpath/plugin-result-types@workspace:*
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'plugin-rfc-9535');
+
+write(
+	path.join(pkgDir, 'src', 'index.ts'),
+	`import type { JsonPathPlugin } from '@jsonpath/core';\nimport { createEngine } from '@jsonpath/core';\n\nimport { plugin as root } from '@jsonpath/plugin-syntax-root';\nimport { plugin as current } from '@jsonpath/plugin-syntax-current';\nimport { plugin as childMember } from '@jsonpath/plugin-syntax-child-member';\nimport { plugin as childIndex } from '@jsonpath/plugin-syntax-child-index';\nimport { plugin as wildcard } from '@jsonpath/plugin-syntax-wildcard';\nimport { plugin as union } from '@jsonpath/plugin-syntax-union';\nimport { plugin as descendant } from '@jsonpath/plugin-syntax-descendant';\nimport { plugin as filterContainer } from '@jsonpath/plugin-syntax-filter';\n\nimport { plugin as literals } from '@jsonpath/plugin-filter-literals';\nimport { plugin as boolOps } from '@jsonpath/plugin-filter-boolean';\nimport { plugin as comparison } from '@jsonpath/plugin-filter-comparison';\nimport { plugin as existence } from '@jsonpath/plugin-filter-existence';\nimport { plugin as functionsCore } from '@jsonpath/plugin-functions-core';\nimport { plugin as filterFunctions } from '@jsonpath/plugin-filter-functions';\nimport { plugin as iregexp } from '@jsonpath/plugin-iregexp';\nimport { plugin as filterRegex } from '@jsonpath/plugin-filter-regex';\n\nimport { plugin as resultValue } from '@jsonpath/plugin-result-value';\nimport { plugin as resultNode } from '@jsonpath/plugin-result-node';\nimport { plugin as resultPath } from '@jsonpath/plugin-result-path';\nimport { plugin as resultPointer } from '@jsonpath/plugin-result-pointer';\nimport { plugin as resultParent } from '@jsonpath/plugin-result-parent';\nimport { plugin as resultTypes } from '@jsonpath/plugin-result-types';\n\nexport const rfc9535Plugins = [\n\troot,\n\tcurrent,\n\tchildMember,\n\tchildIndex,\n\twildcard,\n\tunion,\n\tdescendant,\n\tfilterContainer,\n\tliterals,\n\tboolOps,\n\tcomparison,\n\texistence,\n\tfunctionsCore,\n\tfilterFunctions,\n\tiregexp,\n\tfilterRegex,\n\tresultValue,\n\tresultNode,\n\tresultPath,\n\tresultPointer,\n\tresultParent,\n\tresultTypes,\n] as const satisfies readonly JsonPathPlugin[];\n\nexport function createRfc9535Engine() {\n\treturn createEngine({ plugins: rfc9535Plugins });\n}\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: '@jsonpath/plugin-rfc-9535',\n\t\tcapabilities: ['preset:rfc9535'],\n\t\tdependsOn: rfc9535Plugins.map((p) => p.meta.id),\n\t},\n};\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { createRfc9535Engine, plugin, rfc9535Plugins } from './index';\n\ndescribe('@jsonpath/plugin-rfc-9535', () => {\n\tit('exports a preset list', () => {\n\t\texpect(rfc9535Plugins.length).toBeGreaterThan(5);\n\t});\n\n\tit('creates an engine', () => {\n\t\tconst engine = createRfc9535Engine();\n\t\tconst compiled = engine.compile('$.x');\n\t\texpect(compiled.expression).toBe('$.x');\n\t});\n\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe('@jsonpath/plugin-rfc-9535');\n\t});\n});\n`,
+);
+
+console.log('Wrote @jsonpath/plugin-rfc-9535 preset');
+NODE
+```
 
 ##### Step 17 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-rfc-9535 test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-rfc-9535` succeeds.
 
 #### Step 17 STOP & COMMIT
 
@@ -924,10 +1377,52 @@ completes: step 17 of 30 for jsonpath
 - [ ] Add dependency on `ses`.
 - [ ] Export `createCompartment({ endowments? })` and wiring-only `plugin`.
 - [ ] Add unit test validating a compartment can be created.
+- [ ] Add required deps:
+
+```bash
+pnpm --filter @jsonpath/plugin-script-expressions add @jsonpath/core@workspace:* ses
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'plugin-script-expressions');
+
+write(
+	path.join(pkgDir, 'src', 'compartment.ts'),
+	`import 'ses';\n\nexport type CreateCompartmentOptions = {\n\tendowments?: Record<string, unknown>;\n};\n\nexport function createCompartment(options: CreateCompartmentOptions = {}) {\n\tconst Compartment = (globalThis).Compartment as unknown;\n\tif (typeof Compartment !== 'function') {\n\t\tthrow new Error('SES Compartment is not available. Ensure `ses` is installed and imported.');\n\t}\n\treturn new (Compartment as any)(options.endowments ?? {});\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.ts'),
+	`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport { createCompartment } from './compartment';\nexport type { CreateCompartmentOptions } from './compartment';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: '@jsonpath/plugin-script-expressions',\n\t\tcapabilities: ['filter:script:ses'],\n\t},\n};\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { createCompartment, plugin } from './index';\n\ndescribe('@jsonpath/plugin-script-expressions', () => {\n\tit('creates a SES compartment', () => {\n\t\tconst c = createCompartment({ endowments: { x: 1 } });\n\t\texpect(typeof (c as any).evaluate).toBe('function');\n\t});\n\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe('@jsonpath/plugin-script-expressions');\n\t});\n});\n`,
+);
+
+console.log('Wrote @jsonpath/plugin-script-expressions');
+NODE
+```
 
 ##### Step 18 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-script-expressions test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-script-expressions` succeeds.
 
 #### Step 18 STOP & COMMIT
 
@@ -945,10 +1440,61 @@ completes: step 18 of 30 for jsonpath
 
 - [ ] Implement pointer parse/get/set/remove with forbidden segments `__proto__`, `prototype`, `constructor`.
 - [ ] Add unit tests covering forbidden segment rejection.
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'pointer');
+
+write(
+	path.join(pkgDir, 'src', 'forbidden.ts'),
+	`export const ForbiddenPointerSegments = new Set(['__proto__', 'prototype', 'constructor']);\n\nexport function assertNotForbiddenSegment(segment: string): void {\n\tif (ForbiddenPointerSegments.has(segment)) {\n\t\tthrow new Error(\`Forbidden JSON Pointer segment: \${segment}\`);\n\t}\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'parse.ts'),
+	`import { assertNotForbiddenSegment } from './forbidden';\n\nfunction decode(segment: string): string {\n\t// RFC 6901: ~1 => / and ~0 => ~\n\treturn segment.replace(/~1/g, '/').replace(/~0/g, '~');\n}\n\nexport function parsePointer(pointer: string): string[] {\n\tif (pointer === '') return [];\n\tif (!pointer.startsWith('/')) throw new Error('JSON Pointer must start with "/" or be empty.');\n\tconst parts = pointer.split('/').slice(1).map(decode);\n\tfor (const p of parts) assertNotForbiddenSegment(p);\n\treturn parts;\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'get.ts'),
+	`import { parsePointer } from './parse';\n\nexport function getByPointer(root: unknown, pointer: string): unknown {\n\tconst parts = parsePointer(pointer);\n\tlet current: any = root as any;\n\tfor (const part of parts) {\n\t\tif (current == null) return undefined;\n\t\tcurrent = current[part];\n\t}\n\treturn current;\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'mutate.ts'),
+	`import { parsePointer } from './parse';\n\nfunction isObjectLike(value: unknown): value is Record<string, unknown> | unknown[] {\n\treturn typeof value === 'object' && value !== null;\n}\n\nfunction cloneContainer(value: unknown): any {\n\tif (Array.isArray(value)) return value.slice();\n\tif (isObjectLike(value)) return { ...(value as any) };\n\treturn value;\n}\n\nexport function setByPointer(root: unknown, pointer: string, value: unknown): unknown {\n\tconst parts = parsePointer(pointer);\n\tif (parts.length === 0) throw new Error('Cannot set the document root via JSON Pointer.');\n\n\tconst nextRoot: any = cloneContainer(root);\n\tlet current: any = nextRoot;\n\tlet original: any = root as any;\n\n\tfor (let i = 0; i < parts.length - 1; i += 1) {\n\t\tconst part = parts[i];\n\t\tconst origChild = isObjectLike(original) ? (original as any)[part] : undefined;\n\t\tconst child = cloneContainer(origChild ?? {});\n\t\t(current as any)[part] = child;\n\t\tcurrent = child;\n\t\toriginal = origChild;\n\t}\n\n\tconst last = parts[parts.length - 1];\n\t(current as any)[last] = value;\n\treturn nextRoot;\n}\n\nexport function removeByPointer(root: unknown, pointer: string): unknown {\n\tconst parts = parsePointer(pointer);\n\tif (parts.length === 0) throw new Error('Cannot remove the document root via JSON Pointer.');\n\n\tconst nextRoot: any = cloneContainer(root);\n\tlet current: any = nextRoot;\n\tlet original: any = root as any;\n\n\tfor (let i = 0; i < parts.length - 1; i += 1) {\n\t\tconst part = parts[i];\n\t\tconst origChild = isObjectLike(original) ? (original as any)[part] : undefined;\n\t\tif (!isObjectLike(origChild)) return nextRoot;\n\t\tconst child = cloneContainer(origChild);\n\t\t(current as any)[part] = child;\n\t\tcurrent = child;\n\t\toriginal = origChild;\n\t}\n\n\tconst last = parts[parts.length - 1];\n\tif (Array.isArray(current)) {\n\t\tconst idx = Number(last);\n\t\tif (Number.isInteger(idx)) current.splice(idx, 1);\n\t\treturn nextRoot;\n\t}\n\tif (isObjectLike(current)) {\n\t\tdelete (current as any)[last];\n\t}\n\treturn nextRoot;\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.ts'),
+	`export { ForbiddenPointerSegments, assertNotForbiddenSegment } from './forbidden';\nexport { parsePointer } from './parse';\nexport { getByPointer } from './get';\nexport { setByPointer, removeByPointer } from './mutate';\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { getByPointer, removeByPointer, setByPointer } from './index';\n\ndescribe('@jsonpath/pointer', () => {\n\tit('gets values', () => {\n\t\texpect(getByPointer({ a: { b: 1 } }, '/a/b')).toBe(1);\n\t\texpect(getByPointer({ a: { b: 1 } }, '/a/missing')).toBeUndefined();\n\t});\n\n\tit('sets values immutably', () => {\n\t\tconst root = { a: { b: 1 } };\n\t\tconst next = setByPointer(root, '/a/b', 2) as any;\n\t\texpect((root as any).a.b).toBe(1);\n\t\texpect(next.a.b).toBe(2);\n\t});\n\n\tit('rejects forbidden segments', () => {\n\t\texpect(() => setByPointer({}, '/__proto__/x', 1)).toThrow(/Forbidden JSON Pointer segment/);\n\t\texpect(() => removeByPointer({}, '/constructor/x')).toThrow(/Forbidden JSON Pointer segment/);\n\t});\n});\n`,
+);
+
+console.log('Wrote @jsonpath/pointer (hardened)');
+NODE
+```
 
 ##### Step 19 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/pointer test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
 
 #### Step 19 STOP & COMMIT
 
@@ -966,10 +1512,57 @@ completes: step 19 of 30 for jsonpath
 
 - [ ] Implement `applyPatch(doc, ops)` supporting `add`, `replace`, and `remove`, delegating to `@jsonpath/pointer`.
 - [ ] Add unit tests.
+- [ ] Add required workspace deps:
+
+```bash
+pnpm --filter @jsonpath/patch add @jsonpath/pointer@workspace:*
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'patch');
+
+write(
+	path.join(pkgDir, 'src', 'types.ts'),
+	`export type JsonPatchOp =\n\t| { op: 'add'; path: string; value: unknown }\n\t| { op: 'replace'; path: string; value: unknown }\n\t| { op: 'remove'; path: string };\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'apply.ts'),
+	`import type { JsonPatchOp } from './types';\n\nimport { removeByPointer, setByPointer } from '@jsonpath/pointer';\n\nexport function applyPatch(doc: unknown, ops: readonly JsonPatchOp[]): unknown {\n\tlet current: unknown = doc;\n\tfor (const op of ops) {\n\t\tif (op.op === 'add' || op.op === 'replace') {\n\t\t\tcurrent = setByPointer(current, op.path, op.value);\n\t\t\tcontinue;\n\t\t}\n\t\tif (op.op === 'remove') {\n\t\t\tcurrent = removeByPointer(current, op.path);\n\t\t\tcontinue;\n\t\t}\n\t\tconst _exhaustive: never = op;\n\t\tthrow new Error('Unsupported JSON Patch operation');\n\t}\n\treturn current;\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.ts'),
+	`export type { JsonPatchOp } from './types';\nexport { applyPatch } from './apply';\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { applyPatch } from './index';\n\ndescribe('@jsonpath/patch', () => {\n\tit('applies add/replace/remove operations', () => {\n\t\tconst doc = { a: { b: 1 }, xs: [1, 2, 3] };\n\t\tconst next = applyPatch(doc, [\n\t\t\t{ op: 'replace', path: '/a/b', value: 2 },\n\t\t\t{ op: 'add', path: '/a/c', value: 3 },\n\t\t\t{ op: 'remove', path: '/xs/1' },\n\t\t]) as any;\n\t\texpect((doc as any).a.b).toBe(1);\n\t\texpect(next.a.b).toBe(2);\n\t\texpect(next.a.c).toBe(3);\n\t\texpect(next.xs).toEqual([1, 3]);\n\t});\n});\n`,
+);
+
+console.log('Wrote @jsonpath/patch');
+NODE
+```
 
 ##### Step 20 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/patch test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/patch` succeeds.
 
 #### Step 20 STOP & COMMIT
 
@@ -987,10 +1580,52 @@ completes: step 20 of 30 for jsonpath
 
 - [ ] Implement pointer-based helpers like `setAll(doc, pointers, value)` and `removeAll(doc, pointers)`.
 - [ ] Add unit tests.
+- [ ] Add required workspace deps:
+
+```bash
+pnpm --filter @jsonpath/mutate add @jsonpath/pointer@workspace:*
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'mutate');
+
+write(
+	path.join(pkgDir, 'src', 'mutate.ts'),
+	`import { removeByPointer, setByPointer } from '@jsonpath/pointer';\n\nexport function setAll(root: unknown, pointers: readonly string[], value: unknown): unknown {\n\tlet current: unknown = root;\n\tfor (const p of pointers) current = setByPointer(current, p, value);\n\treturn current;\n}\n\nexport function removeAll(root: unknown, pointers: readonly string[]): unknown {\n\tlet current: unknown = root;\n\tfor (const p of pointers) current = removeByPointer(current, p);\n\treturn current;\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.ts'),
+	`export { setAll, removeAll } from './mutate';\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { removeAll, setAll } from './index';\n\ndescribe('@jsonpath/mutate', () => {\n\tit('sets multiple pointers', () => {\n\t\tconst root = { a: { b: 1 }, c: { d: 2 } };\n\t\tconst next = setAll(root, ['/a/b', '/c/d'], 9) as any;\n\t\texpect((root as any).a.b).toBe(1);\n\t\texpect(next.a.b).toBe(9);\n\t\texpect(next.c.d).toBe(9);\n\t});\n\n\tit('removes multiple pointers', () => {\n\t\tconst root = { a: { b: 1, c: 2 } };\n\t\tconst next = removeAll(root, ['/a/b']) as any;\n\t\texpect((root as any).a.b).toBe(1);\n\t\texpect(next.a.b).toBeUndefined();\n\t\texpect(next.a.c).toBe(2);\n\t});\n});\n`,
+);
+
+console.log('Wrote @jsonpath/mutate');
+NODE
+```
 
 ##### Step 21 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/mutate test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/mutate` succeeds.
 
 #### Step 21 STOP & COMMIT
 
@@ -1008,10 +1643,57 @@ completes: step 21 of 30 for jsonpath
 
 - [ ] Implement a common `Issue` model and a `ValidatorAdapter` interface.
 - [ ] Implement `validateAll(values, adapter)` and add unit tests.
+- [ ] Add required workspace deps:
+
+```bash
+pnpm --filter @jsonpath/plugin-validate add @jsonpath/core@workspace:*
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'plugin-validate');
+
+write(
+	path.join(pkgDir, 'src', 'types.ts'),
+	`export type Issue = {\n\tmessage: string;\n\tcode?: string;\n\tpath?: string;\n\tmeta?: unknown;\n};\n\nexport type ValidatorAdapter = {\n\tid: string;\n\tvalidate: (value: unknown) => readonly Issue[];\n};\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'validate.ts'),
+	`import type { Issue, ValidatorAdapter } from './types';\n\nexport function validateAll(values: readonly unknown[], adapter: ValidatorAdapter): Issue[] {\n\tconst issues: Issue[] = [];\n\tfor (const v of values) issues.push(...adapter.validate(v));\n\treturn issues;\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.ts'),
+	`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport type { Issue, ValidatorAdapter } from './types';\nexport { validateAll } from './validate';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: '@jsonpath/plugin-validate',\n\t\tcapabilities: ['validate'],\n\t},\n};\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { plugin, validateAll, type ValidatorAdapter } from './index';\n\ndescribe('@jsonpath/plugin-validate', () => {\n\tit('validates multiple values', () => {\n\t\tconst adapter: ValidatorAdapter = {\n\t\t\tid: 'test',\n\t\t\tvalidate: (v) => (v === 1 ? [{ message: 'bad', code: 'E_BAD' }] : []),\n\t\t};\n\t\texpect(validateAll([0, 1, 2], adapter)).toEqual([{ message: 'bad', code: 'E_BAD' }]);\n\t});\n\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe('@jsonpath/plugin-validate');\n\t});\n});\n`,
+);
+
+console.log('Wrote @jsonpath/plugin-validate');
+NODE
+```
 
 ##### Step 22 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-validate test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-validate` succeeds.
 
 #### Step 22 STOP & COMMIT
 
@@ -1033,10 +1715,78 @@ completes: step 22 of 30 for jsonpath
   - `@jsonpath/validator-yup`
 - [ ] Each exports `create*Adapter(schema)` returning `{ id, validate(value): Issue[] }`.
 - [ ] Add unit tests.
+- [ ] Add required deps:
+
+```bash
+pnpm --filter @jsonpath/validator-json-schema add @jsonpath/plugin-validate@workspace:* ajv
+pnpm --filter @jsonpath/validator-zod add @jsonpath/plugin-validate@workspace:* zod
+pnpm --filter @jsonpath/validator-yup add @jsonpath/plugin-validate@workspace:* yup
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const repoRoot = process.cwd();
+
+// Ajv adapter
+{
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', 'validator-json-schema');
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import Ajv from 'ajv';\n\nimport type { Issue, ValidatorAdapter } from '@jsonpath/plugin-validate';\n\nexport type JsonSchema = Record<string, unknown>;\n\nexport function createJsonSchemaAdapter(schema: JsonSchema): ValidatorAdapter {\n\tconst ajv = new Ajv({ allErrors: true, strict: false });\n\tconst validate = ajv.compile(schema as any);\n\n\treturn {\n\t\tid: '@jsonpath/validator-json-schema',\n\t\tvalidate: (value: unknown): Issue[] => {\n\t\t\tconst ok = validate(value as any);\n\t\t\tif (ok) return [];\n\t\t\tconst errors = validate.errors ?? [];\n\t\t\treturn errors.map((e) => ({\n\t\t\t\tmessage: e.message ?? 'Schema validation error',\n\t\t\t\tcode: String(e.keyword ?? 'schema'),\n\t\t\t\tpath: String(e.instancePath ?? ''),\n\t\t\t\tmeta: e,\n\t\t\t}));\n\t\t},\n\t};\n}\n`,
+	);
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { createJsonSchemaAdapter } from './index';\n\ndescribe('@jsonpath/validator-json-schema', () => {\n\tit('returns issues for invalid values', () => {\n\t\tconst adapter = createJsonSchemaAdapter({ type: 'number' });\n\t\texpect(adapter.validate('x').length).toBeGreaterThan(0);\n\t\texpect(adapter.validate(1)).toEqual([]);\n\t});\n});\n`,
+	);
+}
+
+// Zod adapter
+{
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', 'validator-zod');
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import type { ZodTypeAny } from 'zod';\n\nimport type { Issue, ValidatorAdapter } from '@jsonpath/plugin-validate';\n\nexport function createZodAdapter(schema: ZodTypeAny): ValidatorAdapter {\n\treturn {\n\t\tid: '@jsonpath/validator-zod',\n\t\tvalidate: (value: unknown): Issue[] => {\n\t\t\tconst result = schema.safeParse(value);\n\t\t\tif (result.success) return [];\n\t\t\treturn result.error.issues.map((i) => ({\n\t\t\t\tmessage: i.message,\n\t\t\t\tcode: i.code,\n\t\t\t\tpath: i.path.length ? '/' + i.path.join('/') : '',\n\t\t\t\tmeta: i,\n\t\t\t}));\n\t\t},\n\t};\n}\n`,
+	);
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { z } from 'zod';\n\nimport { createZodAdapter } from './index';\n\ndescribe('@jsonpath/validator-zod', () => {\n\tit('returns issues for invalid values', () => {\n\t\tconst adapter = createZodAdapter(z.object({ a: z.number() }));\n\t\texpect(adapter.validate({ a: 'x' }).length).toBeGreaterThan(0);\n\t\texpect(adapter.validate({ a: 1 })).toEqual([]);\n\t});\n});\n`,
+	);
+}
+
+// Yup adapter
+{
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', 'validator-yup');
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import type { AnySchema, ValidationError } from 'yup';\n\nimport type { Issue, ValidatorAdapter } from '@jsonpath/plugin-validate';\n\nexport function createYupAdapter(schema: AnySchema): ValidatorAdapter {\n\treturn {\n\t\tid: '@jsonpath/validator-yup',\n\t\tvalidate: (value: unknown): Issue[] => {\n\t\t\ttry {\n\t\t\t\tschema.validateSync(value, { abortEarly: false });\n\t\t\t\treturn [];\n\t\t\t} catch (err) {\n\t\t\t\tconst e = err as ValidationError;\n\t\t\t\tconst inner = e.inner?.length ? e.inner : [e];\n\t\t\t\treturn inner.map((i) => ({\n\t\t\t\t\tmessage: i.message,\n\t\t\t\t\tcode: i.type ?? 'yup',\n\t\t\t\t\tpath: i.path ? '/' + String(i.path).split('.').join('/') : '',\n\t\t\t\t\tmeta: i,\n\t\t\t\t}));\n\t\t\t}\n\t\t},\n\t};\n}\n`,
+	);
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport * as yup from 'yup';\n\nimport { createYupAdapter } from './index';\n\ndescribe('@jsonpath/validator-yup', () => {\n\tit('returns issues for invalid values', () => {\n\t\tconst adapter = createYupAdapter(yup.object({ a: yup.number().required() }));\n\t\texpect(adapter.validate({ a: 'x' }).length).toBeGreaterThan(0);\n\t\texpect(adapter.validate({ a: 1 })).toEqual([]);\n\t});\n});\n`,
+	);
+}
+
+console.log('Wrote validator adapters');
+NODE
+```
 
 ##### Step 23 Verification Checklist
 
-- [ ] `pnpm -w test --filter @jsonpath/validator-* -- --passWithNoTests` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/validator-* -- --passWithNoTests` succeeds.
 
 #### Step 23 STOP & COMMIT
 
@@ -1056,10 +1806,57 @@ completes: step 23 of 30 for jsonpath
   - `@jsonpath/plugin-parent-selector`
   - `@jsonpath/plugin-property-name-selector`
   - `@jsonpath/plugin-type-selectors`
+- [ ] Add required workspace deps:
+
+```bash
+pnpm --filter @jsonpath/plugin-parent-selector add @jsonpath/core@workspace:*
+pnpm --filter @jsonpath/plugin-property-name-selector add @jsonpath/core@workspace:*
+pnpm --filter @jsonpath/plugin-type-selectors add @jsonpath/core@workspace:*
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const repoRoot = process.cwd();
+
+const plugins = [
+	{ dir: 'jsonpath-plugin-parent-selector', id: '@jsonpath/plugin-parent-selector', capabilities: ['extension:parent-selector'] },
+	{ dir: 'jsonpath-plugin-property-name-selector', id: '@jsonpath/plugin-property-name-selector', capabilities: ['extension:property-name-selector'] },
+	{ dir: 'jsonpath-plugin-type-selectors', id: '@jsonpath/plugin-type-selectors', capabilities: ['extension:type-selectors'] },
+];
+
+for (const p of plugins) {
+	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: ${JSON.stringify(p.id)},\n\t\tcapabilities: ${JSON.stringify(p.capabilities)},\n\t},\n};\n`,
+	);
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { plugin } from './index';\n\ndescribe(${JSON.stringify(p.id)}, () => {\n\tit('exports plugin metadata', () => {\n\t\texpect(plugin.meta.id).toBe(${JSON.stringify(p.id)});\n\t\texpect(plugin.meta.capabilities).toEqual(${JSON.stringify(p.capabilities)});\n\t});\n});\n`,
+	);
+}
+
+console.log('Wrote optional extension plugin shells');
+NODE
+```
 
 ##### Step 24 Verification Checklist
 
-- [ ] `pnpm -w test --filter @jsonpath/plugin-parent-selector --filter @jsonpath/plugin-property-name-selector --filter @jsonpath/plugin-type-selectors` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-parent-selector --filter @jsonpath/plugin-property-name-selector --filter @jsonpath/plugin-type-selectors` succeeds.
 
 #### Step 24 STOP & COMMIT
 
@@ -1078,10 +1875,64 @@ completes: step 24 of 30 for jsonpath
 - [ ] Implement `@jsonpath/compat-jsonpath` delegating to `jsonpath`.
 - [ ] Implement `@jsonpath/compat-jsonpath-plus` delegating to `jsonpath-plus`.
 - [ ] Add unit tests for both.
+- [ ] Add required third-party deps:
+
+```bash
+pnpm --filter @jsonpath/compat-jsonpath add jsonpath
+pnpm --filter @jsonpath/compat-jsonpath-plus add jsonpath-plus
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const repoRoot = process.cwd();
+
+// dchester/jsonpath compat
+{
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', 'compat-jsonpath');
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`import jp from 'jsonpath';\n\n// Minimal drop-in surface: re-export the library API.\n\nexport default jp;\nexport const { query, value, paths, nodes, parent, apply } = jp as any;\n`,
+	);
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport jp, { query } from './index';\n\ndescribe('@jsonpath/compat-jsonpath', () => {\n\tit('delegates to jsonpath', () => {\n\t\tconst obj = { a: { b: 1 } };\n\t\texpect(query(obj, '$.a.b')).toEqual([1]);\n\t\texpect((jp as any).query(obj, '$.a.b')).toEqual([1]);\n\t});\n});\n`,
+	);
+}
+
+// jsonpath-plus compat
+{
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', 'compat-jsonpath-plus');
+	write(
+		path.join(pkgDir, 'src', 'index.ts'),
+		`export { JSONPath } from 'jsonpath-plus';\n\nexport type JSONPathEvalMode = 'safe' | 'native' | false;\n\nexport function readJsonPath(json: unknown, pathExpr: string, evalMode: JSONPathEvalMode = 'safe'): unknown {\n\tconst results = JSONPath<unknown[]>({ path: pathExpr, json: json as any, wrap: true, eval: evalMode });\n\tif (!Array.isArray(results) || results.length === 0) return undefined;\n\tif (results.length === 1) return results[0];\n\treturn results;\n}\n\nexport function findJsonPathPointers(json: unknown, pathExpr: string, evalMode: JSONPathEvalMode = 'safe'): string[] {\n\tconst pointers = JSONPath<string[]>({ path: pathExpr, json: json as any, wrap: true, resultType: 'pointer', eval: evalMode });\n\treturn Array.isArray(pointers) ? pointers : [];\n}\n`,
+	);
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { findJsonPathPointers, readJsonPath } from './index';\n\ndescribe('@jsonpath/compat-jsonpath-plus', () => {\n\tit('reads values and enumerates pointers', () => {\n\t\tconst obj = { a: { b: 1 } };\n\t\texpect(readJsonPath(obj, '$.a.b')).toBe(1);\n\t\texpect(findJsonPathPointers(obj, '$.a.b')).toEqual(['/a/b']);\n\t});\n});\n`,
+	);
+}
+
+console.log('Wrote initial compat shims');
+NODE
+```
 
 ##### Step 25 Verification Checklist
 
-- [ ] `pnpm -w test --filter @jsonpath/compat-* -- --passWithNoTests` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/compat-* -- --passWithNoTests` succeeds.
 
 #### Step 25 STOP & COMMIT
 
@@ -1099,10 +1950,63 @@ completes: step 25 of 30 for jsonpath
 
 - [ ] In `@lellimecnar/jsonpath-conformance`, add a minimal corpus export (documents + query list).
 - [ ] In `@lellimecnar/jsonpath-compat-harness`, add tests comparing upstream outputs vs compat shims.
+- [ ] Add required deps:
+
+```bash
+pnpm --filter @lellimecnar/jsonpath-compat-harness add \
+	@lellimecnar/jsonpath-conformance@workspace:* \
+	@jsonpath/compat-jsonpath-plus@workspace:* \
+	jsonpath-plus
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const repoRoot = process.cwd();
+
+// Conformance corpus
+{
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath-conformance');
+	write(
+		path.join(pkgDir, 'src', 'corpus.ts'),
+		`export type ConformanceDocument = {\n\tname: string;\n\tjson: unknown;\n};\n\nexport type ConformanceCase = {\n\tname: string;\n\tpath: string;\n};\n\nexport const documents: ConformanceDocument[] = [\n\t{ name: 'simple', json: { a: { b: 1 }, xs: [1, 2] } },\n];\n\nexport const cases: ConformanceCase[] = [\n\t{ name: 'child member', path: '$.a.b' },\n\t{ name: 'array wildcard', path: '$.xs[*]' },\n];\n`,
+	);
+	write(path.join(pkgDir, 'src', 'index.ts'), `export * from './corpus';\n`);
+	write(
+		path.join(pkgDir, 'src', 'index.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { cases, documents } from './index';\n\ndescribe('@lellimecnar/jsonpath-conformance', () => {\n\tit('exports a minimal corpus', () => {\n\t\texpect(documents.length).toBeGreaterThan(0);\n\t\texpect(cases.length).toBeGreaterThan(0);\n\t});\n});\n`,
+	);
+}
+
+// Compat harness
+{
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath-compat-harness');
+	write(
+		path.join(pkgDir, 'src', 'compat.spec.ts'),
+		`import { describe, expect, it } from 'vitest';\n\nimport { JSONPath } from 'jsonpath-plus';\n\nimport { documents } from '@lellimecnar/jsonpath-conformance';\nimport { findJsonPathPointers } from '@jsonpath/compat-jsonpath-plus';\n\ndescribe('@lellimecnar/jsonpath-compat-harness', () => {\n\tit('compares pointer enumeration to upstream jsonpath-plus', () => {\n\t\tconst doc = documents.find((d) => d.name === 'simple')!;\n\t\tconst upstream = JSONPath<string[]>({\n\t\t\tpath: '$.a.b',\n\t\t\tjson: doc.json as any,\n\t\t\twrap: true,\n\t\t\tresultType: 'pointer',\n\t\t\teval: 'safe',\n\t\t});\n\t\tconst ours = findJsonPathPointers(doc.json, '$.a.b', 'safe');\n\t\texpect(ours).toEqual(upstream);\n\t});\n});\n`,
+	);
+}
+
+console.log('Wrote conformance corpus + compat harness');
+NODE
+```
 
 ##### Step 26 Verification Checklist
 
-- [ ] `pnpm --filter @lellimecnar/jsonpath-compat-harness test` succeeds.
+- [ ] `pnpm -w turbo test --filter @lellimecnar/jsonpath-compat-harness` succeeds.
 
 #### Step 26 STOP & COMMIT
 
@@ -1120,10 +2024,59 @@ completes: step 26 of 30 for jsonpath
 
 - [ ] Implement JSON-only config schema and loader (no YAML).
 - [ ] Wire a runner to `createRfc9535Engine()`.
+- [ ] Add required workspace deps:
+
+```bash
+pnpm --filter @jsonpath/cli add @jsonpath/plugin-rfc-9535@workspace:*
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-cli');
+
+write(path.join(pkgDir, 'bin', 'jsonpath.js'), "#!/usr/bin/env node\nimport '../index.js';\n");
+
+write(
+	path.join(pkgDir, 'src', 'config.ts'),
+	`export type JsonPathCliConfig = {\n\tpath: string;\n\tjson: unknown;\n\tresultType?: 'value' | 'node' | 'path' | 'pointer' | 'parent';\n};\n\nexport function parseConfig(input: unknown): JsonPathCliConfig {\n\tif (!input || typeof input !== 'object') throw new Error('Config must be an object.');\n\tconst obj = input as any;\n\tif (typeof obj.path !== 'string') throw new Error('Config.path must be a string.');\n\treturn {\n\t\tpath: obj.path,\n\t\tjson: obj.json,\n\t\tresultType: obj.resultType,\n\t};\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'run.ts'),
+	`import fs from 'node:fs';\n\nimport { createRfc9535Engine } from '@jsonpath/plugin-rfc-9535';\n\nimport { parseConfig } from './config';\n\nexport function runJsonPathCli(configPath: string): unknown[] {\n\tconst raw = fs.readFileSync(configPath, 'utf8');\n\tconst parsed = parseConfig(JSON.parse(raw));\n\n\tconst engine = createRfc9535Engine();\n\tconst compiled = engine.compile(parsed.path);\n\treturn engine.evaluateSync(compiled, parsed.json, { resultType: parsed.resultType });\n}\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.ts'),
+	`import process from 'node:process';\n\nimport { runJsonPathCli } from './run';\n\nfunction main(): void {\n\tconst configPath = process.argv[2];\n\tif (!configPath) {\n\t\tprocess.stderr.write('Usage: jsonpath <config.json>\\n');\n\t\tprocess.exit(2);\n\t}\n\tconst results = runJsonPathCli(configPath);\n\tprocess.stdout.write(JSON.stringify(results, null, 2) + '\\n');\n}\n\nmain();\n`,
+);
+
+write(
+	path.join(pkgDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { parseConfig } from './config';\n\ndescribe('@jsonpath/cli', () => {\n\tit('parses a minimal JSON config', () => {\n\t\tconst cfg = parseConfig({ path: '$.a', json: { a: 1 } });\n\t\texpect(cfg.path).toBe('$.a');\n\t\texpect(cfg.json).toEqual({ a: 1 });\n\t});\n});\n`,
+);
+
+console.log('Wrote @jsonpath/cli skeleton');
+NODE
+```
 
 ##### Step 27 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/cli test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/cli` succeeds.
 - [ ] `pnpm -w verify:exports` remains green.
 
 #### Step 27 STOP & COMMIT
@@ -1142,10 +2095,44 @@ completes: step 27 of 30 for jsonpath
 
 - [ ] Add `@jsonpath/complete` that re-exports `createRfc9535Engine()` and the preset plugin list.
 - [ ] Add unit tests.
+- [ ] Add required workspace deps:
+
+```bash
+pnpm --filter @jsonpath/complete add @jsonpath/plugin-rfc-9535@workspace:*
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-complete');
+
+write(path.join(pkgDir, 'src', 'index.ts'), `export { createRfc9535Engine, rfc9535Plugins } from '@jsonpath/plugin-rfc-9535';\n`);
+
+write(
+	path.join(pkgDir, 'src', 'index.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { createRfc9535Engine, rfc9535Plugins } from './index';\n\ndescribe('@jsonpath/complete', () => {\n\tit('re-exports RFC 9535 preset', () => {\n\t\texpect(rfc9535Plugins.length).toBeGreaterThan(5);\n\t\tconst engine = createRfc9535Engine();\n\t\texpect(engine.compile('$.x').expression).toBe('$.x');\n\t});\n});\n`,
+);
+
+console.log('Wrote @jsonpath/complete');
+NODE
+```
 
 ##### Step 28 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/complete test` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/complete` succeeds.
 
 #### Step 28 STOP & COMMIT
 
@@ -1162,10 +2149,42 @@ completes: step 28 of 30 for jsonpath
 #### Step 29: Security regression coverage (internal)
 
 - [ ] Add a minimal regression test ensuring forbidden pointer segments throw.
+- [ ] Add required workspace deps:
+
+```bash
+pnpm --filter @lellimecnar/jsonpath-conformance add @jsonpath/pointer@workspace:*
+```
+
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+function write(filePath, content) {
+	ensureDir(path.dirname(filePath));
+	fs.writeFileSync(filePath, content, 'utf8');
+}
+
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-conformance');
+
+write(
+	path.join(pkgDir, 'src', 'security.spec.ts'),
+	`import { describe, expect, it } from 'vitest';\n\nimport { setByPointer } from '@jsonpath/pointer';\n\ndescribe('security regression: pointer hardening', () => {\n\tit('rejects prototype-pollution segments', () => {\n\t\texpect(() => setByPointer({}, '/__proto__/x', 1)).toThrow();\n\t\texpect(() => setByPointer({}, '/constructor/x', 1)).toThrow();\n\t\texpect(() => setByPointer({}, '/prototype/x', 1)).toThrow();\n\t});\n});\n`,
+);
+
+console.log('Added security regression tests');
+NODE
+```
 
 ##### Step 29 Verification Checklist
 
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test` succeeds.
+- [ ] `pnpm -w turbo test --filter @lellimecnar/jsonpath-conformance` succeeds.
 
 #### Step 29 STOP & COMMIT
 
@@ -1182,11 +2201,34 @@ completes: step 29 of 30 for jsonpath
 #### Step 30: Documentation updates
 
 - [ ] Create `docs/api/jsonpath.md` documenting the new package surfaces and a minimal usage example.
+- [ ] Copy and paste code below into `terminal`:
+
+```bash
+node - <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+
+function ensureDir(dir) {
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+const filePath = path.join(process.cwd(), 'docs', 'api', 'jsonpath.md');
+ensureDir(path.dirname(filePath));
+
+fs.writeFileSync(
+	filePath,
+	`# JSONPath API\n\nThis document provides an overview of the @jsonpath plugin-first JSONPath packages in this monorepo.\n\n## Overview\n\nThe ecosystem is split into a small framework package (@jsonpath/core) and many wiring-only plugins.\nThe initial implementation focuses on scaffolding and stable public surfaces, not full RFC 9535 semantics.\n\n## Key Packages\n\n- @jsonpath/core: Engine framework (no JSONPath semantics)\n- @jsonpath/plugin-rfc-9535: Preset wiring + createRfc9535Engine()\n- @jsonpath/complete: Convenience re-export bundle\n- @jsonpath/pointer, @jsonpath/patch, @jsonpath/mutate: Pointer/Patch/mutation utilities\n- @jsonpath/plugin-validate + @jsonpath/validator-*: Validation orchestration + adapters\n\n## Example\n\n\`\`\`ts\nimport { createRfc9535Engine } from '@jsonpath/complete';\n\nconst engine = createRfc9535Engine();\nconst compiled = engine.compile('$.a');\nconst results = engine.evaluateSync(compiled, { a: 1 });\nconsole.log(results);\n\`\`\`\n\n## Commands\n\n- Build: pnpm -w turbo build --filter=@jsonpath/*\n- Test: pnpm -w turbo test --filter=@jsonpath/* -- --passWithNoTests\n- Verify exports: pnpm -w verify:exports\n`,
+	'utf8',
+);
+
+console.log('Wrote docs/api/jsonpath.md');
+NODE
+```
 
 ##### Step 30 Verification Checklist
 
 - [ ] `pnpm -w turbo build --filter=@jsonpath/*` is green.
-- [ ] `pnpm -w test --filter @jsonpath/* -- --passWithNoTests` is green.
+- [ ] `pnpm -w turbo test --filter @jsonpath/* -- --passWithNoTests` is green.
 - [ ] `pnpm -w verify:exports` is green.
 
 #### Step 30 STOP & COMMIT
