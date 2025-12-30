@@ -1,1072 +1,910 @@
 # @jsonpath Library Specification
 
-## A Next-Generation JSONPath Implementation for JavaScript
+## A Plugin-First JSONPath Ecosystem for JavaScript
 
-**Version**: 1.0.0-spec  
-**Status**: Draft Specification  
-**Authors**: Synthesized from community best practices  
+**Version**: 2.0.0-spec
+**Status**: Draft Specification
 **License**: MIT
 
 ---
 
 ## Executive Summary
 
-`@jsonpath` is a modular, extensible JSONPath library designed to unify the fragmented JavaScript JSONPath ecosystem. It provides full RFC 9535 compliance out of the box while supporting legacy Goessner syntax and advanced features through a plugin architecture. The library prioritizes security, performance, and developer experience without compromising on flexibility.
+`@jsonpath` is a plugin-first JSONPath ecosystem designed to unify the fragmented JavaScript JSONPath landscape.
 
-### Design Principles
+This specification enforces the following structural constraints:
 
-1. **Standards First**: RFC 9535 compliant by default, with extensions clearly separated
-2. **Secure by Design**: Sandboxed execution model eliminates eval() vulnerabilities
-3. **Modular Architecture**: Pay only for features you use through tree-shakeable plugins
-4. **Zero Breaking Changes**: Compatibility layers enable painless migration from existing libraries
-5. **TypeScript Native**: Full type inference with generics for query results
-6. **Performance Optimized**: Compiled queries, caching, and multi-query optimization
+1. **Core is framework-only**: `@jsonpath/core` provides parsing/evaluation infrastructure and plugin composition, but contains **no JSONPath features**.
+2. **Everything is a plugin**: Each JSONPath feature is shipped as a `@jsonpath/plugin-*` package.
+3. **RFC 9535 as a bundled plugin**: All official RFC 9535 features ship in `@jsonpath/plugin-rfc-9535`.
+4. **Compatibility is explicit**: Drop-in API compatibility is delivered by `@jsonpath/compat-*` packages (no “legacy” bucket).
+5. **Script expressions are sandboxed**: Script-based filters are delivered via a dedicated plugin using the `ses` npm package.
+6. **CLI config is JSON only**: The CLI reads configuration from JSON only.
+7. **Mutation is pointer-backed**: Mutation uses JSONPath to select targets and JSON Pointer / JSON Patch semantics to mutate.
+8. **Validation is an ecosystem**: Validation is provided via `@jsonpath/plugin-validate` plus pluggable validator adapters.
 
 ---
 
 ## Table of Contents
 
 1. [Package Structure](#1-package-structure)
-2. [Core API](#2-core-api)
-3. [RFC 9535 Compliance Layer](#3-rfc-9535-compliance-layer)
-4. [Extension System](#4-extension-system)
-5. [Legacy Compatibility](#5-legacy-compatibility)
-6. [Mutation API](#6-mutation-api)
-7. [Security Model](#7-security-model)
-8. [Performance Features](#8-performance-features)
-9. [TypeScript Integration](#9-typescript-integration)
-10. [CLI Interface](#10-cli-interface)
-11. [Related Standards Support](#11-related-standards-support)
-12. [Migration Guides](#12-migration-guides)
-13. [Implementation Notes](#13-implementation-notes)
-14. [Appendices](#appendices)
+2. [Core Framework API](#2-core-framework-api)
+3. [Plugin System](#3-plugin-system)
+4. [Official RFC 9535 Plugin](#4-official-rfc-9535-plugin)
+5. [Compatibility Packages](#5-compatibility-packages)
+6. [Script Expressions (SES)](#6-script-expressions-ses)
+7. [Mutation (Pointer + Patch)](#7-mutation-pointer--patch)
+8. [Validation Ecosystem](#8-validation-ecosystem)
+9. [Security Model](#9-security-model)
+10. [Performance Features](#10-performance-features)
+11. [TypeScript Integration](#11-typescript-integration)
+12. [CLI Interface (JSON Config Only)](#12-cli-interface-json-config-only)
+13. [Related Standards Support](#13-related-standards-support)
+14. [Testing & Compliance](#14-testing--compliance)
+15. [Migration Guides](#15-migration-guides)
+16. [Appendices](#16-appendices)
 
 ---
 
 ## 1. Package Structure
 
-The library is published under the `@jsonpath` npm scope with a modular architecture:
+The ecosystem is published under the `@jsonpath` npm scope.
+
+Publishing requirement:
+
+- Every `@jsonpath/*` package must be published.
+
+### 1.1 Framework Packages (No Features)
+
+These packages must not implement JSONPath grammar or evaluation semantics. They are infrastructure only.
 
 ```
-@jsonpath/core          # RFC 9535 compliant engine (zero dependencies)
-@jsonpath/extensions    # Official extension pack
-@jsonpath/legacy        # Goessner/jsonpath-plus compatibility
-@jsonpath/mutate        # Mutation operations
-@jsonpath/pointer       # JSON Pointer (RFC 6901) support
-@jsonpath/patch         # JSON Patch (RFC 6902) support
-@jsonpath/cli           # Command-line interface
-@jsonpath/wasm          # WebAssembly accelerator (optional)
+@jsonpath/core            # Engine framework: plugin composition, parsing pipeline, evaluation pipeline
+@jsonpath/ast             # Shared AST node types (feature-agnostic)
+@jsonpath/lexer           # Tokenization infrastructure (feature-agnostic)
+@jsonpath/parser          # Parser infrastructure (feature-agnostic)
+@jsonpath/printer         # AST-to-string infrastructure (feature-agnostic)
 ```
 
-### Unified Entry Point
+Notes:
 
-For convenience, a unified package aggregates common functionality:
+- `@jsonpath/core` may export convenience “presets” only if they are expressed as plugin bundles (e.g., a preset that wires up `@jsonpath/plugin-rfc-9535`).
+- `@jsonpath/ast` defines node shapes but not node semantics.
 
-```bash
-npm install @jsonpath/complete
+### 1.2 Official Plugin Packages
+
+All features are implemented as plugins.
+
+Minimum official plugin inventory (non-exhaustive; see Appendix A for proposed breakdown):
+
+```
+@jsonpath/plugin-rfc-9535            # ALL RFC 9535 features bundled
+@jsonpath/plugin-script-expressions  # Script expressions using ses
+@jsonpath/plugin-validate            # Validation orchestration for selected values
+
+@jsonpath/plugin-result-types        # resultType adapters: value/path/pointer/node/parent/etc
+@jsonpath/plugin-iregexp             # RFC 9485 (I-Regexp) support for regex filters
 ```
 
-```typescript
-import {
-	query, // from @jsonpath/core
-	compile, // from @jsonpath/core
-	mutate, // from @jsonpath/mutate
-	pointer, // from @jsonpath/pointer
-	patch, // from @jsonpath/patch
-	legacy, // from @jsonpath/legacy
-	extensions, // from @jsonpath/extensions
-} from '@jsonpath/complete';
+Rules:
+
+- Every plugin package must be tree-shakeable.
+- Plugins must declare their capabilities explicitly and avoid “hidden” side effects.
+
+### 1.3 Compatibility Packages (Drop-in APIs)
+
+Compatibility targets are expressed as separate packages with strict API contracts and rigorous testing.
+
+```
+@jsonpath/compat-jsonpath       # dchester/jsonpath API shape
+@jsonpath/compat-jsonpath-plus  # jsonpath-plus API shape
 ```
 
-### Bundle Size Targets
+Compatibility packages are not “feature packs”; they are adapters/presets + API surfaces that must behave as drop-in replacements.
 
-| Package                | Minified | Gzipped | Dependencies |
-| ---------------------- | -------- | ------- | ------------ |
-| `@jsonpath/core`       | < 15 KB  | < 5 KB  | 0            |
-| `@jsonpath/extensions` | < 10 KB  | < 4 KB  | 0            |
-| `@jsonpath/legacy`     | < 8 KB   | < 3 KB  | 0            |
-| `@jsonpath/mutate`     | < 6 KB   | < 2 KB  | 0            |
-| `@jsonpath/pointer`    | < 4 KB   | < 2 KB  | 0            |
-| `@jsonpath/patch`      | < 6 KB   | < 2 KB  | 0            |
-| `@jsonpath/complete`   | < 45 KB  | < 15 KB | 0            |
-| `@jsonpath/wasm`       | ~150 KB  | ~60 KB  | 0            |
+### 1.4 Mutation and Pointer/Patch Packages
+
+Mutation is separate from query evaluation, but relies on pointers and/or patch operations.
+
+```
+@jsonpath/pointer    # RFC 6901 JSON Pointer helpers
+@jsonpath/patch      # RFC 6902 JSON Patch helpers
+@jsonpath/mutate     # Mutation utilities: selection + pointer/patch-backed writes
+```
+
+### 1.5 Validator Adapter Packages
+
+Validator adapters allow the validate plugin to integrate with external validator ecosystems.
+
+```
+@jsonpath/validator-json-schema  # JSON Schema adapter (e.g., Ajv)
+@jsonpath/validator-zod          # Zod adapter
+@jsonpath/validator-yup          # Yup adapter
+```
+
+Additional adapters may be published later (e.g., Valibot, TypeBox, io-ts), but are not required for initial release.
+
+### 1.6 Convenience Bundle (Optional)
+
+For convenience (and to reduce “which packages do I need?” friction), a meta-package may aggregate commonly used packages:
+
+```
+@jsonpath/complete
+```
+
+Constraints:
+
+- `@jsonpath/complete` must not implement features; it only re-exports/pins plugin presets and wiring.
 
 ---
 
-## 2. Core API
+## 2. Core Framework API
 
-### 2.1 Primary Functions
+### 2.1 Goals
 
-#### `query<T>(path: string, data: unknown, options?: QueryOptions): T[]`
+`@jsonpath/core` provides:
 
-Executes a JSONPath query and returns matching values.
+- A plugin registry
+- A parse pipeline that can be extended by plugins (lexer + parser hooks)
+- An evaluation pipeline that can be extended by plugins (AST visitors)
+- A stable, typed “Engine” abstraction used by compat packages and the CLI
 
-```typescript
-import { query } from '@jsonpath/core';
+`@jsonpath/core` does not provide:
 
-const data = {
-	store: {
-		books: [
-			{ title: 'Dune', price: 12.99 },
-			{ title: '1984', price: 9.99 },
-		],
-	},
-};
+- Any JSONPath grammar tokens
+- Any JSONPath AST semantics
+- Any built-in functions
+- Any filter expression language
 
-// Basic query
-const titles = query<string>('$.store.books[*].title', data);
-// => ['Dune', '1984']
+### 2.2 Primary Types
 
-// With options
-const expensive = query<Book>('$.store.books[?@.price > 10]', data, {
-	strict: true,
-	functions: customFunctions,
-});
-```
+Core exports the following conceptual types (exact TS names are illustrative):
 
-#### `compile<T>(path: string, options?: CompileOptions): CompiledPath<T>`
+- `JsonPathEngine`
+- `JsonPathPlugin`
+- `JsonPathCompileResult`
+- `JsonPathAst`
+- `JsonPathEvaluationContext`
+- `JsonPathResult<T>`
 
-Pre-compiles a JSONPath expression for repeated execution.
+### 2.3 Engine Construction
 
-```typescript
-import { compile } from '@jsonpath/core';
+The core entry point is an engine factory.
 
-const findBooks = compile<Book>('$.store.books[*]');
+Conceptual API:
 
-// Reuse compiled query
-const books1 = findBooks.query(data1);
-const books2 = findBooks.query(data2);
+- `createEngine({ plugins, options })`
+  - Builds a fully configured engine.
+  - Throws if required plugin dependencies are missing or if there are capability conflicts.
 
-// Access parsed AST
-console.log(findBooks.ast);
+### 2.4 Engine Operations
 
-// Validate without executing
-const isValid = findBooks.validate(data3);
-```
+An engine supports:
 
-#### `paths(path: string, data: unknown, options?: QueryOptions): NormalizedPath[]`
+- `compile(expression, compileOptions?)` → compiled query
+- `parse(expression, parseOptions?)` → AST
 
-Returns the paths to matching nodes rather than values.
+Both synchronous and asynchronous evaluation must be available:
 
-```typescript
-import { paths } from '@jsonpath/core';
+- `evaluateSync(compiledOrAst, json, evalOptions?)` → results
+- `evaluateAsync(compiledOrAst, json, evalOptions?)` → results (async)
 
-const locations = paths('$.store.books[*].title', data);
-// => [
-//   ['$', 'store', 'books', 0, 'title'],
-//   ['$', 'store', 'books', 1, 'title']
-// ]
-```
+Notes:
 
-#### `nodes<T>(path: string, data: unknown, options?: QueryOptions): Node<T>[]`
+- Plugins may participate in synchronous evaluation, asynchronous evaluation, or both.
+- Compat packages must expose the same sync/async surface as their targeted upstream libraries.
 
-Returns both paths and values as node objects.
+Compat packages may additionally expose convenience methods like `query`, `paths`, `nodes`, etc., but those are not required in core.
 
-```typescript
-import { nodes } from '@jsonpath/core';
+### 2.5 Result Shapes
 
-interface Node<T> {
-	path: NormalizedPath;
-	value: T;
-	parent: unknown;
-	parentProperty: string | number;
-}
+Core defines neutral, feature-agnostic result structures; plugins can add result “views” (e.g., pointer, path).
 
-const results = nodes<string>('$.store.books[*].title', data);
-// => [
-//   { path: ['$', 'store', 'books', 0, 'title'], value: 'Dune', parent: {...}, parentProperty: 'title' },
-//   { path: ['$', 'store', 'books', 1, 'title'], value: '1984', parent: {...}, parentProperty: 'title' }
-// ]
-```
+At minimum, the engine must be able to represent:
 
-#### `first<T>(path: string, data: unknown, options?: QueryOptions): T | undefined`
+- `value`: selected JSON value
+- `pointer`: RFC 6901 pointer to the value (if a pointer-capable plugin is installed)
+- `path`: JSONPath string form (if a printer + path serializer plugin is installed)
+- `node`: a structured record (value + location + parent metadata)
 
-Returns only the first matching value (optimized early termination).
+Location formatting contract:
 
-```typescript
-import { first } from '@jsonpath/core';
+- When a result view is enabled, its string formatting must be exact and stable.
+- `pointer` outputs must be byte-for-byte RFC 6901-compatible.
+- `path` outputs must be byte-for-byte stable and must follow the configured printer/serializer rules.
+- For compat packages, pointer/path formatting must match the targeted upstream library exactly.
 
-const firstBook = first<Book>('$.store.books[*]', data);
-// => { title: 'Dune', price: 12.99 }
-```
+### 2.6 Errors
 
-#### `exists(path: string, data: unknown, options?: QueryOptions): boolean`
+All public APIs must throw detailed errors on failures.
 
-Tests if any matches exist (optimized for existence checks).
+Requirements:
 
-```typescript
-import { exists } from '@jsonpath/core';
+- Errors must be thrown as `Error` instances.
+- Errors must include a human-readable message.
+- Errors should carry a stable machine-readable identifier (e.g., `name` and/or `code`).
+- Errors should include contextual metadata where available:
+  - Expression
+  - Input option snapshot (sanitized)
+  - Pointer/path location (when relevant)
+  - Parse location (line/column/offset) when applicable
+  - Plugin identifier(s) involved
+  - Underlying cause (via `cause`) where supported
 
-if (exists('$.store.books[?@.price < 5]', data)) {
-	console.log('Bargain books available!');
-}
-```
+Compat requirement:
 
-#### `count(path: string, data: unknown, options?: QueryOptions): number`
-
-Returns the count of matching nodes (optimized to avoid collecting results).
-
-```typescript
-import { count } from '@jsonpath/core';
-
-const bookCount = count('$.store.books[*]', data);
-// => 2
-```
-
-### 2.2 Options Interface
-
-```typescript
-interface QueryOptions {
-	// Execution mode
-	strict?: boolean; // Throw on invalid paths (default: false)
-	maxDepth?: number; // Maximum recursion depth (default: 100)
-	maxResults?: number; // Limit result count (default: Infinity)
-	timeout?: number; // Execution timeout in ms (default: none)
-
-	// Extensions
-	functions?: FunctionRegistry; // Custom functions
-	extensions?: Extension[]; // Syntax extensions
-
-	// Compatibility
-	mode?: 'rfc9535' | 'goessner' | 'jsonpath-plus' | 'auto';
-
-	// Performance
-	cache?: boolean | Cache; // Enable query caching (default: true)
-
-	// Output control
-	wrap?: boolean; // Always return array (default: true)
-	flatten?: boolean; // Flatten nested results (default: false)
-}
-
-interface CompileOptions extends QueryOptions {
-	// Additional compile-time options
-	validate?: boolean; // Validate syntax on compile (default: true)
-	optimize?: boolean; // Apply optimizations (default: true)
-}
-```
-
-### 2.3 Error Handling
-
-```typescript
-import {
-	query,
-	JSONPathError,
-	JSONPathSyntaxError,
-	JSONPathRuntimeError,
-} from '@jsonpath/core';
-
-try {
-	query('$.invalid[', data, { strict: true });
-} catch (error) {
-	if (error instanceof JSONPathSyntaxError) {
-		console.log('Syntax error at position:', error.position);
-		console.log('Expected:', error.expected);
-	} else if (error instanceof JSONPathRuntimeError) {
-		console.log('Runtime error:', error.message);
-		console.log('Path segment:', error.segment);
-	}
-}
-
-// Error types hierarchy
-class JSONPathError extends Error {
-	readonly code: string;
-	readonly path: string;
-}
-
-class JSONPathSyntaxError extends JSONPathError {
-	readonly position: number;
-	readonly line: number;
-	readonly column: number;
-	readonly expected: string[];
-	readonly found: string;
-}
-
-class JSONPathRuntimeError extends JSONPathError {
-	readonly segment: string;
-	readonly data: unknown;
-}
-
-class JSONPathSecurityError extends JSONPathError {
-	readonly violation: string;
-}
-
-class JSONPathTimeoutError extends JSONPathError {
-	readonly elapsed: number;
-}
-```
+- Compat packages must match the targeted upstream library’s error types, messages, and throw-vs-return behavior exactly.
 
 ---
 
-## 3. RFC 9535 Compliance Layer
+## 3. Plugin System
 
-### 3.1 Mandatory Syntax Support
+### 3.1 Plugin Responsibilities
 
-The core library implements all required RFC 9535 syntax:
+A `@jsonpath/plugin-*` package may provide one or more of:
 
-| Syntax             | Description                     | Example            |
-| ------------------ | ------------------------------- | ------------------ |
-| `$`                | Root identifier                 | `$`                |
-| `@`                | Current node (in filters)       | `[?@.price > 10]`  |
-| `.name`            | Child member (dot notation)     | `$.store`          |
-| `['name']`         | Child member (bracket notation) | `$['store']`       |
-| `[index]`          | Array index                     | `$[0]`             |
-| `[-index]`         | Negative array index            | `$[-1]`            |
-| `[start:end:step]` | Array slice                     | `$[0:10:2]`        |
-| `[*]`              | Wildcard (all children)         | `$.store[*]`       |
-| `..`               | Recursive descent               | `$..title`         |
-| `[?expr]`          | Filter expression               | `$[?@.price < 10]` |
-| `[a, b]`           | Union (multiple selectors)      | `$[0, 2, 4]`       |
+- Lexer contributions (tokens, tokenization rules)
+- Parser contributions (productions, precedence rules)
+- AST node factories (node types defined in `@jsonpath/ast`)
+- Evaluator contributions (evaluation semantics for node types)
+- Function libraries (callable functions exposed in JSONPath)
+- Filter expression evaluators (including sandboxed expressions)
+- Result type adapters (value/path/pointer/node/parent etc.)
 
-### 3.2 Required Functions
+Plugin extensibility requirement:
 
-All five RFC 9535 mandatory functions are implemented:
+- Plugins must be able to hook into core functionality to provide additional functionality broadly (within the constraints of deterministic composition and declared capabilities).
+- Core must provide stable, documented extension points so plugins can add functionality at any stage, including engine creation/config validation, compile/parse, evaluation (sync and/or async), result shaping/serialization, and diagnostic/error enrichment.
 
-```typescript
-// length() - Returns length of string, array, or object
-query('$.books[?length(@.title) > 10]', data);
+### 3.2 Capability Model
 
-// count() - Returns number of nodes in nodelist
-query('$.stores[?count(@.books) > 5]', data);
+Plugins must declare a machine-readable list of capabilities.
 
-// match() - Full string match against I-Regexp
-query('$.books[?match(@.isbn, "^978-")]', data);
+Examples:
 
-// search() - Partial string match against I-Regexp
-query('$.books[?search(@.description, "classic")]', data);
+- `grammar:rfc9535`
+- `filter:comparison`
+- `filter:regex`
+- `result:pointer`
+- `result:parent`
+- `mutation:patch`
+- `validate`
 
-// value() - Extract single value from nodelist
-query('$.books[?value(@.ratings[0]) > 4]', data);
-```
+Core uses capabilities for:
 
-### 3.3 I-Regexp Support (RFC 9485)
+- Conflict detection (two plugins claiming the same exclusive capability)
+- Compatibility presets (ensuring required capabilities are installed)
+- Security policy enforcement (e.g., scripts require explicit enabling)
 
-Regular expressions use the I-Regexp subset for cross-platform portability:
+### 3.3 Dependency Model
 
-```typescript
-import { iregexp } from '@jsonpath/core';
+Plugins may declare:
 
-// Validate I-Regexp pattern
-const valid = iregexp.validate('^[a-z]+$');
+- Hard dependencies (must be present)
+- Optional dependencies (enhanced behavior if present)
+- Peer dependencies (external libraries such as `ses` or Ajv)
 
-// Convert JavaScript RegExp to I-Regexp (best effort)
-const pattern = iregexp.fromRegExp(/^hello\s+world$/i);
+### 3.4 Determinism and Ordering
 
-// Supported I-Regexp features:
-// - Character classes: [abc], [^abc], [a-z]
-// - Predefined classes: \d, \D, \s, \S, \w, \W
-// - Anchors: ^, $
-// - Quantifiers: *, +, ?, {n}, {n,}, {n,m}
-// - Alternation: |
-// - Grouping: ()
-// - Escape sequences: \., \\, etc.
-```
+Plugins must be composed deterministically.
 
-### 3.4 Comparison Operators
+Rules:
 
-```typescript
-// Equality
-query('$[?@.status == "active"]', data); // Equal
-query('$[?@.status != "deleted"]', data); // Not equal
+- Explicit plugin order must be preserved where precedence matters.
+- In the absence of explicit order, plugins must be ordered by a stable key (e.g., plugin id).
+- Parse/eval results must not depend on non-deterministic iteration.
 
-// Relational
-query('$[?@.price < 100]', data); // Less than
-query('$[?@.price <= 100]', data); // Less than or equal
-query('$[?@.price > 50]', data); // Greater than
-query('$[?@.price >= 50]', data); // Greater than or equal
+### 3.5 Configuration
 
-// Logical
-query('$[?@.active && @.verified]', data); // AND
-query('$[?@.admin || @.moderator]', data); // OR
-query('$[?!@.deleted]', data); // NOT
+Plugins must have explicit configuration surfaces.
 
-// Existence
-query('$[?@.email]', data); // Property exists and is truthy
-```
+Core must support per-engine plugin config via:
 
-### 3.5 Compliance Test Suite
-
-The library passes the complete JSONPath Compliance Test Suite:
-
-```typescript
-import { compliance } from '@jsonpath/core';
-
-// Run compliance tests
-const results = await compliance.runSuite();
-console.log(`Passed: ${results.passed}/${results.total}`);
-
-// Verify specific test
-const test = compliance.verify('$.store.books[?@.price < 10]', data, expected);
-```
+- `engineOptions.plugins[pluginId] = { ... }`
 
 ---
 
-## 4. Extension System
+## 4. Official RFC 9535 Plugin
 
-### 4.1 Plugin Architecture
+### 4.1 Package
 
-Extensions are first-class citizens with a well-defined interface:
+`@jsonpath/plugin-rfc-9535` provides full RFC 9535 parsing and evaluation semantics.
 
-```typescript
-interface Extension {
-	name: string;
-	version: string;
+Constraint:
 
-	// Grammar extensions
-	selectors?: SelectorDefinition[];
-	operators?: OperatorDefinition[];
-	functions?: FunctionDefinition[];
+- **All** RFC 9535 features must be implemented inside this plugin (or its internal dependencies that are also plugins).
 
-	// Lifecycle hooks
-	beforeParse?(input: string): string;
-	afterParse?(ast: AST): AST;
-	beforeExecute?(ast: AST, data: unknown): void;
-	afterExecute?(results: unknown[]): unknown[];
+### 4.2 Included Features
 
-	// Visitor pattern for custom traversal
-	visitor?: ASTVisitor;
-}
-```
+This plugin bundles all RFC 9535-defined selectors and expressions, including (high-level):
 
-### 4.2 Registering Extensions
+- Root selector
+- Current node selector
+- Child member selector
+- Array index selector
+- Wildcard selector
+- Union selector
+- Descendant selector (recursive)
+- Filter selector as defined by RFC 9535 (non-script)
+- RFC-defined functions
 
-```typescript
-import { createEngine } from '@jsonpath/core';
-import { parentSelector, typeSelectors } from '@jsonpath/extensions';
+### 4.3 Preset
 
-// Create engine with extensions
-const engine = createEngine({
-	extensions: [parentSelector, typeSelectors],
-});
+For convenience, the RFC plugin may export a preset helper (still “just wiring”):
 
-// Use extended syntax
-const parents = engine.query('$.books[*].author^', data); // Parent selector
-const strings = engine.query('$..@string()', data); // Type selector
-```
-
-### 4.3 Custom Function Extensions
-
-```typescript
-import { defineFunction, registerFunctions } from '@jsonpath/core';
-
-// Define a custom function
-const lowercase = defineFunction({
-	name: 'lowercase',
-	signature: '(string) -> string',
-	implementation: (value: string) => value.toLowerCase(),
-	pure: true, // Enable caching
-});
-
-// Define function with nodelist parameter
-const sum = defineFunction({
-	name: 'sum',
-	signature: '(nodelist) -> number',
-	implementation: (nodes: number[]) => nodes.reduce((a, b) => a + b, 0),
-	pure: true,
-});
-
-// Register and use
-const engine = createEngine({
-	functions: registerFunctions([lowercase, sum]),
-});
-
-engine.query('$.items[?lowercase(@.category) == "books"]', data);
-engine.query('$.orders[?sum(@.items[*].price) > 100]', data);
-```
-
-### 4.4 Custom Selector Extensions
-
-```typescript
-import { defineSelector } from '@jsonpath/core';
-
-// Parent selector (from jsonpath-plus)
-const parentSelector = defineSelector({
-	name: 'parent',
-	token: '^',
-	position: 'postfix',
-
-	parse(parser) {
-		return { type: 'ParentSelector' };
-	},
-
-	execute(node, context) {
-		return context.parent ? [context.parent] : [];
-	},
-});
-
-// Property name selector (from jsonpath-plus)
-const propertyNameSelector = defineSelector({
-	name: 'propertyName',
-	token: '~',
-	position: 'postfix',
-
-	parse(parser) {
-		return { type: 'PropertyNameSelector' };
-	},
-
-	execute(node, context) {
-		return [context.parentProperty];
-	},
-});
-```
-
-### 4.5 Custom Operator Extensions
-
-```typescript
-import { defineOperator } from '@jsonpath/core';
-
-// Regular expression match operator
-const regexMatch = defineOperator({
-	name: 'regexMatch',
-	symbol: '=~',
-	precedence: 6,
-	associativity: 'left',
-
-	evaluate(left: string, right: string) {
-		return new RegExp(right).test(left);
-	},
-});
-
-// Contains operator
-const contains = defineOperator({
-	name: 'contains',
-	symbol: 'contains',
-	precedence: 6,
-	associativity: 'left',
-
-	evaluate(left: unknown[], right: unknown) {
-		return Array.isArray(left) && left.includes(right);
-	},
-});
-```
-
-### 4.6 Grammar Extension API
-
-For advanced use cases, extend the grammar directly:
-
-```typescript
-import { extendGrammar, Grammar } from '@jsonpath/core';
-
-const customGrammar = extendGrammar((grammar: Grammar) => {
-	// Add new token
-	grammar.addToken('SPREAD', /\.\.\./, 'spread');
-
-	// Add production rule
-	grammar.addRule(
-		'spreadSelector',
-		['SPREAD', 'memberExpression'],
-		(_, expr) => ({
-			type: 'SpreadSelector',
-			expression: expr,
-		}),
-	);
-
-	// Modify existing rule
-	grammar.modifyRule('selector', (original) =>
-		grammar.choice(original, grammar.ref('spreadSelector')),
-	);
-
-	return grammar;
-});
-
-const engine = createEngine({ grammar: customGrammar });
-```
-
-### 4.7 Official Extensions Package
-
-The `@jsonpath/extensions` package provides battle-tested extensions:
-
-```typescript
-import {
-	// Selectors
-	parentSelector, // ^  - Parent node
-	propertyNameSelector, // ~  - Property name
-	rootParentSelector, // ^^ - Root parent
-
-	// Type selectors
-	typeSelectors, // @string(), @number(), @boolean(), @array(), @object(), @null()
-
-	// Functions
-	stringFunctions, // uppercase(), lowercase(), trim(), substring(), concat()
-	mathFunctions, // abs(), ceil(), floor(), round(), min(), max(), avg()
-	arrayFunctions, // first(), last(), reverse(), sort(), unique(), flatten()
-	objectFunctions, // keys(), values(), entries(), has(), get()
-	dateFunctions, // now(), date(), year(), month(), day()
-
-	// Operators
-	regexOperators, // =~, !~
-	containsOperators, // in, contains, startsWith, endsWith
-
-	// Bundles
-	jsonpathPlusCompat, // All jsonpath-plus extensions
-	fullExtensions, // Everything
-} from '@jsonpath/extensions';
-```
+- `createRfc9535Engine()` which internally calls `createEngine({ plugins: [pluginRfc9535, ...minimalResultPlugins] })`.
 
 ---
 
-## 5. Legacy Compatibility
+## 5. Compatibility Packages
 
-### 5.1 Compatibility Modes
+### 5.1 Compatibility Philosophy
 
-```typescript
-import { createEngine } from '@jsonpath/core';
-import { legacyMode } from '@jsonpath/legacy';
+Compatibility is expressed as drop-in, API-identical packages:
 
-// Auto-detect mode from syntax
-const autoEngine = createEngine({ mode: 'auto' });
+- No “legacy” umbrella.
+- Each compat package targets a specific public API and semantics.
+- Each compat package must be validated by rigorous tests (see Testing & Compliance).
 
-// Force specific compatibility mode
-const goessnerEngine = createEngine({
-	mode: 'goessner',
-	extensions: [legacyMode.goessner],
-});
+Targeting policy (latest upstream):
 
-const jsonpathPlusEngine = createEngine({
-	mode: 'jsonpath-plus',
-	extensions: [legacyMode.jsonpathPlus],
-});
-```
+- Each compat package release must target the latest released upstream version available at the time the compat package is published.
+- Each compat package release must pin (and test against) that exact upstream version.
+- “Latest” is evaluated at publish time; it is not a floating runtime dependency.
 
-### 5.2 Goessner Script Expressions (Sandboxed)
+### 5.2 @jsonpath/compat-jsonpath (dchester/jsonpath)
 
-Original Goessner syntax allowed JavaScript expressions. We support this securely:
+Target API surface:
 
-```typescript
-import { enableScriptExpressions } from '@jsonpath/legacy';
+- `query(obj, expr, count?)`
+- `paths(obj, expr, count?)`
+- `nodes(obj, expr, count?)`
+- `value(obj, expr, newValue?)`
+- `parent(obj, expr)`
+- `apply(obj, expr, fn)`
+- `parse(expr)`
+- `stringify(pathArray)`
 
-const engine = createEngine({
-	extensions: [
-		enableScriptExpressions({
-			// Sandbox configuration
-			allowedGlobals: ['Math', 'Date', 'JSON'],
-			maxExecutionTime: 100, // ms
-			maxMemory: 10 * 1024 * 1024, // 10MB
-			forbiddenPatterns: [/eval/, /Function/, /import/, /require/],
-		}),
-	],
-});
+Drop-in requirement:
 
-// Now supports legacy script expressions securely
-engine.query('$.books[(@.length-1)]', data); // Last element
-engine.query('$.books[?(@.price < 10)]', data); // Filter
-engine.query('$.books[?(@.author.match(/tolkien/i))]', data); // Regex
-```
+- This package must be a true 1:1 drop-in replacement for the targeted upstream `jsonpath` release.
+- Users must be able to change only the import path (to `@jsonpath/compat-jsonpath`) and make no other code or configuration changes.
 
-### 5.3 Migration Adapters
+Must-match behavior:
 
-Drop-in replacement adapters for existing libraries:
+| Area               | Requirement                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------- |
+| Exports            | Named exports and call signatures must match the target API                                     |
+| Result ordering    | Output ordering must match the target library                                                   |
+| `query`            | Must match values returned and how many results are returned                                    |
+| `paths`            | Must match path format and ordering                                                             |
+| `nodes`            | Must match node record shape and ordering                                                       |
+| `value`            | Must match getter/setter behavior (including whether it targets the first match or all matches) |
+| `parent`           | Must match which parent is returned and how “root” is handled                                   |
+| `apply`            | Must match which nodes are transformed and how callback results are applied                     |
+| Parse errors       | Must match error categories for invalid expressions                                             |
+| Filter expressions | Must match accepted expression subset and semantics used by the target library                  |
 
-```typescript
-// Replace jsonpath (dchester)
-import { JSONPath } from '@jsonpath/legacy/jsonpath';
-const result = JSONPath.query(data, '$.store.books[*]');
-const paths = JSONPath.paths(data, '$.store.books[*]');
-const nodes = JSONPath.nodes(data, '$.store.books[*]');
-const applied = JSONPath.apply(data, '$.store.books[*].price', (v) => v * 0.9);
+Implementation constraints:
 
-// Replace jsonpath-plus
-import { JSONPath } from '@jsonpath/legacy/jsonpath-plus';
-const result = JSONPath({
-	path: '$.store.books[*]',
-	json: data,
-	resultType: 'value',
-	wrap: true,
-});
+- Must be backed by a `@jsonpath/core` engine configured with the minimum plugins required to match behavior.
+- If the target library uses restricted expression evaluation, compat must match that behavior.
+- If SES is used internally to implement the expression subset, compat must not broaden what expressions can do.
 
-// Replace json-p3
-import { JSONPathEnvironment } from '@jsonpath/legacy/json-p3';
-const env = new JSONPathEnvironment();
-const result = env.findall('$.store.books[*]', data);
-```
+### 5.3 @jsonpath/compat-jsonpath-plus (jsonpath-plus)
 
-### 5.4 Syntax Normalization
+Target API surface:
 
-Convert between syntax variants:
+- `JSONPath({ path, json, ...options })` callable
+- Options including `resultType`, `wrap`, and other well-known flags
 
-```typescript
-import { normalize, convert } from '@jsonpath/legacy';
+Drop-in requirement:
 
-// Normalize any syntax to RFC 9535
-const rfc = normalize("$['store']['books'][*]", { to: 'rfc9535' });
-// => '$.store.books[*]'
+- This package must be a true 1:1 drop-in replacement for the targeted `jsonpath-plus` release.
+- Users must be able to change only the import path (to `@jsonpath/compat-jsonpath-plus`) and make no other code or configuration changes.
+- Defaults, option names, option defaults, output formats, error behavior, and supported extensions must match how the targeted upstream library behaves out of the box.
+- The compat package must implement **every** upstream option and flag supported by the targeted upstream version (including undocumented options, quirks, and edge-case behaviors).
 
-// Convert between syntaxes
-const goessner = convert('$.books[?@.price < 10]', {
-	from: 'rfc9535',
-	to: 'goessner',
-});
-// => '$.books[?(@.price < 10)]'
-```
+Target version and defaults:
 
----
+- The compat package must explicitly target a specific upstream `jsonpath-plus` version.
+- The compat test harness must run the same corpus against that exact upstream version and assert behavioral equivalence.
+- Any divergence from upstream defaults is forbidden; if a behavior needs to differ, it must be released as a different compat target (new package or a versioned compat profile).
 
-## 6. Mutation API
+Option-surface requirement:
 
-### 6.1 Mutable Queries
+- The compat package must accept the complete upstream options object shape.
+- Unknown properties must be handled exactly as the upstream library handles them (ignore vs warn vs throw).
 
-```typescript
-import { mutate } from '@jsonpath/mutate';
+Notable compatibility expectations:
 
-const data = {
-	store: {
-		books: [
-			{ title: 'Dune', price: 12.99 },
-			{ title: '1984', price: 9.99 },
-		],
-	},
-};
+- Support for `resultType` variants common in the ecosystem, including pointer-oriented outputs.
+- Support for compatibility selectors/extensions if they are part of the targeted API behavior.
 
-// Set values at matched paths
-mutate.set(data, '$.store.books[*].price', 14.99);
+Must-match behavior:
 
-// Update with function
-mutate.update(data, '$.store.books[*].price', (price) => price * 1.1);
+| Area                    | Requirement                                                                        |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| Callable                | `JSONPath(options)` shape must match target (accepts `path` and `json`)            |
+| Options surface         | Must accept and honor every upstream option/flag supported by the targeted version |
+| `resultType`            | Must match supported `resultType` values and output formats                        |
+| `wrap`                  | Must match wrapping behavior for single vs multiple results                        |
+| `flatten`               | If supported by the target API, must match flattening behavior                     |
+| Pointer outputs         | When `resultType` implies pointers, pointers must be RFC 6901-compatible           |
+| Parent outputs          | If compat advertises parent/parentProperty outputs, they must match exactly        |
+| Eval / sandbox controls | Must match the target’s evaluation enable/disable behavior and error modes         |
+| `ignoreEvalErrors`      | Must match whether eval failures throw vs drop matches                             |
+| Result ordering         | Must match target ordering and stability                                           |
 
-// Delete matched nodes
-mutate.delete(data, '$.store.books[?@.price > 15]');
+Notes:
 
-// Insert into arrays
-mutate.insert(data, '$.store.books', { title: 'New Book', price: 19.99 });
+- If the targeted `jsonpath-plus` release ships with particular extensions enabled by default, `@jsonpath/compat-jsonpath-plus` must include them by default.
+- If the targeted `jsonpath-plus` release ships with a particular script evaluation policy by default, `@jsonpath/compat-jsonpath-plus` must match it (while still enforcing SES isolation).
 
-// Rename properties
-mutate.rename(data, '$.store.books[*].title', 'name');
-```
+Minimum internal composition:
 
-### 6.2 Immutable Operations
+- `@jsonpath/plugin-rfc-9535` (baseline)
+- `@jsonpath/plugin-result-types` (or equivalent per-result plugins)
 
-```typescript
-import { immutable } from '@jsonpath/mutate';
+Conditional composition:
 
-// Returns new object, original unchanged
-const newData = immutable.set(data, '$.store.books[0].price', 15.99);
-console.log(data.store.books[0].price); // 12.99 (unchanged)
-console.log(newData.store.books[0].price); // 15.99
+- `@jsonpath/plugin-script-expressions` must be included/enabled if (and only if) the targeted upstream `jsonpath-plus` behavior requires it by default.
+- Plugins for `jsonpath-plus` extensions must be included/enabled if (and only if) the targeted upstream `jsonpath-plus` behavior includes them by default.
 
-// Structural sharing for efficiency
-console.log(data.store.books[1] === newData.store.books[1]); // true
-```
+#### Compat feature coverage matrix
 
-### 6.3 Batch Operations
+This matrix defines what `@jsonpath/compat-jsonpath-plus` is expected to wire by default for a true drop-in replacement of the targeted `jsonpath-plus` release.
 
-```typescript
-import { batch } from '@jsonpath/mutate';
+| Feature / Syntax                                     | Plugin(s)                                                    | Coverage                | Notes                                                                                     |
+| ---------------------------------------------------- | ------------------------------------------------------------ | ----------------------- | ----------------------------------------------------------------------------------------- |
+| RFC 9535 baseline                                    | `@jsonpath/plugin-rfc-9535`                                  | Required                | Required for all queries                                                                  |
+| Result types (`value`, `path`, `pointer`, node-like) | `@jsonpath/plugin-result-types` (or per-result plugins)      | Required                | Must match `resultType` outputs and formatting                                            |
+| Pointer outputs                                      | `@jsonpath/plugin-result-pointer`                            | Required                | Required if the compat package advertises `pointer` resultType                            |
+| Script evaluation in filters                         | `@jsonpath/plugin-script-expressions`                        | Required (per upstream) | Must match upstream defaults; evaluation must still be SES-isolated per Compartment       |
+| Parent selector (`^`)                                | `@jsonpath/plugin-parent-selector`                           | Required (per upstream) | Must match upstream defaults and semantics                                                |
+| Property-name selector (`~`)                         | `@jsonpath/plugin-property-name-selector`                    | Required (per upstream) | Must match upstream defaults and semantics                                                |
+| Type selectors (`@string()`, etc.)                   | `@jsonpath/plugin-type-selectors`                            | Required (per upstream) | Must match upstream defaults and semantics                                                |
+| I-Regexp regex semantics                             | `@jsonpath/plugin-iregexp` + `@jsonpath/plugin-filter-regex` | Optional                | Include if the compat contract includes regex-match operators and their precise semantics |
 
-// Apply multiple mutations atomically
-const result = batch(data)
-	.set('$.store.name', 'Updated Store')
-	.update('$.store.books[*].price', (p) => p * 0.9)
-	.delete('$.store.books[?@.outOfStock]')
-	.insert('$.store.books', newBook)
-	.commit(); // Returns mutated data
+### 5.4 Compatibility Test Contract
 
-// Transactional with rollback
-const transaction = batch(data).beginTransaction();
-try {
-	transaction.set('$.critical.value', newValue);
-	transaction.commit();
-} catch (error) {
-	transaction.rollback();
-}
-```
+Each compat package must provide:
 
-### 6.4 Mutation Selectors
+- A test suite that asserts:
+  - API shape (exports and signatures)
+  - Behavior equivalence across a shared test corpus
+  - Stable output ordering rules (when the target library specifies them)
 
-```typescript
-import { MutationSelector } from '@jsonpath/mutate';
+Recommended additions:
 
-// Create reusable mutation selector
-const priceUpdater = new MutationSelector('$.store.books[*].price');
-
-// Apply to multiple documents
-priceUpdater.update(data1, (p) => p * 1.1);
-priceUpdater.update(data2, (p) => p * 1.1);
-
-// Chain operations
-priceUpdater
-	.filter((p) => p > 10)
-	.update((p) => p * 0.9)
-	.apply(data);
-```
+- A conformance harness that can run the same corpus against the upstream library and the compat package.
+- Snapshot tests for path/pointer formatting.
 
 ---
 
-## 7. Security Model
+## 6. Script Expressions (SES)
 
-### 7.1 Sandboxed Expression Evaluation
+### 6.1 Package
 
-Instead of `eval()`, expressions execute in a secure sandbox:
+`@jsonpath/plugin-script-expressions` enables script-based expressions in filter selectors.
 
-```typescript
-import { Sandbox } from '@jsonpath/core';
+Constraint:
 
-// Default sandbox configuration
-const defaultSandbox = new Sandbox({
-	// Execution limits
-	maxExecutionTime: 1000, // 1 second timeout
-	maxIterations: 100000, // Prevent infinite loops
-	maxRecursionDepth: 100, // Stack overflow protection
-	maxMemory: 50 * 1024 * 1024, // 50MB memory limit
+- This capability must be **opt-in** and must not be bundled in `@jsonpath/plugin-rfc-9535`.
 
-	// Allowed operations
-	allowedOperators: [
-		'+',
-		'-',
-		'*',
-		'/',
-		'%',
-		'**',
-		'==',
-		'!=',
-		'<',
-		'>',
-		'<=',
-		'>=',
-		'&&',
-		'||',
-		'!',
-	],
-	allowedFunctions: ['length', 'count', 'match', 'search', 'value'],
+### 6.2 Security Baseline
 
-	// Blocked patterns
-	blockedPatterns: [
-		/constructor/i,
-		/__proto__/i,
-		/prototype/i,
-		/eval/i,
-		/Function/i,
-	],
+Script evaluation must be sandboxed using `ses`.
 
-	// Context isolation
-	isolateContext: true, // Each execution gets fresh context
-	freezeInputs: true, // Prevent prototype pollution
-});
-```
+Required primitives:
 
-### 7.2 Prototype Pollution Prevention
+- `lockdown()` to harden intrinsics
+- `Compartment` for isolated evaluation
+- `harden()` for deep-freezing endowments and shared objects
 
-```typescript
-import { query, SecurityLevel } from '@jsonpath/core';
+Best-practice requirement:
 
-// Strict security mode (default)
-query('$.__proto__.polluted', data); // Throws JSONPathSecurityError
-query('$.constructor.prototype', data); // Throws JSONPathSecurityError
+- The implementation must follow current SES best practices for hardening.
+- `lockdown()` should be applied once per process/realm (as early as practical) and treated as an idempotent, global hardening step.
+- Each evaluation must run inside a fresh `Compartment` (compartment-per-evaluation) with explicit, hardened endowments.
 
-// Security levels
-const engine = createEngine({
-	security: SecurityLevel.STRICT, // Default: blocks all prototype access
-	// or SecurityLevel.STANDARD      // Blocks writes, allows reads
-	// or SecurityLevel.PERMISSIVE    // Legacy mode (not recommended)
-});
-```
+### 6.3 Execution Model
 
-### 7.3 Content Security Policy Compliance
+The plugin must support:
 
-```typescript
-import { query, CSPMode } from '@jsonpath/core';
+- Compartment-per-evaluation (required)
+- Explicit endowments only (no ambient globals)
+- A strict policy for what data the script can access:
+  - Current value
+  - Root
+  - Parent (if available)
+  - Path/pointer metadata (if installed)
 
-// Full CSP compliance (no dynamic code generation)
-const engine = createEngine({
-	csp: CSPMode.STRICT,
-});
+### 6.4 Policy and Configuration
 
-// The library never uses:
-// - eval()
-// - new Function()
-// - setTimeout/setInterval with strings
-// - document.write()
-// - innerHTML with user content
-```
+The plugin must expose configuration for:
 
-### 7.4 Input Validation
+- Allowed endowments
+- Timeout/cancellation strategy (where supported by environment)
+- Error handling mode (throw vs ignore-eval-errors)
 
-```typescript
-import { validate, sanitize } from '@jsonpath/core';
+Non-goals:
 
-// Validate path syntax before execution
-const validation = validate('$.store.books[*]');
-if (!validation.valid) {
-	console.log(validation.errors);
-}
-
-// Sanitize untrusted paths
-const safePath = sanitize(userProvidedPath, {
-	allowRecursive: false, // Disable .. to prevent DoS
-	allowFilters: false, // Disable filters for safety
-	maxLength: 500, // Limit path length
-	allowedSegments: /^[a-zA-Z0-9_]+$/, // Whitelist characters
-});
-```
-
-### 7.5 Audit Logging
-
-```typescript
-import { createEngine, AuditLogger } from '@jsonpath/core';
-
-const engine = createEngine({
-	audit: new AuditLogger({
-		logQueries: true,
-		logMutations: true,
-		onSecurityEvent(event) {
-			console.warn('Security event:', event);
-			// Send to monitoring system
-		},
-	}),
-});
-```
+- The plugin is not required to be “perfectly safe” in every JS runtime, but must follow SES best practices and document environment caveats.
 
 ---
 
-## 8. Performance Features
+## 7. Mutation (Pointer + Patch)
 
-### 8.1 Query Compilation and Caching
+### 7.1 Philosophy
 
-```typescript
-import { compile, createCache } from '@jsonpath/core';
+Mutation is expressed as:
 
-// Compile for repeated use
-const compiled = compile('$.store.books[?@.price < 10]');
+1. **Selection** using JSONPath (querying targets)
+2. **Addressing** using JSON Pointer (RFC 6901)
+3. **Application** using JSON Patch semantics (RFC 6902) or pointer-directed `set`/`remove`
 
-// Execute multiple times efficiently
-const result1 = compiled.query(data1);
-const result2 = compiled.query(data2);
+This avoids “mystery mutation” and provides auditable, testable changes.
 
-// Custom cache configuration
-const engine = createEngine({
-	cache: createCache({
-		maxSize: 1000, // Maximum cached queries
-		ttl: 60 * 60 * 1000, // 1 hour TTL
-		strategy: 'lru', // LRU eviction
-	}),
-});
-```
+### 7.2 @jsonpath/mutate
 
-### 8.2 Multi-Query Optimization
+`@jsonpath/mutate` provides ergonomic mutation APIs, but must remain pointer/patch-backed.
 
-Execute multiple queries in a single document traversal (inspired by nimma):
+Core requirements:
 
-```typescript
-import { multiQuery, createQuerySet } from '@jsonpath/core';
+- Must be able to produce stable pointers for selected nodes (requires a pointer-capable result plugin).
+- Must apply changes via:
+  - `@jsonpath/pointer` for direct set/remove operations, and/or
+  - `@jsonpath/patch` for RFC 6902 operations
 
-// Execute multiple queries efficiently
-const results = multiQuery(data, [
-	'$.store.books[*].title',
-	'$.store.books[*].author',
-	'$.store.books[?@.price > 10]',
-	'$..isbn',
-]);
-// Returns Map<path, results[]>
+Recommended operations:
 
-// Create reusable query set
-const bookQueries = createQuerySet([
-	{ name: 'titles', path: '$.store.books[*].title' },
-	{ name: 'authors', path: '$.store.books[*].author' },
-	{ name: 'expensive', path: '$.store.books[?@.price > 20]' },
-]);
+- `set(json, jsonPath, value)`
+- `remove(json, jsonPath)`
+- `replace(json, jsonPath, value)`
+- `applyPatch(json, patch)`
+- `diff(before, after)` (optional)
 
-// Execute all queries in single traversal
-const analysis = bookQueries.execute(data);
-console.log(analysis.titles); // ['Dune', '1984']
-console.log(analysis.authors); // ['Herbert', 'Orwell']
-console.log(analysis.expensive); // [...]
-```
+Mutation targeting requirement:
 
-### 8.3 Lazy Evaluation
+- `set` / `remove` / `replace` must apply to **all** JSONPath matches.
+- If callers want a narrower effect, they must provide a more specific selector.
 
-```typescript
-import { lazyQuery } from '@jsonpath/core';
+Ordering note:
 
-// Returns iterator, doesn't materialize all results
-const iterator = lazyQuery('$..book', massiveData);
+- The API does not guarantee a specific application order for multiple matches.
+- Implementations should still apply mutations deterministically (but the exact order is not part of the public contract).
 
-// Process results one at a time
-for (const book of iterator) {
-	if (shouldStop(book)) break; // Early termination
-}
+### 7.3 Prototype Pollution Hardening
 
-// Take only what you need
-const firstFive = [...take(iterator, 5)];
-```
+Mutation and patch application must implement prototype-pollution mitigations.
 
-### 8.4 Streaming Support
+Minimum requirement:
 
-```typescript
-import { streamQuery } from '@jsonpath/core';
-
-// Process large files without loading entirely into memory
-const stream = createReadStream('huge-file.json');
-const results = await streamQuery('$.records[*].id', stream);
-
-// With backpressure handling
-const processor = streamQuery('$.items[*]', stream, {
-	highWaterMark: 1000,
-	onMatch(item) {
-		return processItem(item); // Can return Promise
-	},
-});
-```
-
-### 8.5 WebAssembly Acceleration
-
-```typescript
-import { createEngine } from '@jsonpath/core';
-import { wasmAccelerator } from '@jsonpath/wasm';
-
-// Use WASM for compute-intensive operations
-const engine = createEngine({
-	accelerator: wasmAccelerator({
-		// Threshold for using WASM (data size in bytes)
-		threshold: 100 * 1024, // 100KB
-		// Operations to accelerate
-		operations: ['recursive', 'filter', 'sort'],
-	}),
-});
-```
-
-### 8.6 Benchmarking Utilities
-
-```typescript
-import { benchmark, profile } from '@jsonpath/core';
-
-// Benchmark query performance
-const stats = benchmark('$.store.books[?@.price < 10]', data, {
-	iterations: 1000,
-	warmup: 100,
-});
-
-console.log(`Mean: ${stats.mean}ms`);
-console.log(`P95: ${stats.p95}ms`);
-console.log(`Ops/sec: ${stats.opsPerSecond}`);
-
-// Profile query execution
-const profile = profile('$..author', data);
-console.log(profile.parseTime);
-console.log(profile.executeTime);
-console.log(profile.nodesVisited);
-console.log(profile.matchesFound);
-```
+- Reject or safely short-circuit pointer tokens that would traverse or assign to `__proto__`, `constructor`, or `prototype`.
 
 ---
 
-## 9. TypeScript Integration
+## 8. Validation Ecosystem
 
-### 9.1 Generic Type Inference
+### 8.1 @jsonpath/plugin-validate
 
-```typescript
-import { query, compile } from '@jsonpath/core';
+This plugin orchestrates validation of values selected by JSONPath.
 
-interface Book {
-	title: string;
-	author: string;
-	price: number;
-	isbn?: string;
-}
+It must support:
 
-interface Store {
-	store: {
-		name: string;
-		books: Book[];
-	};
-}
+- Validating each selected value
+- Emitting structured validation results (errors with location metadata)
+- Optional “fail-fast” behavior
+- Optional “annotate results” behavior
+
+Schema strictness requirement:
+
+- Validation must follow the strictness of the provided schema.
+- If the schema allows unknown properties, validation must pass those unknown properties.
+- If the schema disallows unknown properties, validation must fail when unknown properties are present.
+- Validator adapters must not silently “loosen” or “tighten” unknown-property behavior beyond what the schema/validator specifies.
+
+### 8.2 Validator Interface
+
+Validator adapters must implement a common interface (conceptual):
+
+- `validate(value, context) -> { ok: true } | { ok: false, issues: Issue[] }`
+
+Where `context` includes:
+
+- JSON Pointer to value (if available)
+- JSONPath string/path array (if available)
+- Root/parent metadata (if available)
+- Engine/plugin metadata
+
+### 8.3 Adapter Packages
+
+Required adapters (initial):
+
+- `@jsonpath/validator-json-schema`
+  - Uses a JSON Schema validator (e.g., Ajv) for runtime validation.
+- `@jsonpath/validator-zod`
+  - Uses Zod schemas for runtime validation.
+- `@jsonpath/validator-yup`
+  - Uses Yup schemas for runtime validation.
+
+Adapter requirements:
+
+- Do not leak validator-specific error formats; map to the common `Issue` shape.
+- Support caching compiled validators where applicable.
+
+---
+
+## 9. Security Model
+
+### 9.1 Secure Defaults
+
+Defaults must prioritize safety:
+
+- No script evaluation unless `@jsonpath/plugin-script-expressions` is installed and enabled by the chosen engine/compat profile
+- No mutation unless `@jsonpath/mutate` is used
+- Prototype pollution mitigations enabled by default in pointer/patch/mutation packages
+
+Compat packages exception:
+
+- Compat packages must still match their targeted upstream behavior out of the box.
+- If an upstream library evaluates scripts by default, the compat package may enable script evaluation by default, but must do so only via SES and with compartment-per-evaluation isolation.
+
+### 9.2 Capability-Gated Risk
+
+Capabilities that increase risk must be discoverable and configurable:
+
+- `filter:script`
+- `mutation:*`
+
+Engines and compat packages must be able to expose a “security profile” describing which risky capabilities are active.
+
+---
+
+## 10. Performance Features
+
+### 10.1 Compilation and Caching
+
+The framework must support:
+
+- Precompiling expressions to AST
+- Caching compiled representations
+- Re-using compiled queries across many documents
+
+### 10.2 Multi-Query Optimization (Optional)
+
+The ecosystem may provide an optional plugin or package that can evaluate multiple compiled expressions in a single traversal (inspired by callback-based engines in the ecosystem).
+
+Constraints:
+
+- Any reordering or changed match semantics must be explicit and tested.
+
+---
+
+## 11. TypeScript Integration
+
+### 11.1 Goals
+
+- Provide a typed engine API
+- Provide typed result shapes
+- Allow validators to narrow result types (when using TS-first validators)
+
+### 11.2 Result Typing
+
+At minimum:
+
+- `evaluateSync<TOut = unknown>(...)` and `evaluateAsync<TOut = unknown>(...)` should allow callers to type the output where they have external knowledge.
+- Validator adapters may optionally expose helpers that infer types from schemas.
+
+---
+
+## 12. CLI Interface (JSON Config Only)
+
+### 12.1 Package
+
+```
+@jsonpath/cli
+```
+
+### 12.2 Configuration Format
+
+CLI configuration must be JSON only.
+
+Allowed examples:
+
+- `jsonpath.config.json`
+- `.jsonpathrc.json`
+
+Disallowed:
+
+- YAML
+- TOML
+
+### 12.3 Configuration Shape (Conceptual)
+
+The config must support specifying:
+
+- Engine preset (e.g., RFC 9535)
+- Plugin list and plugin options
+- Query expression(s)
+- Result type formatting
+- Optional validation and mutation steps
+
+The exact schema is an implementation detail, but must remain JSON.
+
+### 12.4 CLI Behavior (Best Practices)
+
+The CLI must follow common CLI best practices:
+
+- Inputs: accept JSON from stdin and/or a file path; explicit CLI args must take precedence over implicit stdin.
+- Outputs: write results to stdout and diagnostics/errors to stderr.
+- Defaults: default output should be machine-readable JSON.
+- Exit codes: return `0` on success; return non-zero on failure (parse errors, invalid config, validation failures, or mutation failures).
+
+Validation integration:
+
+- Validation is applied to each match individually (not to the entire result set), unless a specific CLI mode explicitly documents otherwise.
+
+---
+
+## 13. Related Standards Support
+
+The ecosystem explicitly targets:
+
+- RFC 9535 (JSONPath)
+- RFC 6901 (JSON Pointer)
+- RFC 6902 (JSON Patch)
+- RFC 9485 (I-Regexp)
+
+---
+
+## 14. Testing & Compliance
+
+### 14.1 RFC 9535 Compliance
+
+`@jsonpath/plugin-rfc-9535` must be verified against:
+
+- RFC 9535 test vectors (where available)
+- A maintained conformance suite living in the repo
+
+### 14.2 Compatibility Testing
+
+Compat packages must be validated by:
+
+- A shared test corpus of JSON documents and queries
+- Fixture-based snapshots
+- Property-based testing for critical invariants (optional)
+- Regression tests imported or adapted from target libraries (where feasible)
+
+### 14.3 Security Regression Tests
+
+At minimum:
+
+- Tests asserting prototype pollution is prevented in mutation/patch application
+- Tests asserting scripts are disabled unless explicitly enabled
+
+---
+
+## 15. Migration Guides
+
+Migration is expressed as “choose a compat package”:
+
+- From `jsonpath` (dchester): use `@jsonpath/compat-jsonpath`
+- From `jsonpath-plus`: use `@jsonpath/compat-jsonpath-plus`
+
+For users who can migrate to standards-first behavior directly:
+
+- Use `@jsonpath/plugin-rfc-9535` with a minimal engine preset
+
+---
+
+## 16. Appendices
+
+### Appendix A: Official Plugin Inventory (One Feature per Plugin)
+
+This is the official published plugin list.
+
+Rules:
+
+- `@jsonpath/plugin-rfc-9535` is a bundle that depends on the RFC feature plugins below.
+- RFC feature behavior must live in the feature plugins, not in `@jsonpath/plugin-rfc-9535` itself.
+- Non-RFC behavior must not be pulled into `@jsonpath/plugin-rfc-9535`.
+- Every `@jsonpath/*` package must be published.
+
+#### A.1 RFC 9535 Syntax Plugins
+
+```
+@jsonpath/plugin-syntax-root                 # `$`
+@jsonpath/plugin-syntax-current              # `@`
+@jsonpath/plugin-syntax-child-member         # `.name` and `['name']`
+@jsonpath/plugin-syntax-child-index          # `[0]`
+@jsonpath/plugin-syntax-wildcard             # `*`
+@jsonpath/plugin-syntax-union                # union selectors
+@jsonpath/plugin-syntax-descendant           # `..`
+@jsonpath/plugin-syntax-filter               # filter selector form
+```
+
+#### A.2 RFC 9535 Filter Semantics Plugins (Non-Script)
+
+```
+@jsonpath/plugin-filter-literals             # string/number/boolean/null literals
+@jsonpath/plugin-filter-comparison           # comparison operators as defined by RFC bundle
+@jsonpath/plugin-filter-boolean              # boolean operators as defined by RFC bundle
+@jsonpath/plugin-filter-existence            # existence/truthiness rules (where RFC-defined)
+@jsonpath/plugin-filter-functions            # calling RFC-defined functions in filters
+@jsonpath/plugin-filter-regex                # regex operator wiring (paired with iregexp plugin)
+```
+
+Note:
+
+- Script evaluation is intentionally excluded here and is provided by `@jsonpath/plugin-script-expressions`.
+
+#### A.3 RFC 9535 Functions Plugins
+
+RFC function support must be delivered as plugins.
+
+Minimum:
+
+```
+@jsonpath/plugin-functions-core              # RFC-defined core function set
+```
+
+If the RFC function set is large, split by domain:
+
+```
+@jsonpath/plugin-functions-strings
+@jsonpath/plugin-functions-numbers
+@jsonpath/plugin-functions-arrays
+@jsonpath/plugin-functions-objects
+```
+
+#### A.4 Result and Location Plugins
+
+Result “views” are plugins so that compat packages can select exactly what they need.
+
+```
+@jsonpath/plugin-result-value                # values
+@jsonpath/plugin-result-node                 # node records (value + metadata)
+@jsonpath/plugin-result-path                 # JSONPath string serialization
+@jsonpath/plugin-result-pointer              # JSON Pointer serialization (RFC 6901)
+@jsonpath/plugin-result-parent               # parent/parentProperty outputs (where supported)
+@jsonpath/plugin-result-types                # convenience aggregator for result plugins
+```
+
+#### A.5 Standards-Adjacent Plugins
+
+```
+@jsonpath/plugin-iregexp                     # RFC 9485 I-Regexp
+```
+
+#### A.6 Security and Tooling Plugins
+
+```
+@jsonpath/plugin-script-expressions          # SES-based script evaluation
+@jsonpath/plugin-validate                    # validation orchestration
+```
+
+#### A.7 Non-RFC Extension Plugins (Optional)
+
+These are intentionally not part of the RFC bundle.
+
+```
+@jsonpath/plugin-parent-selector
+@jsonpath/plugin-property-name-selector
+@jsonpath/plugin-type-selectors
+```
+
+### Appendix B: Terminology
+
+- **Engine**: A configured instance of `@jsonpath/core` with a set of plugins.
+- **Plugin**: A package contributing grammar, semantics, results, or tooling.
+- **Compat package**: A drop-in API replacement for an existing library.
+  store: {
+  name: string;
+  books: Book[];
+  };
+  }
 
 // Type-safe queries
 const titles = query<string>('$.store.books[*].title', data);
@@ -1079,7 +917,8 @@ const books = query<Book>('$.store.books[*]', data);
 const findBooks = compile<Book, Store>('$.store.books[*]');
 const result = findBooks.query(storeData);
 // Type: Book[]
-```
+
+````
 
 ### 9.2 Path Type Safety (Experimental)
 
@@ -1099,7 +938,7 @@ const titles = bookPath.query(data);
 
 // Invalid paths caught at compile time
 const invalid = path.store.invalid; // TypeScript error!
-```
+````
 
 ### 9.3 Result Type Guards
 

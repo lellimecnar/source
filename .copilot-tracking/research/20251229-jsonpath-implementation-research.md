@@ -12,6 +12,13 @@
 - vitest.config.ts
   - Root Vitest uses `test.projects` globs to run per-workspace `vitest.config.ts` files (packages, card-stack, ui-spec, web).
 
+- turbo.json
+  - Pipeline ground truth:
+    - `build` depends on `^build`, outputs `dist/**` and `.next/**` (excluding `.next/cache/**`), and includes `.env*` in task inputs.
+    - `test` outputs `coverage/**`.
+    - `test:coverage`/`test:ci` depend on `^build` and include `vitest.config.*`/`vite.config.*` in task inputs.
+    - `dev` and `test:watch` are persistent and not cached.
+
 - scripts/node/verify-dist-exports.mjs
   - Validates that any `package.json` `main`, `types`, and `exports` targets pointing at `./dist/*` actually exist on disk; used by root script `verify:exports`.
 
@@ -47,10 +54,37 @@
   - `postbuild` copies `bin/` into `dist/bin/` to satisfy the bin entry.
 
 - packages/ui-spec/core/src/bindings/jsonpath.ts
-  - Existing JSON traversal utilities:
-    - JSONPath read helper based on `jsonpath-plus`.
-    - JSONPath “pointer” enumeration (via `resultType: 'pointer'`).
-    - JSON Pointer get/set/remove helpers with `~0`/`~1` decoding.
+  - Existing JSON traversal utilities (repo-local behavioral contract):
+    - `readJsonPath(json, path, { evalMode })` uses `jsonpath-plus` `JSONPath` with `{ wrap: true, eval: evalMode ?? 'safe' }`.
+      - Return shape: `[]` -> `undefined`; `[x]` -> `x`; `[..., many]` -> array.
+    - `findJsonPathPointers(json, path, { evalMode })` uses `resultType: 'pointer'` and returns a string[] (or `[]`).
+    - JSON Pointer helpers:
+      - `getByJsonPointer(root, pointer)`: `''` and `'/'` return root.
+      - `setByJsonPointer(root, pointer, value)`: forbids setting `''`/`'/'` (returns `{ ok:false }`); traverses object/array containers; sets `current[last] = value`.
+      - `removeByJsonPointer(root, pointer)`: forbids removing `''`/`'/'` (returns `{ ok:false }`); array removal uses `splice(index, 1)` when last segment is numeric; otherwise deletes object property.
+
+- packages/ui-spec/core/src/store/store.ts
+  - Store semantics relevant to JSONPath mutation design:
+    - Reads delegate to `readJsonPath(data, path, { evalMode })`.
+    - Writes are pointer-backed: `findJsonPathPointers(data, path)` then apply per pointer.
+    - Write result accounting:
+      - `matched` is number of pointers.
+      - `changed` increments per pointer when `!Object.is(before, after)`.
+      - `errors` collects `{ path, pointer, message }` for failed pointer ops.
+    - Ensures top-level reference changes for “external-store semantics” by cloning via `JSON.parse(JSON.stringify(data))` when data is a plain object or array.
+    - Supports batching (`batch`, `transaction`) to defer notifications.
+
+- specs/jsonpath.md
+  - Product constraints to align future `@jsonpath/*` work:
+    - Plugin-first ecosystem; `@jsonpath/core` is framework-only.
+    - RFC 9535 behavior bundled in `@jsonpath/plugin-rfc-9535`.
+    - Script expressions are sandboxed via `ses`.
+    - CLI config is JSON only.
+    - Mutation is pointer-backed.
+    - Validation is an ecosystem: validate plugin + validator adapters.
+
+- plans/jsonpath/plan.md
+  - Confirms grounding points used for this research note (existing `jsonpath-plus` usage + pointer approach) and flags spec contradictions to resolve.
 
 ### Code Search Results
 
@@ -63,6 +97,12 @@
 
 - viteNodeConfig\(|@lellimecnar/vite-config/node
   - Matches in many packages’ `vite.config.ts`, including card-stack, utils, ui-spec packages, and polymix (shared pattern).
+
+- readJsonPath\(|findJsonPathPointers\(|getByJsonPointer\(|setByJsonPointer\(|removeByJsonPointer\(
+  - Verified in: `packages/ui-spec/core/src/bindings/jsonpath.ts` and used by `packages/ui-spec/core/src/store/store.ts`.
+
+- JSON\.parse\(JSON\.stringify\(
+  - Verified in `packages/ui-spec/core/src/store/store.ts` to force top-level reference updates after pointer writes.
 
 ### External Research
 
@@ -84,30 +124,42 @@
 - #fetch:https://vitest.dev/config/projects.html#projects
   - `projects` is an array of project configurations (default `[]`), each representing a Vitest project.
 
-- #fetch:https://github.com/qmhc/unplugin-dts
-  - `vite-plugin-dts` is the legacy Vite-only package; the project recommends `unplugin-dts` going forward.
-  - The plugin supports `entryRoot`, `outDir`, and `tsconfigPath`; `entryRoot` is called out as useful for monorepos.
+- #fetch:https://www.rfc-editor.org/rfc/rfc9535
+  - Execution semantics:
+    - A valid query produces a nodelist; an empty nodelist is a valid result.
+    - Segment results are concatenated in input nodelist order; duplicate nodes are not removed.
+    - “A syntactically valid segment MUST NOT produce errors when executing the query.”
+  - Validity vs runtime mismatch:
+    - Implementations MUST raise an error for queries that are not well-formed and valid (validity includes I-JSON integer range and well-typed function usage).
+    - No additional well-formedness/validity errors are raised during application to a value; mismatches generally yield empty results.
+  - Security:
+    - Avoid delegating to programming language `eval()`; implement full syntax directly.
+    - Mitigate DoS vectors from expensive queries and naive recursion.
+    - Validate/escape variables when forming queries.
 
-- #fetch:https://drager.github.io/wasm-pack/book/commands/build.html
-  - `wasm-pack build` generates a `pkg` directory by default; supports `--out-dir`, `--out-name`.
-  - `--target` customizes JS output and wasm loading; includes targets `bundler` (default), `nodejs`, `web`, `no-modules`, `deno`.
+- #fetch:https://ajv.js.org/api.html
+  - `ajv.compile(schema)` returns a validating function with `validate.errors` populated on failure.
+  - Ajv error objects include `instancePath` (JSON Pointer), `schemaPath`, `params`, and optional `message`.
+  - `ajv.errorsText(errors, { separator, dataVar })` formats errors for display.
 
-- #fetch:https://drager.github.io/wasm-pack/book/commands/new.html
-  - `wasm-pack new <name>` creates a project using `cargo-generate`, supports `--template` and `--mode`.
+- #fetch:https://zod.dev/?id=basic-usage
+  - `.parse()` returns typed data on success and throws `ZodError` on failure.
+  - `ZodError.issues` provides structured issue info (including `path`, `code`, and `message`).
+  - `.safeParse()` returns a discriminated union `{ success: boolean, data? , error? }`.
 
-- #fetch:https://drager.github.io/wasm-pack/book/commands/test.html
-  - `wasm-pack test` can run tests across environments (node and browsers), supports `--headless`.
+- #fetch:https://www.npmjs.com/package/jsonpath-plus
+  - Options relevant to repo usage:
+    - `wrap` controls array wrapping behavior.
+    - `resultType` supports returning `pointer`.
+    - `eval` supports `'safe'`, `'native'`, and `false`, plus custom evaluators and sandboxing (`sandbox`).
 
-- #fetch:https://drager.github.io/wasm-pack/book/commands/pack-and-publish.html
-  - `pack`/`publish` operate on the `pkg` directory; `pack` creates a tarball and `publish` publishes to npm; uses `npm pack`/`npm publish` under the hood; supports `publish --tag`.
-
-- #fetch:https://rustwasm.github.io/docs/wasm-pack/
-  - Confirms rustwasm.github.io domain docs are no longer maintained and directs readers to drager.github.io.
+- #fetch:https://github.com/dchester/jsonpath#readme
+  - Script expressions are “statically evaluated” via `static-eval`, limiting scope and side effects.
 
 - #fetch:https://github.com/endojs/endo/blob/master/packages/ses/README.md
-  - SES introduces `lockdown()` to tamper-proof intrinsics and reduce cross-program interference.
-  - `harden()` recursively freezes an object graph surface.
-  - `Compartment` provides a separate evaluation environment with its own `globalThis` and module system.
+  - SES introduces `lockdown()` (tamper-proofs intrinsics) and `harden()` (deep freezes object graphs).
+  - `Compartment` provides isolated globals with controlled endowments.
+  - Docs include caveats relevant for sandbox designs (e.g., avoid sharing mutable endowments; reentrancy considerations).
 
 ### Project Conventions
 
@@ -122,6 +174,9 @@
 - Tests are configured per package, aggregated from root via `vitest.config.ts` using `test.projects` globs.
 - Published packages rely on `package.json` `exports` pointing into `./dist/*`, and the repo enforces that with `scripts/node/verify-dist-exports.mjs`.
 - CLI packages use `bin` pointing to `dist/bin/*` and copy runtime bin shims into dist in `postbuild`.
+- Turborepo pipeline constraints matter for future `@jsonpath/*` packages:
+  - `build` produces `dist/**`; `test` produces `coverage/**`.
+  - `test:ci`/`test:coverage` depend on upstream `^build`.
 
 ### Implementation Patterns
 
@@ -137,9 +192,14 @@
   - Shared config entry-point: `@lellimecnar/vitest-config` and its browser variants.
   - Coverage is configured in the shared base config (monorepo-wide behavior).
 
-- **JSON traversal utilities already exist**
-  - `packages/ui-spec/core/src/bindings/jsonpath.ts` provides a ready-made set of JSONPath + JSON Pointer utilities.
-  - JSONPath uses `jsonpath-plus` with configurable `eval` mode (`safe` by default).
+- **Repo-local JSONPath read/write contract (already in use)**
+  - Reads: `readJsonPath` normalizes `jsonpath-plus` results into `undefined | value | value[]`.
+  - Selection-to-mutation bridge: `findJsonPathPointers` (`resultType: 'pointer'`) + JSON Pointer get/set/remove.
+  - Store writes iterate pointers and report `{ matched, changed, errors }`, then deep-clone to force a top-level reference change.
+
+- **Standards constraints that may differ from existing libraries**
+  - RFC 9535 explicitly requires that syntactically valid segments do not throw during execution; instead, many mismatches yield empty results.
+  - Result ordering can be non-deterministic in some cases (especially involving objects), so conformance tests must avoid asserting strict ordering unless guaranteed.
 
 ### Complete Examples
 
@@ -244,14 +304,26 @@ Build any new JSONPath-focused library/CLI in this monorepo by following the est
 - Generate types into `dist/` with `vite-plugin-dts` configured with `entryRoot: 'src'` and `outDir: 'dist'` (matching existing packages).
 - Externalize all runtime deps (and peers) using the existing pattern: treat `node:` builtins as external and externalize `dependencies` + `peerDependencies` including deep imports.
 - If a CLI is needed, keep the runtime shim under `bin/` and copy it into `dist/bin` during `postbuild`, with `package.json` `bin` pointing to `./dist/bin/<name>.js`.
-- Reuse the existing JSONPath + JSON Pointer helpers in `packages/ui-spec/core/src/bindings/jsonpath.ts` as the starting point for JSON traversal behavior (it already supports:
-  - JSONPath evaluation with `jsonpath-plus`;
-  - pointer discovery via JSONPath resultType `pointer`;
-  - pointer get/set/remove utilities).
+- Treat the repo’s existing JSONPath + pointer-backed mutation behavior as a compatibility anchor:
+  - `readJsonPath` return shaping (`undefined` vs scalar vs array) is already relied upon.
+  - Pointer helpers explicitly forbid root mutation (`''`/`'/'`) and define array removal as `splice`.
+  - Store writes already define how to count `matched`/`changed` and how to surface errors.
+
+- For the future `@jsonpath/*` implementation work (per specs/jsonpath.md), plan the engine around RFC 9535 constraints:
+  - Separate query validity errors (must throw) from runtime mismatches (typically empty nodelists).
+  - Avoid `eval()`-based implementations; treat script expressions as an opt-in feature and sandbox them.
+  - Treat DoS risks (expensive queries, naive recursion) as a first-class design concern.
 
 ## Implementation Guidance
 
-- **Objectives**: Provide JSONPath evaluation and/or pointer-based traversal that matches repo conventions for packaging, exports, tests, and generated types.
-- **Key Tasks**: Create package scaffold with Vite config matching preserveModules + dts; add `exports` → `./dist/*`; wire Vitest config (project-level) into root projects glob; run export verification via `pnpm verify:exports`.
-- **Dependencies**: `@lellimecnar/vite-config` (node/browser), `@lellimecnar/vitest-config`, `vite-plugin-dts`, and any JSONPath runtime library (existing usage suggests `jsonpath-plus`).
-- **Success Criteria**: `vite build` outputs correct `dist/` structure; `verify:exports` passes; `vitest` runs under root `test.projects`; types are emitted to `dist/` and referenced by `package.json`.
+- **Objectives**: Produce a plugin-first JSONPath ecosystem aligned to specs/jsonpath.md while preserving repo conventions (dist-based exports, Vitest projects, Turbo pipeline) and grounding behavior in existing ui-spec semantics.
+- **Key Tasks**:
+  - Codify the existing ui-spec JSONPath/pointer/store contracts as explicit “expected behavior” for any new compat packages.
+  - Use RFC 9535 semantics and security guidance as the primary correctness baseline for the RFC plugin bundle.
+  - Design validator adapters around real-world error shapes (Ajv `instancePath` is JSON Pointer; Zod provides `issues` with `path`).
+  - Keep mutation pointer-backed and explicitly forbid root mutation (match existing behavior).
+- **Dependencies**: `@lellimecnar/vite-config` (node/browser), `@lellimecnar/vitest-config`, `jsonpath-plus` (for compatibility baseline) and `ses` (for sandbox plugin), plus validator libraries (Ajv, Zod) for adapters.
+- **Success Criteria**:
+  - New packages build to `dist/**` and pass `verify:exports`.
+  - Tests run under root `test.projects` and conform to Turbo `test`/`test:ci`/`test:coverage` conventions.
+  - RFC 9535 conformance tests pass with correct error-vs-empty-result behavior.
