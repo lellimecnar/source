@@ -1,1 +1,7 @@
-export const __package = '@jsonpath/pointer';
+export {
+	ForbiddenPointerSegments,
+	assertNotForbiddenSegment,
+} from './forbidden';
+export { parsePointer } from './parse';
+export { getByPointer } from './get';
+export { setByPointer, removeByPointer } from './mutate';

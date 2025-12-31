@@ -560,9 +560,9 @@ completes: step 18 of 30 for jsonpath
 
 #### Step 19: JSON Pointer package (`@jsonpath/pointer`) with hardening
 
-- [ ] Implement pointer parse/get/set/remove with forbidden segments `__proto__`, `prototype`, `constructor`.
-- [ ] Add unit tests covering forbidden segment rejection.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Implement pointer parse/get/set/remove with forbidden segments `__proto__`, `prototype`, `constructor`.
+- [x] Add unit tests covering forbidden segment rejection.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-19-pointer.cjs
@@ -570,7 +570,7 @@ node scripts/jsonpath/step-19-pointer.cjs
 
 ##### Step 19 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
 
 #### Step 19 STOP & COMMIT
 
