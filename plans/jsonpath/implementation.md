@@ -92,8 +92,8 @@ completes: step 3 of 30 for jsonpath
 
 #### Step 4: Implement `@jsonpath/ast` (feature-agnostic AST nodes + visitors)
 
-- [ ] Create AST node types and visitor helpers.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Create AST node types and visitor helpers.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-04-ast.cjs
@@ -101,7 +101,7 @@ node scripts/jsonpath/step-04-ast.cjs
 
 ##### Step 4 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/ast` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/ast` succeeds.
 
 #### Step 4 STOP & COMMIT
 
