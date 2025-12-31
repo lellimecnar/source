@@ -298,8 +298,8 @@ completes: PR-D step 1 of 5 for jsonpath-rfc9535
 
 #### Step 2: C20 — Enforce well-typedness for functions + comparisons
 
-- [ ] Reject comparisons where either operand is a LogicalType (notably `match(...)` / `search(...)`).
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/parser.ts`:
+- [x] Reject comparisons where either operand is a LogicalType (notably `match(...)` / `search(...)`).
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/parser.ts`:
 
 ```diff
 *** Begin Patch
@@ -338,8 +338,8 @@ completes: PR-D step 1 of 5 for jsonpath-rfc9535
 *** End Patch
 ```
 
-- [ ] Add parse-time tests for the RFC examples mentioned in the plan.
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/index.spec.ts`:
+- [x] Add parse-time tests for the RFC examples mentioned in the plan.
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/index.spec.ts`:
 
 ```diff
 *** Begin Patch
@@ -394,7 +394,7 @@ completes: PR-D step 1 of 5 for jsonpath-rfc9535
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-syntax-root test`
+- [x] `pnpm --filter @jsonpath/plugin-syntax-root test`
 
 #### Step 2 STOP & COMMIT
 

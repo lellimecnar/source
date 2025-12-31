@@ -160,4 +160,44 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 			'Invalid function identifier',
 		);
 	});
+
+	it('accepts length(@) as well-typed', () => {
+		const engine = createEngine({
+			plugins: [createSyntaxRootPlugin()],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+				},
+			},
+		});
+		expect(() => engine.parse('$[?length(@) == 1]')).not.toThrow();
+	});
+
+	it('rejects length(@.*) as not well-typed (ValueType requires singular query)', () => {
+		const engine = createEngine({
+			plugins: [createSyntaxRootPlugin()],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+				},
+			},
+		});
+		expect(() => engine.parse('$[?length(@.*) == 1]')).toThrow(
+			'Singular query in filter comparison',
+		);
+	});
+
+	it('rejects match(...) == true as not well-typed (LogicalType is not comparable)', () => {
+		const engine = createEngine({
+			plugins: [createSyntaxRootPlugin()],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+				},
+			},
+		});
+		expect(() =>
+			engine.parse("$[?match(@.date, '1974-05-..') == true]"),
+		).toThrow('Not well-typed: match()/search()');
+	});
 });

@@ -176,6 +176,25 @@ function parseFilterComparison(ctx: ParserContext, profile: Profile): any {
 		ctx.tokens.next();
 		const operator = t.lexeme as any;
 		const right = parseFilterPrimary(ctx, profile, true);
+		// RFC well-typedness: comparisons require comparable ValueType operands.
+		if (left?.kind === 'FilterExpr:FunctionCall') {
+			if (left.name === 'match' || left.name === 'search') {
+				syntaxError(
+					ctx,
+					t.offset,
+					'Not well-typed: match()/search() return LogicalType and cannot be used in comparisons',
+				);
+			}
+		}
+		if (right?.kind === 'FilterExpr:FunctionCall') {
+			if (right.name === 'match' || right.name === 'search') {
+				syntaxError(
+					ctx,
+					t.offset,
+					'Not well-typed: match()/search() return LogicalType and cannot be used in comparisons',
+				);
+			}
+		}
 		return filterCompare(operator, left, right);
 	}
 	return left;
