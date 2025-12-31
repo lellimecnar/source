@@ -7,6 +7,7 @@ import {
 	filterNot,
 	filterOr,
 	filterSelector,
+	filterFunctionCall,
 	indexSelector,
 	nameSelector,
 	path,
@@ -210,6 +211,12 @@ function parseFilterPrimary(
 		if (tok.lexeme === 'true') return filterLiteral(true);
 		if (tok.lexeme === 'false') return filterLiteral(false);
 		if (tok.lexeme === 'null') return filterLiteral(null);
+
+		const next = ctx.tokens.peek();
+		if (next?.kind === TokenKinds.LParen) {
+			return parseFunctionCall(ctx, profile, tok.lexeme, tok.offset);
+		}
+
 		syntaxError(
 			ctx,
 			tok.offset,
@@ -222,6 +229,94 @@ function parseFilterPrimary(
 	}
 
 	syntaxError(ctx, t.offset, `Unexpected token in filter: ${t.kind}`);
+}
+
+type FunctionArgType = 'Value' | 'Nodes';
+type FunctionReturnType = 'Value' | 'Logical';
+
+const rfcFunctionSignatures: Record<
+	string,
+	{ args: readonly FunctionArgType[]; returns: FunctionReturnType }
+> = {
+	length: { args: ['Value'], returns: 'Value' },
+	count: { args: ['Nodes'], returns: 'Value' },
+	match: { args: ['Value', 'Value'], returns: 'Logical' },
+	search: { args: ['Value', 'Value'], returns: 'Logical' },
+	value: { args: ['Nodes'], returns: 'Value' },
+};
+
+function isValidRfcFunctionIdentifier(name: string): boolean {
+	return /^[a-z][a-z0-9_]*$/.test(name);
+}
+
+function parseFunctionArg(
+	ctx: ParserContext,
+	profile: Profile,
+	expected: FunctionArgType,
+): any {
+	const expr =
+		expected === 'Value'
+			? parseFilterPrimary(ctx, profile, true)
+			: parseFilterPrimary(ctx, profile, false);
+
+	if (expected === 'Nodes' && expr.kind !== 'FilterExpr:EmbeddedQuery') {
+		const off = ctx.tokens.peek()?.offset ?? ctx.input.length;
+		syntaxError(
+			ctx,
+			off,
+			'Not well-typed: expected a NodesType argument (an embedded query) for this function',
+		);
+	}
+
+	return expr;
+}
+
+function parseFunctionCall(
+	ctx: ParserContext,
+	profile: Profile,
+	name: string,
+	offset: number,
+): any {
+	// PR-D contract: functions are only enabled for rfc9535-full.
+	if (profile !== 'rfc9535-full') {
+		syntaxError(
+			ctx,
+			offset,
+			'Function expressions are not supported in this profile',
+		);
+	}
+
+	if (!isValidRfcFunctionIdentifier(name)) {
+		syntaxError(ctx, offset, `Invalid function identifier (RFC 9535): ${name}`);
+	}
+
+	const sig = rfcFunctionSignatures[name];
+	if (!sig) {
+		syntaxError(ctx, offset, `Unknown RFC 9535 function: ${name}`);
+	}
+
+	expect(ctx, TokenKinds.LParen);
+	const args: any[] = [];
+
+	if (sig.args.length > 0) {
+		args.push(parseFunctionArg(ctx, profile, sig.args[0]!));
+		for (let i = 1; i < sig.args.length; i++) {
+			expect(ctx, TokenKinds.Comma);
+			args.push(parseFunctionArg(ctx, profile, sig.args[i]!));
+		}
+	}
+
+	// No extra args.
+	if (ctx.tokens.peek()?.kind === TokenKinds.Comma) {
+		syntaxError(
+			ctx,
+			ctx.tokens.peek()!.offset,
+			`Too many arguments for ${name}()`,
+		);
+	}
+
+	expect(ctx, TokenKinds.RParen);
+	return filterFunctionCall(name, args);
 }
 
 function isSingularQuery(segments: any[]): boolean {

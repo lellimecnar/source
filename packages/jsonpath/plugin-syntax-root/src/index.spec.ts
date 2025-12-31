@@ -127,4 +127,37 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 		expect(compare.left.singular).toBe(true);
 		expect(compare.right.kind).toBe('FilterExpr:Literal');
 	});
+
+	it('parses RFC function calls in filters (rfc9535-full)', () => {
+		const engine = createEngine({
+			plugins: [createSyntaxRootPlugin()],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+				},
+			},
+		});
+		const ast = engine.parse('$[?length(@.authors) >= 5]');
+		const selector = (ast.segments[0] as any).selectors[0];
+		expect(selector.kind).toBe('Selector:Filter');
+		const compare = selector.expr;
+		expect(compare.kind).toBe('FilterExpr:Compare');
+		expect(compare.left.kind).toBe('FilterExpr:FunctionCall');
+		expect(compare.left.name).toBe('length');
+		expect(compare.left.args[0].kind).toBe('FilterExpr:EmbeddedQuery');
+	});
+
+	it('rejects invalid RFC function identifiers', () => {
+		const engine = createEngine({
+			plugins: [createSyntaxRootPlugin()],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+				},
+			},
+		});
+		expect(() => engine.parse('$[?Length(@)]')).toThrow(
+			'Invalid function identifier',
+		);
+	});
 });

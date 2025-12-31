@@ -19,6 +19,7 @@ export const FilterExprKinds = {
 	Compare: 'FilterExpr:Compare',
 	Literal: 'FilterExpr:Literal',
 	EmbeddedQuery: 'FilterExpr:EmbeddedQuery',
+	FunctionCall: 'FilterExpr:FunctionCall',
 } as const;
 
 export type NameSelectorNode = AstNodeBase<(typeof SelectorKinds)['Name']> & {
@@ -81,13 +82,21 @@ export type EmbeddedQueryNode = AstNodeBase<
 	singular: boolean;
 };
 
+export type FilterFunctionCallNode = AstNodeBase<
+	(typeof FilterExprKinds)['FunctionCall']
+> & {
+	name: string;
+	args: FilterExprNode[];
+};
+
 export type FilterExprNode =
 	| FilterOrNode
 	| FilterAndNode
 	| FilterNotNode
 	| FilterCompareNode
 	| FilterLiteralNode
-	| EmbeddedQueryNode;
+	| EmbeddedQueryNode
+	| FilterFunctionCallNode;
 
 export type SelectorNode =
 	| NameSelectorNode
@@ -192,4 +201,11 @@ export function embeddedQuery(
 	singular = false,
 ): EmbeddedQueryNode {
 	return { kind: FilterExprKinds.EmbeddedQuery, scope, segments, singular };
+}
+
+export function filterFunctionCall(
+	name: string,
+	args: FilterExprNode[],
+): FilterFunctionCallNode {
+	return { kind: FilterExprKinds.FunctionCall, name, args };
 }

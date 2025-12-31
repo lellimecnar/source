@@ -277,8 +277,8 @@ pnpm --filter @lellimecnar/jsonpath-conformance test
 
 ##### Step 1 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/ast test`
-- [ ] `pnpm --filter @jsonpath/plugin-syntax-root test`
+- [x] `pnpm --filter @jsonpath/ast test`
+- [x] `pnpm --filter @jsonpath/plugin-syntax-root test`
 
 #### Step 1 STOP & COMMIT
 
