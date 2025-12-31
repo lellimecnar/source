@@ -142,8 +142,8 @@ completes: step 5 of 30 for jsonpath
 
 #### Step 6: Implement `@jsonpath/parser` (feature-agnostic + Pratt utilities)
 
-- [ ] Add minimal parser context and Pratt operator registration primitives.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Add minimal parser context and Pratt operator registration primitives.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-06-parser.cjs
@@ -151,7 +151,7 @@ node scripts/jsonpath/step-06-parser.cjs
 
 ##### Step 6 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/parser` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/parser` succeeds.
 
 #### Step 6 STOP & COMMIT
 

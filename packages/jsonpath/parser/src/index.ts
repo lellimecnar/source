@@ -1,1 +1,3 @@
-export const __package = '@jsonpath/parser';
+export * from './context';
+export * from './parser';
+export * from './pratt/types';
