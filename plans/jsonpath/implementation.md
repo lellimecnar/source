@@ -756,17 +756,17 @@ completes: step 24 of 30 for jsonpath
 
 #### Step 25: Compatibility packages (initial delegation shims)
 
-- [ ] Implement `@jsonpath/compat-jsonpath` delegating to `jsonpath`.
-- [ ] Implement `@jsonpath/compat-jsonpath-plus` delegating to `jsonpath-plus`.
-- [ ] Add unit tests for both.
-- [ ] Add required third-party deps:
+- [x] Implement `@jsonpath/compat-jsonpath` delegating to `jsonpath`.
+- [x] Implement `@jsonpath/compat-jsonpath-plus` delegating to `jsonpath-plus`.
+- [x] Add unit tests for both.
+- [x] Add required third-party deps:
 
 ```bash
 pnpm --filter @jsonpath/compat-jsonpath add jsonpath
 pnpm --filter @jsonpath/compat-jsonpath-plus add jsonpath-plus
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-25-compat-shims.cjs
@@ -774,7 +774,7 @@ node scripts/jsonpath/step-25-compat-shims.cjs
 
 ##### Step 25 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter="@jsonpath/compat-*" -- --passWithNoTests` succeeds.
+- [x] `pnpm -w turbo test --filter="@jsonpath/compat-*" -- --passWithNoTests` succeeds.
 
 #### Step 25 STOP & COMMIT
 
