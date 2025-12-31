@@ -383,10 +383,10 @@ completes: step 13 of 30 for jsonpath
 
 #### Step 14: Implement minimal FunctionRegistry contract (`@jsonpath/plugin-functions-core`)
 
-- [ ] Create `src/registry.ts` containing a `FunctionRegistry` with `register(name, fn)` and `get(name)`.
-- [ ] Ensure `src/index.ts` exports `FunctionRegistry` and a wiring-only `plugin` export.
-- [ ] Add `src/index.spec.ts` validating the registry and plugin metadata.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Create `src/registry.ts` containing a `FunctionRegistry` with `register(name, fn)` and `get(name)`.
+- [x] Ensure `src/index.ts` exports `FunctionRegistry` and a wiring-only `plugin` export.
+- [x] Add `src/index.spec.ts` validating the registry and plugin metadata.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-14-functions-registry.cjs
@@ -394,7 +394,7 @@ node scripts/jsonpath/step-14-functions-registry.cjs
 
 ##### Step 14 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-functions-core` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-functions-core` succeeds.
 
 #### Step 14 STOP & COMMIT
 
