@@ -14,6 +14,49 @@ Bring the `@jsonpath` plugin ecosystem to **official RFC 9535 compliance** for:
 
 This plan is intentionally **RFC-only** (no compat behaviors, no CLI, no mutation/patch/pointer semantics unless directly needed for RFC 9535 compliance).
 
+## Delivery Model (Multiple PRs + Configurable Compliance)
+
+Full RFC 9535 compliance is large enough to deliver across **multiple PRs**, while keeping `master` green.
+To support that, RFC 9535 behavior must be **configurable** so partial implementations can be shipped without implying full compliance.
+
+### Compliance Profiles (Configurable Option)
+
+RFC 9535 support is exposed via `@jsonpath/plugin-rfc-9535` configuration at engine creation time.
+
+**Proposed config shape (conceptual):**
+
+- `createRfc9535Engine({ profile })`
+- `createEngine({ plugins, options: { plugins: { 'plugin-rfc-9535': { profile }}}})`
+
+Where `profile` selects a **capability set** and enforcement behavior:
+
+- `profile: 'rfc9535-full'`
+  - Enables all RFC 9535 grammar + semantics + function typing + normalized paths.
+  - Requires RFC 9485 I-Regexp conformance for `match()` / `search()`.
+- `profile: 'rfc9535-core'`
+  - Enables core selectors/segments (root/current, child, wildcard, union, descendant, index/slice) but may omit filters/functions/normalized paths.
+  - Unsupported syntax must fail fast with a stable `JsonPathError` code (no silent fallbacks).
+- `profile: 'rfc9535-draft'`
+  - Internal/dev profile used while implementing; may gate individual features behind flags.
+
+**Rules:**
+
+- The conformance suite must only claim “RFC 9535 compliant” when running `profile: 'rfc9535-full'`.
+- Any other profile must be explicitly described as partial, and should provide clear “feature not supported” errors.
+
+### PR Milestones (Suggested)
+
+These milestones define how to split the work across PRs:
+
+- **PR A — Framework hooks + conformance harness:** C01–C05
+- **PR B — Parse + eval core selectors (no filters/functions):** C06–C14
+- **PR C — Filters:** C15–C18
+- **PR D — Functions + typing:** C19–C25
+- **PR E — Normalized paths:** C26–C28
+- **PR F — RFC 9485 I-Regexp + match/search finalization:** C23–C24 (or merged into PR D if preferred)
+
+Exact PR boundaries can shift, but each PR must end with a meaningful, testable profile state.
+
 ## Non-Goals
 
 - Any script expression evaluation (explicitly excluded by RFC goals; exists as `@jsonpath/plugin-script-expressions`)
@@ -218,6 +261,16 @@ Missing:
   - `@jsonpath/plugin-result-path` (Normalized Paths)
   - `@jsonpath/plugin-result-types` (wiring)
 
+### Runtime (partial compliance profiles)
+
+When using a partial compliance profile (e.g., `rfc9535-core`), the minimal runtime set may omit packages that are only required for full compliance:
+
+- `@jsonpath/plugin-result-path` (only required when `Normalized Paths` are enabled)
+- `@jsonpath/plugin-functions-core` (only required when RFC functions are enabled)
+- `@jsonpath/plugin-iregexp` (only required when `match/search` are enabled)
+
+The conformance harness must run with the correct profile and only assert outputs for enabled capabilities.
+
 ### Dev/Test (not required at runtime)
 
 - `@jsonpath/conformance` (expanded corpus + vitest)
@@ -247,6 +300,12 @@ Commit numbering is intentional; each commit should be small, testable, and keep
 - Add failing tests asserting:
   - `$` returns root
   - `$.o['j j']` returns expected path/value
+
+**Config note**
+
+- Introduce `profile` selection in the harness so tests can run against:
+  - `rfc9535-draft` for incremental enablement
+  - `rfc9535-full` for the eventual compliance claim
 
 **Green**
 
@@ -312,6 +371,10 @@ Commit numbering is intentional; each commit should be small, testable, and keep
 **Refactor**
 
 - Ensure deterministic ordering uses existing plugin resolver.
+
+**Config note**
+
+- Ensure `@jsonpath/plugin-rfc-9535` can read its config (`profile` and/or feature flags) via the existing per-plugin configuration mechanism.
 
 ### C05 — Lexer: RFC token kinds + minimal scanner rules
 
