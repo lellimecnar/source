@@ -650,15 +650,15 @@ completes: step 21 of 30 for jsonpath
 
 #### Step 22: Validation orchestration plugin (`@jsonpath/plugin-validate`)
 
-- [ ] Implement a common `Issue` model and a `ValidatorAdapter` interface.
-- [ ] Implement `validateAll(values, adapter)` and add unit tests.
-- [ ] Add required workspace deps:
+- [x] Implement a common `Issue` model and a `ValidatorAdapter` interface.
+- [x] Implement `validateAll(values, adapter)` and add unit tests.
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/plugin-validate add '@jsonpath/core@workspace:*'
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-22-plugin-validate.cjs
@@ -666,7 +666,7 @@ node scripts/jsonpath/step-22-plugin-validate.cjs
 
 ##### Step 22 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-validate` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-validate` succeeds.
 
 #### Step 22 STOP & COMMIT
 
