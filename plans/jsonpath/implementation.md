@@ -527,16 +527,16 @@ completes: step 17 of 30 for jsonpath
 
 #### Step 18: SES script expressions plugin (`@jsonpath/plugin-script-expressions`) (opt-in)
 
-- [ ] Add dependency on `ses`.
-- [ ] Export `createCompartment({ endowments? })` and wiring-only `plugin`.
-- [ ] Add unit test validating a compartment can be created.
-- [ ] Add required deps:
+- [x] Add dependency on `ses`.
+- [x] Export `createCompartment({ endowments? })` and wiring-only `plugin`.
+- [x] Add unit test validating a compartment can be created.
+- [x] Add required deps:
 
 ```bash
 pnpm --filter @jsonpath/plugin-script-expressions add '@jsonpath/core@workspace:*' ses
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-18-ses-plugin.cjs
@@ -544,7 +544,7 @@ node scripts/jsonpath/step-18-ses-plugin.cjs
 
 ##### Step 18 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-script-expressions` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-script-expressions` succeeds.
 
 #### Step 18 STOP & COMMIT
 
