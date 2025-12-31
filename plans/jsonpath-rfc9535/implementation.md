@@ -1195,8 +1195,8 @@ completes: step 1 of 10 for jsonpath-rfc9535 (PR B)
 
 #### Step 2 (C07): Add RFC 9535 literal scan rules (identifier/number/string)
 
-- [ ] Add a lexer helper that tokenizes identifiers, integers, and JSONPath string literals.
-- [ ] Copy and paste code below into `packages/jsonpath/lexer/src/rfc9535-literals.ts` (new file):
+- [x] Add a lexer helper that tokenizes identifiers, integers, and JSONPath string literals.
+- [x] Copy and paste code below into `packages/jsonpath/lexer/src/rfc9535-literals.ts` (new file):
 
 ```ts
 import type { Scanner } from './scanner';
@@ -1271,8 +1271,8 @@ export function registerRfc9535LiteralScanRules(scanner: Scanner): void {
 }
 ```
 
-- [ ] Export the new helper.
-- [ ] Copy and paste code below into `packages/jsonpath/lexer/src/index.ts` (add the export):
+- [x] Export the new helper.
+- [x] Copy and paste code below into `packages/jsonpath/lexer/src/index.ts` (add the export):
 
 ```ts
 export * from './scanner';
@@ -1282,8 +1282,8 @@ export * from './rfc9535';
 export * from './rfc9535-literals';
 ```
 
-- [ ] Add lexer tests.
-- [ ] Copy and paste code below into `packages/jsonpath/lexer/src/rfc9535-literals.spec.ts` (new file):
+- [x] Add lexer tests.
+- [x] Copy and paste code below into `packages/jsonpath/lexer/src/rfc9535-literals.spec.ts` (new file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1329,7 +1329,7 @@ describe('@jsonpath/lexer rfc9535 literals', () => {
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/lexer test`
+- [x] `pnpm --filter @jsonpath/lexer test`
 
 #### Step 2 STOP & COMMIT
 
