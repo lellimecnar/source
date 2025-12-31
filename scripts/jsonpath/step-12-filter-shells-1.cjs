@@ -17,24 +17,24 @@ const repoRoot = process.cwd();
 
 const plugins = [
 	{
-		dir: 'jsonpath-plugin-filter-literals',
+		dir: 'plugin-filter-literals',
 		id: '@jsonpath/plugin-filter-literals',
 		capabilities: ['filter:rfc9535:literals'],
 	},
 	{
-		dir: 'jsonpath-plugin-filter-comparison',
+		dir: 'plugin-filter-comparison',
 		id: '@jsonpath/plugin-filter-comparison',
 		capabilities: ['filter:rfc9535:comparison'],
 	},
 	{
-		dir: 'jsonpath-plugin-filter-boolean',
+		dir: 'plugin-filter-boolean',
 		id: '@jsonpath/plugin-filter-boolean',
 		capabilities: ['filter:rfc9535:boolean'],
 	},
 ];
 
 for (const p of plugins) {
-	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', p.dir);
 
 	write(
 		path.join(pkgDir, 'src', 'index.ts'),

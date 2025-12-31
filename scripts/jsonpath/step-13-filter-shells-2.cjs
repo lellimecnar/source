@@ -17,24 +17,24 @@ const repoRoot = process.cwd();
 
 const plugins = [
 	{
-		dir: 'jsonpath-plugin-filter-existence',
+		dir: 'plugin-filter-existence',
 		id: '@jsonpath/plugin-filter-existence',
 		capabilities: ['filter:rfc9535:existence'],
 	},
 	{
-		dir: 'jsonpath-plugin-filter-functions',
+		dir: 'plugin-filter-functions',
 		id: '@jsonpath/plugin-filter-functions',
 		capabilities: ['filter:rfc9535:functions'],
 	},
 	{
-		dir: 'jsonpath-plugin-filter-regex',
+		dir: 'plugin-filter-regex',
 		id: '@jsonpath/plugin-filter-regex',
 		capabilities: ['filter:rfc9535:regex'],
 	},
 ];
 
 for (const p of plugins) {
-	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', p.dir);
 
 	write(
 		path.join(pkgDir, 'src', 'index.ts'),

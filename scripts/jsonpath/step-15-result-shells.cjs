@@ -17,34 +17,34 @@ const repoRoot = process.cwd();
 
 const resultPlugins = [
 	{
-		dir: 'jsonpath-plugin-result-value',
+		dir: 'plugin-result-value',
 		id: '@jsonpath/plugin-result-value',
 		capabilities: ['result:value'],
 	},
 	{
-		dir: 'jsonpath-plugin-result-node',
+		dir: 'plugin-result-node',
 		id: '@jsonpath/plugin-result-node',
 		capabilities: ['result:node'],
 	},
 	{
-		dir: 'jsonpath-plugin-result-path',
+		dir: 'plugin-result-path',
 		id: '@jsonpath/plugin-result-path',
 		capabilities: ['result:path'],
 	},
 	{
-		dir: 'jsonpath-plugin-result-pointer',
+		dir: 'plugin-result-pointer',
 		id: '@jsonpath/plugin-result-pointer',
 		capabilities: ['result:pointer'],
 	},
 	{
-		dir: 'jsonpath-plugin-result-parent',
+		dir: 'plugin-result-parent',
 		id: '@jsonpath/plugin-result-parent',
 		capabilities: ['result:parent'],
 	},
 ];
 
 for (const p of resultPlugins) {
-	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', p.dir);
 	write(
 		path.join(pkgDir, 'src', 'index.ts'),
 		`import type { JsonPathPlugin } from '@jsonpath/core';\n\nexport const plugin: JsonPathPlugin = {\n\tmeta: {\n\t\tid: ${JSON.stringify(p.id)},\n\t\tcapabilities: ${JSON.stringify(p.capabilities)},\n\t},\n};\n`,

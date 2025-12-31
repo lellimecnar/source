@@ -17,29 +17,29 @@ const repoRoot = process.cwd();
 
 const plugins = [
 	{
-		dir: 'jsonpath-plugin-syntax-root',
+		dir: 'plugin-syntax-root',
 		id: '@jsonpath/plugin-syntax-root',
 		capabilities: ['syntax:rfc9535:root'],
 	},
 	{
-		dir: 'jsonpath-plugin-syntax-current',
+		dir: 'plugin-syntax-current',
 		id: '@jsonpath/plugin-syntax-current',
 		capabilities: ['syntax:rfc9535:current'],
 	},
 	{
-		dir: 'jsonpath-plugin-syntax-child-member',
+		dir: 'plugin-syntax-child-member',
 		id: '@jsonpath/plugin-syntax-child-member',
 		capabilities: ['syntax:rfc9535:child-member'],
 	},
 	{
-		dir: 'jsonpath-plugin-syntax-wildcard',
+		dir: 'plugin-syntax-wildcard',
 		id: '@jsonpath/plugin-syntax-wildcard',
 		capabilities: ['syntax:rfc9535:wildcard'],
 	},
 ];
 
 for (const p of plugins) {
-	const pkgDir = path.join(repoRoot, 'packages', p.dir);
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', p.dir);
 
 	write(
 		path.join(pkgDir, 'src', 'index.ts'),

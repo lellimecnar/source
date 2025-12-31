@@ -22,8 +22,8 @@ node scripts/jsonpath/step-01-scaffold.cjs
 
 ##### Step 1 Verification Checklist
 
-- [ ] `pnpm -w turbo build --filter=@jsonpath/*` succeeds.
-- [ ] `pnpm -w turbo test --filter=@jsonpath/* -- --passWithNoTests` succeeds.
+- [ ] `pnpm -w turbo build --filter="@jsonpath/*"` succeeds.
+- [ ] `pnpm -w turbo test --filter="@jsonpath/*" -- --passWithNoTests` succeeds.
 - [ ] `pnpm -w verify:exports` prints `Export verification passed.`
 
 #### Step 1 STOP & COMMIT
@@ -65,7 +65,7 @@ completes: step 2 of 30 for jsonpath
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
-#### Step 3: Implement plugin capability/dependency resolution + deterministic ordering (`@jsonpath/core`)
+#### Step 3: Add plugin metadata/types + deterministic ordering + conflict detection (`@jsonpath/core`)
 
 - [ ] Add plugin metadata/types + deterministic ordering + conflict detection.
 - [ ] Copy and paste code below into `terminal`:
@@ -81,7 +81,7 @@ node scripts/jsonpath/step-03-core-plugin-resolver.cjs
 #### Step 3 STOP & COMMIT
 
 ```txt
-feat(jsonpath-core): add deterministic plugin resolver
+feat(jsonpath-core): add plugin registry + resolver primitives
 
 Adds plugin metadata, deterministic ordering, dependency checks, and capability conflict detection.
 
@@ -126,7 +126,7 @@ node scripts/jsonpath/step-05-lexer.cjs
 
 ##### Step 5 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/lexer` succeeds.
 
 #### Step 5 STOP & COMMIT
 
@@ -151,7 +151,7 @@ node scripts/jsonpath/step-06-parser.cjs
 
 ##### Step 6 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/ast` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/parser` succeeds.
 
 #### Step 6 STOP & COMMIT
 
@@ -176,7 +176,7 @@ node scripts/jsonpath/step-07-printer.cjs
 
 ##### Step 7 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/lexer` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/printer` succeeds.
 
 #### Step 7 STOP & COMMIT
 
@@ -201,7 +201,7 @@ node scripts/jsonpath/step-08-core-engine.cjs
 
 ##### Step 8 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/parser` succeeds.
+- [ ] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
 
 #### Step 8 STOP & COMMIT
 
@@ -431,7 +431,7 @@ node scripts/jsonpath/step-15-result-shells.cjs
 
 ##### Step 15 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-result-* -- --passWithNoTests` succeeds.
+- [ ] `pnpm -w turbo test --filter="@jsonpath/plugin-result-*" -- --passWithNoTests` succeeds.
 
 #### Step 15 STOP & COMMIT
 
@@ -704,7 +704,7 @@ node scripts/jsonpath/step-23-validator-adapters.cjs
 
 ##### Step 23 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/validator-* -- --passWithNoTests` succeeds.
+- [ ] `pnpm -w turbo test --filter="@jsonpath/validator-*" -- --passWithNoTests` succeeds.
 
 #### Step 23 STOP & COMMIT
 
@@ -774,7 +774,7 @@ node scripts/jsonpath/step-25-compat-shims.cjs
 
 ##### Step 25 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/compat-* -- --passWithNoTests` succeeds.
+- [ ] `pnpm -w turbo test --filter="@jsonpath/compat-*" -- --passWithNoTests` succeeds.
 
 #### Step 25 STOP & COMMIT
 
@@ -930,8 +930,8 @@ node scripts/jsonpath/step-30-docs.cjs
 
 ##### Step 30 Verification Checklist
 
-- [ ] `pnpm -w turbo build --filter=@jsonpath/*` is green.
-- [ ] `pnpm -w turbo test --filter @jsonpath/* -- --passWithNoTests` is green.
+- [ ] `pnpm -w turbo build --filter="@jsonpath/*"` is green.
+- [ ] `pnpm -w turbo test --filter="@jsonpath/*" -- --passWithNoTests` is green.
 - [ ] `pnpm -w verify:exports` is green.
 
 #### Step 30 STOP & COMMIT

@@ -4,6 +4,7 @@
 	"private": true,
 	"workspaces": [
 		"packages/*",
+		"packages/jsonpath/*",
 		"packages/card-stack/*",
 		"packages/ui-spec/*",
 		"web/*",
