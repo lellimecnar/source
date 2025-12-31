@@ -354,8 +354,8 @@ completes: step 2 of 5 for jsonpath-rfc9535
 
 #### Step 3 (C03): Core evaluation pipeline skeleton (segments over nodelists)
 
-- [ ] Add internal registries for selector evaluators and result mappers.
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/runtime/hooks.ts`:
+- [x] Add internal registries for selector evaluators and result mappers.
+- [x] Copy and paste code below into `packages/jsonpath/core/src/runtime/hooks.ts`:
 
 ```ts
 import type { SelectorNode } from '@jsonpath/ast';
@@ -396,11 +396,11 @@ export class ResultRegistry {
 }
 ```
 
-- [ ] Update the engine evaluation implementation to:
-  - [ ] initialize a root nodelist,
-  - [ ] apply each segment’s selectors over the current list, and
-  - [ ] map nodes into results (default supports `resultType: 'value'` and `'node'`).
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/createEngine.ts`:
+- [x] Update the engine evaluation implementation to:
+  - [x] initialize a root nodelist,
+  - [x] apply each segment’s selectors over the current list, and
+  - [x] map nodes into results (default supports `resultType: 'value'` and `'node'`).
+- [x] Copy and paste code below into `packages/jsonpath/core/src/createEngine.ts`:
 
 ```ts
 import { Scanner, TokenStream } from '@jsonpath/lexer';
@@ -508,7 +508,7 @@ export function createEngine({
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test`
+- [x] `pnpm --filter @jsonpath/core test`
 
 #### Step 3 STOP & COMMIT
 
