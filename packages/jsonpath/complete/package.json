@@ -27,7 +27,9 @@
 		"test:watch": "vitest",
 		"type-check": "tsgo --noEmit"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"@jsonpath/plugin-rfc-9535": "workspace:^"
+	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
@@ -43,7 +45,6 @@
 		"vite-tsconfig-paths": "^6.0.3",
 		"vitest": "^4.0.16"
 	},
-	"peerDependencies": {},
 	"publishConfig": {
 		"access": "public"
 	}

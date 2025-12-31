@@ -1,1 +1,1 @@
-export const __package = '@jsonpath/complete';
+export { createRfc9535Engine, rfc9535Plugins } from '@jsonpath/plugin-rfc-9535';

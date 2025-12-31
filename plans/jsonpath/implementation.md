@@ -858,15 +858,15 @@ completes: step 27 of 30 for jsonpath
 
 #### Step 28: Convenience bundle (`@jsonpath/complete`)
 
-- [ ] Add `@jsonpath/complete` that re-exports `createRfc9535Engine()` and the preset plugin list.
-- [ ] Add unit tests.
-- [ ] Add required workspace deps:
+- [x] Add `@jsonpath/complete` that re-exports `createRfc9535Engine()` and the preset plugin list.
+- [x] Add unit tests.
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/complete add '@jsonpath/plugin-rfc-9535@workspace:*'
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-28-complete.cjs
@@ -874,7 +874,7 @@ node scripts/jsonpath/step-28-complete.cjs
 
 ##### Step 28 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/complete` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/complete` succeeds.
 
 #### Step 28 STOP & COMMIT
 
