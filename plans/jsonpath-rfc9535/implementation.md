@@ -1350,8 +1350,8 @@ completes: step 2 of 10 for jsonpath-rfc9535 (PR B)
 
 #### Step 3 (C08–C09): Add RFC 9535 core parser (root + segments + selectors)
 
-- [ ] Implement a minimal RFC 9535 parser as a plugin-installed segment parser. This keeps `@jsonpath/parser` framework-only and moves RFC behavior into syntax plugins.
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/parser.ts` (new file):
+- [x] Implement a minimal RFC 9535 parser as a plugin-installed segment parser. This keeps `@jsonpath/parser` framework-only and moves RFC behavior into syntax plugins.
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/parser.ts` (new file):
 
 ```ts
 import {
@@ -1579,8 +1579,8 @@ export function parseRfc9535Path(ctx: ParserContext, profile: Profile) {
 }
 ```
 
-- [ ] Update the root syntax plugin to install lexer rules + parser.
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/index.ts` (this replaces the file):
+- [x] Update the root syntax plugin to install lexer rules + parser.
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/index.ts` (this replaces the file):
 
 ```ts
 import type { JsonPathPlugin } from '@jsonpath/core';
@@ -1623,8 +1623,8 @@ export function createSyntaxRootPlugin(): JsonPathPlugin<{
 export const plugin = createSyntaxRootPlugin();
 ```
 
-- [ ] Add plugin tests for basic parsing.
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/index.spec.ts` (this replaces the file):
+- [x] Add plugin tests for basic parsing.
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/index.spec.ts` (this replaces the file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1684,7 +1684,7 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-syntax-root test`
+- [x] `pnpm --filter @jsonpath/plugin-syntax-root test`
 
 #### Step 3 STOP & COMMIT
 
