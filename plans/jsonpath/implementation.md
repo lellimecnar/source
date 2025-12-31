@@ -283,15 +283,15 @@ completes: step 10 of 30 for jsonpath
 
 #### Step 11: RFC 9535 syntax plugin shells (descendant + filter container)
 
-- [ ] Add required workspace deps:
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/plugin-syntax-descendant add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
 pnpm --filter @jsonpath/plugin-syntax-filter add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
 ```
 
-- [ ] Replace `src/index.ts` in each package with a wiring-only `plugin` export + add `src/index.spec.ts`.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Replace `src/index.ts` in each package with a wiring-only `plugin` export + add `src/index.spec.ts`.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-11-syntax-shells-3.cjs
@@ -299,7 +299,7 @@ node scripts/jsonpath/step-11-syntax-shells-3.cjs
 
 ##### Step 11 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-syntax-descendant --filter @jsonpath/plugin-syntax-filter` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-syntax-descendant --filter @jsonpath/plugin-syntax-filter` succeeds.
 
 #### Step 11 STOP & COMMIT
 
