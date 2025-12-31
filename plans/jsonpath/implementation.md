@@ -682,13 +682,13 @@ completes: step 22 of 30 for jsonpath
 
 #### Step 23: Validator adapters (`@jsonpath/validator-*`)
 
-- [ ] Implement adapters:
+- [x] Implement adapters:
   - `@jsonpath/validator-json-schema` (Ajv)
   - `@jsonpath/validator-zod`
   - `@jsonpath/validator-yup`
-- [ ] Each exports `create*Adapter(schema)` returning `{ id, validate(value): Issue[] }`.
-- [ ] Add unit tests.
-- [ ] Add required deps:
+- [x] Each exports `create*Adapter(schema)` returning `{ id, validate(value): Issue[] }`.
+- [x] Add unit tests.
+- [x] Add required deps:
 
 ```bash
 pnpm --filter @jsonpath/validator-json-schema add '@jsonpath/plugin-validate@workspace:*' ajv
@@ -696,7 +696,7 @@ pnpm --filter @jsonpath/validator-zod add '@jsonpath/plugin-validate@workspace:*
 pnpm --filter @jsonpath/validator-yup add '@jsonpath/plugin-validate@workspace:*' yup
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-23-validator-adapters.cjs
@@ -704,7 +704,7 @@ node scripts/jsonpath/step-23-validator-adapters.cjs
 
 ##### Step 23 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter="@jsonpath/validator-*" -- --passWithNoTests` succeeds.
+- [x] `pnpm -w turbo test --filter="@jsonpath/validator-*" -- --passWithNoTests` succeeds.
 
 #### Step 23 STOP & COMMIT
 
