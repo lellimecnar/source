@@ -1979,6 +1979,9 @@ importers:
         specifier: workspace:^
         version: link:../parser
     devDependencies:
+      '@jsonpath/plugin-syntax-root':
+        specifier: workspace:^
+        version: link:../plugin-syntax-root
       '@lellimecnar/eslint-config':
         specifier: workspace:*
         version: link:../../config-eslint
@@ -2034,6 +2037,9 @@ importers:
         specifier: workspace:^
         version: link:../parser
     devDependencies:
+      '@jsonpath/plugin-syntax-root':
+        specifier: workspace:^
+        version: link:../plugin-syntax-root
       '@lellimecnar/eslint-config':
         specifier: workspace:*
         version: link:../../config-eslint
@@ -2370,6 +2376,9 @@ importers:
         specifier: workspace:^
         version: link:../parser
     devDependencies:
+      '@jsonpath/plugin-syntax-root':
+        specifier: workspace:^
+        version: link:../plugin-syntax-root
       '@lellimecnar/eslint-config':
         specifier: workspace:*
         version: link:../../config-eslint

@@ -2030,9 +2030,9 @@ completes: step 5 of 10 for jsonpath-rfc9535 (PR B)
 
 #### Step 6 (C11–C14): Implement core selector evaluators (name/wildcard/index/slice)
 
-- [ ] Implement the selector evaluators in their respective syntax plugins.
+- [x] Implement the selector evaluators in their respective syntax plugins.
 
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-member/src/index.ts` (this replaces the file):
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-member/src/index.ts` (this replaces the file):
 
 ```ts
 import type { JsonPathPlugin } from '@jsonpath/core';
@@ -2067,7 +2067,7 @@ export const plugin: JsonPathPlugin = {
 };
 ```
 
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-wildcard/src/index.ts` (this replaces the file):
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-wildcard/src/index.ts` (this replaces the file):
 
 ```ts
 import type { JsonPathPlugin } from '@jsonpath/core';
@@ -2108,7 +2108,7 @@ export const plugin: JsonPathPlugin = {
 };
 ```
 
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-index/src/index.ts` (this replaces the file):
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-index/src/index.ts` (this replaces the file):
 
 ```ts
 import type { JsonPathPlugin } from '@jsonpath/core';
@@ -2190,9 +2190,9 @@ export const plugin: JsonPathPlugin = {
 };
 ```
 
-- [ ] Add tests to each syntax plugin proving evaluation results.
+- [x] Add tests to each syntax plugin proving evaluation results.
 
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-member/src/index.spec.ts` (new file):
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-member/src/index.spec.ts` (new file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -2219,7 +2219,7 @@ describe('@jsonpath/plugin-syntax-child-member', () => {
 });
 ```
 
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-wildcard/src/index.spec.ts` (append a value test):
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-wildcard/src/index.spec.ts` (append a value test):
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -2244,7 +2244,7 @@ describe('@jsonpath/plugin-syntax-wildcard (value)', () => {
 });
 ```
 
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-index/src/index.spec.ts` (new file):
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-index/src/index.spec.ts` (new file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
