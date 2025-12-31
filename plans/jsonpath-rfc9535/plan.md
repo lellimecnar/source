@@ -44,6 +44,44 @@ Where `profile` selects a **capability set** and enforcement behavior:
 - The conformance suite must only claim “RFC 9535 compliant” when running `profile: 'rfc9535-full'`.
 - Any other profile must be explicitly described as partial, and should provide clear “feature not supported” errors.
 
+### Profile Capability Matrix (Commit Unlock Ranges)
+
+Each profile has an explicit, testable contract. The matrix below defines:
+
+- **Enabled**: feature must work and be tested.
+- **Rejected**: feature syntax must fail fast with stable errors (no silent acceptance).
+
+| Capability area                                   | `rfc9535-draft`          | `rfc9535-core` | `rfc9535-full` | Unlocked by commits           |
+| ------------------------------------------------- | ------------------------ | -------------- | -------------- | ----------------------------- |
+| Engine plugin ordering + hook infrastructure      | Enabled                  | Enabled        | Enabled        | C02–C05                       |
+| Lexer + parser for `$` root and segments loop     | Enabled (as implemented) | Enabled        | Enabled        | C05–C10                       |
+| Child member selectors (`.name`, `['name']`)      | Enabled (as implemented) | Enabled        | Enabled        | C08–C12                       |
+| Wildcard selectors (`*`)                          | Enabled (as implemented) | Enabled        | Enabled        | C12                           |
+| Index selectors (positive/negative)               | Enabled (as implemented) | Enabled        | Enabled        | C13                           |
+| Slice selectors                                   | Enabled (as implemented) | Enabled        | Enabled        | C14                           |
+| Union selectors + duplicates retained             | Enabled (as implemented) | Enabled        | Enabled        | C32                           |
+| Descendant selector (`..`) traversal semantics    | Enabled (as implemented) | Enabled        | Enabled        | C10 + C31                     |
+| Filter selector syntax (`[? ... ]`)               | Enabled (as implemented) | Rejected       | Enabled        | Parse: C15–C16; Eval: C17–C18 |
+| Filter selector evaluation semantics              | Enabled (as implemented) | Rejected       | Enabled        | C17–C18                       |
+| Function expression syntax                        | Enabled (as implemented) | Rejected       | Enabled        | C19                           |
+| Function typing (well-typedness)                  | Enabled (as implemented) | Rejected       | Enabled        | C20                           |
+| `length()` + `count()`                            | Enabled (as implemented) | Rejected       | Enabled        | C21–C22                       |
+| RFC 9485 I-Regexp implementation                  | Enabled (as implemented) | Rejected       | Enabled        | C23                           |
+| `match()` + `search()`                            | Enabled (as implemented) | Rejected       | Enabled        | C24                           |
+| `value()`                                         | Enabled (as implemented) | Rejected       | Enabled        | C25                           |
+| Location tracking                                 | Enabled (as implemented) | Rejected       | Enabled        | C26                           |
+| `resultType: 'value'`                             | Enabled (as implemented) | Enabled        | Enabled        | C27                           |
+| Normalized Paths (`resultType: 'path'`)           | Enabled (as implemented) | Rejected       | Enabled        | C28                           |
+| String literal escape + Unicode handling          | Enabled (as implemented) | Enabled        | Enabled        | C29                           |
+| Integer range validity checks (I-JSON exact ints) | Enabled (as implemented) | Enabled        | Enabled        | C30                           |
+| Error codes + offsets                             | Enabled (as implemented) | Enabled        | Enabled        | C34                           |
+
+**Interpretation:**
+
+- `rfc9535-core` is a usable RFC-style selector engine (segments/selectors) but _intentionally rejects_ filters, functions, and normalized paths.
+- `rfc9535-full` is the only profile for which the project will claim “RFC 9535 compliant”.
+- `rfc9535-draft` exists to ship incremental work safely; it can enable partially implemented features behind flags, but the harness must never label it compliant.
+
 ### PR Milestones (Suggested)
 
 These milestones define how to split the work across PRs:
@@ -56,6 +94,33 @@ These milestones define how to split the work across PRs:
 - **PR F — RFC 9485 I-Regexp + match/search finalization:** C23–C24 (or merged into PR D if preferred)
 
 Exact PR boundaries can shift, but each PR must end with a meaningful, testable profile state.
+
+### PR Exit Criteria (Profile Contracts)
+
+Each PR ends with a specific profile contract that the conformance harness can enforce.
+
+- **PR A (C01–C05) — Contract: `rfc9535-draft` boots and runs**
+  - MUST: Engine creation, plugin ordering determinism, hook registration, harness can execute and assert “known failing” red tests.
+  - MUST NOT: Claim any RFC feature compliance.
+
+- **PR B (C06–C14) — Contract: `rfc9535-core` becomes meaningful**
+  - MUST: `$`, child member, wildcard, index, slice work for `resultType: 'value'`.
+  - MUST: Filters/functions/normalized paths are rejected with stable “unsupported” errors under `rfc9535-core`.
+
+- **PR C (C15–C18) — Contract: Filters enabled only in `rfc9535-full`**
+  - MUST: Filter parsing + evaluation pass under `rfc9535-full`.
+  - MUST: The same filter syntax fails fast under `rfc9535-core`.
+
+- **PR D (C19–C25) — Contract: Functions enabled only in `rfc9535-full`**
+  - MUST: Function parsing + typing + implementations pass under `rfc9535-full`.
+  - MUST: Function syntax is rejected under `rfc9535-core`.
+
+- **PR E (C26–C28) — Contract: Normalized paths enabled only in `rfc9535-full`**
+  - MUST: `resultType: 'path'` returns normalized paths under `rfc9535-full`.
+  - MUST: `resultType: 'path'` (or normalized-path expectations) is rejected under `rfc9535-core`.
+
+- **PR F (C23–C24 if split) — Contract: Regex functions are truly RFC-backed**
+  - MUST: `match/search` use RFC 9485 I-Regexp implementation (not JS RegExp fallback) under `rfc9535-full`.
 
 ## Non-Goals
 
