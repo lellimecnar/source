@@ -1,1 +1,2 @@
-export const __package = '@jsonpath/patch';
+export type { JsonPatchOp } from './types';
+export { applyPatch } from './apply';

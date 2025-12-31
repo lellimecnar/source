@@ -586,15 +586,15 @@ completes: step 19 of 30 for jsonpath
 
 #### Step 20: JSON Patch package (`@jsonpath/patch`)
 
-- [ ] Implement `applyPatch(doc, ops)` supporting `add`, `replace`, and `remove`, delegating to `@jsonpath/pointer`.
-- [ ] Add unit tests.
-- [ ] Add required workspace deps:
+- [x] Implement `applyPatch(doc, ops)` supporting `add`, `replace`, and `remove`, delegating to `@jsonpath/pointer`.
+- [x] Add unit tests.
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/patch add '@jsonpath/pointer@workspace:*'
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-20-patch.cjs
@@ -602,7 +602,7 @@ node scripts/jsonpath/step-20-patch.cjs
 
 ##### Step 20 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/patch` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/patch` succeeds.
 
 #### Step 20 STOP & COMMIT
 
