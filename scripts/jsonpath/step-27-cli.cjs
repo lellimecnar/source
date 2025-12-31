@@ -13,7 +13,7 @@ function write(filePath, content) {
 	fs.writeFileSync(filePath, content, 'utf8');
 }
 
-const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-cli');
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'cli');
 
 write(
 	path.join(pkgDir, 'bin', 'jsonpath.js'),

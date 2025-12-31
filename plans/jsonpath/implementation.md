@@ -825,15 +825,15 @@ completes: step 26 of 30 for jsonpath
 
 #### Step 27: CLI package (`@jsonpath/cli`) (JSON-only config)
 
-- [ ] Implement JSON-only config schema and loader (no YAML).
-- [ ] Wire a runner to `createRfc9535Engine()`.
-- [ ] Add required workspace deps:
+- [x] Implement JSON-only config schema and loader (no YAML).
+- [x] Wire a runner to `createRfc9535Engine()`.
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/cli add '@jsonpath/plugin-rfc-9535@workspace:*'
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-27-cli.cjs
@@ -841,8 +841,8 @@ node scripts/jsonpath/step-27-cli.cjs
 
 ##### Step 27 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/cli` succeeds.
-- [ ] `pnpm -w verify:exports` remains green.
+- [x] `pnpm -w turbo test --filter @jsonpath/cli` succeeds.
+- [x] `pnpm -w verify:exports` remains green.
 
 #### Step 27 STOP & COMMIT
 
