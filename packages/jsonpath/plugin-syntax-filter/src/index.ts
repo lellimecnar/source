@@ -9,6 +9,73 @@ function isNothing(v: any): v is Nothing {
 	return v === Nothing;
 }
 
+function unicodeScalarLength(value: string): number {
+	let n = 0;
+	for (const _ of value) n++;
+	return n;
+}
+
+function evalValueExpr(
+	expr: any,
+	currentNode: any,
+	ctx: EvalContext,
+	evaluators: any,
+): any | Nothing {
+	switch (expr.kind) {
+		case FilterExprKinds.Literal:
+			return expr.value;
+
+		case FilterExprKinds.EmbeddedQuery: {
+			// In ValueType contexts, embedded queries must behave like singular queries.
+			const results = evalEmbeddedQuery(expr, currentNode, ctx, evaluators);
+			if (results.length === 1) return results[0].value;
+			return Nothing;
+		}
+
+		case FilterExprKinds.FunctionCall:
+			return evalFunctionCall(expr, currentNode, ctx, evaluators);
+
+		default:
+			return Nothing;
+	}
+}
+
+function evalNodesExpr(
+	expr: any,
+	currentNode: any,
+	ctx: EvalContext,
+	evaluators: any,
+): any[] {
+	if (expr.kind !== FilterExprKinds.EmbeddedQuery) return [];
+	return evalEmbeddedQuery(expr, currentNode, ctx, evaluators);
+}
+
+function evalFunctionCall(
+	call: any,
+	currentNode: any,
+	ctx: EvalContext,
+	evaluators: any,
+): any | Nothing {
+	switch (call.name) {
+		case 'length': {
+			const v = evalValueExpr(call.args[0], currentNode, ctx, evaluators);
+			if (isNothing(v)) return Nothing;
+			if (typeof v === 'string') return unicodeScalarLength(v);
+			if (Array.isArray(v)) return v.length;
+			if (typeof v === 'object' && v !== null) return Object.keys(v).length;
+			return Nothing;
+		}
+
+		case 'count': {
+			const nodes = evalNodesExpr(call.args[0], currentNode, ctx, evaluators);
+			return nodes.length;
+		}
+
+		default:
+			return Nothing;
+	}
+}
+
 function evalFilterExpr(
 	expr: any,
 	currentNode: any,
@@ -50,6 +117,9 @@ function evalFilterExpr(
 			const result = evalEmbeddedQuery(expr, currentNode, ctx, evaluators);
 			return result.length > 0;
 
+		case FilterExprKinds.FunctionCall:
+			return evalFunctionCall(expr, currentNode, ctx, evaluators);
+
 		default:
 			return Nothing;
 	}
@@ -73,6 +143,9 @@ function evalComparable(
 			}
 			// Empty or multiple results = Nothing
 			return Nothing;
+
+		case FilterExprKinds.FunctionCall:
+			return evalFunctionCall(expr, currentNode, ctx, evaluators);
 
 		default:
 			return Nothing;

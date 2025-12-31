@@ -136,4 +136,22 @@ export const cases: ConformanceCase[] = [
 		documentName: 'simple',
 		query: '$.xs[?@ > 1]',
 	},
+	{
+		name: 'rfc: length() over author string (full)',
+		profile: 'rfc9535-full',
+		documentName: 'rfc-bookstore-mini',
+		query: '$.store.book[*][?length(@.author) >= 12].author',
+		expect: {
+			values: ['Evelyn Waugh'],
+		},
+	},
+	{
+		name: 'rfc: count() over wildcard expansion (full)',
+		profile: 'rfc9535-full',
+		documentName: 'rfc-bookstore-mini',
+		query: '$.store.book[*][?count(@.*) == 4].title',
+		expect: {
+			values: ['Sayings', 'Sword'],
+		},
+	},
 ];

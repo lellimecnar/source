@@ -73,4 +73,22 @@ describe('@lellimecnar/jsonpath-conformance', () => {
 			expect(e.code).toBe('JSONPATH_SYNTAX_ERROR');
 		}
 	});
+
+	it('RFC 9535 (full): length() works in filters', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
+		const testCase = cases.find(
+			(c) => c.name === 'rfc: length() over author string (full)',
+		)!;
+		const out = runConformanceCase(engine, testCase);
+		expect(out).toEqual(testCase.expect?.values);
+	});
+
+	it('RFC 9535 (full): count() works in filters', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
+		const testCase = cases.find(
+			(c) => c.name === 'rfc: count() over wildcard expansion (full)',
+		)!;
+		const out = runConformanceCase(engine, testCase);
+		expect(out).toEqual(testCase.expect?.values);
+	});
 });
