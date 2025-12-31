@@ -1487,33 +1487,7 @@ number = integer ["." DIGIT+] [("e" / "E") ["+" / "-"] DIGIT+]
 | Normalized paths       | ✅     |                       |
 | No script expressions  | ✅     | Core only             |
 
-### Appendix C: Extension Registry
-
-| Extension              | Package              | Description                    |
-| ---------------------- | -------------------- | ------------------------------ |
-| `parentSelector`       | @jsonpath/extensions | `^` parent navigation          |
-| `propertyNameSelector` | @jsonpath/extensions | `~` property names             |
-| `typeSelectors`        | @jsonpath/extensions | `@string()`, `@number()`, etc. |
-| `stringFunctions`      | @jsonpath/extensions | String manipulation            |
-| `mathFunctions`        | @jsonpath/extensions | Mathematical operations        |
-| `arrayFunctions`       | @jsonpath/extensions | Array utilities                |
-| `dateFunctions`        | @jsonpath/extensions | Date/time handling             |
-| `regexOperators`       | @jsonpath/extensions | `=~` regex matching            |
-| `scriptExpressions`    | @jsonpath/legacy     | Sandboxed scripts              |
-
-### Appendix D: Performance Benchmarks
-
-Benchmark methodology: 10,000 iterations, Node.js 20, Intel i7-12700K
-
-| Query             | @jsonpath/core | jsonpath-plus | jsonpath | json-p3 |
-| ----------------- | -------------- | ------------- | -------- | ------- |
-| Simple child      | 0.8μs          | 1.2μs         | 2.1μs    | 0.9μs   |
-| Recursive descent | 12μs           | 18μs          | 45μs     | 14μs    |
-| Filter expression | 25μs           | 35μs          | 89μs     | 28μs    |
-| Complex query     | 85μs           | 120μs         | 250μs    | 92μs    |
-| Compiled (reuse)  | 0.3μs          | 0.8μs         | N/A      | 0.4μs   |
-
-### Appendix E: Security Audit Checklist
+### Appendix C: Security Audit Checklist
 
 | Vulnerability         | Mitigation                      |
 | --------------------- | ------------------------------- |
@@ -1523,37 +1497,3 @@ Benchmark methodology: 10,000 iterations, Node.js 20, Intel i7-12700K
 | DoS via recursion     | Max depth limits                |
 | DoS via large results | Max results limit               |
 | Memory exhaustion     | Streaming, lazy evaluation      |
-
----
-
-## Version History
-
-| Version    | Date    | Changes               |
-| ---------- | ------- | --------------------- |
-| 1.0.0-spec | 2024-XX | Initial specification |
-
----
-
-## Contributing
-
-This specification is open for community input. Key areas for feedback:
-
-1. API ergonomics and naming conventions
-2. Extension system flexibility vs complexity
-3. Performance optimization strategies
-4. Additional compatibility requirements
-5. TypeScript type system enhancements
-
----
-
-## License
-
-MIT License
-
-Copyright (c) 2024 @jsonpath Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
