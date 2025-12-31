@@ -177,7 +177,7 @@ feat(jsonpath-rfc9535): add filter tokens, AST, and filter parsing (full only)
 completes: jsonpath-rfc9535 PR-C step 1 (C15)
 ```
 
-STOP & COMMIT.
+✓ COMPLETED
 
 ---
 
@@ -214,9 +214,7 @@ feat(jsonpath-rfc9535): enforce singular-query rules in filter comparisons
 completes: jsonpath-rfc9535 PR-C step 2 (C16)
 ```
 
-STOP & COMMIT.
-
----
+## ✓ COMPLETED
 
 ## Step 3 — C17: Root eval context + filter existence semantics
 
@@ -259,10 +257,10 @@ Existence semantics:
 
 ### Step 3 Verification
 
-- [ ] pnpm --filter @jsonpath/core test
-- [ ] pnpm --filter @jsonpath/plugin-syntax-descendant test
-- [ ] pnpm --filter @jsonpath/plugin-syntax-filter test
-- [ ] pnpm --filter @lellimecnar/jsonpath-conformance test
+- [x] pnpm --filter @jsonpath/core test
+- [x] pnpm --filter @jsonpath/plugin-syntax-descendant test
+- [x] pnpm --filter @jsonpath/plugin-syntax-filter test
+- [x] pnpm --filter @lellimecnar/jsonpath-conformance test
 
 ### Step 3 STOP & COMMIT
 
@@ -275,9 +273,7 @@ feat(jsonpath-rfc9535): add root eval context + filter existence semantics
 completes: jsonpath-rfc9535 PR-C step 3 (C17)
 ```
 
-STOP & COMMIT.
-
----
+## ✓ COMPLETED
 
 ## Step 4 — C18: Comparisons + `Nothing` semantics
 
@@ -320,8 +316,8 @@ Conformance additions (rfc9535-full):
 
 ### Step 4 Verification
 
-- [ ] pnpm --filter @jsonpath/plugin-syntax-filter test
-- [ ] pnpm --filter @lellimecnar/jsonpath-conformance test
+- [x] pnpm --filter @jsonpath/plugin-syntax-filter test
+- [x] pnpm --filter @lellimecnar/jsonpath-conformance test
 
 ### Step 4 STOP & COMMIT
 
@@ -335,4 +331,10 @@ feat(jsonpath-rfc9535): implement filter comparisons + Nothing semantics
 completes: jsonpath-rfc9535 PR-C step 4 (C18)
 ```
 
-STOP & COMMIT.
+✓ COMPLETED
+
+---
+
+## 🎉 ALL STEPS COMPLETE
+
+PR C (C15–C18) fully implemented and tested.

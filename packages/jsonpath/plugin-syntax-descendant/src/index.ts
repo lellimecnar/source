@@ -1,5 +1,5 @@
 import type { SegmentNode } from '@jsonpath/ast';
-import type { JsonPathPlugin } from '@jsonpath/core';
+import type { JsonPathPlugin, EvalContext } from '@jsonpath/core';
 import {
 	JsonPathError,
 	JsonPathErrorCodes,
@@ -20,7 +20,12 @@ export const plugin: JsonPathPlugin = {
 		registerEvaluators: (registry) => {
 			registry.registerSegment(
 				'DescendantSegment',
-				(inputs, segment: SegmentNode & { selectors: any[] }, evaluators) => {
+				(
+					inputs,
+					segment: SegmentNode & { selectors: any[] },
+					evaluators,
+					ctx: EvalContext,
+				) => {
 					function descendantsOrSelf(node: any): any[] {
 						const out: any[] = [node];
 						const queue: any[] = [node];
@@ -63,7 +68,7 @@ export const plugin: JsonPathPlugin = {
 									message: `No evaluator registered for selector kind: ${selector.kind}`,
 								});
 							}
-							next.push(...evalSelector(inputNode, selector));
+							next.push(...evalSelector(inputNode, selector, ctx));
 						}
 					}
 					return next;

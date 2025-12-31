@@ -1,8 +1,170 @@
-import type { JsonPathPlugin } from '@jsonpath/core';
+import { SelectorKinds, FilterExprKinds } from '@jsonpath/ast';
+import type { JsonPathPlugin, EvalContext } from '@jsonpath/core';
+
+// Sentinel value for "Nothing" (empty nodelist or absent embedded query result)
+const Nothing = Symbol('Nothing');
+type Nothing = typeof Nothing;
+
+function isNothing(v: any): v is Nothing {
+	return v === Nothing;
+}
+
+function evalFilterExpr(
+	expr: any,
+	currentNode: any,
+	ctx: EvalContext,
+	evaluators: any,
+): boolean | Nothing {
+	switch (expr.kind) {
+		case FilterExprKinds.Literal:
+			return expr.value;
+
+		case FilterExprKinds.Not:
+			const innerVal = evalFilterExpr(expr.expr, currentNode, ctx, evaluators);
+			if (isNothing(innerVal)) return Nothing;
+			return !innerVal;
+
+		case FilterExprKinds.And:
+			const leftAnd = evalFilterExpr(expr.left, currentNode, ctx, evaluators);
+			if (isNothing(leftAnd)) return Nothing;
+			if (!leftAnd) return false;
+			const rightAnd = evalFilterExpr(expr.right, currentNode, ctx, evaluators);
+			if (isNothing(rightAnd)) return Nothing;
+			return rightAnd;
+
+		case FilterExprKinds.Or:
+			const leftOr = evalFilterExpr(expr.left, currentNode, ctx, evaluators);
+			if (isNothing(leftOr)) return Nothing;
+			if (leftOr) return true;
+			const rightOr = evalFilterExpr(expr.right, currentNode, ctx, evaluators);
+			if (isNothing(rightOr)) return Nothing;
+			return rightOr;
+
+		case FilterExprKinds.Compare:
+			const leftCmp = evalComparable(expr.left, currentNode, ctx, evaluators);
+			const rightCmp = evalComparable(expr.right, currentNode, ctx, evaluators);
+			return compareValues(expr.operator, leftCmp, rightCmp);
+
+		case FilterExprKinds.EmbeddedQuery:
+			// Embedded query used directly as filter expression (existence test)
+			const result = evalEmbeddedQuery(expr, currentNode, ctx, evaluators);
+			return result.length > 0;
+
+		default:
+			return Nothing;
+	}
+}
+
+function evalComparable(
+	expr: any,
+	currentNode: any,
+	ctx: EvalContext,
+	evaluators: any,
+): any | Nothing {
+	switch (expr.kind) {
+		case FilterExprKinds.Literal:
+			return expr.value;
+
+		case FilterExprKinds.EmbeddedQuery:
+			// Singular embedded query in comparison
+			const results = evalEmbeddedQuery(expr, currentNode, ctx, evaluators);
+			if (results.length === 1) {
+				return results[0].value;
+			}
+			// Empty or multiple results = Nothing
+			return Nothing;
+
+		default:
+			return Nothing;
+	}
+}
+
+function evalEmbeddedQuery(
+	query: any,
+	currentNode: any,
+	ctx: EvalContext,
+	evaluators: any,
+): any[] {
+	const rootNode = query.scope === 'root' ? ctx.root : currentNode;
+	let nodes = [rootNode];
+
+	for (const seg of query.segments) {
+		const evalSegment = evaluators.getSegment(seg.kind);
+		if (evalSegment) {
+			nodes = [...evalSegment(nodes, seg, evaluators, ctx)];
+			continue;
+		}
+
+		const selectors = seg.selectors;
+		if (!Array.isArray(selectors)) {
+			continue;
+		}
+
+		const next: any[] = [];
+		for (const inputNode of nodes) {
+			for (const selector of selectors) {
+				const evalSelector = evaluators.getSelector(selector.kind);
+				if (!evalSelector) {
+					continue;
+				}
+				next.push(...evalSelector(inputNode, selector, ctx));
+			}
+		}
+		nodes = next;
+	}
+
+	return nodes;
+}
+
+function compareValues(operator: string, left: any, right: any): boolean {
+	// Nothing == Nothing → true
+	if (isNothing(left) && isNothing(right)) {
+		return operator === '==';
+	}
+
+	// Nothing == value → false (or true for !=)
+	if (isNothing(left) || isNothing(right)) {
+		return operator === '!=';
+	}
+
+	// Normal comparisons
+	switch (operator) {
+		case '==':
+			return left === right;
+		case '!=':
+			return left !== right;
+		case '<':
+			return typeof left === typeof right && left < right;
+		case '<=':
+			return typeof left === typeof right && left <= right;
+		case '>':
+			return typeof left === typeof right && left > right;
+		case '>=':
+			return typeof left === typeof right && left >= right;
+		default:
+			return false;
+	}
+}
 
 export const plugin: JsonPathPlugin = {
 	meta: {
 		id: '@jsonpath/plugin-syntax-filter',
 		capabilities: ['syntax:rfc9535:filter'],
+	},
+	hooks: {
+		registerEvaluators: (registry) => {
+			registry.registerSelector(
+				SelectorKinds.Filter,
+				(input, selector: any, ctx: EvalContext) => {
+					const result = evalFilterExpr(selector.expr, input, ctx, registry);
+					// Truthy result (including true, non-zero, non-empty strings, etc.)
+					// but not Nothing or falsy
+					if (!isNothing(result) && result) {
+						return [input];
+					}
+					return [];
+				},
+			);
+		},
 	},
 };

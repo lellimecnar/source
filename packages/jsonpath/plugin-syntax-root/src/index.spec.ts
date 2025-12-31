@@ -80,4 +80,51 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 		expect(selector.kind).toBe('Selector:Filter');
 		expect(selector.expr.kind).toBe('FilterExpr:Compare');
 	});
+
+	it('rejects wildcards in comparison operands', () => {
+		const engine = createEngine({
+			plugins: [createSyntaxRootPlugin()],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+				},
+			},
+		});
+		expect(() => engine.parse('$[?@.* == 1]')).toThrow(
+			'Singular query in filter comparison',
+		);
+	});
+
+	it('rejects descendant segments in comparison operands', () => {
+		const engine = createEngine({
+			plugins: [createSyntaxRootPlugin()],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+				},
+			},
+		});
+		expect(() => engine.parse('$[?@..a == 1]')).toThrow(
+			'Singular query in filter comparison',
+		);
+	});
+
+	it('accepts singular queries in comparison operands', () => {
+		const engine = createEngine({
+			plugins: [createSyntaxRootPlugin()],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+				},
+			},
+		});
+		const ast = engine.parse('$[?@.a == 1]');
+		expect(ast.segments[0]!.kind).toBe('Segment');
+		const selector = (ast.segments[0] as any).selectors[0];
+		expect(selector.kind).toBe('Selector:Filter');
+		// Check that the embedded query has singular: true
+		const compare = selector.expr;
+		expect(compare.left.singular).toBe(true);
+		expect(compare.right.kind).toBe('FilterExpr:Literal');
+	});
 });

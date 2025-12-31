@@ -2,15 +2,21 @@ import type { SegmentNode, SelectorNode } from '@jsonpath/ast';
 
 import type { JsonPathNode } from './node';
 
+export interface EvalContext {
+	root: JsonPathNode;
+}
+
 export type SelectorEvaluator = (
 	input: JsonPathNode,
 	selector: SelectorNode,
+	ctx: EvalContext,
 ) => readonly JsonPathNode[];
 
 export type SegmentEvaluator = (
 	inputs: readonly JsonPathNode[],
 	segment: SegmentNode,
 	evaluators: EvaluatorRegistry,
+	ctx: EvalContext,
 ) => readonly JsonPathNode[];
 
 export class EvaluatorRegistry {

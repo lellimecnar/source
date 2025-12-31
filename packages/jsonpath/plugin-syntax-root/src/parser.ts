@@ -161,7 +161,7 @@ function parseFilterUnary(ctx: ParserContext, profile: Profile): any {
 }
 
 function parseFilterComparison(ctx: ParserContext, profile: Profile): any {
-	const left = parseFilterPrimary(ctx, profile);
+	const left = parseFilterPrimary(ctx, profile, true);
 	const t = ctx.tokens.peek();
 	if (
 		t &&
@@ -174,13 +174,17 @@ function parseFilterComparison(ctx: ParserContext, profile: Profile): any {
 	) {
 		ctx.tokens.next();
 		const operator = t.lexeme as any;
-		const right = parseFilterPrimary(ctx, profile);
+		const right = parseFilterPrimary(ctx, profile, true);
 		return filterCompare(operator, left, right);
 	}
 	return left;
 }
 
-function parseFilterPrimary(ctx: ParserContext, profile: Profile): any {
+function parseFilterPrimary(
+	ctx: ParserContext,
+	profile: Profile,
+	validateSingular = false,
+): any {
 	const t = ctx.tokens.peek();
 	if (!t) syntaxError(ctx, ctx.input.length, 'Unexpected end of input');
 
@@ -214,17 +218,61 @@ function parseFilterPrimary(ctx: ParserContext, profile: Profile): any {
 	}
 
 	if (t.kind === TokenKinds.Dollar || t.kind === TokenKinds.At) {
-		return parseEmbeddedQuery(ctx, profile);
+		return parseEmbeddedQuery(ctx, profile, validateSingular);
 	}
 
 	syntaxError(ctx, t.offset, `Unexpected token in filter: ${t.kind}`);
 }
 
-function parseEmbeddedQuery(ctx: ParserContext, profile: Profile): any {
+function isSingularQuery(segments: any[]): boolean {
+	for (const seg of segments) {
+		// No descendant segments
+		if (seg.kind === 'DescendantSegment') return false;
+
+		// Check selectors within this segment
+		const selectors = seg.selectors || [];
+		if (selectors.length > 1) return false; // No unions
+
+		for (const sel of selectors) {
+			// No filters
+			if (sel.kind === 'Selector:Filter') return false;
+			// No wildcards
+			if (sel.kind === 'Selector:Wildcard') return false;
+			// No slices
+			if (sel.kind === 'Selector:Slice') return false;
+		}
+	}
+	return true;
+}
+
+function validateSingularQuery(
+	ctx: ParserContext,
+	offset: number,
+	segments: any[],
+): void {
+	if (!isSingularQuery(segments)) {
+		syntaxError(
+			ctx,
+			offset,
+			'Singular query in filter comparison must not use: descendant (..), unions, wildcards (*), slices (:), or filters (?)',
+		);
+	}
+}
+
+function parseEmbeddedQuery(
+	ctx: ParserContext,
+	profile: Profile,
+	validateSingular = false,
+): any {
 	const t = ctx.tokens.next()!;
 	const scope = t.kind === TokenKinds.Dollar ? 'root' : 'current';
 	const segments = parseSegments(ctx, profile);
-	return embeddedQuery(scope, segments);
+
+	if (validateSingular) {
+		validateSingularQuery(ctx, t.offset, segments);
+	}
+
+	return embeddedQuery(scope, segments, validateSingular);
 }
 
 function parseBracketSelectors(

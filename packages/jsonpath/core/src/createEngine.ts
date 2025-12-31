@@ -7,7 +7,11 @@ import { JsonPathErrorCodes } from './errors/codes';
 import { JsonPathError } from './errors/JsonPathError';
 import { resolvePlugins } from './plugins/resolve';
 import type { JsonPathPlugin } from './plugins/types';
-import { EvaluatorRegistry, ResultRegistry } from './runtime/hooks';
+import {
+	EvaluatorRegistry,
+	ResultRegistry,
+	type EvalContext,
+} from './runtime/hooks';
 import type { JsonPathNode } from './runtime/node';
 import { rootNode } from './runtime/node';
 
@@ -62,12 +66,15 @@ export function createEngine({
 		json: unknown,
 		evaluateOptions?: EvaluateOptions,
 	) => {
-		let nodes: JsonPathNode[] = [rootNode(json)];
+		const root = rootNode(json);
+		let nodes: JsonPathNode[] = [root];
+
+		const ctx: EvalContext = { root };
 
 		for (const seg of compiled.ast.segments) {
 			const evalSegment = evaluators.getSegment(seg.kind);
 			if (evalSegment) {
-				nodes = [...evalSegment(nodes, seg as any, evaluators)];
+				nodes = [...evalSegment(nodes, seg as any, evaluators, ctx)];
 				continue;
 			}
 
@@ -89,7 +96,7 @@ export function createEngine({
 							message: `No evaluator registered for selector kind: ${selector.kind}`,
 						});
 					}
-					next.push(...evalSelector(inputNode, selector));
+					next.push(...evalSelector(inputNode, selector, ctx));
 				}
 			}
 			nodes = next;

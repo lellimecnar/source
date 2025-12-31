@@ -22,3 +22,4 @@ export type { Location, LocationComponent } from './runtime/location';
 export { appendIndex, appendMember, rootLocation } from './runtime/location';
 export type { JsonPathNode } from './runtime/node';
 export { rootNode } from './runtime/node';
+export type { EvalContext } from './runtime/hooks';

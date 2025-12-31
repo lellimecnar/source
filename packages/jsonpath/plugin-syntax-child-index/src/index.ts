@@ -1,5 +1,5 @@
 import { SelectorKinds } from '@jsonpath/ast';
-import type { JsonPathPlugin } from '@jsonpath/core';
+import type { JsonPathPlugin, EvalContext } from '@jsonpath/core';
 import { appendIndex } from '@jsonpath/core';
 
 function normalizeIndex(index: number, length: number): number {
@@ -46,31 +46,40 @@ export const plugin: JsonPathPlugin = {
 	},
 	hooks: {
 		registerEvaluators: (registry) => {
-			registry.registerSelector(SelectorKinds.Index, (input, selector: any) => {
-				if (!Array.isArray(input.value)) return [];
-				const idx = normalizeIndex(Number(selector.index), input.value.length);
-				if (idx < 0 || idx >= input.value.length) return [];
-				return [
-					{
-						value: input.value[idx],
-						location: appendIndex(input.location, idx),
-					},
-				];
-			});
+			registry.registerSelector(
+				SelectorKinds.Index,
+				(input, selector: any, ctx: EvalContext) => {
+					if (!Array.isArray(input.value)) return [];
+					const idx = normalizeIndex(
+						Number(selector.index),
+						input.value.length,
+					);
+					if (idx < 0 || idx >= input.value.length) return [];
+					return [
+						{
+							value: input.value[idx],
+							location: appendIndex(input.location, idx),
+						},
+					];
+				},
+			);
 
-			registry.registerSelector(SelectorKinds.Slice, (input, selector: any) => {
-				if (!Array.isArray(input.value)) return [];
-				const indices = computeSliceIndices({
-					start: selector.start,
-					end: selector.end,
-					step: selector.step,
-					length: input.value.length,
-				});
-				return indices.map((i) => ({
-					value: input.value[i],
-					location: appendIndex(input.location, i),
-				}));
-			});
+			registry.registerSelector(
+				SelectorKinds.Slice,
+				(input, selector: any, ctx: EvalContext) => {
+					if (!Array.isArray(input.value)) return [];
+					const indices = computeSliceIndices({
+						start: selector.start,
+						end: selector.end,
+						step: selector.step,
+						length: input.value.length,
+					});
+					return indices.map((i) => ({
+						value: input.value[i],
+						location: appendIndex(input.location, i),
+					}));
+				},
+			);
 		},
 	},
 };
