@@ -720,11 +720,11 @@ completes: step 23 of 30 for jsonpath
 
 #### Step 24: Optional non-RFC extension plugin shells
 
-- [ ] Add wiring-only plugin shells + tests:
+- [x] Add wiring-only plugin shells + tests:
   - `@jsonpath/plugin-parent-selector`
   - `@jsonpath/plugin-property-name-selector`
   - `@jsonpath/plugin-type-selectors`
-- [ ] Add required workspace deps:
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/plugin-parent-selector add '@jsonpath/core@workspace:*'
@@ -732,7 +732,7 @@ pnpm --filter @jsonpath/plugin-property-name-selector add '@jsonpath/core@worksp
 pnpm --filter @jsonpath/plugin-type-selectors add '@jsonpath/core@workspace:*'
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-24-extension-plugin-shells.cjs
@@ -740,7 +740,7 @@ node scripts/jsonpath/step-24-extension-plugin-shells.cjs
 
 ##### Step 24 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-parent-selector --filter @jsonpath/plugin-property-name-selector --filter @jsonpath/plugin-type-selectors` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-parent-selector --filter @jsonpath/plugin-property-name-selector --filter @jsonpath/plugin-type-selectors` succeeds.
 
 #### Step 24 STOP & COMMIT
 

@@ -1382,6 +1382,10 @@ importers:
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/jsonpath/plugin-parent-selector:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
@@ -1424,6 +1428,10 @@ importers:
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/jsonpath/plugin-property-name-selector:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
@@ -2364,6 +2372,10 @@ importers:
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/jsonpath/plugin-type-selectors:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
