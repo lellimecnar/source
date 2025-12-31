@@ -130,4 +130,10 @@ export const cases: ConformanceCase[] = [
 			values: ['Nigel Rees', 'Evelyn Waugh'],
 		},
 	},
+	{
+		name: 'rfc: reject filter in core',
+		profile: 'rfc9535-core',
+		documentName: 'simple',
+		query: '$.xs[?@ > 1]',
+	},
 ];

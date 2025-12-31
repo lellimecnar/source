@@ -57,4 +57,20 @@ describe('@lellimecnar/jsonpath-conformance', () => {
 		const out = runConformanceCase(engine, testCase);
 		expect(out).toEqual(['Nigel Rees', 'Evelyn Waugh']);
 	});
+
+	it('RFC 9535 (core): rejects filter syntax', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
+		const testCase = cases.find(
+			(c) => c.name === 'rfc: reject filter in core',
+		)!;
+		try {
+			runConformanceCase(engine, testCase);
+			expect.fail('Should have thrown');
+		} catch (e: any) {
+			expect(e.message).toBe(
+				'Filter selectors are not supported in rfc9535-core',
+			);
+			expect(e.code).toBe('JSONPATH_SYNTAX_ERROR');
+		}
+	});
 });

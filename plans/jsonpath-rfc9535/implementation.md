@@ -2394,12 +2394,12 @@ completes: step 8 of 10 for jsonpath-rfc9535 (PR B)
 
 #### Step 9: Keep rfc9535-core rejecting unsupported syntax (filters/functions/paths)
 
-- [ ] Add conformance cases asserting that filter syntax (e.g. `$[?@.a]`) fails fast under `rfc9535-core` with `JsonPathError` code `JSONPATH_SYNTAX_ERROR`.
-- [ ] Ensure `packages/jsonpath/plugin-syntax-root/src/parser.ts` throws the stable error message `Filter selectors are not supported in rfc9535-core`.
+- [x] Add conformance cases asserting that filter syntax (e.g. `$[?@.a]`) fails fast under `rfc9535-core` with `JsonPathError` code `JSONPATH_SYNTAX_ERROR`.
+- [x] Ensure `packages/jsonpath/plugin-syntax-root/src/parser.ts` throws the stable error message `Filter selectors are not supported in rfc9535-core`.
 
 ##### Step 9 Verification Checklist
 
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
 
 #### Step 9 STOP & COMMIT
 
