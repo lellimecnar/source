@@ -2419,21 +2419,21 @@ completes: step 9 of 10 for jsonpath-rfc9535 (PR B)
 
 #### Step 10: PR B exit validation
 
-- [ ] Run the PR B package test suite:
-  - [ ] `pnpm --filter @jsonpath/ast test`
-  - [ ] `pnpm --filter @jsonpath/lexer test`
-  - [ ] `pnpm --filter @jsonpath/core test`
-  - [ ] `pnpm --filter @jsonpath/plugin-syntax-root test`
-  - [ ] `pnpm --filter @jsonpath/plugin-syntax-descendant test`
-  - [ ] `pnpm --filter @jsonpath/plugin-syntax-child-member test`
-  - [ ] `pnpm --filter @jsonpath/plugin-syntax-wildcard test`
-  - [ ] `pnpm --filter @jsonpath/plugin-syntax-child-index test`
-  - [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] Run the PR B package test suite:
+  - [x] `pnpm --filter @jsonpath/ast test`
+  - [x] `pnpm --filter @jsonpath/lexer test`
+  - [x] `pnpm --filter @jsonpath/core test`
+  - [x] `pnpm --filter @jsonpath/plugin-syntax-root test`
+  - [x] `pnpm --filter @jsonpath/plugin-syntax-descendant test`
+  - [x] `pnpm --filter @jsonpath/plugin-syntax-child-member test`
+  - [x] `pnpm --filter @jsonpath/plugin-syntax-wildcard test`
+  - [x] `pnpm --filter @jsonpath/plugin-syntax-child-index test`
+  - [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
 
 ##### Step 10 Verification Checklist
 
-- [ ] Conformance: all `rfc9535-core` tests for core selectors are green
-- [ ] Conformance: filter/function/path tests remain expected failures or are explicitly rejected under core
+- [x] Conformance: all `rfc9535-core` tests for core selectors are green
+- [x] Conformance: filter/function/path tests remain expected failures or are explicitly rejected under core
 
 #### Step 10 STOP & COMMIT
 
