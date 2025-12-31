@@ -1,1 +1,1 @@
-export const __package = '@jsonpath/mutate';
+export { setAll, removeAll } from './mutate';

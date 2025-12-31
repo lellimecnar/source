@@ -618,15 +618,15 @@ completes: step 20 of 30 for jsonpath
 
 #### Step 21: Mutation helpers (`@jsonpath/mutate`)
 
-- [ ] Implement pointer-based helpers like `setAll(doc, pointers, value)` and `removeAll(doc, pointers)`.
-- [ ] Add unit tests.
-- [ ] Add required workspace deps:
+- [x] Implement pointer-based helpers like `setAll(doc, pointers, value)` and `removeAll(doc, pointers)`.
+- [x] Add unit tests.
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/mutate add '@jsonpath/pointer@workspace:*'
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-21-mutate.cjs
@@ -634,7 +634,7 @@ node scripts/jsonpath/step-21-mutate.cjs
 
 ##### Step 21 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/mutate` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/mutate` succeeds.
 
 #### Step 21 STOP & COMMIT
 
