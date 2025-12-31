@@ -315,7 +315,7 @@ completes: step 11 of 30 for jsonpath
 
 #### Step 12: Filter expression plugin shells (literals/boolean/comparison)
 
-- [ ] Add required workspace deps:
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/plugin-filter-literals add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/parser@workspace:*'
@@ -323,8 +323,8 @@ pnpm --filter @jsonpath/plugin-filter-boolean add '@jsonpath/core@workspace:*' '
 pnpm --filter @jsonpath/plugin-filter-comparison add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/parser@workspace:*'
 ```
 
-- [ ] Replace `src/index.ts` in each package with wiring-only `plugin` exports + add tests.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Replace `src/index.ts` in each package with wiring-only `plugin` exports + add tests.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-12-filter-shells-1.cjs
@@ -332,7 +332,7 @@ node scripts/jsonpath/step-12-filter-shells-1.cjs
 
 ##### Step 12 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-filter-literals --filter @jsonpath/plugin-filter-boolean --filter @jsonpath/plugin-filter-comparison` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-filter-literals --filter @jsonpath/plugin-filter-boolean --filter @jsonpath/plugin-filter-comparison` succeeds.
 
 #### Step 12 STOP & COMMIT
 
