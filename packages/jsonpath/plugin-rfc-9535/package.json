@@ -27,7 +27,31 @@
 		"test:watch": "vitest",
 		"type-check": "tsgo --noEmit"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"@jsonpath/core": "workspace:^",
+		"@jsonpath/plugin-filter-boolean": "workspace:^",
+		"@jsonpath/plugin-filter-comparison": "workspace:^",
+		"@jsonpath/plugin-filter-existence": "workspace:^",
+		"@jsonpath/plugin-filter-functions": "workspace:^",
+		"@jsonpath/plugin-filter-literals": "workspace:^",
+		"@jsonpath/plugin-filter-regex": "workspace:^",
+		"@jsonpath/plugin-functions-core": "workspace:^",
+		"@jsonpath/plugin-iregexp": "workspace:^",
+		"@jsonpath/plugin-result-node": "workspace:^",
+		"@jsonpath/plugin-result-parent": "workspace:^",
+		"@jsonpath/plugin-result-path": "workspace:^",
+		"@jsonpath/plugin-result-pointer": "workspace:^",
+		"@jsonpath/plugin-result-types": "workspace:^",
+		"@jsonpath/plugin-result-value": "workspace:^",
+		"@jsonpath/plugin-syntax-child-index": "workspace:^",
+		"@jsonpath/plugin-syntax-child-member": "workspace:^",
+		"@jsonpath/plugin-syntax-current": "workspace:^",
+		"@jsonpath/plugin-syntax-descendant": "workspace:^",
+		"@jsonpath/plugin-syntax-filter": "workspace:^",
+		"@jsonpath/plugin-syntax-root": "workspace:^",
+		"@jsonpath/plugin-syntax-union": "workspace:^",
+		"@jsonpath/plugin-syntax-wildcard": "workspace:^"
+	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
@@ -43,7 +67,6 @@
 		"vite-tsconfig-paths": "^6.0.3",
 		"vitest": "^4.0.16"
 	},
-	"peerDependencies": {},
 	"publishConfig": {
 		"access": "public"
 	}

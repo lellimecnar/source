@@ -474,7 +474,7 @@ completes: step 16 of 30 for jsonpath
 
 #### Step 17: RFC 9535 preset bundle (`@jsonpath/plugin-rfc-9535`)
 
-- [ ] Add deps on all RFC syntax/filter/function/result plugins:
+- [x] Add deps on all RFC syntax/filter/function/result plugins:
 
 ```bash
 pnpm --filter @jsonpath/plugin-rfc-9535 add \
@@ -503,7 +503,7 @@ pnpm --filter @jsonpath/plugin-rfc-9535 add \
 	'@jsonpath/plugin-result-types@workspace:*'
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-17-rfc-preset.cjs
@@ -511,7 +511,7 @@ node scripts/jsonpath/step-17-rfc-preset.cjs
 
 ##### Step 17 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-rfc-9535` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-rfc-9535` succeeds.
 
 #### Step 17 STOP & COMMIT
 

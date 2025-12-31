@@ -1755,6 +1755,76 @@ importers:
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/jsonpath/plugin-rfc-9535:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
+      '@jsonpath/plugin-filter-boolean':
+        specifier: workspace:^
+        version: link:../plugin-filter-boolean
+      '@jsonpath/plugin-filter-comparison':
+        specifier: workspace:^
+        version: link:../plugin-filter-comparison
+      '@jsonpath/plugin-filter-existence':
+        specifier: workspace:^
+        version: link:../plugin-filter-existence
+      '@jsonpath/plugin-filter-functions':
+        specifier: workspace:^
+        version: link:../plugin-filter-functions
+      '@jsonpath/plugin-filter-literals':
+        specifier: workspace:^
+        version: link:../plugin-filter-literals
+      '@jsonpath/plugin-filter-regex':
+        specifier: workspace:^
+        version: link:../plugin-filter-regex
+      '@jsonpath/plugin-functions-core':
+        specifier: workspace:^
+        version: link:../plugin-functions-core
+      '@jsonpath/plugin-iregexp':
+        specifier: workspace:^
+        version: link:../plugin-iregexp
+      '@jsonpath/plugin-result-node':
+        specifier: workspace:^
+        version: link:../plugin-result-node
+      '@jsonpath/plugin-result-parent':
+        specifier: workspace:^
+        version: link:../plugin-result-parent
+      '@jsonpath/plugin-result-path':
+        specifier: workspace:^
+        version: link:../plugin-result-path
+      '@jsonpath/plugin-result-pointer':
+        specifier: workspace:^
+        version: link:../plugin-result-pointer
+      '@jsonpath/plugin-result-types':
+        specifier: workspace:^
+        version: link:../plugin-result-types
+      '@jsonpath/plugin-result-value':
+        specifier: workspace:^
+        version: link:../plugin-result-value
+      '@jsonpath/plugin-syntax-child-index':
+        specifier: workspace:^
+        version: link:../plugin-syntax-child-index
+      '@jsonpath/plugin-syntax-child-member':
+        specifier: workspace:^
+        version: link:../plugin-syntax-child-member
+      '@jsonpath/plugin-syntax-current':
+        specifier: workspace:^
+        version: link:../plugin-syntax-current
+      '@jsonpath/plugin-syntax-descendant':
+        specifier: workspace:^
+        version: link:../plugin-syntax-descendant
+      '@jsonpath/plugin-syntax-filter':
+        specifier: workspace:^
+        version: link:../plugin-syntax-filter
+      '@jsonpath/plugin-syntax-root':
+        specifier: workspace:^
+        version: link:../plugin-syntax-root
+      '@jsonpath/plugin-syntax-union':
+        specifier: workspace:^
+        version: link:../plugin-syntax-union
+      '@jsonpath/plugin-syntax-wildcard':
+        specifier: workspace:^
+        version: link:../plugin-syntax-wildcard
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
