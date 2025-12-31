@@ -348,7 +348,7 @@ completes: step 12 of 30 for jsonpath
 
 #### Step 13: Filter expression plugin shells (existence/functions/regex)
 
-- [ ] Add required workspace deps:
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/plugin-filter-existence add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/parser@workspace:*'
@@ -358,8 +358,8 @@ pnpm --filter @jsonpath/plugin-iregexp add '@jsonpath/core@workspace:*'
 pnpm --filter @jsonpath/plugin-filter-regex add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/parser@workspace:*' '@jsonpath/plugin-iregexp@workspace:*'
 ```
 
-- [ ] Replace `src/index.ts` in each package with wiring-only `plugin` exports + add tests.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Replace `src/index.ts` in each package with wiring-only `plugin` exports + add tests.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-13-filter-shells-2.cjs
@@ -367,7 +367,7 @@ node scripts/jsonpath/step-13-filter-shells-2.cjs
 
 ##### Step 13 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-filter-existence --filter @jsonpath/plugin-functions-core --filter @jsonpath/plugin-filter-functions --filter @jsonpath/plugin-iregexp --filter @jsonpath/plugin-filter-regex` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-filter-existence --filter @jsonpath/plugin-functions-core --filter @jsonpath/plugin-filter-functions --filter @jsonpath/plugin-iregexp --filter @jsonpath/plugin-filter-regex` succeeds.
 
 #### Step 13 STOP & COMMIT
 
