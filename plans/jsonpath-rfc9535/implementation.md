@@ -161,9 +161,9 @@ Behavior requirements:
 
 ### Step 1 Verification
 
-- [ ] pnpm --filter @jsonpath/lexer test
-- [ ] pnpm --filter @jsonpath/ast test
-- [ ] pnpm --filter @jsonpath/plugin-syntax-root test
+- [x] pnpm --filter @jsonpath/lexer test
+- [x] pnpm --filter @jsonpath/ast test
+- [x] pnpm --filter @jsonpath/plugin-syntax-root test
 
 ### Step 1 STOP & COMMIT
 

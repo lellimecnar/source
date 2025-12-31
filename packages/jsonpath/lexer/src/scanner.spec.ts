@@ -27,4 +27,14 @@ describe('@jsonpath/lexer', () => {
 			TokenKinds.NotEq,
 		]);
 	});
+
+	it('scans boolean operators && and || as single tokens', () => {
+		const s = new Scanner();
+		registerRfc9535ScanRules(s);
+		const tokens = s.scanAll('&& ||');
+		expect(tokens.map((t) => t.kind)).toEqual([
+			TokenKinds.AndAnd,
+			TokenKinds.OrOr,
+		]);
+	});
 });

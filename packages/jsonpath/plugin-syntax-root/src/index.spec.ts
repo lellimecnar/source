@@ -50,4 +50,34 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 		const ast = engine.parse('$..author');
 		expect(ast.segments[0]!.kind).toBe('DescendantSegment');
 	});
+
+	it('rejects filters in rfc9535-core', () => {
+		const engine = createEngine({
+			plugins: [createSyntaxRootPlugin()],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
+				},
+			},
+		});
+		expect(() => engine.parse('$[?@.a]')).toThrow(
+			'Filter selectors are not supported in rfc9535-core',
+		);
+	});
+
+	it('parses filters in rfc9535-full', () => {
+		const engine = createEngine({
+			plugins: [createSyntaxRootPlugin()],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+				},
+			},
+		});
+		const ast = engine.parse('$[?@.a == 1]');
+		expect(ast.segments[0]!.kind).toBe('Segment');
+		const selector = (ast.segments[0] as any).selectors[0];
+		expect(selector.kind).toBe('Selector:Filter');
+		expect(selector.expr.kind).toBe('FilterExpr:Compare');
+	});
 });

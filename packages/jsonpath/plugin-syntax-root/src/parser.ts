@@ -1,5 +1,12 @@
 import {
 	descendantSegment,
+	embeddedQuery,
+	filterAnd,
+	filterCompare,
+	filterLiteral,
+	filterNot,
+	filterOr,
+	filterSelector,
 	indexSelector,
 	nameSelector,
 	path,
@@ -128,6 +135,98 @@ function parseSelector(
 	syntaxError(ctx, t.offset, `Unexpected selector token: ${t.kind}`); // gitleaks:allow
 }
 
+function parseFilterOr(ctx: ParserContext, profile: Profile): any {
+	let left = parseFilterAnd(ctx, profile);
+	while (maybe(ctx, TokenKinds.OrOr)) {
+		const right = parseFilterAnd(ctx, profile);
+		left = filterOr(left, right);
+	}
+	return left;
+}
+
+function parseFilterAnd(ctx: ParserContext, profile: Profile): any {
+	let left = parseFilterUnary(ctx, profile);
+	while (maybe(ctx, TokenKinds.AndAnd)) {
+		const right = parseFilterUnary(ctx, profile);
+		left = filterAnd(left, right);
+	}
+	return left;
+}
+
+function parseFilterUnary(ctx: ParserContext, profile: Profile): any {
+	if (maybe(ctx, TokenKinds.Bang)) {
+		return filterNot(parseFilterUnary(ctx, profile));
+	}
+	return parseFilterComparison(ctx, profile);
+}
+
+function parseFilterComparison(ctx: ParserContext, profile: Profile): any {
+	const left = parseFilterPrimary(ctx, profile);
+	const t = ctx.tokens.peek();
+	if (
+		t &&
+		(t.kind === TokenKinds.EqEq ||
+			t.kind === TokenKinds.NotEq ||
+			t.kind === TokenKinds.Lt ||
+			t.kind === TokenKinds.Gt ||
+			t.kind === TokenKinds.LtEq ||
+			t.kind === TokenKinds.GtEq)
+	) {
+		ctx.tokens.next();
+		const operator = t.lexeme as any;
+		const right = parseFilterPrimary(ctx, profile);
+		return filterCompare(operator, left, right);
+	}
+	return left;
+}
+
+function parseFilterPrimary(ctx: ParserContext, profile: Profile): any {
+	const t = ctx.tokens.peek();
+	if (!t) syntaxError(ctx, ctx.input.length, 'Unexpected end of input');
+
+	if (t.kind === TokenKinds.LParen) {
+		ctx.tokens.next();
+		const expr = parseFilterOr(ctx, profile);
+		expect(ctx, TokenKinds.RParen);
+		return expr;
+	}
+
+	if (t.kind === TokenKinds.String) {
+		const tok = ctx.tokens.next()!;
+		return filterLiteral(decodeQuotedString(tok.lexeme));
+	}
+
+	if (t.kind === TokenKinds.Number) {
+		const tok = ctx.tokens.next()!;
+		return filterLiteral(Number(tok.lexeme));
+	}
+
+	if (t.kind === TokenKinds.Identifier) {
+		const tok = ctx.tokens.next()!;
+		if (tok.lexeme === 'true') return filterLiteral(true);
+		if (tok.lexeme === 'false') return filterLiteral(false);
+		if (tok.lexeme === 'null') return filterLiteral(null);
+		syntaxError(
+			ctx,
+			tok.offset,
+			`Unexpected identifier in filter: ${tok.lexeme}`,
+		);
+	}
+
+	if (t.kind === TokenKinds.Dollar || t.kind === TokenKinds.At) {
+		return parseEmbeddedQuery(ctx, profile);
+	}
+
+	syntaxError(ctx, t.offset, `Unexpected token in filter: ${t.kind}`);
+}
+
+function parseEmbeddedQuery(ctx: ParserContext, profile: Profile): any {
+	const t = ctx.tokens.next()!;
+	const scope = t.kind === TokenKinds.Dollar ? 'root' : 'current';
+	const segments = parseSegments(ctx, profile);
+	return embeddedQuery(scope, segments);
+}
+
 function parseBracketSelectors(
 	ctx: ParserContext,
 	profile: Profile,
@@ -144,11 +243,9 @@ function parseBracketSelectors(
 				'Filter selectors are not supported in rfc9535-core',
 			);
 		}
-		syntaxError(
-			ctx,
-			maybeFilter.offset,
-			'Filter selectors are not implemented yet',
-		);
+		const expr = parseFilterOr(ctx, profile);
+		expect(ctx, TokenKinds.RBracket);
+		return { selectors: [filterSelector(expr)] };
 	}
 
 	const selectors: any[] = [];
@@ -165,13 +262,12 @@ function parseDotName(ctx: ParserContext): any {
 	return nameSelector(id.lexeme);
 }
 
-export function parseRfc9535Path(ctx: ParserContext, profile: Profile) {
-	const first = expect(ctx, TokenKinds.Dollar);
-	void first;
-
+function parseSegments(ctx: ParserContext, profile: Profile): any[] {
 	const segments: any[] = [];
-	while (ctx.tokens.peek()) {
-		const t = ctx.tokens.peek()!;
+	while (true) {
+		const t = ctx.tokens.peek();
+		if (!t) break;
+
 		if (t.kind === TokenKinds.Dot) {
 			ctx.tokens.next();
 			const next = ctx.tokens.peek();
@@ -214,8 +310,12 @@ export function parseRfc9535Path(ctx: ParserContext, profile: Profile) {
 			continue;
 		}
 
-		syntaxError(ctx, t.offset, `Unexpected token in path: ${t.kind}`);
+		break;
 	}
+	return segments;
+}
 
-	return path(segments);
+export function parseRfc9535Path(ctx: ParserContext, profile: Profile) {
+	expect(ctx, TokenKinds.Dollar);
+	return path(parseSegments(ctx, profile));
 }

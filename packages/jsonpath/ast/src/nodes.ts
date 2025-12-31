@@ -9,6 +9,16 @@ export const SelectorKinds = {
 	Wildcard: 'Selector:Wildcard',
 	Index: 'Selector:Index',
 	Slice: 'Selector:Slice',
+	Filter: 'Selector:Filter',
+} as const;
+
+export const FilterExprKinds = {
+	Or: 'FilterExpr:Or',
+	And: 'FilterExpr:And',
+	Not: 'FilterExpr:Not',
+	Compare: 'FilterExpr:Compare',
+	Literal: 'FilterExpr:Literal',
+	EmbeddedQuery: 'FilterExpr:EmbeddedQuery',
 } as const;
 
 export type NameSelectorNode = AstNodeBase<(typeof SelectorKinds)['Name']> & {
@@ -29,11 +39,62 @@ export type SliceSelectorNode = AstNodeBase<(typeof SelectorKinds)['Slice']> & {
 	step?: number;
 };
 
+export type FilterSelectorNode = AstNodeBase<
+	(typeof SelectorKinds)['Filter']
+> & {
+	expr: FilterExprNode;
+};
+
+export type FilterOrNode = AstNodeBase<(typeof FilterExprKinds)['Or']> & {
+	left: FilterExprNode;
+	right: FilterExprNode;
+};
+
+export type FilterAndNode = AstNodeBase<(typeof FilterExprKinds)['And']> & {
+	left: FilterExprNode;
+	right: FilterExprNode;
+};
+
+export type FilterNotNode = AstNodeBase<(typeof FilterExprKinds)['Not']> & {
+	expr: FilterExprNode;
+};
+
+export type FilterCompareNode = AstNodeBase<
+	(typeof FilterExprKinds)['Compare']
+> & {
+	operator: '==' | '!=' | '<' | '<=' | '>' | '>=';
+	left: FilterExprNode;
+	right: FilterExprNode;
+};
+
+export type FilterLiteralNode = AstNodeBase<
+	(typeof FilterExprKinds)['Literal']
+> & {
+	value: string | number | boolean | null;
+};
+
+export type EmbeddedQueryNode = AstNodeBase<
+	(typeof FilterExprKinds)['EmbeddedQuery']
+> & {
+	scope: 'root' | 'current';
+	segments: SegmentNode[];
+	singular: boolean;
+};
+
+export type FilterExprNode =
+	| FilterOrNode
+	| FilterAndNode
+	| FilterNotNode
+	| FilterCompareNode
+	| FilterLiteralNode
+	| EmbeddedQueryNode;
+
 export type SelectorNode =
 	| NameSelectorNode
 	| WildcardSelectorNode
 	| IndexSelectorNode
 	| SliceSelectorNode
+	| FilterSelectorNode
 	| (AstNodeBase<string> & Record<string, unknown>);
 
 export type ChildSegmentNode = AstNodeBase<'Segment'> & {
@@ -87,4 +148,48 @@ export function sliceSelector(args: {
 		end: args.end,
 		step: args.step,
 	};
+}
+
+export function filterSelector(expr: FilterExprNode): FilterSelectorNode {
+	return { kind: SelectorKinds.Filter, expr };
+}
+
+export function filterOr(
+	left: FilterExprNode,
+	right: FilterExprNode,
+): FilterOrNode {
+	return { kind: FilterExprKinds.Or, left, right };
+}
+
+export function filterAnd(
+	left: FilterExprNode,
+	right: FilterExprNode,
+): FilterAndNode {
+	return { kind: FilterExprKinds.And, left, right };
+}
+
+export function filterNot(expr: FilterExprNode): FilterNotNode {
+	return { kind: FilterExprKinds.Not, expr };
+}
+
+export function filterCompare(
+	operator: FilterCompareNode['operator'],
+	left: FilterExprNode,
+	right: FilterExprNode,
+): FilterCompareNode {
+	return { kind: FilterExprKinds.Compare, operator, left, right };
+}
+
+export function filterLiteral(
+	value: FilterLiteralNode['value'],
+): FilterLiteralNode {
+	return { kind: FilterExprKinds.Literal, value };
+}
+
+export function embeddedQuery(
+	scope: EmbeddedQueryNode['scope'],
+	segments: SegmentNode[],
+	singular = false,
+): EmbeddedQueryNode {
+	return { kind: FilterExprKinds.EmbeddedQuery, scope, segments, singular };
 }

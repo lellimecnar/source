@@ -8,6 +8,16 @@ export function registerRfc9535ScanRules(scanner: Scanner): void {
 			? { lexeme: '..', offset, kind: TokenKinds.DotDot }
 			: null,
 	);
+	scanner.register(TokenKinds.AndAnd, (input, offset) =>
+		input.startsWith('&&', offset)
+			? { lexeme: '&&', offset, kind: TokenKinds.AndAnd }
+			: null,
+	);
+	scanner.register(TokenKinds.OrOr, (input, offset) =>
+		input.startsWith('||', offset)
+			? { lexeme: '||', offset, kind: TokenKinds.OrOr }
+			: null,
+	);
 	scanner.register(TokenKinds.EqEq, (input, offset) =>
 		input.startsWith('==', offset)
 			? { lexeme: '==', offset, kind: TokenKinds.EqEq }

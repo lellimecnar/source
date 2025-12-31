@@ -20,6 +20,8 @@ export const TokenKinds = {
 	RParen: 'RParen',
 	Question: 'Question',
 	Bang: 'Bang',
+	AndAnd: 'AndAnd',
+	OrOr: 'OrOr',
 	EqEq: 'EqEq',
 	NotEq: 'NotEq',
 	LtEq: 'LtEq',
