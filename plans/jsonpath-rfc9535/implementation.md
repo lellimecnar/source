@@ -1032,8 +1032,8 @@ If not, move them to the correct branch. If the branch does not exist, create it
 
 #### Step 1 (C06): Extend AST with RFC segment + selector node shapes
 
-- [ ] Update AST types to represent descendant segments and the core selector kinds.
-- [ ] Copy and paste code below into `packages/jsonpath/ast/src/nodes.ts` (this replaces the file):
+- [x] Update AST types to represent descendant segments and the core selector kinds.
+- [x] Copy and paste code below into `packages/jsonpath/ast/src/nodes.ts` (this replaces the file):
 
 ```ts
 export type AstNodeBase<TKind extends string> = {
@@ -1128,8 +1128,8 @@ export function sliceSelector(args: {
 }
 ```
 
-- [ ] Add unit tests proving the new node constructors/types work.
-- [ ] Copy and paste code below into `packages/jsonpath/ast/src/nodes.spec.ts` (this replaces the file):
+- [x] Add unit tests proving the new node constructors/types work.
+- [x] Copy and paste code below into `packages/jsonpath/ast/src/nodes.spec.ts` (this replaces the file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1173,7 +1173,7 @@ describe('@jsonpath/ast RFC-ish nodes', () => {
 
 ##### Step 1 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/ast test`
+- [x] `pnpm --filter @jsonpath/ast test`
 
 #### Step 1 STOP & COMMIT
 
