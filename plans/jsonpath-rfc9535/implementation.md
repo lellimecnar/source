@@ -1017,12 +1017,1245 @@ completes: step 5 of 5 for jsonpath-rfc9535
 
 ---
 
-## Next PRs (outline only)
+## PR B: RFC 9535 Core Selectors (C06–C14)
 
-PR A intentionally stops at framework hooks + harness + tokenization scaffolding. The remaining RFC plan from `plans/jsonpath-rfc9535/plan.md` should be delivered as follow-up PRs (PR B–PR F), each with its own `implementation.md` focused on a narrow, testable contract:
+## Goal
 
-- PR B (C06–C14): RFC AST nodes + parsing root/segments/selectors + evaluator semantics for child/wildcard/index/slice under `rfc9535-core`.
+Deliver **PR B** of the RFC 9535 compliance plan: implement RFC-ish AST nodes + parsing for `$` and core segments/selectors, plus evaluation semantics for child + descendant segments, name/wildcard/index/slice selectors under `profile: 'rfc9535-core'`.
+
+## Prerequisites
+
+Make sure that the user is currently on the `jsonpath/rfc9535-compliance` branch before beginning implementation.
+If not, move them to the correct branch. If the branch does not exist, create it from `master`.
+
+### Step-by-Step Instructions
+
+#### Step 1 (C06): Extend AST with RFC segment + selector node shapes
+
+- [ ] Update AST types to represent descendant segments and the core selector kinds.
+- [ ] Copy and paste code below into `packages/jsonpath/ast/src/nodes.ts` (this replaces the file):
+
+```ts
+export type AstNodeBase<TKind extends string> = {
+	kind: TKind;
+};
+
+export type JsonPathAst = PathNode;
+
+export const SelectorKinds = {
+	Name: 'Selector:Name',
+	Wildcard: 'Selector:Wildcard',
+	Index: 'Selector:Index',
+	Slice: 'Selector:Slice',
+} as const;
+
+export type NameSelectorNode = AstNodeBase<(typeof SelectorKinds)['Name']> & {
+	name: string;
+};
+
+export type WildcardSelectorNode = AstNodeBase<
+	(typeof SelectorKinds)['Wildcard']
+>;
+
+export type IndexSelectorNode = AstNodeBase<(typeof SelectorKinds)['Index']> & {
+	index: number;
+};
+
+export type SliceSelectorNode = AstNodeBase<(typeof SelectorKinds)['Slice']> & {
+	start?: number;
+	end?: number;
+	step?: number;
+};
+
+export type SelectorNode =
+	| NameSelectorNode
+	| WildcardSelectorNode
+	| IndexSelectorNode
+	| SliceSelectorNode
+	| (AstNodeBase<string> & Record<string, unknown>);
+
+export type ChildSegmentNode = AstNodeBase<'Segment'> & {
+	selectors: SelectorNode[];
+};
+
+export type DescendantSegmentNode = AstNodeBase<'DescendantSegment'> & {
+	selectors: SelectorNode[];
+};
+
+export type SegmentNode = ChildSegmentNode | DescendantSegmentNode;
+
+export type PathNode = AstNodeBase<'Path'> & {
+	segments: SegmentNode[];
+};
+
+export function path(segments: SegmentNode[]): PathNode {
+	return { kind: 'Path', segments };
+}
+
+export function segment(selectors: SelectorNode[]): ChildSegmentNode {
+	return { kind: 'Segment', selectors };
+}
+
+export function descendantSegment(
+	selectors: SelectorNode[],
+): DescendantSegmentNode {
+	return { kind: 'DescendantSegment', selectors };
+}
+
+export function nameSelector(name: string): NameSelectorNode {
+	return { kind: SelectorKinds.Name, name };
+}
+
+export function wildcardSelector(): WildcardSelectorNode {
+	return { kind: SelectorKinds.Wildcard };
+}
+
+export function indexSelector(index: number): IndexSelectorNode {
+	return { kind: SelectorKinds.Index, index };
+}
+
+export function sliceSelector(args: {
+	start?: number;
+	end?: number;
+	step?: number;
+}): SliceSelectorNode {
+	return {
+		kind: SelectorKinds.Slice,
+		start: args.start,
+		end: args.end,
+		step: args.step,
+	};
+}
+```
+
+- [ ] Add unit tests proving the new node constructors/types work.
+- [ ] Copy and paste code below into `packages/jsonpath/ast/src/nodes.spec.ts` (new file):
+
+```ts
+import { describe, expect, it } from 'vitest';
+
+import {
+	descendantSegment,
+	indexSelector,
+	nameSelector,
+	path,
+	segment,
+	sliceSelector,
+	wildcardSelector,
+} from './nodes';
+
+describe('@jsonpath/ast RFC-ish nodes', () => {
+	it('builds a path with child + descendant segments', () => {
+		const ast = path([
+			segment([nameSelector('store')]),
+			descendantSegment([wildcardSelector()]),
+		]);
+		expect(ast.kind).toBe('Path');
+		expect(ast.segments.map((s) => s.kind)).toEqual([
+			'Segment',
+			'DescendantSegment',
+		]);
+	});
+
+	it('creates selector nodes with stable kinds', () => {
+		expect(nameSelector('a')).toEqual({ kind: 'Selector:Name', name: 'a' });
+		expect(wildcardSelector()).toEqual({ kind: 'Selector:Wildcard' });
+		expect(indexSelector(-1)).toEqual({ kind: 'Selector:Index', index: -1 });
+		expect(sliceSelector({ start: 1, end: 3, step: 2 })).toEqual({
+			kind: 'Selector:Slice',
+			start: 1,
+			end: 3,
+			step: 2,
+		});
+	});
+});
+```
+
+##### Step 1 Verification Checklist
+
+- [ ] `pnpm --filter @jsonpath/ast test`
+
+#### Step 1 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+feat(jsonpath-rfc9535): add RFC segment + selector AST nodes
+
+- Add DescendantSegment node shape
+- Add core selector node shapes (name/wildcard/index/slice)
+- Add small vitest coverage for constructors
+
+completes: step 1 of 9 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+#### Step 2 (C07): Add RFC 9535 literal scan rules (identifier/number/string)
+
+- [ ] Add a lexer helper that tokenizes identifiers, integers, and JSONPath string literals.
+- [ ] Copy and paste code below into `packages/jsonpath/lexer/src/rfc9535-literals.ts` (new file):
+
+```ts
+import type { Scanner } from './scanner';
+import { TokenKinds } from './token';
+
+function isAlpha(ch: string): boolean {
+	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch === '_';
+}
+
+function isDigit(ch: string): boolean {
+	return ch >= '0' && ch <= '9';
+}
+
+export function registerRfc9535LiteralScanRules(scanner: Scanner): void {
+	// Identifiers (for dot-notation names): [A-Za-z_][A-Za-z0-9_]*
+	scanner.register(TokenKinds.Identifier, (input, offset) => {
+		const first = input[offset];
+		if (!first || !isAlpha(first)) return null;
+		let i = offset + 1;
+		while (i < input.length) {
+			const ch = input[i];
+			if (!ch) break;
+			if (isAlpha(ch) || isDigit(ch)) {
+				i += 1;
+				continue;
+			}
+			break;
+		}
+		return {
+			kind: TokenKinds.Identifier,
+			lexeme: input.slice(offset, i),
+			offset,
+		};
+	});
+
+	// Integers (for indexes/slices): -?[0-9]+
+	scanner.register(TokenKinds.Number, (input, offset) => {
+		let i = offset;
+		if (input[i] === '-') i += 1;
+		const startDigits = i;
+		while (i < input.length && isDigit(input[i]!)) i += 1;
+		if (i === startDigits) return null;
+		return { kind: TokenKinds.Number, lexeme: input.slice(offset, i), offset };
+	});
+
+	// String literals: single or double quoted, with backslash escapes.
+	// The parser is responsible for decoding escapes; lexer just captures the full lexeme.
+	scanner.register(TokenKinds.String, (input, offset) => {
+		const quote = input[offset];
+		if (quote !== "'" && quote !== '"') return null;
+		let i = offset + 1;
+		while (i < input.length) {
+			const ch = input[i]!;
+			if (ch === '\\') {
+				// Skip escaped character (or unicode escape body).
+				i += 2;
+				continue;
+			}
+			if (ch === quote) {
+				i += 1;
+				return {
+					kind: TokenKinds.String,
+					lexeme: input.slice(offset, i),
+					offset,
+				};
+			}
+			i += 1;
+		}
+		// Unterminated string; let parser raise a syntax error using TokenKinds.String presence.
+		return { kind: TokenKinds.String, lexeme: input.slice(offset), offset };
+	});
+}
+```
+
+- [ ] Export the new helper.
+- [ ] Copy and paste code below into `packages/jsonpath/lexer/src/index.ts` (add the export):
+
+```ts
+export * from './scanner';
+export * from './stream';
+export * from './token';
+export * from './rfc9535';
+export * from './rfc9535-literals';
+```
+
+- [ ] Add lexer tests.
+- [ ] Copy and paste code below into `packages/jsonpath/lexer/src/rfc9535-literals.spec.ts` (new file):
+
+```ts
+import { describe, expect, it } from 'vitest';
+
+import { Scanner } from './scanner';
+import { registerRfc9535LiteralScanRules } from './rfc9535-literals';
+import { TokenKinds } from './token';
+
+describe('@jsonpath/lexer rfc9535 literals', () => {
+	it('scans identifiers', () => {
+		const s = new Scanner();
+		registerRfc9535LiteralScanRules(s);
+		expect(s.scanAll('abc _x A1')).toEqual([
+			{ kind: TokenKinds.Identifier, lexeme: 'abc', offset: 0 },
+			{ kind: TokenKinds.Identifier, lexeme: '_x', offset: 4 },
+			{ kind: TokenKinds.Identifier, lexeme: 'A1', offset: 7 },
+		]);
+	});
+
+	it('scans integers', () => {
+		const s = new Scanner();
+		registerRfc9535LiteralScanRules(s);
+		expect(s.scanAll('0 -1 42')).toEqual([
+			{ kind: TokenKinds.Number, lexeme: '0', offset: 0 },
+			{ kind: TokenKinds.Number, lexeme: '-1', offset: 2 },
+			{ kind: TokenKinds.Number, lexeme: '42', offset: 5 },
+		]);
+	});
+
+	it('scans string literals', () => {
+		const s = new Scanner();
+		registerRfc9535LiteralScanRules(s);
+		const tokens = s.scanAll("'a' \"b\" 'j\\\\ j'");
+		expect(tokens.map((t) => t.kind)).toEqual([
+			TokenKinds.String,
+			TokenKinds.String,
+			TokenKinds.String,
+		]);
+		expect(tokens.map((t) => t.lexeme)).toEqual(["'a'", '"b"', "'j\\\\ j'"]);
+	});
+});
+```
+
+##### Step 2 Verification Checklist
+
+- [ ] `pnpm --filter @jsonpath/lexer test`
+
+#### Step 2 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+feat(jsonpath-rfc9535): add RFC9535 literal tokenization helpers
+
+- Add identifier, integer, and string literal scan rules
+- Export helpers and add vitest coverage
+
+completes: step 2 of 9 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+#### Step 3 (C08–C09): Add RFC 9535 core parser (root + segments + selectors)
+
+- [ ] Implement a minimal RFC 9535 parser as a plugin-installed segment parser. This keeps `@jsonpath/parser` framework-only and moves RFC behavior into syntax plugins.
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/parser.ts` (new file):
+
+```ts
+import {
+	descendantSegment,
+	indexSelector,
+	nameSelector,
+	path,
+	segment,
+	sliceSelector,
+	wildcardSelector,
+} from '@jsonpath/ast';
+import { TokenKinds } from '@jsonpath/lexer';
+import type { ParserContext } from '@jsonpath/parser';
+
+import { JsonPathError } from '@jsonpath/core';
+import { JsonPathErrorCodes } from '@jsonpath/core';
+
+type Profile = 'rfc9535-draft' | 'rfc9535-core' | 'rfc9535-full';
+
+function syntaxError(
+	ctx: ParserContext,
+	offset: number,
+	message: string,
+): never {
+	throw new JsonPathError({
+		code: JsonPathErrorCodes.Syntax,
+		message,
+		expression: ctx.input,
+		location: { offset },
+	});
+}
+
+function decodeQuotedString(lexeme: string): string {
+	// Lexer includes the surrounding quote characters.
+	const quote = lexeme[0];
+	const raw = lexeme.slice(1, lexeme.endsWith(quote) ? -1 : undefined);
+	// Minimal decoding: \\ and escaped quotes.
+	return raw
+		.replaceAll('\\\\', '\\')
+		.replaceAll("\\'", "'")
+		.replaceAll('\\"', '"');
+}
+
+function parseInteger(
+	ctx: ParserContext,
+	lexeme: string,
+	offset: number,
+): number {
+	const n = Number.parseInt(lexeme, 10);
+	if (!Number.isFinite(n))
+		syntaxError(ctx, offset, `Invalid integer: ${lexeme}`);
+	return n;
+}
+
+function expect(
+	ctx: ParserContext,
+	kind: string,
+): { kind: string; lexeme: string; offset: number } {
+	const t = ctx.tokens.next();
+	if (!t || t.kind !== kind) {
+		const off = t?.offset ?? ctx.input.length;
+		syntaxError(ctx, off, `Expected token ${kind}`);
+	}
+	return t;
+}
+
+function maybe(
+	ctx: ParserContext,
+	kind: string,
+): { kind: string; lexeme: string; offset: number } | null {
+	const t = ctx.tokens.peek();
+	if (!t || t.kind !== kind) return null;
+	return ctx.tokens.next()!;
+}
+
+function parseSelector(
+	ctx: ParserContext,
+):
+	| ReturnType<typeof nameSelector>
+	| ReturnType<typeof wildcardSelector>
+	| ReturnType<typeof indexSelector>
+	| ReturnType<typeof sliceSelector> {
+	const t = ctx.tokens.peek();
+	if (!t) syntaxError(ctx, ctx.input.length, 'Unexpected end of input');
+
+	if (t.kind === TokenKinds.Star) {
+		ctx.tokens.next();
+		return wildcardSelector();
+	}
+
+	if (t.kind === TokenKinds.String) {
+		const tok = ctx.tokens.next()!;
+		return nameSelector(decodeQuotedString(tok.lexeme));
+	}
+
+	// Slice: [start?:end?:step?] (only inside brackets)
+	// We detect slice when the next token is ':' OR when number is followed by ':'.
+	if (t.kind === TokenKinds.Colon) {
+		ctx.tokens.next();
+		const endTok = maybe(ctx, TokenKinds.Number);
+		let end: number | undefined;
+		if (endTok) end = parseInteger(ctx, endTok.lexeme, endTok.offset);
+
+		let step: number | undefined;
+		if (maybe(ctx, TokenKinds.Colon)) {
+			const stepTok = maybe(ctx, TokenKinds.Number);
+			if (stepTok) step = parseInteger(ctx, stepTok.lexeme, stepTok.offset);
+		}
+
+		return sliceSelector({ start: undefined, end, step });
+	}
+
+	if (t.kind === TokenKinds.Number) {
+		const first = ctx.tokens.next()!;
+		const start = parseInteger(ctx, first.lexeme, first.offset);
+		if (maybe(ctx, TokenKinds.Colon)) {
+			const endTok = maybe(ctx, TokenKinds.Number);
+			let end: number | undefined;
+			if (endTok) end = parseInteger(ctx, endTok.lexeme, endTok.offset);
+
+			let step: number | undefined;
+			if (maybe(ctx, TokenKinds.Colon)) {
+				const stepTok = maybe(ctx, TokenKinds.Number);
+				if (stepTok) step = parseInteger(ctx, stepTok.lexeme, stepTok.offset);
+			}
+
+			return sliceSelector({ start, end, step });
+		}
+		return indexSelector(start);
+	}
+
+	syntaxError(ctx, t.offset, `Unexpected selector token: ${t.kind}`);
+}
+
+function parseBracketSelectors(
+	ctx: ParserContext,
+	profile: Profile,
+): { selectors: any[] } {
+	expect(ctx, TokenKinds.LBracket);
+
+	// Reject filters in rfc9535-core (and keep PR B focused).
+	const maybeFilter = maybe(ctx, TokenKinds.Question);
+	if (maybeFilter) {
+		if (profile === 'rfc9535-core') {
+			syntaxError(
+				ctx,
+				maybeFilter.offset,
+				'Filter selectors are not supported in rfc9535-core',
+			);
+		}
+		syntaxError(
+			ctx,
+			maybeFilter.offset,
+			'Filter selectors are not implemented yet',
+		);
+	}
+
+	const selectors: any[] = [];
+	selectors.push(parseSelector(ctx));
+	while (maybe(ctx, TokenKinds.Comma)) {
+		selectors.push(parseSelector(ctx));
+	}
+	expect(ctx, TokenKinds.RBracket);
+	return { selectors };
+}
+
+function parseDotName(ctx: ParserContext): any {
+	const id = expect(ctx, TokenKinds.Identifier);
+	return nameSelector(id.lexeme);
+}
+
+export function parseRfc9535Path(ctx: ParserContext, profile: Profile) {
+	const first = expect(ctx, TokenKinds.Dollar);
+	void first;
+
+	const segments: any[] = [];
+	while (ctx.tokens.peek()) {
+		const t = ctx.tokens.peek()!;
+		if (t.kind === TokenKinds.Dot) {
+			ctx.tokens.next();
+			const next = ctx.tokens.peek();
+			if (!next)
+				syntaxError(ctx, ctx.input.length, 'Expected selector after .');
+			if (next.kind === TokenKinds.Star) {
+				ctx.tokens.next();
+				segments.push(segment([wildcardSelector()]));
+				continue;
+			}
+			segments.push(segment([parseDotName(ctx)]));
+			continue;
+		}
+
+		if (t.kind === TokenKinds.DotDot) {
+			ctx.tokens.next();
+			const next = ctx.tokens.peek();
+			if (!next)
+				syntaxError(ctx, ctx.input.length, 'Expected selector after ..');
+			if (next.kind === TokenKinds.Star) {
+				ctx.tokens.next();
+				segments.push(descendantSegment([wildcardSelector()]));
+				continue;
+			}
+			if (next.kind === TokenKinds.Identifier) {
+				segments.push(descendantSegment([parseDotName(ctx)]));
+				continue;
+			}
+			if (next.kind === TokenKinds.LBracket) {
+				const { selectors } = parseBracketSelectors(ctx, profile);
+				segments.push(descendantSegment(selectors));
+				continue;
+			}
+			syntaxError(ctx, next.offset, 'Unexpected token after ..');
+		}
+
+		if (t.kind === TokenKinds.LBracket) {
+			const { selectors } = parseBracketSelectors(ctx, profile);
+			segments.push(segment(selectors));
+			continue;
+		}
+
+		syntaxError(ctx, t.offset, `Unexpected token in path: ${t.kind}`);
+	}
+
+	return path(segments);
+}
+```
+
+- [ ] Update the root syntax plugin to install lexer rules + parser.
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/index.ts` (this replaces the file):
+
+```ts
+import type { JsonPathPlugin } from '@jsonpath/core';
+import {
+	registerRfc9535ScanRules,
+	registerRfc9535LiteralScanRules,
+} from '@jsonpath/lexer';
+
+import { parseRfc9535Path } from './parser';
+
+type Profile = 'rfc9535-draft' | 'rfc9535-core' | 'rfc9535-full';
+
+let profile: Profile = 'rfc9535-draft';
+
+export const plugin: JsonPathPlugin<{ profile?: Profile }> = {
+	meta: {
+		id: '@jsonpath/plugin-syntax-root',
+		capabilities: ['syntax:rfc9535:root'],
+	},
+	configure: (cfg) => {
+		profile = cfg?.profile ?? 'rfc9535-draft';
+	},
+	hooks: {
+		registerTokens: (scanner) => {
+			registerRfc9535ScanRules(scanner);
+			registerRfc9535LiteralScanRules(scanner);
+		},
+		registerParsers: (parser) => {
+			parser.registerSegmentParser((ctx) => parseRfc9535Path(ctx, profile));
+		},
+	},
+};
+```
+
+- [ ] Add plugin tests for basic parsing.
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/index.spec.ts` (append these tests):
+
+```ts
+import { describe, expect, it } from 'vitest';
+
+import { createEngine } from '@jsonpath/core';
+import { plugin } from './index';
+
+describe('@jsonpath/plugin-syntax-root parser', () => {
+	it('parses $ and dot-notation', () => {
+		const engine = createEngine({
+			plugins: [plugin],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
+				},
+			},
+		});
+		const ast = engine.parse('$.store.book');
+		expect(ast.kind).toBe('Path');
+		expect(ast.segments).toHaveLength(2);
+	});
+
+	it('parses bracket selectors', () => {
+		const engine = createEngine({
+			plugins: [plugin],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
+				},
+			},
+		});
+		const ast = engine.parse("$['a'][0]");
+		expect(ast.segments).toHaveLength(2);
+	});
+
+	it('parses descendant segments', () => {
+		const engine = createEngine({
+			plugins: [plugin],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
+				},
+			},
+		});
+		const ast = engine.parse('$..author');
+		expect(ast.segments[0]!.kind).toBe('DescendantSegment');
+	});
+});
+```
+
+##### Step 3 Verification Checklist
+
+- [ ] `pnpm --filter @jsonpath/plugin-syntax-root test`
+
+#### Step 3 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+feat(jsonpath-rfc9535): implement RFC9535 core path parser
+
+- Add minimal RFC9535 parser in plugin-syntax-root
+- Wire token scan rules + literal scan rules
+- Add vitest coverage for $/dot/bracket/descendant parsing
+
+completes: step 3 of 9 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+#### Step 4 (C10): Add descendant segment evaluation semantics in core
+
+- [ ] Update the core engine evaluation loop to understand `DescendantSegment`.
+- [ ] Copy and paste code below into `packages/jsonpath/core/src/createEngine.ts` (replace only `evaluateSync` with this version):
+
+```ts
+const evaluateSync = (
+	compiled: CompileResult,
+	json: unknown,
+	evaluateOptions?: EvaluateOptions,
+) => {
+	function isRecord(value: unknown): value is Record<string, unknown> {
+		return typeof value === 'object' && value !== null && !Array.isArray(value);
+	}
+
+	function descendantsOf(node: JsonPathNode): readonly JsonPathNode[] {
+		const out: JsonPathNode[] = [node];
+		const queue: JsonPathNode[] = [node];
+		while (queue.length) {
+			const current = queue.shift()!;
+			const v = current.value;
+			if (Array.isArray(v)) {
+				for (const item of v) {
+					const child: JsonPathNode = {
+						value: item,
+						location: current.location,
+					};
+					out.push(child);
+					queue.push(child);
+				}
+				continue;
+			}
+			if (isRecord(v)) {
+				for (const key of Object.keys(v)) {
+					const child: JsonPathNode = {
+						value: v[key],
+						location: current.location,
+					};
+					out.push(child);
+					queue.push(child);
+				}
+			}
+		}
+		return out;
+	}
+
+	let nodes: JsonPathNode[] = [rootNode(json)];
+
+	for (const seg of compiled.ast.segments) {
+		const next: JsonPathNode[] = [];
+
+		const inputsForSegment =
+			seg.kind === 'DescendantSegment'
+				? nodes.flatMap((n) => descendantsOf(n))
+				: nodes;
+
+		for (const inputNode of inputsForSegment) {
+			for (const selector of seg.selectors) {
+				const evalSelector = evaluators.getSelector(selector.kind);
+				if (!evalSelector) {
+					throw new JsonPathError({
+						code: JsonPathErrorCodes.Evaluation,
+						message: `No evaluator registered for selector kind: ${selector.kind}`,
+					});
+				}
+				next.push(...evalSelector(inputNode, selector));
+			}
+		}
+		nodes = next;
+	}
+
+	const resultType = evaluateOptions?.resultType ?? 'value';
+	const mapper = results.get(resultType as any);
+	if (mapper) return mapper(nodes);
+
+	// Safe defaults for early scaffolding.
+	if (resultType === 'value') return nodes.map((n) => n.value);
+	if (resultType === 'node') return nodes;
+
+	throw new JsonPathError({
+		code: JsonPathErrorCodes.Config,
+		message: `No result mapper registered for resultType: ${resultType}`,
+	});
+};
+```
+
+- [ ] Add a core test proving `DescendantSegment` drives evaluation over nested structures.
+- [ ] Copy and paste code below into `packages/jsonpath/core/src/engine.descendant.spec.ts` (new file):
+
+```ts
+import { describe, expect, it } from 'vitest';
+
+import { createEngine } from './createEngine';
+import type { JsonPathPlugin } from './plugins/types';
+
+import {
+	SelectorKinds,
+	descendantSegment,
+	nameSelector,
+	path,
+} from '@jsonpath/ast';
+
+const evalName: JsonPathPlugin = {
+	meta: { id: 'test:name-eval' },
+	hooks: {
+		registerEvaluators: (registry) => {
+			registry.registerSelector(SelectorKinds.Name, (input, selector: any) => {
+				const v = input.value as any;
+				if (!v || typeof v !== 'object' || Array.isArray(v)) return [];
+				if (!(selector.name in v)) return [];
+				return [{ value: v[selector.name], location: input.location }];
+			});
+		},
+	},
+};
+
+describe('@jsonpath/core descendant segments', () => {
+	it('applies selectors across all descendants', () => {
+		const engine = createEngine({ plugins: [evalName] });
+		const compiled = {
+			expression: '$..x',
+			ast: path([descendantSegment([nameSelector('x')])]),
+		};
+		const out = engine.evaluateSync(compiled as any, {
+			x: 1,
+			a: { x: 2 },
+			b: { c: { x: 3 } },
+		});
+		expect(out).toEqual([1, 2, 3]);
+	});
+});
+```
+
+##### Step 4 Verification Checklist
+
+- [ ] `pnpm --filter @jsonpath/core test`
+
+#### Step 4 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+feat(jsonpath-rfc9535): support DescendantSegment evaluation
+
+- Extend core evaluation to traverse descendants for DescendantSegment
+- Add a focused core test proving traversal wiring
+
+completes: step 4 of 9 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+#### Step 5 (C11–C14): Implement core selector evaluators (name/wildcard/index/slice)
+
+- [ ] Implement the selector evaluators in their respective syntax plugins.
+
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-member/src/index.ts` (this replaces the file):
+
+```ts
+import type { JsonPathPlugin } from '@jsonpath/core';
+import { SelectorKinds } from '@jsonpath/ast';
+
+import { appendMember } from '@jsonpath/core/runtime/location';
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export const plugin: JsonPathPlugin = {
+	meta: {
+		id: '@jsonpath/plugin-syntax-child-member',
+		capabilities: ['syntax:rfc9535:child-member'],
+	},
+	hooks: {
+		registerEvaluators: (registry) => {
+			registry.registerSelector(SelectorKinds.Name, (input, selector: any) => {
+				if (!isRecord(input.value)) return [];
+				const name = String(selector.name);
+				if (!(name in input.value)) return [];
+				return [
+					{
+						value: (input.value as any)[name],
+						location: appendMember(input.location, name),
+					},
+				];
+			});
+		},
+	},
+};
+```
+
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-wildcard/src/index.ts` (this replaces the file):
+
+```ts
+import type { JsonPathPlugin } from '@jsonpath/core';
+import { SelectorKinds } from '@jsonpath/ast';
+
+import { appendIndex, appendMember } from '@jsonpath/core/runtime/location';
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export const plugin: JsonPathPlugin = {
+	meta: {
+		id: '@jsonpath/plugin-syntax-wildcard',
+		capabilities: ['syntax:rfc9535:wildcard'],
+	},
+	hooks: {
+		registerEvaluators: (registry) => {
+			registry.registerSelector(SelectorKinds.Wildcard, (input) => {
+				const v = input.value;
+				if (Array.isArray(v)) {
+					return v.map((item, i) => ({
+						value: item,
+						location: appendIndex(input.location, i),
+					}));
+				}
+				if (isRecord(v)) {
+					const keys = Object.keys(v).sort();
+					return keys.map((k) => ({
+						value: (v as any)[k],
+						location: appendMember(input.location, k),
+					}));
+				}
+				return [];
+			});
+		},
+	},
+};
+```
+
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-index/src/index.ts` (this replaces the file):
+
+```ts
+import type { JsonPathPlugin } from '@jsonpath/core';
+import { SelectorKinds } from '@jsonpath/ast';
+
+import { appendIndex } from '@jsonpath/core/runtime/location';
+
+function normalizeIndex(index: number, length: number): number {
+	if (index < 0) return length + index;
+	return index;
+}
+
+function computeSliceIndices(args: {
+	start?: number;
+	end?: number;
+	step?: number;
+	length: number;
+}): number[] {
+	const step = args.step ?? 1;
+	if (step === 0) return [];
+
+	const length = args.length;
+	const startRaw = args.start ?? (step > 0 ? 0 : length - 1);
+	const endRaw = args.end ?? (step > 0 ? length : -1);
+
+	let start = startRaw;
+	let end = endRaw;
+
+	// Normalize negative to relative.
+	if (start < 0) start = length + start;
+	if (end < 0) end = length + end;
+
+	const out: number[] = [];
+	if (step > 0) {
+		for (let i = Math.max(0, start); i < Math.min(length, end); i += step)
+			out.push(i);
+		return out;
+	}
+
+	for (let i = Math.min(length - 1, start); i > Math.max(-1, end); i += step)
+		out.push(i);
+	return out;
+}
+
+export const plugin: JsonPathPlugin = {
+	meta: {
+		id: '@jsonpath/plugin-syntax-child-index',
+		capabilities: ['syntax:rfc9535:child-index', 'syntax:rfc9535:slice'],
+	},
+	hooks: {
+		registerEvaluators: (registry) => {
+			registry.registerSelector(SelectorKinds.Index, (input, selector: any) => {
+				if (!Array.isArray(input.value)) return [];
+				const idx = normalizeIndex(Number(selector.index), input.value.length);
+				if (idx < 0 || idx >= input.value.length) return [];
+				return [
+					{
+						value: input.value[idx],
+						location: appendIndex(input.location, idx),
+					},
+				];
+			});
+
+			registry.registerSelector(SelectorKinds.Slice, (input, selector: any) => {
+				if (!Array.isArray(input.value)) return [];
+				const indices = computeSliceIndices({
+					start: selector.start as any,
+					end: selector.end as any,
+					step: selector.step as any,
+					length: input.value.length,
+				});
+				return indices.map((i) => ({
+					value: input.value[i],
+					location: appendIndex(input.location, i),
+				}));
+			});
+		},
+	},
+};
+```
+
+- [ ] Add tests to each syntax plugin proving evaluation results.
+
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-member/src/index.spec.ts` (new file):
+
+```ts
+import { describe, expect, it } from 'vitest';
+
+import { createEngine } from '@jsonpath/core';
+import { plugin as root } from '@jsonpath/plugin-syntax-root';
+import { plugin } from './index';
+
+describe('@jsonpath/plugin-syntax-child-member', () => {
+	it("selects $.o['j j']", () => {
+		const engine = createEngine({
+			plugins: [root, plugin],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
+				},
+			},
+		});
+		const out = engine.evaluateSync(engine.compile("$.o['j j']"), {
+			o: { 'j j': 42 },
+		});
+		expect(out).toEqual([42]);
+	});
+});
+```
+
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-wildcard/src/index.spec.ts` (append a value test):
+
+```ts
+import { describe, expect, it } from 'vitest';
+
+import { createEngine } from '@jsonpath/core';
+import { plugin as root } from '@jsonpath/plugin-syntax-root';
+import { plugin } from './index';
+
+describe('@jsonpath/plugin-syntax-wildcard (value)', () => {
+	it('selects all array items', () => {
+		const engine = createEngine({
+			plugins: [root, plugin],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
+				},
+			},
+		});
+		const out = engine.evaluateSync(engine.compile('$[*]'), [1, 2, 3]);
+		expect(out).toEqual([1, 2, 3]);
+	});
+});
+```
+
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-child-index/src/index.spec.ts` (new file):
+
+```ts
+import { describe, expect, it } from 'vitest';
+
+import { createEngine } from '@jsonpath/core';
+import { plugin as root } from '@jsonpath/plugin-syntax-root';
+import { plugin } from './index';
+
+describe('@jsonpath/plugin-syntax-child-index (value)', () => {
+	it('selects index selectors', () => {
+		const engine = createEngine({
+			plugins: [root, plugin],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
+				},
+			},
+		});
+		const out = engine.evaluateSync(engine.compile('$[0,-1]'), [1, 2, 3]);
+		expect(out).toEqual([1, 3]);
+	});
+
+	it('selects slice selectors', () => {
+		const engine = createEngine({
+			plugins: [root, plugin],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
+				},
+			},
+		});
+		const out = engine.evaluateSync(engine.compile('$[1:3]'), [1, 2, 3, 4]);
+		expect(out).toEqual([2, 3]);
+	});
+});
+```
+
+##### Step 5 Verification Checklist
+
+- [ ] `pnpm --filter @jsonpath/plugin-syntax-child-member test`
+- [ ] `pnpm --filter @jsonpath/plugin-syntax-wildcard test`
+- [ ] `pnpm --filter @jsonpath/plugin-syntax-child-index test`
+- [ ] `pnpm --filter @jsonpath/core test`
+
+#### Step 5 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+feat(jsonpath-rfc9535): implement core selector evaluators
+
+- Add evaluators for name, wildcard, index, and slice selectors
+- Add focused per-plugin tests running through @jsonpath/core
+
+completes: step 5 of 9 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+#### Step 6 (C12–C14): Wire profile config to syntax plugins via RFC preset engine
+
+- [ ] Update the RFC preset engine so `profile` is passed to the syntax-root plugin (and any other plugin that needs profile gating).
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-rfc-9535/src/index.ts` (replace only `createRfc9535Engine` with this version):
+
+```ts
+export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
+	const profile = options?.profile ?? 'rfc9535-draft';
+	return createEngine({
+		plugins: rfc9535Plugins,
+		options: {
+			plugins: {
+				'@jsonpath/plugin-rfc-9535': { profile },
+				'@jsonpath/plugin-syntax-root': { profile },
+			},
+		},
+	});
+}
+```
+
+##### Step 6 Verification Checklist
+
+- [ ] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
+
+#### Step 6 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+feat(jsonpath-rfc9535): pass profile config to syntax-root plugin
+
+- Ensure syntax-root can enforce rfc9535-core feature gates
+
+completes: step 6 of 9 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+#### Step 7: Flip conformance cases from expected-failing to passing for rfc9535-core
+
+- [ ] Extend the conformance corpus with core-selector cases that should pass under `rfc9535-core`.
+- [ ] Update `packages/jsonpath/conformance/src/corpus.ts` to add cases like:
+  - [ ] `$` value output (resultType:value)
+  - [ ] `$.o['j j']` member select
+  - [ ] `$[*]` wildcard
+  - [ ] `$[0,-1]` index union
+  - [ ] `$..author` descendant name
+
+- [ ] Update `packages/jsonpath/conformance/src/index.spec.ts` to convert the corresponding `it.fails(...)` tests into normal `it(...)` tests for `profile: 'rfc9535-core'`.
+
+##### Step 7 Verification Checklist
+
+- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+
+#### Step 7 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+test(jsonpath-rfc9535): enable passing rfc9535-core conformance cases
+
+- Add core-selector conformance cases and assertions
+- Convert selected it.fails() cases to it() under rfc9535-core
+
+completes: step 7 of 9 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+#### Step 8: Keep rfc9535-core rejecting unsupported syntax (filters/functions/paths)
+
+- [ ] Add conformance cases asserting that filter syntax (e.g. `$[?@.a]`) fails fast under `rfc9535-core` with `JsonPathError` code `JSONPATH_SYNTAX_ERROR`.
+- [ ] Ensure `packages/jsonpath/plugin-syntax-root/src/parser.ts` throws the stable error message `Filter selectors are not supported in rfc9535-core`.
+
+##### Step 8 Verification Checklist
+
+- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+
+#### Step 8 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+test(jsonpath-rfc9535): enforce rfc9535-core unsupported syntax failures
+
+- Add conformance cases for filter rejection under rfc9535-core
+
+completes: step 8 of 9 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+#### Step 9: PR B exit validation
+
+- [ ] Run the PR B package test suite:
+  - [ ] `pnpm --filter @jsonpath/ast test`
+  - [ ] `pnpm --filter @jsonpath/lexer test`
+  - [ ] `pnpm --filter @jsonpath/core test`
+  - [ ] `pnpm --filter @jsonpath/plugin-syntax-root test`
+  - [ ] `pnpm --filter @jsonpath/plugin-syntax-child-member test`
+  - [ ] `pnpm --filter @jsonpath/plugin-syntax-wildcard test`
+  - [ ] `pnpm --filter @jsonpath/plugin-syntax-child-index test`
+  - [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+
+##### Step 9 Verification Checklist
+
+- [ ] Conformance: all `rfc9535-core` tests for core selectors are green
+- [ ] Conformance: filter/function/path tests remain expected failures or are explicitly rejected under core
+
+#### Step 9 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+chore(jsonpath-rfc9535): complete PR B core selector compliance
+
+- Ship RFC9535 core parsing and evaluation for selectors/segments
+- Keep rfc9535-core rejecting unsupported features
+
+completes: step 9 of 9 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+## Remaining PRs (outline only)
+
 - PR C (C15–C18): filter parsing + evaluation enabled only for `rfc9535-full`.
 - PR D (C19–C25): function parsing + typing + implementations for `length/count/match/search/value` under `rfc9535-full`.
-- PR E (C26–C28): location tracking + normalized path serialization (`resultType: 'path'`) under `rfc9535-full`.
+- PR E (C26–C28): normalized paths (`resultType: 'path'`) under `rfc9535-full`.
 - PR F (C23–C24 if split): RFC 9485 I-Regexp validation + matcher, used by `match/search`.
