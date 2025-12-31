@@ -256,8 +256,8 @@ completes: step 1 of 5 for jsonpath-rfc9535
 
 #### Step 2 (C02): Core runtime Node + Location model (framework-only)
 
-- [ ] Add a minimal internal location model (member names + array indexes).
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/runtime/location.ts`:
+- [x] Add a minimal internal location model (member names + array indexes).
+- [x] Copy and paste code below into `packages/jsonpath/core/src/runtime/location.ts`:
 
 ```ts
 export type LocationComponent =
@@ -281,8 +281,8 @@ export function appendIndex(location: Location, index: number): Location {
 }
 ```
 
-- [ ] Add a minimal internal Node model.
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/runtime/node.ts`:
+- [x] Add a minimal internal Node model.
+- [x] Copy and paste code below into `packages/jsonpath/core/src/runtime/node.ts`:
 
 ```ts
 import type { Location } from './location';
@@ -301,8 +301,8 @@ export function rootNode(value: unknown): JsonPathNode {
 }
 ```
 
-- [ ] Add unit tests for the model (no RFC semantics).
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/runtime/location.spec.ts`:
+- [x] Add unit tests for the model (no RFC semantics).
+- [x] Copy and paste code below into `packages/jsonpath/core/src/runtime/location.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -333,7 +333,7 @@ describe('@jsonpath/core runtime location', () => {
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test`
+- [x] `pnpm --filter @jsonpath/core test`
 
 #### Step 2 STOP & COMMIT
 
