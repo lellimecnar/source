@@ -790,9 +790,9 @@ completes: step 25 of 30 for jsonpath
 
 #### Step 26: Conformance corpus + compat harness
 
-- [ ] In `@lellimecnar/jsonpath-conformance`, add a minimal corpus export (documents + query list).
-- [ ] In `@lellimecnar/jsonpath-compat-harness`, add tests comparing upstream outputs vs compat shims.
-- [ ] Add required deps:
+- [x] In `@lellimecnar/jsonpath-conformance`, add a minimal corpus export (documents + query list).
+- [x] In `@lellimecnar/jsonpath-compat-harness`, add tests comparing upstream outputs vs compat shims.
+- [x] Add required deps:
 
 ```bash
 pnpm --filter @lellimecnar/jsonpath-compat-harness add \
@@ -801,7 +801,7 @@ pnpm --filter @lellimecnar/jsonpath-compat-harness add \
 	jsonpath-plus
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-26-conformance-compat-harness.cjs
@@ -809,7 +809,7 @@ node scripts/jsonpath/step-26-conformance-compat-harness.cjs
 
 ##### Step 26 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @lellimecnar/jsonpath-compat-harness` succeeds.
+- [x] `pnpm -w turbo test --filter @lellimecnar/jsonpath-compat-harness` succeeds.
 
 #### Step 26 STOP & COMMIT
 

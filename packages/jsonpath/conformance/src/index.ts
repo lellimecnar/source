@@ -1,1 +1,1 @@
-export const __package = '@lellimecnar/jsonpath-conformance';
+export * from './corpus';

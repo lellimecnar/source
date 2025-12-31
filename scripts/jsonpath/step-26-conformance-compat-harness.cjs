@@ -17,7 +17,7 @@ const repoRoot = process.cwd();
 
 // Conformance corpus
 {
-	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath-conformance');
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', 'conformance');
 	write(
 		path.join(pkgDir, 'src', 'corpus.ts'),
 		`export type ConformanceDocument = {\n\tname: string;\n\tjson: unknown;\n};\n\nexport type ConformanceCase = {\n\tname: string;\n\tpath: string;\n};\n\nexport const documents: ConformanceDocument[] = [\n\t{ name: 'simple', json: { a: { b: 1 }, xs: [1, 2] } },\n];\n\nexport const cases: ConformanceCase[] = [\n\t{ name: 'child member', path: '$.a.b' },\n\t{ name: 'array wildcard', path: '$.xs[*]' },\n];\n`,
@@ -31,7 +31,7 @@ const repoRoot = process.cwd();
 
 // Compat harness
 {
-	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath-compat-harness');
+	const pkgDir = path.join(repoRoot, 'packages', 'jsonpath', 'compat-harness');
 	write(
 		path.join(pkgDir, 'src', 'compat.spec.ts'),
 		`import { describe, expect, it } from 'vitest';\n\nimport { JSONPath } from 'jsonpath-plus';\n\nimport { documents } from '@lellimecnar/jsonpath-conformance';\nimport { findJsonPathPointers } from '@jsonpath/compat-jsonpath-plus';\n\ndescribe('@lellimecnar/jsonpath-compat-harness', () => {\n\tit('compares pointer enumeration to upstream jsonpath-plus', () => {\n\t\tconst doc = documents.find((d) => d.name === 'simple')!;\n\t\tconst upstream = JSONPath<string[]>({\n\t\t\tpath: '$.a.b',\n\t\t\tjson: doc.json as any,\n\t\t\twrap: true,\n\t\t\tresultType: 'pointer',\n\t\t\teval: 'safe',\n\t\t});\n\t\tconst ours = findJsonPathPointers(doc.json, '$.a.b', 'safe');\n\t\texpect(ours).toEqual(upstream);\n\t});\n});\n`,

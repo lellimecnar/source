@@ -28,7 +28,11 @@
 		"test:watch": "vitest",
 		"type-check": "tsgo --noEmit"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"@jsonpath/compat-jsonpath-plus": "workspace:^",
+		"@lellimecnar/jsonpath-conformance": "workspace:^",
+		"jsonpath-plus": "^10.3.0"
+	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
@@ -43,6 +47,5 @@
 		"vite-plugin-dts": "^4.5.4",
 		"vite-tsconfig-paths": "^6.0.3",
 		"vitest": "^4.0.16"
-	},
-	"peerDependencies": {}
+	}
 }
