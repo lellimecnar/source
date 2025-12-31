@@ -1,1 +1,8 @@
-export const __package = '@jsonpath/plugin-syntax-union';
+import type { JsonPathPlugin } from '@jsonpath/core';
+
+export const plugin: JsonPathPlugin = {
+	meta: {
+		id: '@jsonpath/plugin-syntax-union',
+		capabilities: ['syntax:rfc9535:union'],
+	},
+};

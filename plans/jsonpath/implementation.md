@@ -251,15 +251,15 @@ completes: step 9 of 30 for jsonpath
 
 #### Step 10: RFC 9535 syntax plugin shells (child-index/slice + union)
 
-- [ ] Add required workspace deps:
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/plugin-syntax-child-index add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
 pnpm --filter @jsonpath/plugin-syntax-union add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
 ```
 
-- [ ] Replace `src/index.ts` in each package with a wiring-only `plugin` export + add `src/index.spec.ts`.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Replace `src/index.ts` in each package with a wiring-only `plugin` export + add `src/index.spec.ts`.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-10-syntax-shells-2.cjs
@@ -267,7 +267,7 @@ node scripts/jsonpath/step-10-syntax-shells-2.cjs
 
 ##### Step 10 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-syntax-child-index --filter @jsonpath/plugin-syntax-union` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-syntax-child-index --filter @jsonpath/plugin-syntax-union` succeeds.
 
 #### Step 10 STOP & COMMIT
 
