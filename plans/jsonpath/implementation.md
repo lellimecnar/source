@@ -117,8 +117,8 @@ completes: step 4 of 30 for jsonpath
 
 #### Step 5: Implement `@jsonpath/lexer` (feature-agnostic tokenization infrastructure)
 
-- [ ] Create basic token/scanner/stream primitives.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Create basic token/scanner/stream primitives.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-05-lexer.cjs
@@ -126,7 +126,7 @@ node scripts/jsonpath/step-05-lexer.cjs
 
 ##### Step 5 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/lexer` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/lexer` succeeds.
 
 #### Step 5 STOP & COMMIT
 
