@@ -1,0 +1,50 @@
+{
+	"name": "@jsonpath/validator-yup",
+	"version": "0.0.1",
+	"description": "Yup validator adapter.",
+	"license": "MIT",
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "pnpm run clean && vite build",
+		"clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+		"dev": "vite build --watch",
+		"lint": "eslint .",
+		"prepack": "pnpm run build",
+		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"test:watch": "vitest",
+		"type-check": "tsgo --noEmit"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@lellimecnar/vite-config": "workspace:^",
+		"@lellimecnar/vitest-config": "workspace:*",
+		"@types/jest": "^29.5.12",
+		"@types/node": "^24",
+		"@vitest/coverage-v8": "^4.0.16",
+		"eslint": "^8.57.1",
+		"typescript": "~5.5",
+		"vite": "^7.3.0",
+		"vite-plugin-dts": "^4.5.4",
+		"vite-tsconfig-paths": "^6.0.3",
+		"vitest": "^4.0.16"
+	},
+	"peerDependencies": {},
+	"publishConfig": {
+		"access": "public"
+	}
+}

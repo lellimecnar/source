@@ -13,8 +13,8 @@ If the branch does not exist, create it from `master`.
 
 #### Step 1: Scaffold all `@jsonpath/*` workspaces (publishable + internal harness)
 
-- [ ] From repo root, scaffold all packages with the repo’s standard Vite/Vitest layout.
-- [ ] Copy and paste code below into `terminal`:
+- [x] From repo root, scaffold all packages with the repo’s standard Vite/Vitest layout.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-01-scaffold.cjs
@@ -22,9 +22,9 @@ node scripts/jsonpath/step-01-scaffold.cjs
 
 ##### Step 1 Verification Checklist
 
-- [ ] `pnpm -w turbo build --filter="@jsonpath/*"` succeeds.
-- [ ] `pnpm -w turbo test --filter="@jsonpath/*" -- --passWithNoTests` succeeds.
-- [ ] `pnpm -w verify:exports` prints `Export verification passed.`
+- [x] `pnpm -w turbo build --filter="@jsonpath/*"` succeeds.
+- [x] `pnpm -w turbo test --filter="@jsonpath/*" -- --passWithNoTests` succeeds.
+- [x] `pnpm -w verify:exports` prints `Export verification passed.`
 
 #### Step 1 STOP & COMMIT
 
