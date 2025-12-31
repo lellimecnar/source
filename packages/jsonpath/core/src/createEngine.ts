@@ -1,25 +1,24 @@
+import { path } from '@jsonpath/ast';
 import { Scanner, TokenStream } from '@jsonpath/lexer';
 import { JsonPathParser } from '@jsonpath/parser';
-import { path } from '@jsonpath/ast';
 
 import type { JsonPathEngine, CompileResult, EvaluateOptions } from './engine';
-import type { JsonPathPlugin } from './plugins/types';
-import { resolvePlugins } from './plugins/resolve';
-import { JsonPathError } from './errors/JsonPathError';
 import { JsonPathErrorCodes } from './errors/codes';
-
-import { rootNode } from './runtime/node';
-import type { JsonPathNode } from './runtime/node';
+import { JsonPathError } from './errors/JsonPathError';
+import { resolvePlugins } from './plugins/resolve';
+import type { JsonPathPlugin } from './plugins/types';
 import { EvaluatorRegistry, ResultRegistry } from './runtime/hooks';
+import type { JsonPathNode } from './runtime/node';
+import { rootNode } from './runtime/node';
 
-export type CreateEngineOptions = {
+export interface CreateEngineOptions {
 	plugins: readonly JsonPathPlugin[];
 	options?: {
 		maxDepth?: number;
 		maxResults?: number;
 		plugins?: Record<string, unknown>;
 	};
-};
+}
 
 export function createEngine({
 	plugins,
@@ -31,9 +30,19 @@ export function createEngine({
 	const scanner = new Scanner();
 	const parser = new JsonPathParser();
 
-	// Runtime registries (populated by plugins in PR A Step 4)
+	// Runtime registries populated by plugins
 	const evaluators = new EvaluatorRegistry();
 	const results = new ResultRegistry();
+
+	// Configure plugins + register hooks in deterministic order
+	for (const plugin of resolved.ordered) {
+		const pluginConfig = options?.plugins?.[plugin.meta.id];
+		plugin.configure?.(pluginConfig as any);
+		plugin.hooks?.registerTokens?.(scanner);
+		plugin.hooks?.registerParsers?.(parser);
+		plugin.hooks?.registerEvaluators?.(evaluators);
+		plugin.hooks?.registerResults?.(results);
+	}
 
 	const parse = (expression: string) => {
 		const tokens = scanner.scanAll(expression);
@@ -91,11 +100,6 @@ export function createEngine({
 		json: unknown,
 		evaluateOptions?: EvaluateOptions,
 	) => evaluateSync(compiled, json, evaluateOptions);
-
-	// PR A Step 4 will populate registries and config.
-	// Keep the resolved result referenced to avoid unused warnings until then.
-	void resolved;
-	void options;
 
 	return { compile, parse, evaluateSync, evaluateAsync };
 }

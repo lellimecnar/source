@@ -23,6 +23,12 @@ import { plugin as root } from '@jsonpath/plugin-syntax-root';
 import { plugin as union } from '@jsonpath/plugin-syntax-union';
 import { plugin as wildcard } from '@jsonpath/plugin-syntax-wildcard';
 
+export type Rfc9535Profile = 'rfc9535-draft' | 'rfc9535-core' | 'rfc9535-full';
+
+export interface Rfc9535EngineOptions {
+	profile?: Rfc9535Profile;
+}
+
 export const rfc9535Plugins = [
 	root,
 	current,
@@ -48,14 +54,24 @@ export const rfc9535Plugins = [
 	resultTypes,
 ] as const satisfies readonly JsonPathPlugin[];
 
-export function createRfc9535Engine() {
-	return createEngine({ plugins: rfc9535Plugins });
+export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
+	return createEngine({
+		plugins: rfc9535Plugins,
+		options: {
+			plugins: {
+				'@jsonpath/plugin-rfc-9535': {
+					profile: options?.profile ?? 'rfc9535-draft',
+				},
+			},
+		},
+	});
 }
 
-export const plugin: JsonPathPlugin = {
+export const plugin: JsonPathPlugin<{ profile?: Rfc9535Profile }> = {
 	meta: {
 		id: '@jsonpath/plugin-rfc-9535',
 		capabilities: ['preset:rfc9535'],
 		dependsOn: rfc9535Plugins.map((p) => p.meta.id),
 	},
+	configure: () => undefined,
 };

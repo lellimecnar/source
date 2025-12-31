@@ -530,8 +530,8 @@ completes: step 3 of 5 for jsonpath-rfc9535
 
 #### Step 4 (C04): Plugin hook extension points + per-plugin config plumbing
 
-- [ ] Extend the plugin type so plugins can register lexer/parsers/evaluators/results.
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/plugins/types.ts`:
+- [x] Extend the plugin type so plugins can register lexer/parsers/evaluators/results.
+- [x] Copy and paste code below into `packages/jsonpath/core/src/plugins/types.ts`:
 
 ```ts
 import type { Scanner } from '@jsonpath/lexer';
@@ -565,8 +565,8 @@ export type JsonPathPlugin<Config = unknown> = {
 };
 ```
 
-- [ ] Wire plugin hooks + plugin config into engine creation.
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/createEngine.ts` (this replaces Step 3’s file with the hook wiring added):
+- [x] Wire plugin hooks + plugin config into engine creation.
+- [x] Copy and paste code below into `packages/jsonpath/core/src/createEngine.ts` (this replaces Step 3’s file with the hook wiring added):
 
 ```ts
 import { Scanner, TokenStream } from '@jsonpath/lexer';
@@ -677,8 +677,8 @@ export function createEngine({
 }
 ```
 
-- [ ] Add a core test proving hooks can register parser/evaluator/results.
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/engine.plugins.spec.ts`:
+- [x] Add a core test proving hooks can register parser/evaluator/results.
+- [x] Copy and paste code below into `packages/jsonpath/core/src/engine.plugins.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -733,8 +733,8 @@ describe('@jsonpath/core plugin hooks', () => {
 });
 ```
 
-- [ ] Update the RFC bundle engine factory to accept a profile and pass it via per-plugin config.
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-rfc-9535/src/index.ts`:
+- [x] Update the RFC bundle engine factory to accept a profile and pass it via per-plugin config.
+- [x] Copy and paste code below into `packages/jsonpath/plugin-rfc-9535/src/index.ts`:
 
 ```ts
 import type { JsonPathPlugin } from '@jsonpath/core';
@@ -818,9 +818,9 @@ export const plugin: JsonPathPlugin<{ profile?: Rfc9535Profile }> = {
 
 ##### Step 4 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test`
-- [ ] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] `pnpm --filter @jsonpath/core test`
+- [x] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
+- [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
 
 #### Step 4 STOP & COMMIT
 
