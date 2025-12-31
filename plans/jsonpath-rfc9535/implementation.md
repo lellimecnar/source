@@ -843,8 +843,8 @@ completes: step 4 of 5 for jsonpath-rfc9535
 
 #### Step 5 (C05): Lexer RFC token kinds + minimal scanner rules
 
-- [ ] Add canonical RFC token kind constants and a helper to register minimal punctuation scan rules.
-- [ ] Copy and paste code below into `packages/jsonpath/lexer/src/token.ts`:
+- [x] Add canonical RFC token kind constants and a helper to register minimal punctuation scan rules.
+- [x] Copy and paste code below into `packages/jsonpath/lexer/src/token.ts`:
 
 ```ts
 export const TokenKinds = {
@@ -888,8 +888,8 @@ export type Token = {
 };
 ```
 
-- [ ] Add the RFC 9535 punctuation scan rule registration helper.
-- [ ] Copy and paste code below into `packages/jsonpath/lexer/src/rfc9535.ts`:
+- [x] Add the RFC 9535 punctuation scan rule registration helper.
+- [x] Copy and paste code below into `packages/jsonpath/lexer/src/rfc9535.ts`:
 
 ```ts
 import type { Scanner } from './scanner';
@@ -948,8 +948,8 @@ export function registerRfc9535ScanRules(scanner: Scanner): void {
 }
 ```
 
-- [ ] Export the helper.
-- [ ] Copy and paste code below into `packages/jsonpath/lexer/src/index.ts`:
+- [x] Export the helper.
+- [x] Copy and paste code below into `packages/jsonpath/lexer/src/index.ts`:
 
 ```ts
 export * from './token';
@@ -958,8 +958,8 @@ export * from './stream';
 export * from './rfc9535';
 ```
 
-- [ ] Update lexer tests to validate multi-char operator priority (`..` before `.`).
-- [ ] Copy and paste code below into `packages/jsonpath/lexer/src/scanner.spec.ts`:
+- [x] Update lexer tests to validate multi-char operator priority (`..` before `.`).
+- [x] Copy and paste code below into `packages/jsonpath/lexer/src/scanner.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -996,8 +996,8 @@ describe('@jsonpath/lexer', () => {
 
 ##### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/lexer test`
-- [ ] `pnpm --filter @jsonpath/core test`
+- [x] `pnpm --filter @jsonpath/lexer test`
+- [x] `pnpm --filter @jsonpath/core test`
 
 #### Step 5 STOP & COMMIT
 
