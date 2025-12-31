@@ -628,8 +628,8 @@ completes: PR-D step 3 of 5 for jsonpath-rfc9535
 
 #### Step 4: C23–C24 — Add I‑Regexp matcher API and implement `match()` / `search()`
 
-- [ ] Upgrade `@jsonpath/plugin-iregexp` to expose a minimal matcher API (`compile`, `matchesEntire`, `searches`).
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-iregexp/src/iregexp.ts`:
+- [x] Upgrade `@jsonpath/plugin-iregexp` to expose a minimal matcher API (`compile`, `matchesEntire`, `searches`).
+- [x] Copy and paste code below into `packages/jsonpath/plugin-iregexp/src/iregexp.ts`:
 
 ```diff
 *** Begin Patch
@@ -675,8 +675,8 @@ completes: PR-D step 3 of 5 for jsonpath-rfc9535
 *** End Patch
 ```
 
-- [ ] Update exports in `@jsonpath/plugin-iregexp`.
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-iregexp/src/index.ts`:
+- [x] Update exports in `@jsonpath/plugin-iregexp`.
+- [x] Copy and paste code below into `packages/jsonpath/plugin-iregexp/src/index.ts`:
 
 ```diff
 *** Begin Patch
@@ -696,8 +696,8 @@ completes: PR-D step 3 of 5 for jsonpath-rfc9535
 *** End Patch
 ```
 
-- [ ] Update unit tests for the new API.
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-iregexp/src/index.spec.ts`:
+- [x] Update unit tests for the new API.
+- [x] Copy and paste code below into `packages/jsonpath/plugin-iregexp/src/index.spec.ts`:
 
 ```diff
 *** Begin Patch
@@ -731,8 +731,8 @@ completes: PR-D step 3 of 5 for jsonpath-rfc9535
 *** End Patch
 ```
 
-- [ ] Implement `match()` and `search()` in filter evaluation (RFC behavior: non-string args => false; invalid pattern => false).
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-filter/src/index.ts`:
+- [x] Implement `match()` and `search()` in filter evaluation (RFC behavior: non-string args => false; invalid pattern => false).
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-filter/src/index.ts`:
 
 ```diff
 *** Begin Patch
@@ -792,8 +792,8 @@ completes: PR-D step 3 of 5 for jsonpath-rfc9535
 *** End Patch
 ```
 
-- [ ] Add conformance corpus for `match()` vs `search()`.
-- [ ] Copy and paste code below into `packages/jsonpath/conformance/src/corpus.ts`:
+- [x] Add conformance corpus for `match()` vs `search()`.
+- [x] Copy and paste code below into `packages/jsonpath/conformance/src/corpus.ts`:
 
 ```diff
 *** Begin Patch
@@ -841,8 +841,8 @@ completes: PR-D step 3 of 5 for jsonpath-rfc9535
 *** End Patch
 ```
 
-- [ ] Add conformance spec assertions.
-- [ ] Copy and paste code below into `packages/jsonpath/conformance/src/index.spec.ts`:
+- [x] Add conformance spec assertions.
+- [x] Copy and paste code below into `packages/jsonpath/conformance/src/index.spec.ts`:
 
 ```diff
 *** Begin Patch
@@ -871,8 +871,8 @@ completes: PR-D step 3 of 5 for jsonpath-rfc9535
 
 ##### Step 4 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-iregexp test`
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] `pnpm --filter @jsonpath/plugin-iregexp test`
+- [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
 
 #### Step 4 STOP & COMMIT
 

@@ -91,4 +91,22 @@ describe('@lellimecnar/jsonpath-conformance', () => {
 		const out = runConformanceCase(engine, testCase);
 		expect(out).toEqual(testCase.expect?.values);
 	});
+
+	it('RFC 9535 (full): search() finds substring matches', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
+		const testCase = cases.find(
+			(c) => c.name === 'rfc: match() vs search() (full)',
+		)!;
+		const out = runConformanceCase(engine, testCase);
+		expect(out).toEqual(testCase.expect?.values);
+	});
+
+	it('RFC 9535 (full): match() requires full-string match', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
+		const testCase = cases.find(
+			(c) => c.name === 'rfc: match() anchors the full string (full)',
+		)!;
+		const out = runConformanceCase(engine, testCase);
+		expect(out).toEqual(testCase.expect?.values);
+	});
 });

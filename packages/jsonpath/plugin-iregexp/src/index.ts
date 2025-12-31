@@ -1,6 +1,6 @@
 import type { JsonPathPlugin } from '@jsonpath/core';
 
-export { matches } from './iregexp';
+export { compile, matchesEntire, searches } from './iregexp';
 
 export const plugin: JsonPathPlugin = {
 	meta: {

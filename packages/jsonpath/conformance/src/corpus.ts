@@ -51,6 +51,12 @@ export const documents: ConformanceDocument[] = [
 			},
 		},
 	},
+	{
+		name: 'rfc-functions-mini',
+		json: {
+			items: [{ b: 'j' }, { b: 'k' }, { b: 'xj' }],
+		},
+	},
 ];
 
 // Early RFC-targeted cases.
@@ -152,6 +158,24 @@ export const cases: ConformanceCase[] = [
 		query: '$.store.book[*][?count(@.*) == 4].title',
 		expect: {
 			values: ['Sayings', 'Sword'],
+		},
+	},
+	{
+		name: 'rfc: match() vs search() (full)',
+		profile: 'rfc9535-full',
+		documentName: 'rfc-functions-mini',
+		query: "$.items[*][?search(@.b, '[jk]')].b",
+		expect: {
+			values: ['j', 'k', 'xj'],
+		},
+	},
+	{
+		name: 'rfc: match() anchors the full string (full)',
+		profile: 'rfc9535-full',
+		documentName: 'rfc-functions-mini',
+		query: "$.items[*][?match(@.b, '[jk]')].b",
+		expect: {
+			values: ['j', 'k'],
 		},
 	},
 ];

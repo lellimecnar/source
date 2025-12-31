@@ -1,9 +1,20 @@
 import { SelectorKinds, FilterExprKinds } from '@jsonpath/ast';
 import type { JsonPathPlugin, EvalContext } from '@jsonpath/core';
+import { compile } from '@jsonpath/plugin-iregexp';
 
 // Sentinel value for "Nothing" (empty nodelist or absent embedded query result)
 const Nothing = Symbol('Nothing');
 type Nothing = typeof Nothing;
+
+const compiledPatternCache = new Map<string, ReturnType<typeof compile>>();
+
+function getCompiled(pattern: string) {
+	if (compiledPatternCache.has(pattern))
+		return compiledPatternCache.get(pattern);
+	const c = compile(pattern);
+	compiledPatternCache.set(pattern, c);
+	return c;
+}
 
 function isNothing(v: any): v is Nothing {
 	return v === Nothing;
@@ -69,6 +80,26 @@ function evalFunctionCall(
 		case 'count': {
 			const nodes = evalNodesExpr(call.args[0], currentNode, ctx, evaluators);
 			return nodes.length;
+		}
+
+		case 'match': {
+			const value = evalValueExpr(call.args[0], currentNode, ctx, evaluators);
+			const pattern = evalValueExpr(call.args[1], currentNode, ctx, evaluators);
+			if (typeof value !== 'string' || typeof pattern !== 'string')
+				return false;
+			const c = getCompiled(pattern);
+			if (!c) return false;
+			return c.full.test(value);
+		}
+
+		case 'search': {
+			const value = evalValueExpr(call.args[0], currentNode, ctx, evaluators);
+			const pattern = evalValueExpr(call.args[1], currentNode, ctx, evaluators);
+			if (typeof value !== 'string' || typeof pattern !== 'string')
+				return false;
+			const c = getCompiled(pattern);
+			if (!c) return false;
+			return c.partial.test(value);
 		}
 
 		default:
