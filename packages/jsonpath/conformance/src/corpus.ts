@@ -66,12 +66,68 @@ export const cases: ConformanceCase[] = [
 		},
 	},
 	{
-		name: 'rfc: child member with space (expected to fail until selectors exist)',
-		profile: 'rfc9535-draft',
+		name: 'rfc: root value ($)',
+		profile: 'rfc9535-core',
+		documentName: 'rfc-bookstore-mini',
+		query: '$',
+		expect: {
+			values: [
+				{
+					o: { 'j j': 42, k: 1 },
+					store: {
+						book: [
+							{
+								category: 'reference',
+								author: 'Nigel Rees',
+								title: 'Sayings',
+								price: 8.95,
+							},
+							{
+								category: 'fiction',
+								author: 'Evelyn Waugh',
+								title: 'Sword',
+								price: 12.99,
+							},
+						],
+					},
+				},
+			],
+		},
+	},
+	{
+		name: 'rfc: child member with space',
+		profile: 'rfc9535-core',
 		documentName: 'rfc-bookstore-mini',
 		query: "$.o['j j']",
 		expect: {
 			values: [42],
+		},
+	},
+	{
+		name: 'rfc: wildcard selector',
+		profile: 'rfc9535-core',
+		documentName: 'simple',
+		query: '$.xs[*]',
+		expect: {
+			values: [1, 2],
+		},
+	},
+	{
+		name: 'rfc: index union',
+		profile: 'rfc9535-core',
+		documentName: 'simple',
+		query: '$.xs[0,-1]',
+		expect: {
+			values: [1, 2],
+		},
+	},
+	{
+		name: 'rfc: descendant name',
+		profile: 'rfc9535-core',
+		documentName: 'rfc-bookstore-mini',
+		query: '$..author',
+		expect: {
+			values: ['Nigel Rees', 'Evelyn Waugh'],
 		},
 	},
 ];

@@ -12,15 +12,49 @@ describe('@lellimecnar/jsonpath-conformance', () => {
 
 	it.fails('RFC 9535 (draft): root normalized path ($)', () => {
 		const engine = createRfc9535Engine({ profile: 'rfc9535-draft' });
-		const testCase = cases.find((c) => c.query === '$')!;
+		const testCase = cases.find(
+			(c) => c.query === '$' && c.profile === 'rfc9535-draft',
+		)!;
 		const out = runConformanceCase(engine, testCase, { resultType: 'path' });
 		expect(out).toEqual(['$']);
 	});
 
-	it.fails("RFC 9535 (draft): $.o['j j'] selects the member value", () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-draft' });
-		const testCase = cases.find((c) => c.query.includes("['j j']"))!;
+	it('RFC 9535 (core): root value ($)', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
+		const testCase = cases.find(
+			(c) => c.query === '$' && c.profile === 'rfc9535-core',
+		)!;
+		const out = runConformanceCase(engine, testCase);
+		expect(out).toEqual(testCase.expect?.values);
+	});
+
+	it('RFC 9535 (core): child member with space', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
+		const testCase = cases.find(
+			(c) => c.name === 'rfc: child member with space',
+		)!;
 		const out = runConformanceCase(engine, testCase);
 		expect(out).toEqual([42]);
+	});
+
+	it('RFC 9535 (core): wildcard selector', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
+		const testCase = cases.find((c) => c.name === 'rfc: wildcard selector')!;
+		const out = runConformanceCase(engine, testCase);
+		expect(out).toEqual([1, 2]);
+	});
+
+	it('RFC 9535 (core): index union', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
+		const testCase = cases.find((c) => c.name === 'rfc: index union')!;
+		const out = runConformanceCase(engine, testCase);
+		expect(out).toEqual([1, 2]);
+	});
+
+	it('RFC 9535 (core): descendant name', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
+		const testCase = cases.find((c) => c.name === 'rfc: descendant name')!;
+		const out = runConformanceCase(engine, testCase);
+		expect(out).toEqual(['Nigel Rees', 'Evelyn Waugh']);
 	});
 });

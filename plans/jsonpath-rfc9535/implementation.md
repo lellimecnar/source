@@ -2361,19 +2361,19 @@ completes: step 7 of 10 for jsonpath-rfc9535 (PR B)
 
 #### Step 8: Flip conformance cases from expected-failing to passing for rfc9535-core
 
-- [ ] Extend the conformance corpus with core-selector cases that should pass under `rfc9535-core`.
-- [ ] Update `packages/jsonpath/conformance/src/corpus.ts` to add cases like:
-  - [ ] `$` value output (resultType:value)
-  - [ ] `$.o['j j']` member select
-  - [ ] `$[*]` wildcard
-  - [ ] `$[0,-1]` index union
-  - [ ] `$..author` descendant name
+- [x] Extend the conformance corpus with core-selector cases that should pass under `rfc9535-core`.
+- [x] Update `packages/jsonpath/conformance/src/corpus.ts` to add cases like:
+  - [x] `$` value output (resultType:value)
+  - [x] `$.o['j j']` member select
+  - [x] `$[*]` wildcard
+  - [x] `$[0,-1]` index union
+  - [x] `$..author` descendant name
 
-- [ ] Update `packages/jsonpath/conformance/src/index.spec.ts` to convert the corresponding `it.fails(...)` tests into normal `it(...)` tests for `profile: 'rfc9535-core'`.
+- [x] Update `packages/jsonpath/conformance/src/index.spec.ts` to convert the corresponding `it.fails(...)` tests into normal `it(...)` tests for `profile: 'rfc9535-core'`.
 
 ##### Step 8 Verification Checklist
 
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
 
 #### Step 8 STOP & COMMIT
 
