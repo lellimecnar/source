@@ -217,7 +217,7 @@ completes: step 8 of 30 for jsonpath
 
 #### Step 9: RFC 9535 syntax plugin shells (root/current/child-member/wildcard)
 
-- [ ] Add required workspace deps:
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @jsonpath/plugin-syntax-root add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
@@ -226,8 +226,8 @@ pnpm --filter @jsonpath/plugin-syntax-child-member add '@jsonpath/core@workspace
 pnpm --filter @jsonpath/plugin-syntax-wildcard add '@jsonpath/core@workspace:*' '@jsonpath/ast@workspace:*' '@jsonpath/lexer@workspace:*' '@jsonpath/parser@workspace:*'
 ```
 
-- [ ] In each package, replace `src/index.ts` with a wiring-only export of `plugin` (metadata only) and add `src/index.spec.ts` verifying `plugin.meta.id` and `plugin.meta.capabilities`.
-- [ ] Copy and paste code below into `terminal`:
+- [x] In each package, replace `src/index.ts` with a wiring-only export of `plugin` (metadata only) and add `src/index.spec.ts` verifying `plugin.meta.id` and `plugin.meta.capabilities`.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-09-syntax-shells-1.cjs
@@ -235,7 +235,7 @@ node scripts/jsonpath/step-09-syntax-shells-1.cjs
 
 ##### Step 9 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-syntax-root --filter @jsonpath/plugin-syntax-current --filter @jsonpath/plugin-syntax-child-member --filter @jsonpath/plugin-syntax-wildcard` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-syntax-root --filter @jsonpath/plugin-syntax-current --filter @jsonpath/plugin-syntax-child-member --filter @jsonpath/plugin-syntax-wildcard` succeeds.
 
 #### Step 9 STOP & COMMIT
 
