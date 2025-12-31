@@ -1872,7 +1872,7 @@ describe('@jsonpath/core segment evaluator hook', () => {
 
 ##### Step 4 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test`
+- [x] `pnpm --filter @jsonpath/core test`
 
 #### Step 4 STOP & COMMIT
 
@@ -1894,8 +1894,8 @@ completes: step 4 of 10 for jsonpath-rfc9535 (PR B)
 
 #### Step 5 (C10): Implement DescendantSegment semantics in `@jsonpath/plugin-syntax-descendant`
 
-- [ ] Implement descendant segment evaluation semantics via the new segment evaluator hook.
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-descendant/src/index.ts` (this replaces the file):
+- [x] Implement descendant segment evaluation semantics via the new segment evaluator hook.
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-descendant/src/index.ts` (this replaces the file):
 
 ```ts
 import {
@@ -1974,8 +1974,8 @@ export const plugin: JsonPathPlugin = {
 };
 ```
 
-- [ ] Add a focused plugin test proving `$..x` works end-to-end.
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-descendant/src/index.spec.ts` (new file):
+- [x] Add a focused plugin test proving `$..x` works end-to-end.
+- [x] Copy and paste code below into `packages/jsonpath/plugin-syntax-descendant/src/index.spec.ts` (new file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
