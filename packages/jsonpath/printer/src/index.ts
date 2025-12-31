@@ -1,1 +1,2 @@
-export const __package = '@jsonpath/printer';
+export * from './options';
+export * from './printer';

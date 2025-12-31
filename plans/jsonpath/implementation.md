@@ -167,8 +167,8 @@ completes: step 6 of 30 for jsonpath
 
 #### Step 7: Implement `@jsonpath/printer` (AST-to-string infrastructure)
 
-- [ ] Add printer options + a minimal AST-to-string printer.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Add printer options + a minimal AST-to-string printer.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-07-printer.cjs
@@ -176,7 +176,7 @@ node scripts/jsonpath/step-07-printer.cjs
 
 ##### Step 7 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/printer` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/printer` succeeds.
 
 #### Step 7 STOP & COMMIT
 
