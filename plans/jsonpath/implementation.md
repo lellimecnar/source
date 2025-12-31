@@ -447,10 +447,10 @@ completes: step 15 of 30 for jsonpath
 
 #### Step 16: Implement baseline I-Regexp helper (`@jsonpath/plugin-iregexp`)
 
-- [ ] Add `src/iregexp.ts` exporting `matches(pattern: string, value: string): boolean` using `RegExp`.
-- [ ] Export `matches` and wiring-only `plugin` from `src/index.ts`.
-- [ ] Add unit tests.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Add `src/iregexp.ts` exporting `matches(pattern: string, value: string): boolean` using `RegExp`.
+- [x] Export `matches` and wiring-only `plugin` from `src/index.ts`.
+- [x] Add unit tests.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-16-iregexp-baseline.cjs
@@ -458,7 +458,7 @@ node scripts/jsonpath/step-16-iregexp-baseline.cjs
 
 ##### Step 16 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/plugin-iregexp` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/plugin-iregexp` succeeds.
 
 #### Step 16 STOP & COMMIT
 
