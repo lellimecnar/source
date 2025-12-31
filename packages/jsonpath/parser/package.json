@@ -27,7 +27,9 @@
 		"test:watch": "vitest",
 		"type-check": "tsgo --noEmit"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"@jsonpath/ast": "workspace:*"
+	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",

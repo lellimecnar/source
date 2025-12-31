@@ -14,3 +14,6 @@ export type {
 } from './plugins/types';
 export { resolvePlugins } from './plugins/resolve';
 export { PluginRegistry } from './plugins/registry';
+
+export { createEngine } from './createEngine';
+export type { JsonPathEngine } from './engine';

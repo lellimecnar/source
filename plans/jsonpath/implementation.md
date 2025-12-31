@@ -192,8 +192,8 @@ completes: step 7 of 30 for jsonpath
 
 #### Step 8: Implement `@jsonpath/core` engine wiring (framework-only pipeline)
 
-- [ ] Add `createEngine()` that resolves plugins and exposes compile/parse/evaluate stubs.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Add `createEngine()` that resolves plugins and exposes compile/parse/evaluate stubs.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-08-core-engine.cjs
@@ -201,7 +201,7 @@ node scripts/jsonpath/step-08-core-engine.cjs
 
 ##### Step 8 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
 
 #### Step 8 STOP & COMMIT
 
