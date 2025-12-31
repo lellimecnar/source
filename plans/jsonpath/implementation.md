@@ -67,8 +67,8 @@ completes: step 2 of 30 for jsonpath
 
 #### Step 3: Add plugin metadata/types + deterministic ordering + conflict detection (`@jsonpath/core`)
 
-- [ ] Add plugin metadata/types + deterministic ordering + conflict detection.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Add plugin metadata/types + deterministic ordering + conflict detection.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-03-core-plugin-resolver.cjs
@@ -76,7 +76,7 @@ node scripts/jsonpath/step-03-core-plugin-resolver.cjs
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
 
 #### Step 3 STOP & COMMIT
 
