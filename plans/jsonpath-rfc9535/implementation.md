@@ -13,8 +13,8 @@ If not, move them to the correct branch. If the branch does not exist, create it
 
 #### Step 1 (C01): Conformance harness + richer RFC corpus schema
 
-- [ ] Update the conformance corpus schema to support RFC-style cases (documents + cases + per-case expectations).
-- [ ] Copy and paste code below into `packages/jsonpath/conformance/src/corpus.ts`:
+- [x] Update the conformance corpus schema to support RFC-style cases (documents + cases + per-case expectations).
+- [x] Copy and paste code below into `packages/jsonpath/conformance/src/corpus.ts`:
 
 ```ts
 export type ConformanceProfile =
@@ -96,8 +96,8 @@ export const cases: ConformanceCase[] = [
 ];
 ```
 
-- [ ] Add a minimal harness runner that can execute a conformance case against a provided engine.
-- [ ] Copy and paste code below into `packages/jsonpath/conformance/src/harness.ts`:
+- [x] Add a minimal harness runner that can execute a conformance case against a provided engine.
+- [x] Copy and paste code below into `packages/jsonpath/conformance/src/harness.ts`:
 
 ```ts
 import type { JsonPathEngine } from '@jsonpath/core';
@@ -135,16 +135,16 @@ export function runConformanceCase(
 }
 ```
 
-- [ ] Export the harness helper.
-- [ ] Copy and paste code below into `packages/jsonpath/conformance/src/index.ts`:
+- [x] Export the harness helper.
+- [x] Copy and paste code below into `packages/jsonpath/conformance/src/index.ts`:
 
 ```ts
 export * from './corpus';
 export * from './harness';
 ```
 
-- [ ] Update the conformance package dependencies so its tests can instantiate the RFC preset engine.
-- [ ] Copy and paste code below into `packages/jsonpath/conformance/package.json`:
+- [x] Update the conformance package dependencies so its tests can instantiate the RFC preset engine.
+- [x] Copy and paste code below into `packages/jsonpath/conformance/package.json`:
 
 ```json
 {
@@ -197,10 +197,10 @@ export * from './harness';
 }
 ```
 
-- [ ] Update conformance tests to:
-  - [ ] verify the corpus exports still work, and
-  - [ ] encode “known failing” RFC tests using `it.fails(...)` so `master` stays green.
-- [ ] Copy and paste code below into `packages/jsonpath/conformance/src/index.spec.ts`:
+- [x] Update conformance tests to:
+  - [x] verify the corpus exports still work, and
+  - [x] encode “known failing” RFC tests using `it.fails(...)` so `master` stays green.
+- [x] Copy and paste code below into `packages/jsonpath/conformance/src/index.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
