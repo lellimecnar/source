@@ -13,7 +13,7 @@ function write(filePath, content) {
 	fs.writeFileSync(filePath, content, 'utf8');
 }
 
-const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath-conformance');
+const pkgDir = path.join(process.cwd(), 'packages', 'jsonpath', 'conformance');
 
 write(
 	path.join(pkgDir, 'src', 'security.spec.ts'),

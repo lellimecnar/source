@@ -890,14 +890,14 @@ completes: step 28 of 30 for jsonpath
 
 #### Step 29: Security regression coverage (internal)
 
-- [ ] Add a minimal regression test ensuring forbidden pointer segments throw.
-- [ ] Add required workspace deps:
+- [x] Add a minimal regression test ensuring forbidden pointer segments throw.
+- [x] Add required workspace deps:
 
 ```bash
 pnpm --filter @lellimecnar/jsonpath-conformance add '@jsonpath/pointer@workspace:*'
 ```
 
-- [ ] Copy and paste code below into `terminal`:
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-29-security-regression.cjs
@@ -905,7 +905,7 @@ node scripts/jsonpath/step-29-security-regression.cjs
 
 ##### Step 29 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @lellimecnar/jsonpath-conformance` succeeds.
+- [x] `pnpm -w turbo test --filter @lellimecnar/jsonpath-conformance` succeeds.
 
 #### Step 29 STOP & COMMIT
 
