@@ -921,8 +921,8 @@ completes: step 29 of 30 for jsonpath
 
 #### Step 30: Documentation updates
 
-- [ ] Create `docs/api/jsonpath.md` documenting the new package surfaces and a minimal usage example.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Create `docs/api/jsonpath.md` documenting the new package surfaces and a minimal usage example.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-30-docs.cjs
@@ -930,9 +930,9 @@ node scripts/jsonpath/step-30-docs.cjs
 
 ##### Step 30 Verification Checklist
 
-- [ ] `pnpm -w turbo build --filter="@jsonpath/*"` is green.
-- [ ] `pnpm -w turbo test --filter="@jsonpath/*" -- --passWithNoTests` is green.
-- [ ] `pnpm -w verify:exports` is green.
+- [x] `pnpm -w turbo build --filter="@jsonpath/*"` is green.
+- [x] `pnpm -w turbo test --filter="@jsonpath/*" -- --passWithNoTests` is green.
+- [x] `pnpm -w verify:exports` is green.
 
 #### Step 30 STOP & COMMIT
 
