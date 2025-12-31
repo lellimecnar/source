@@ -1,4 +1,4 @@
-# JSONPath RFC 9535 Compliance (PR A: C01–C05)
+## JSONPath RFC 9535 Compliance (PR A: C01–C05)
 
 ## Goal
 
@@ -1129,7 +1129,7 @@ export function sliceSelector(args: {
 ```
 
 - [ ] Add unit tests proving the new node constructors/types work.
-- [ ] Copy and paste code below into `packages/jsonpath/ast/src/nodes.spec.ts` (new file):
+- [ ] Copy and paste code below into `packages/jsonpath/ast/src/nodes.spec.ts` (this replaces the file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1186,7 +1186,7 @@ feat(jsonpath-rfc9535): add RFC segment + selector AST nodes
 - Add core selector node shapes (name/wildcard/index/slice)
 - Add small vitest coverage for constructors
 
-completes: step 1 of 9 for jsonpath-rfc9535 (PR B)
+completes: step 1 of 10 for jsonpath-rfc9535 (PR B)
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -1265,8 +1265,8 @@ export function registerRfc9535LiteralScanRules(scanner: Scanner): void {
 			}
 			i += 1;
 		}
-		// Unterminated string; let parser raise a syntax error using TokenKinds.String presence.
-		return { kind: TokenKinds.String, lexeme: input.slice(offset), offset };
+		// Unterminated string. Return null so the scanner emits Unknown and the parser fails fast.
+		return null;
 	});
 }
 ```
@@ -1341,7 +1341,7 @@ feat(jsonpath-rfc9535): add RFC9535 literal tokenization helpers
 - Add identifier, integer, and string literal scan rules
 - Export helpers and add vitest coverage
 
-completes: step 2 of 9 for jsonpath-rfc9535 (PR B)
+completes: step 2 of 10 for jsonpath-rfc9535 (PR B)
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -1593,41 +1593,56 @@ import { parseRfc9535Path } from './parser';
 
 type Profile = 'rfc9535-draft' | 'rfc9535-core' | 'rfc9535-full';
 
-let profile: Profile = 'rfc9535-draft';
+export function createSyntaxRootPlugin(): JsonPathPlugin<{
+	profile?: Profile;
+}> {
+	// IMPORTANT: keep this as per-engine state (avoid module-level mutation).
+	let profile: Profile = 'rfc9535-draft';
 
-export const plugin: JsonPathPlugin<{ profile?: Profile }> = {
-	meta: {
-		id: '@jsonpath/plugin-syntax-root',
-		capabilities: ['syntax:rfc9535:root'],
-	},
-	configure: (cfg) => {
-		profile = cfg?.profile ?? 'rfc9535-draft';
-	},
-	hooks: {
-		registerTokens: (scanner) => {
-			registerRfc9535ScanRules(scanner);
-			registerRfc9535LiteralScanRules(scanner);
+	return {
+		meta: {
+			id: '@jsonpath/plugin-syntax-root',
+			capabilities: ['syntax:rfc9535:root'],
 		},
-		registerParsers: (parser) => {
-			parser.registerSegmentParser((ctx) => parseRfc9535Path(ctx, profile));
+		configure: (cfg) => {
+			profile = cfg?.profile ?? 'rfc9535-draft';
 		},
-	},
-};
+		hooks: {
+			registerTokens: (scanner) => {
+				registerRfc9535ScanRules(scanner);
+				registerRfc9535LiteralScanRules(scanner);
+			},
+			registerParsers: (parser) => {
+				parser.registerSegmentParser((ctx) => parseRfc9535Path(ctx, profile));
+			},
+		},
+	};
+}
+
+// Back-compat singleton (prefer createSyntaxRootPlugin() in presets/tests).
+export const plugin = createSyntaxRootPlugin();
 ```
 
 - [ ] Add plugin tests for basic parsing.
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/index.spec.ts` (append these tests):
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-root/src/index.spec.ts` (this replaces the file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
 
 import { createEngine } from '@jsonpath/core';
-import { plugin } from './index';
+import { createSyntaxRootPlugin, plugin } from './index';
+
+describe('@jsonpath/plugin-syntax-root', () => {
+	it('exports plugin metadata', () => {
+		expect(plugin.meta.id).toBe('@jsonpath/plugin-syntax-root');
+		expect(plugin.meta.capabilities).toEqual(['syntax:rfc9535:root']);
+	});
+});
 
 describe('@jsonpath/plugin-syntax-root parser', () => {
 	it('parses $ and dot-notation', () => {
 		const engine = createEngine({
-			plugins: [plugin],
+			plugins: [createSyntaxRootPlugin()],
 			options: {
 				plugins: {
 					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
@@ -1641,7 +1656,7 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 
 	it('parses bracket selectors', () => {
 		const engine = createEngine({
-			plugins: [plugin],
+			plugins: [createSyntaxRootPlugin()],
 			options: {
 				plugins: {
 					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
@@ -1654,7 +1669,7 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 
 	it('parses descendant segments', () => {
 		const engine = createEngine({
-			plugins: [plugin],
+			plugins: [createSyntaxRootPlugin()],
 			options: {
 				plugins: {
 					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
@@ -1682,16 +1697,80 @@ feat(jsonpath-rfc9535): implement RFC9535 core path parser
 - Wire token scan rules + literal scan rules
 - Add vitest coverage for $/dot/bracket/descendant parsing
 
-completes: step 3 of 9 for jsonpath-rfc9535 (PR B)
+completes: step 3 of 10 for jsonpath-rfc9535 (PR B)
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 4 (C10): Add descendant segment evaluation semantics in core
+#### Step 4 (C10): Add a segment-evaluator hook (framework-only) + export runtime helpers
 
-- [ ] Update the core engine evaluation loop to understand `DescendantSegment`.
+This is a **required architecture fix** to keep `@jsonpath/core` framework-only:
+
+- Core should not hard-code RFC segment semantics like `DescendantSegment`.
+- Instead, core should provide an extension point for **segment evaluation** (similar to selector evaluators).
+
+Also, PR B syntax plugins need to build `Location`s, but `@jsonpath/core` only exports `"."` (no subpath exports). So we must export the runtime location/node helpers from the package root.
+
+- [ ] Update `EvaluatorRegistry` to support segment evaluators.
+- [ ] Copy and paste code below into `packages/jsonpath/core/src/runtime/hooks.ts` (replace the file):
+
+```ts
+import type { SegmentNode, SelectorNode } from '@jsonpath/ast';
+
+import type { JsonPathNode } from './node';
+
+export type SelectorEvaluator = (
+	input: JsonPathNode,
+	selector: SelectorNode,
+) => readonly JsonPathNode[];
+
+export type SegmentEvaluator = (
+	inputs: readonly JsonPathNode[],
+	segment: SegmentNode,
+	evaluators: EvaluatorRegistry,
+) => readonly JsonPathNode[];
+
+export class EvaluatorRegistry {
+	private readonly selectorEvaluators = new Map<string, SelectorEvaluator>();
+	private readonly segmentEvaluators = new Map<string, SegmentEvaluator>();
+
+	public registerSelector(kind: string, evaluator: SelectorEvaluator): void {
+		this.selectorEvaluators.set(kind, evaluator);
+	}
+
+	public getSelector(kind: string): SelectorEvaluator | undefined {
+		return this.selectorEvaluators.get(kind);
+	}
+
+	public registerSegment(kind: string, evaluator: SegmentEvaluator): void {
+		this.segmentEvaluators.set(kind, evaluator);
+	}
+
+	public getSegment(kind: string): SegmentEvaluator | undefined {
+		return this.segmentEvaluators.get(kind);
+	}
+}
+
+export type ResultType = 'value' | 'node' | 'path' | 'pointer' | 'parent';
+
+export type ResultMapper = (nodes: readonly JsonPathNode[]) => unknown[];
+
+export class ResultRegistry {
+	private readonly mappers = new Map<ResultType, ResultMapper>();
+
+	public register(type: ResultType, mapper: ResultMapper): void {
+		this.mappers.set(type, mapper);
+	}
+
+	public get(type: ResultType): ResultMapper | undefined {
+		return this.mappers.get(type);
+	}
+}
+```
+
+- [ ] Update `evaluateSync` to use a segment evaluator when available, otherwise fall back to the default “apply selectors” behavior.
 - [ ] Copy and paste code below into `packages/jsonpath/core/src/createEngine.ts` (replace only `evaluateSync` with this version):
 
 ```ts
@@ -1700,53 +1779,26 @@ const evaluateSync = (
 	json: unknown,
 	evaluateOptions?: EvaluateOptions,
 ) => {
-	function isRecord(value: unknown): value is Record<string, unknown> {
-		return typeof value === 'object' && value !== null && !Array.isArray(value);
-	}
-
-	function descendantsOf(node: JsonPathNode): readonly JsonPathNode[] {
-		const out: JsonPathNode[] = [node];
-		const queue: JsonPathNode[] = [node];
-		while (queue.length) {
-			const current = queue.shift()!;
-			const v = current.value;
-			if (Array.isArray(v)) {
-				for (const item of v) {
-					const child: JsonPathNode = {
-						value: item,
-						location: current.location,
-					};
-					out.push(child);
-					queue.push(child);
-				}
-				continue;
-			}
-			if (isRecord(v)) {
-				for (const key of Object.keys(v)) {
-					const child: JsonPathNode = {
-						value: v[key],
-						location: current.location,
-					};
-					out.push(child);
-					queue.push(child);
-				}
-			}
-		}
-		return out;
-	}
-
 	let nodes: JsonPathNode[] = [rootNode(json)];
 
 	for (const seg of compiled.ast.segments) {
+		const evalSegment = evaluators.getSegment(seg.kind);
+		if (evalSegment) {
+			nodes = [...evalSegment(nodes, seg as any, evaluators)];
+			continue;
+		}
+
+		const selectors = (seg as any).selectors;
+		if (!Array.isArray(selectors)) {
+			throw new JsonPathError({
+				code: JsonPathErrorCodes.Evaluation,
+				message: `No segment evaluator registered for segment kind: ${seg.kind}`,
+			});
+		}
+
 		const next: JsonPathNode[] = [];
-
-		const inputsForSegment =
-			seg.kind === 'DescendantSegment'
-				? nodes.flatMap((n) => descendantsOf(n))
-				: nodes;
-
-		for (const inputNode of inputsForSegment) {
-			for (const selector of seg.selectors) {
+		for (const inputNode of nodes) {
+			for (const selector of selectors) {
 				const evalSelector = evaluators.getSelector(selector.kind);
 				if (!evalSelector) {
 					throw new JsonPathError({
@@ -1775,49 +1827,45 @@ const evaluateSync = (
 };
 ```
 
-- [ ] Add a core test proving `DescendantSegment` drives evaluation over nested structures.
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/engine.descendant.spec.ts` (new file):
+- [ ] Export runtime helpers from `@jsonpath/core` (required so syntax plugins do not use invalid deep imports).
+- [ ] Copy and paste code below into `packages/jsonpath/core/src/index.ts` (append these exports):
+
+```ts
+export type { Location, LocationComponent } from './runtime/location';
+export { appendIndex, appendMember, rootLocation } from './runtime/location';
+export type { JsonPathNode } from './runtime/node';
+export { rootNode } from './runtime/node';
+```
+
+- [ ] Add a core test proving segment evaluators are invoked.
+- [ ] Copy and paste code below into `packages/jsonpath/core/src/engine.segment-evaluator.spec.ts` (new file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
 
-import { createEngine } from './createEngine';
+import { nameSelector, path, segment } from '@jsonpath/ast';
 import type { JsonPathPlugin } from './plugins/types';
 
-import {
-	SelectorKinds,
-	descendantSegment,
-	nameSelector,
-	path,
-} from '@jsonpath/ast';
+import { createEngine } from './createEngine';
 
-const evalName: JsonPathPlugin = {
-	meta: { id: 'test:name-eval' },
+const segmentOverride: JsonPathPlugin = {
+	meta: { id: 'test:segment-override' },
 	hooks: {
 		registerEvaluators: (registry) => {
-			registry.registerSelector(SelectorKinds.Name, (input, selector: any) => {
-				const v = input.value as any;
-				if (!v || typeof v !== 'object' || Array.isArray(v)) return [];
-				if (!(selector.name in v)) return [];
-				return [{ value: v[selector.name], location: input.location }];
-			});
+			registry.registerSegment('Segment', () => []);
 		},
 	},
 };
 
-describe('@jsonpath/core descendant segments', () => {
-	it('applies selectors across all descendants', () => {
-		const engine = createEngine({ plugins: [evalName] });
+describe('@jsonpath/core segment evaluator hook', () => {
+	it('invokes a registered segment evaluator by kind', () => {
+		const engine = createEngine({ plugins: [segmentOverride] });
 		const compiled = {
-			expression: '$..x',
-			ast: path([descendantSegment([nameSelector('x')])]),
+			expression: '$.x',
+			ast: path([segment([nameSelector('x')])]),
 		};
-		const out = engine.evaluateSync(compiled as any, {
-			x: 1,
-			a: { x: 2 },
-			b: { c: { x: 3 } },
-		});
-		expect(out).toEqual([1, 2, 3]);
+		const out = engine.evaluateSync(compiled as any, { x: 1 });
+		expect(out).toEqual([]);
 	});
 });
 ```
@@ -1831,19 +1879,156 @@ describe('@jsonpath/core descendant segments', () => {
 Multiline conventional commit message:
 
 ```txt
-feat(jsonpath-rfc9535): support DescendantSegment evaluation
+feat(jsonpath-rfc9535): add segment evaluator hook + export runtime helpers
 
-- Extend core evaluation to traverse descendants for DescendantSegment
-- Add a focused core test proving traversal wiring
+- Add framework-level segment evaluator registry
+- Update core evaluation loop to dispatch by segment kind
+- Export Location/Node helpers from @jsonpath/core package root
 
-completes: step 4 of 9 for jsonpath-rfc9535 (PR B)
+completes: step 4 of 10 for jsonpath-rfc9535 (PR B)
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 5 (C11–C14): Implement core selector evaluators (name/wildcard/index/slice)
+#### Step 5 (C10): Implement DescendantSegment semantics in `@jsonpath/plugin-syntax-descendant`
+
+- [ ] Implement descendant segment evaluation semantics via the new segment evaluator hook.
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-descendant/src/index.ts` (this replaces the file):
+
+```ts
+import {
+	JsonPathError,
+	JsonPathErrorCodes,
+	appendIndex,
+	appendMember,
+} from '@jsonpath/core';
+import type { JsonPathPlugin } from '@jsonpath/core';
+import type { SegmentNode } from '@jsonpath/ast';
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export const plugin: JsonPathPlugin = {
+	meta: {
+		id: '@jsonpath/plugin-syntax-descendant',
+		capabilities: ['syntax:rfc9535:descendant'],
+	},
+	hooks: {
+		registerEvaluators: (registry) => {
+			registry.registerSegment(
+				'DescendantSegment',
+				(inputs, segment: SegmentNode & { selectors: any[] }, evaluators) => {
+					function descendantsOrSelf(node: any): any[] {
+						const out: any[] = [node];
+						const queue: any[] = [node];
+						while (queue.length) {
+							const current = queue.shift()!;
+							const v = current.value;
+							if (Array.isArray(v)) {
+								for (let i = 0; i < v.length; i += 1) {
+									const child = {
+										value: v[i],
+										location: appendIndex(current.location, i),
+									};
+									out.push(child);
+									queue.push(child);
+								}
+								continue;
+							}
+							if (isRecord(v)) {
+								for (const key of Object.keys(v).sort()) {
+									const child = {
+										value: v[key],
+										location: appendMember(current.location, key),
+									};
+									out.push(child);
+									queue.push(child);
+								}
+							}
+						}
+						return out;
+					}
+
+					const expanded = inputs.flatMap((n) => descendantsOrSelf(n));
+					const next: any[] = [];
+					for (const inputNode of expanded) {
+						for (const selector of segment.selectors) {
+							const evalSelector = evaluators.getSelector(selector.kind);
+							if (!evalSelector) {
+								throw new JsonPathError({
+									code: JsonPathErrorCodes.Evaluation,
+									message: `No evaluator registered for selector kind: ${selector.kind}`,
+								});
+							}
+							next.push(...evalSelector(inputNode, selector));
+						}
+					}
+					return next;
+				},
+			);
+		},
+	},
+};
+```
+
+- [ ] Add a focused plugin test proving `$..x` works end-to-end.
+- [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-descendant/src/index.spec.ts` (new file):
+
+```ts
+import { describe, expect, it } from 'vitest';
+
+import { createEngine } from '@jsonpath/core';
+import { plugin as childMember } from '@jsonpath/plugin-syntax-child-member';
+import { createSyntaxRootPlugin } from '@jsonpath/plugin-syntax-root';
+
+import { plugin } from './index';
+
+describe('@jsonpath/plugin-syntax-descendant (value)', () => {
+	it('selects all descendants matching a name', () => {
+		const root = createSyntaxRootPlugin();
+		const engine = createEngine({
+			plugins: [root, plugin, childMember],
+			options: {
+				plugins: {
+					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-core' },
+				},
+			},
+		});
+		const out = engine.evaluateSync(engine.compile('$..x'), {
+			x: 1,
+			a: { x: 2 },
+			b: { c: { x: 3 } },
+		});
+		expect(out).toEqual([1, 2, 3]);
+	});
+});
+```
+
+##### Step 5 Verification Checklist
+
+- [ ] `pnpm --filter @jsonpath/plugin-syntax-descendant test`
+
+#### Step 5 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+feat(jsonpath-rfc9535): implement DescendantSegment via segment evaluator hook
+
+- Register segment evaluator for DescendantSegment in syntax-descendant plugin
+- Add focused end-to-end plugin test for $..name
+
+completes: step 5 of 10 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+#### Step 6 (C11–C14): Implement core selector evaluators (name/wildcard/index/slice)
 
 - [ ] Implement the selector evaluators in their respective syntax plugins.
 
@@ -1853,7 +2038,7 @@ completes: step 4 of 9 for jsonpath-rfc9535 (PR B)
 import type { JsonPathPlugin } from '@jsonpath/core';
 import { SelectorKinds } from '@jsonpath/ast';
 
-import { appendMember } from '@jsonpath/core/runtime/location';
+import { appendMember } from '@jsonpath/core';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -1888,7 +2073,7 @@ export const plugin: JsonPathPlugin = {
 import type { JsonPathPlugin } from '@jsonpath/core';
 import { SelectorKinds } from '@jsonpath/ast';
 
-import { appendIndex, appendMember } from '@jsonpath/core/runtime/location';
+import { appendIndex, appendMember } from '@jsonpath/core';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -1929,7 +2114,7 @@ export const plugin: JsonPathPlugin = {
 import type { JsonPathPlugin } from '@jsonpath/core';
 import { SelectorKinds } from '@jsonpath/ast';
 
-import { appendIndex } from '@jsonpath/core/runtime/location';
+import { appendIndex } from '@jsonpath/core';
 
 function normalizeIndex(index: number, length: number): number {
 	if (index < 0) return length + index;
@@ -2097,14 +2282,14 @@ describe('@jsonpath/plugin-syntax-child-index (value)', () => {
 });
 ```
 
-##### Step 5 Verification Checklist
+##### Step 6 Verification Checklist
 
 - [ ] `pnpm --filter @jsonpath/plugin-syntax-child-member test`
 - [ ] `pnpm --filter @jsonpath/plugin-syntax-wildcard test`
 - [ ] `pnpm --filter @jsonpath/plugin-syntax-child-index test`
 - [ ] `pnpm --filter @jsonpath/core test`
 
-#### Step 5 STOP & COMMIT
+#### Step 6 STOP & COMMIT
 
 Multiline conventional commit message:
 
@@ -2114,23 +2299,36 @@ feat(jsonpath-rfc9535): implement core selector evaluators
 - Add evaluators for name, wildcard, index, and slice selectors
 - Add focused per-plugin tests running through @jsonpath/core
 
-completes: step 5 of 9 for jsonpath-rfc9535 (PR B)
+completes: step 6 of 10 for jsonpath-rfc9535 (PR B)
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 6 (C12–C14): Wire profile config to syntax plugins via RFC preset engine
+#### Step 7 (C12–C14): Wire profile config to syntax plugins via RFC preset engine
 
 - [ ] Update the RFC preset engine so `profile` is passed to the syntax-root plugin (and any other plugin that needs profile gating).
+- [ ] In `packages/jsonpath/plugin-rfc-9535/src/index.ts`, add this import near the top of the file:
+
+```ts
+import { createSyntaxRootPlugin } from '@jsonpath/plugin-syntax-root';
+```
+
 - [ ] Copy and paste code below into `packages/jsonpath/plugin-rfc-9535/src/index.ts` (replace only `createRfc9535Engine` with this version):
 
 ```ts
 export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
 	const profile = options?.profile ?? 'rfc9535-draft';
+	// IMPORTANT: create a fresh syntax-root plugin instance per engine to avoid shared mutable state.
+	const root = createSyntaxRootPlugin();
 	return createEngine({
-		plugins: rfc9535Plugins,
+		plugins: [
+			root,
+			...rfc9535Plugins.filter(
+				(p) => p.meta.id !== '@jsonpath/plugin-syntax-root',
+			),
+		],
 		options: {
 			plugins: {
 				'@jsonpath/plugin-rfc-9535': { profile },
@@ -2141,11 +2339,11 @@ export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
 }
 ```
 
-##### Step 6 Verification Checklist
+##### Step 7 Verification Checklist
 
 - [ ] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
 
-#### Step 6 STOP & COMMIT
+#### Step 7 STOP & COMMIT
 
 Multiline conventional commit message:
 
@@ -2154,14 +2352,14 @@ feat(jsonpath-rfc9535): pass profile config to syntax-root plugin
 
 - Ensure syntax-root can enforce rfc9535-core feature gates
 
-completes: step 6 of 9 for jsonpath-rfc9535 (PR B)
+completes: step 7 of 10 for jsonpath-rfc9535 (PR B)
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 7: Flip conformance cases from expected-failing to passing for rfc9535-core
+#### Step 8: Flip conformance cases from expected-failing to passing for rfc9535-core
 
 - [ ] Extend the conformance corpus with core-selector cases that should pass under `rfc9535-core`.
 - [ ] Update `packages/jsonpath/conformance/src/corpus.ts` to add cases like:
@@ -2173,32 +2371,6 @@ completes: step 6 of 9 for jsonpath-rfc9535 (PR B)
 
 - [ ] Update `packages/jsonpath/conformance/src/index.spec.ts` to convert the corresponding `it.fails(...)` tests into normal `it(...)` tests for `profile: 'rfc9535-core'`.
 
-##### Step 7 Verification Checklist
-
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
-
-#### Step 7 STOP & COMMIT
-
-Multiline conventional commit message:
-
-```txt
-test(jsonpath-rfc9535): enable passing rfc9535-core conformance cases
-
-- Add core-selector conformance cases and assertions
-- Convert selected it.fails() cases to it() under rfc9535-core
-
-completes: step 7 of 9 for jsonpath-rfc9535 (PR B)
-```
-
-**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
-
----
-
-#### Step 8: Keep rfc9535-core rejecting unsupported syntax (filters/functions/paths)
-
-- [ ] Add conformance cases asserting that filter syntax (e.g. `$[?@.a]`) fails fast under `rfc9535-core` with `JsonPathError` code `JSONPATH_SYNTAX_ERROR`.
-- [ ] Ensure `packages/jsonpath/plugin-syntax-root/src/parser.ts` throws the stable error message `Filter selectors are not supported in rfc9535-core`.
-
 ##### Step 8 Verification Checklist
 
 - [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
@@ -2208,35 +2380,62 @@ completes: step 7 of 9 for jsonpath-rfc9535 (PR B)
 Multiline conventional commit message:
 
 ```txt
-test(jsonpath-rfc9535): enforce rfc9535-core unsupported syntax failures
+test(jsonpath-rfc9535): enable passing rfc9535-core conformance cases
 
-- Add conformance cases for filter rejection under rfc9535-core
+- Add core-selector conformance cases and assertions
+- Convert selected it.fails() cases to it() under rfc9535-core
 
-completes: step 8 of 9 for jsonpath-rfc9535 (PR B)
+completes: step 8 of 10 for jsonpath-rfc9535 (PR B)
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 9: PR B exit validation
+#### Step 9: Keep rfc9535-core rejecting unsupported syntax (filters/functions/paths)
+
+- [ ] Add conformance cases asserting that filter syntax (e.g. `$[?@.a]`) fails fast under `rfc9535-core` with `JsonPathError` code `JSONPATH_SYNTAX_ERROR`.
+- [ ] Ensure `packages/jsonpath/plugin-syntax-root/src/parser.ts` throws the stable error message `Filter selectors are not supported in rfc9535-core`.
+
+##### Step 9 Verification Checklist
+
+- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+
+#### Step 9 STOP & COMMIT
+
+Multiline conventional commit message:
+
+```txt
+test(jsonpath-rfc9535): enforce rfc9535-core unsupported syntax failures
+
+- Add conformance cases for filter rejection under rfc9535-core
+
+completes: step 9 of 10 for jsonpath-rfc9535 (PR B)
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+#### Step 10: PR B exit validation
 
 - [ ] Run the PR B package test suite:
   - [ ] `pnpm --filter @jsonpath/ast test`
   - [ ] `pnpm --filter @jsonpath/lexer test`
   - [ ] `pnpm --filter @jsonpath/core test`
   - [ ] `pnpm --filter @jsonpath/plugin-syntax-root test`
+  - [ ] `pnpm --filter @jsonpath/plugin-syntax-descendant test`
   - [ ] `pnpm --filter @jsonpath/plugin-syntax-child-member test`
   - [ ] `pnpm --filter @jsonpath/plugin-syntax-wildcard test`
   - [ ] `pnpm --filter @jsonpath/plugin-syntax-child-index test`
   - [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
 
-##### Step 9 Verification Checklist
+##### Step 10 Verification Checklist
 
 - [ ] Conformance: all `rfc9535-core` tests for core selectors are green
 - [ ] Conformance: filter/function/path tests remain expected failures or are explicitly rejected under core
 
-#### Step 9 STOP & COMMIT
+#### Step 10 STOP & COMMIT
 
 Multiline conventional commit message:
 
@@ -2246,7 +2445,7 @@ chore(jsonpath-rfc9535): complete PR B core selector compliance
 - Ship RFC9535 core parsing and evaluation for selectors/segments
 - Keep rfc9535-core rejecting unsupported features
 
-completes: step 9 of 9 for jsonpath-rfc9535 (PR B)
+completes: step 10 of 10 for jsonpath-rfc9535 (PR B)
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
@@ -2259,3 +2458,13 @@ completes: step 9 of 9 for jsonpath-rfc9535 (PR B)
 - PR D (C19–C25): function parsing + typing + implementations for `length/count/match/search/value` under `rfc9535-full`.
 - PR E (C26–C28): normalized paths (`resultType: 'path'`) under `rfc9535-full`.
 - PR F (C23–C24 if split): RFC 9485 I-Regexp validation + matcher, used by `match/search`.
+
+### Remaining commits not explicitly assigned to a PR yet
+
+The master plan includes additional compliance requirements that must be implemented before claiming `rfc9535-full` compliance:
+
+- C29: string literal escape + Unicode handling (upgrade `decodeQuotedString` and any lexer/string handling to match RFC requirements; add conformance cases).
+- C30: integer range validity checks (I-JSON exact integer constraints; add conformance cases).
+- C31: descendant traversal edge cases + ordering semantics (ensure behavior matches RFC; add conformance cases).
+- C32: union semantics and duplicate-retention rules (ensure selector unions behave per RFC; add conformance cases).
+- C34: error codes + offsets (ensure stable `JsonPathError` codes and correct `location.offset` for parse/eval failures; add conformance cases).
