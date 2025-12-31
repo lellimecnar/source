@@ -42,8 +42,8 @@ completes: step 1 of 30 for jsonpath
 
 #### Step 2: Define shared error model + diagnostics contract (`@jsonpath/core`)
 
-- [ ] Create the shared error model + diagnostics contract files.
-- [ ] Copy and paste code below into `terminal`:
+- [x] Create the shared error model + diagnostics contract files.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-02-core-errors.cjs
@@ -51,7 +51,7 @@ node scripts/jsonpath/step-02-core-errors.cjs
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
+- [x] `pnpm -w turbo test --filter @jsonpath/core` succeeds.
 
 #### Step 2 STOP & COMMIT
 
