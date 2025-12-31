@@ -1458,6 +1458,10 @@ importers:
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/jsonpath/plugin-result-node:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
@@ -1500,6 +1504,10 @@ importers:
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/jsonpath/plugin-result-parent:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
@@ -1542,6 +1550,13 @@ importers:
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/jsonpath/plugin-result-path:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
+      '@jsonpath/printer':
+        specifier: workspace:^
+        version: link:../printer
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
@@ -1584,6 +1599,13 @@ importers:
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/jsonpath/plugin-result-pointer:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
+      '@jsonpath/pointer':
+        specifier: workspace:^
+        version: link:../pointer
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
@@ -1626,6 +1648,25 @@ importers:
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/jsonpath/plugin-result-types:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
+      '@jsonpath/plugin-result-node':
+        specifier: workspace:^
+        version: link:../plugin-result-node
+      '@jsonpath/plugin-result-parent':
+        specifier: workspace:^
+        version: link:../plugin-result-parent
+      '@jsonpath/plugin-result-path':
+        specifier: workspace:^
+        version: link:../plugin-result-path
+      '@jsonpath/plugin-result-pointer':
+        specifier: workspace:^
+        version: link:../plugin-result-pointer
+      '@jsonpath/plugin-result-value':
+        specifier: workspace:^
+        version: link:../plugin-result-value
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
@@ -1668,6 +1709,10 @@ importers:
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/jsonpath/plugin-result-value:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*

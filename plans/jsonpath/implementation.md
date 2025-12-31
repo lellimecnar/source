@@ -410,7 +410,7 @@ completes: step 14 of 30 for jsonpath
 
 #### Step 15: Result view plugin shells + aggregator (`@jsonpath/plugin-result-*`)
 
-- [ ] Add required deps:
+- [x] Add required deps:
 
 ```bash
 pnpm --filter @jsonpath/plugin-result-value add '@jsonpath/core@workspace:*'
@@ -421,9 +421,9 @@ pnpm --filter @jsonpath/plugin-result-parent add '@jsonpath/core@workspace:*'
 pnpm --filter @jsonpath/plugin-result-types add '@jsonpath/core@workspace:*' '@jsonpath/plugin-result-value@workspace:*' '@jsonpath/plugin-result-node@workspace:*' '@jsonpath/plugin-result-path@workspace:*' '@jsonpath/plugin-result-pointer@workspace:*' '@jsonpath/plugin-result-parent@workspace:*'
 ```
 
-- [ ] For each `@jsonpath/plugin-result-*` package: export wiring-only `plugin` + unit test.
-- [ ] In `@jsonpath/plugin-result-types`, export a stable `plugins` array re-exporting the 5 result plugins.
-- [ ] Copy and paste code below into `terminal`:
+- [x] For each `@jsonpath/plugin-result-*` package: export wiring-only `plugin` + unit test.
+- [x] In `@jsonpath/plugin-result-types`, export a stable `plugins` array re-exporting the 5 result plugins.
+- [x] Copy and paste code below into `terminal`:
 
 ```bash
 node scripts/jsonpath/step-15-result-shells.cjs
@@ -431,7 +431,7 @@ node scripts/jsonpath/step-15-result-shells.cjs
 
 ##### Step 15 Verification Checklist
 
-- [ ] `pnpm -w turbo test --filter="@jsonpath/plugin-result-*" -- --passWithNoTests` succeeds.
+- [x] `pnpm -w turbo test --filter="@jsonpath/plugin-result-*" -- --passWithNoTests` succeeds.
 
 #### Step 15 STOP & COMMIT
 

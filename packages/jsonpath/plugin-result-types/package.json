@@ -27,7 +27,14 @@
 		"test:watch": "vitest",
 		"type-check": "tsgo --noEmit"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"@jsonpath/core": "workspace:^",
+		"@jsonpath/plugin-result-node": "workspace:^",
+		"@jsonpath/plugin-result-parent": "workspace:^",
+		"@jsonpath/plugin-result-path": "workspace:^",
+		"@jsonpath/plugin-result-pointer": "workspace:^",
+		"@jsonpath/plugin-result-value": "workspace:^"
+	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
@@ -43,7 +50,6 @@
 		"vite-tsconfig-paths": "^6.0.3",
 		"vitest": "^4.0.16"
 	},
-	"peerDependencies": {},
 	"publishConfig": {
 		"access": "public"
 	}
