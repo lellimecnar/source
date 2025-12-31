@@ -1,4 +1,4 @@
-import type { SelectorNode } from '@jsonpath/ast';
+import type { SegmentNode, SelectorNode } from '@jsonpath/ast';
 
 import type { JsonPathNode } from './node';
 
@@ -7,8 +7,15 @@ export type SelectorEvaluator = (
 	selector: SelectorNode,
 ) => readonly JsonPathNode[];
 
+export type SegmentEvaluator = (
+	inputs: readonly JsonPathNode[],
+	segment: SegmentNode,
+	evaluators: EvaluatorRegistry,
+) => readonly JsonPathNode[];
+
 export class EvaluatorRegistry {
 	private readonly selectorEvaluators = new Map<string, SelectorEvaluator>();
+	private readonly segmentEvaluators = new Map<string, SegmentEvaluator>();
 
 	public registerSelector(kind: string, evaluator: SelectorEvaluator): void {
 		this.selectorEvaluators.set(kind, evaluator);
@@ -16,6 +23,14 @@ export class EvaluatorRegistry {
 
 	public getSelector(kind: string): SelectorEvaluator | undefined {
 		return this.selectorEvaluators.get(kind);
+	}
+
+	public registerSegment(kind: string, evaluator: SegmentEvaluator): void {
+		this.segmentEvaluators.set(kind, evaluator);
+	}
+
+	public getSegment(kind: string): SegmentEvaluator | undefined {
+		return this.segmentEvaluators.get(kind);
 	}
 }
 

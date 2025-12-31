@@ -65,9 +65,23 @@ export function createEngine({
 		let nodes: JsonPathNode[] = [rootNode(json)];
 
 		for (const seg of compiled.ast.segments) {
+			const evalSegment = evaluators.getSegment(seg.kind);
+			if (evalSegment) {
+				nodes = [...evalSegment(nodes, seg as any, evaluators)];
+				continue;
+			}
+
+			const selectors = (seg as any).selectors;
+			if (!Array.isArray(selectors)) {
+				throw new JsonPathError({
+					code: JsonPathErrorCodes.Evaluation,
+					message: `No segment evaluator registered for segment kind: ${seg.kind}`,
+				});
+			}
+
 			const next: JsonPathNode[] = [];
 			for (const inputNode of nodes) {
-				for (const selector of seg.selectors) {
+				for (const selector of selectors) {
 					const evalSelector = evaluators.getSelector(selector.kind);
 					if (!evalSelector) {
 						throw new JsonPathError({

@@ -1713,8 +1713,8 @@ This is a **required architecture fix** to keep `@jsonpath/core` framework-only:
 
 Also, PR B syntax plugins need to build `Location`s, but `@jsonpath/core` only exports `"."` (no subpath exports). So we must export the runtime location/node helpers from the package root.
 
-- [ ] Update `EvaluatorRegistry` to support segment evaluators.
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/runtime/hooks.ts` (replace the file):
+- [x] Update `EvaluatorRegistry` to support segment evaluators.
+- [x] Copy and paste code below into `packages/jsonpath/core/src/runtime/hooks.ts` (replace the file):
 
 ```ts
 import type { SegmentNode, SelectorNode } from '@jsonpath/ast';
@@ -1770,8 +1770,8 @@ export class ResultRegistry {
 }
 ```
 
-- [ ] Update `evaluateSync` to use a segment evaluator when available, otherwise fall back to the default “apply selectors” behavior.
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/createEngine.ts` (replace only `evaluateSync` with this version):
+- [x] Update `evaluateSync` to use a segment evaluator when available, otherwise fall back to the default “apply selectors” behavior.
+- [x] Copy and paste code below into `packages/jsonpath/core/src/createEngine.ts` (replace only `evaluateSync` with this version):
 
 ```ts
 const evaluateSync = (
@@ -1827,8 +1827,8 @@ const evaluateSync = (
 };
 ```
 
-- [ ] Export runtime helpers from `@jsonpath/core` (required so syntax plugins do not use invalid deep imports).
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/index.ts` (append these exports):
+- [x] Export runtime helpers from `@jsonpath/core` (required so syntax plugins do not use invalid deep imports).
+- [x] Copy and paste code below into `packages/jsonpath/core/src/index.ts` (append these exports):
 
 ```ts
 export type { Location, LocationComponent } from './runtime/location';
@@ -1837,8 +1837,8 @@ export type { JsonPathNode } from './runtime/node';
 export { rootNode } from './runtime/node';
 ```
 
-- [ ] Add a core test proving segment evaluators are invoked.
-- [ ] Copy and paste code below into `packages/jsonpath/core/src/engine.segment-evaluator.spec.ts` (new file):
+- [x] Add a core test proving segment evaluators are invoked.
+- [x] Copy and paste code below into `packages/jsonpath/core/src/engine.segment-evaluator.spec.ts` (new file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
