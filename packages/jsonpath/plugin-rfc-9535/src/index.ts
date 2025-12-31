@@ -19,7 +19,10 @@ import { plugin as childMember } from '@jsonpath/plugin-syntax-child-member';
 import { plugin as current } from '@jsonpath/plugin-syntax-current';
 import { plugin as descendant } from '@jsonpath/plugin-syntax-descendant';
 import { plugin as filterContainer } from '@jsonpath/plugin-syntax-filter';
-import { plugin as root } from '@jsonpath/plugin-syntax-root';
+import {
+	createSyntaxRootPlugin,
+	plugin as root,
+} from '@jsonpath/plugin-syntax-root';
 import { plugin as union } from '@jsonpath/plugin-syntax-union';
 import { plugin as wildcard } from '@jsonpath/plugin-syntax-wildcard';
 
@@ -55,13 +58,20 @@ export const rfc9535Plugins = [
 ] as const satisfies readonly JsonPathPlugin[];
 
 export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
+	const profile = options?.profile ?? 'rfc9535-draft';
+	// IMPORTANT: create a fresh syntax-root plugin instance per engine to avoid shared mutable state.
+	const root = createSyntaxRootPlugin();
 	return createEngine({
-		plugins: rfc9535Plugins,
+		plugins: [
+			root,
+			...rfc9535Plugins.filter(
+				(p) => p.meta.id !== '@jsonpath/plugin-syntax-root',
+			),
+		],
 		options: {
 			plugins: {
-				'@jsonpath/plugin-rfc-9535': {
-					profile: options?.profile ?? 'rfc9535-draft',
-				},
+				'@jsonpath/plugin-rfc-9535': { profile },
+				'@jsonpath/plugin-syntax-root': { profile },
 			},
 		},
 	});

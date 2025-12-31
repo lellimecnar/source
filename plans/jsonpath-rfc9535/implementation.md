@@ -2308,14 +2308,14 @@ completes: step 6 of 10 for jsonpath-rfc9535 (PR B)
 
 #### Step 7 (C12–C14): Wire profile config to syntax plugins via RFC preset engine
 
-- [ ] Update the RFC preset engine so `profile` is passed to the syntax-root plugin (and any other plugin that needs profile gating).
-- [ ] In `packages/jsonpath/plugin-rfc-9535/src/index.ts`, add this import near the top of the file:
+- [x] Update the RFC preset engine so `profile` is passed to the syntax-root plugin (and any other plugin that needs profile gating).
+- [x] In `packages/jsonpath/plugin-rfc-9535/src/index.ts`, add this import near the top of the file:
 
 ```ts
 import { createSyntaxRootPlugin } from '@jsonpath/plugin-syntax-root';
 ```
 
-- [ ] Copy and paste code below into `packages/jsonpath/plugin-rfc-9535/src/index.ts` (replace only `createRfc9535Engine` with this version):
+- [x] Copy and paste code below into `packages/jsonpath/plugin-rfc-9535/src/index.ts` (replace only `createRfc9535Engine` with this version):
 
 ```ts
 export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
@@ -2341,7 +2341,7 @@ export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
 
 ##### Step 7 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
+- [x] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
 
 #### Step 7 STOP & COMMIT
 
