@@ -38,6 +38,7 @@ This will start all applications and packages in development mode:
 ├── mobile/              # Mobile applications
 │   └── readon           # Expo/React Native app
 ├── packages/            # Shared libraries
+│   ├── jsonpath         # RFC 9535 compliant JSONPath ecosystem
 │   ├── ui               # Web UI components (shadcn/ui)
 │   ├── ui-nativewind    # Mobile UI components (NativeWind)
 │   ├── utils            # Shared utilities

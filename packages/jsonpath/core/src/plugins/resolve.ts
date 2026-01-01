@@ -8,8 +8,8 @@ import { JsonPathErrorCodes } from '../errors/codes';
 import { JsonPathError } from '../errors/JsonPathError';
 
 export interface ResolvePluginsResult {
-	ordered: readonly JsonPathPlugin[];
-	byId: ReadonlyMap<JsonPathPluginId, JsonPathPlugin>;
+	ordered: readonly JsonPathPlugin<any>[];
+	byId: ReadonlyMap<JsonPathPluginId, JsonPathPlugin<any>>;
 }
 
 function list(p?: readonly string[]): readonly string[] {
@@ -17,11 +17,11 @@ function list(p?: readonly string[]): readonly string[] {
 }
 
 export function resolvePlugins(
-	plugins: readonly JsonPathPlugin[],
+	plugins: readonly JsonPathPlugin<any>[],
 ): ResolvePluginsResult {
 	const inputOrdered = orderPluginsDeterministically(plugins);
 
-	const byId = new Map<JsonPathPluginId, JsonPathPlugin>();
+	const byId = new Map<JsonPathPluginId, JsonPathPlugin<any>>();
 	const duplicates = new Set<JsonPathPluginId>();
 	for (const p of inputOrdered) {
 		if (byId.has(p.meta.id)) duplicates.add(p.meta.id);

@@ -146,7 +146,7 @@ export const cases: ConformanceCase[] = [
 		name: 'rfc: length() over author string (full)',
 		profile: 'rfc9535-full',
 		documentName: 'rfc-bookstore-mini',
-		query: '$.store.book[*][?length(@.author) >= 12].author',
+		query: '$.store.book[?length(@.author) >= 12].author',
 		expect: {
 			values: ['Evelyn Waugh'],
 		},
@@ -155,7 +155,7 @@ export const cases: ConformanceCase[] = [
 		name: 'rfc: count() over wildcard expansion (full)',
 		profile: 'rfc9535-full',
 		documentName: 'rfc-bookstore-mini',
-		query: '$.store.book[*][?count(@.*) == 4].title',
+		query: '$.store.book[?count(@.*) == 4].title',
 		expect: {
 			values: ['Sayings', 'Sword'],
 		},
@@ -164,7 +164,7 @@ export const cases: ConformanceCase[] = [
 		name: 'rfc: match() vs search() (full)',
 		profile: 'rfc9535-full',
 		documentName: 'rfc-functions-mini',
-		query: "$.items[*][?search(@.b, '[jk]')].b",
+		query: "$.items[?search(@.b, '[jk]')].b",
 		expect: {
 			values: ['j', 'k', 'xj'],
 		},
@@ -173,7 +173,7 @@ export const cases: ConformanceCase[] = [
 		name: 'rfc: match() anchors the full string (full)',
 		profile: 'rfc9535-full',
 		documentName: 'rfc-functions-mini',
-		query: "$.items[*][?match(@.b, '[jk]')].b",
+		query: "$.items[?match(@.b, '[jk]')].b",
 		expect: {
 			values: ['j', 'k'],
 		},
@@ -182,7 +182,7 @@ export const cases: ConformanceCase[] = [
 		name: 'rfc: value() extracts singular node value (full)',
 		profile: 'rfc9535-full',
 		documentName: 'rfc-bookstore-mini',
-		query: '$.store.book[*][?value(@.price) >= 10].title',
+		query: '$.store.book[?value(@.price) >= 10].title',
 		expect: {
 			values: ['Sword'],
 		},

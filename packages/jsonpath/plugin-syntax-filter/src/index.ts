@@ -1,5 +1,6 @@
 import { SelectorKinds, FilterExprKinds } from '@jsonpath/ast';
 import type { JsonPathPlugin, EvalContext } from '@jsonpath/core';
+import { appendIndex, appendMember } from '@jsonpath/core';
 import { compile } from '@jsonpath/plugin-iregexp';
 
 // Sentinel value for "Nothing" (empty nodelist or absent embedded query result)
@@ -157,6 +158,14 @@ function evalFilterExpr(
 		case FilterExprKinds.FunctionCall:
 			return evalFunctionCall(expr, currentNode, ctx, evaluators);
 
+		case FilterExprKinds.Script: {
+			const scriptEval = evaluators.getFilterScriptEvaluator();
+			if (scriptEval) {
+				return scriptEval(expr.script, currentNode, ctx);
+			}
+			return Nothing;
+		}
+
 		default:
 			return Nothing;
 	}
@@ -217,7 +226,8 @@ function evalEmbeddedQuery(
 				if (!evalSelector) {
 					continue;
 				}
-				next.push(...evalSelector(inputNode, selector, ctx));
+				const result = evalSelector(inputNode, selector, ctx);
+				next.push(...result);
 			}
 		}
 		nodes = next;
@@ -256,6 +266,10 @@ function compareValues(operator: string, left: any, right: any): boolean {
 	}
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 export const plugin: JsonPathPlugin = {
 	meta: {
 		id: '@jsonpath/plugin-syntax-filter',
@@ -265,18 +279,44 @@ export const plugin: JsonPathPlugin = {
 		engine.evaluators.registerSelector(
 			SelectorKinds.Filter,
 			(input, selector: any, ctx: EvalContext) => {
-				const result = evalFilterExpr(
-					selector.expr,
-					input,
-					ctx,
-					engine.evaluators,
-				);
-				// Truthy result (including true, non-zero, non-empty strings, etc.)
-				// but not Nothing or falsy
-				if (!isNothing(result) && result) {
-					return [input];
+				const v = input.value;
+				const children: any[] = [];
+
+				if (Array.isArray(v)) {
+					for (let i = 0; i < v.length; i++) {
+						children.push({
+							value: v[i],
+							location: appendIndex(input.location, i),
+							root: input.root,
+						});
+					}
+				} else if (isRecord(v)) {
+					const keys = Object.keys(v).sort();
+					for (const k of keys) {
+						children.push({
+							value: v[k],
+							location: appendMember(input.location, k),
+							root: input.root,
+						});
+					}
+				} else {
+					// RFC 9535: filter on non-container returns empty
+					return [];
 				}
-				return [];
+
+				const results: any[] = [];
+				for (const child of children) {
+					const result = evalFilterExpr(
+						selector.expr,
+						child,
+						ctx,
+						engine.evaluators,
+					);
+					if (!isNothing(result) && result) {
+						results.push(child);
+					}
+				}
+				return results;
 			},
 		);
 	},

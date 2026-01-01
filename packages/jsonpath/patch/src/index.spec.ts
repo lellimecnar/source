@@ -4,12 +4,12 @@ import { applyPatch } from './index';
 import type { JsonPathEngine } from '@jsonpath/core';
 
 describe('@jsonpath/patch', () => {
-	it('applies add/replace/remove operations using JSONPath', () => {
+	it('applies add/replace/remove operations using JSON Pointer', () => {
 		const doc = { a: { b: 1, c: 0 }, xs: [1, 2, 3] };
 		const next = applyPatch(doc, [
-			{ op: 'replace', path: '$.a.b', value: 2 },
-			{ op: 'add', path: '$.a.c', value: 3 },
-			{ op: 'remove', path: '$.xs[1]' },
+			{ op: 'replace', path: '/a/b', value: 2 },
+			{ op: 'add', path: '/a/c', value: 3 },
+			{ op: 'remove', path: '/xs/1' },
 		]) as any;
 		expect((doc as any).a.b).toBe(1);
 		expect(next.a.b).toBe(2);
@@ -20,9 +20,9 @@ describe('@jsonpath/patch', () => {
 	it('applies move/copy/test operations', () => {
 		const doc = { a: 1, b: 2, c: null, d: null };
 		const next = applyPatch(doc, [
-			{ op: 'test', path: '$.a', value: 1 },
-			{ op: 'copy', from: '$.a', path: '$.c' },
-			{ op: 'move', from: '$.b', path: '$.d' },
+			{ op: 'test', path: '/a', value: 1 },
+			{ op: 'copy', from: '/a', path: '/c' },
+			{ op: 'move', from: '/b', path: '/d' },
 		]) as any;
 		expect(next.a).toBe(1);
 		expect(next.c).toBe(1);
@@ -33,30 +33,7 @@ describe('@jsonpath/patch', () => {
 	it('throws on failed test', () => {
 		const doc = { a: 1 };
 		expect(() =>
-			applyPatch(doc, [{ op: 'test', path: '$.a', value: 2 }]),
-		).toThrow('Test failed');
-	});
-
-	it('supports injecting a custom engine', () => {
-		const compiledExpressions: string[] = [];
-		const engine: JsonPathEngine = {
-			compile: (expression) => {
-				compiledExpressions.push(expression);
-				return { expression, ast: {} as any };
-			},
-			parse: () => ({}) as any,
-			evaluateSync: (compiled) => {
-				if (compiled.expression === '$.a') return ['/a'];
-				return [];
-			},
-			evaluateAsync: async () => [],
-		};
-
-		const doc = { a: 1, b: 2 };
-		const next = applyPatch(doc, [{ op: 'replace', path: '$.a', value: 3 }], {
-			engine,
-		}) as any;
-		expect(next).toEqual({ a: 3, b: 2 });
-		expect(compiledExpressions).toEqual(['$.a']);
+			applyPatch(doc, [{ op: 'test', path: '/a', value: 2 }]),
+		).toThrow('JSON Patch test operation failed');
 	});
 });

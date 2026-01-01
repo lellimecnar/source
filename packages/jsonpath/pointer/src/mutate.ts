@@ -26,18 +26,18 @@ export function setByPointer(
 	let original: any = root as any;
 
 	for (let i = 0; i < parts.length - 1; i += 1) {
-		const part = parts[i];
+		const part = parts[i]!;
 		const origChild = isObjectLike(original)
 			? (original as any)[part]
 			: undefined;
 		const child = cloneContainer(origChild ?? {});
-		(current as any)[part] = child;
+		current[part] = child;
 		current = child;
 		original = origChild;
 	}
 
-	const last = parts[parts.length - 1];
-	(current as any)[last] = value;
+	const last = parts[parts.length - 1]!;
+	current[last] = value;
 	return nextRoot;
 }
 
@@ -51,18 +51,18 @@ export function removeByPointer(root: unknown, pointer: string): unknown {
 	let original: any = root as any;
 
 	for (let i = 0; i < parts.length - 1; i += 1) {
-		const part = parts[i];
+		const part = parts[i]!;
 		const origChild = isObjectLike(original)
 			? (original as any)[part]
 			: undefined;
 		if (!isObjectLike(origChild)) return nextRoot;
 		const child = cloneContainer(origChild);
-		(current as any)[part] = child;
+		current[part] = child;
 		current = child;
 		original = origChild;
 	}
 
-	const last = parts[parts.length - 1];
+	const last = parts[parts.length - 1]!;
 	if (Array.isArray(current)) {
 		const idx = Number(last);
 		if (Number.isInteger(idx)) current.splice(idx, 1);

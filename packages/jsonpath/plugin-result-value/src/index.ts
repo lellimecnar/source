@@ -6,8 +6,6 @@ export const plugin: JsonPathPlugin = {
 		capabilities: ['result:value'],
 	},
 	setup: ({ engine }) => {
-		engine.results.register('value', (nodes: any[]) =>
-			nodes.map((n) => n.value),
-		);
+		engine.results.register('value', (nodes) => nodes.map((n) => n.value));
 	},
 };

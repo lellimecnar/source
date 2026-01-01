@@ -17,4 +17,12 @@ export class TokenStream {
 		if (t) this.index += 1;
 		return t;
 	}
+
+	public checkpoint(): number {
+		return this.index;
+	}
+
+	public restore(checkpoint: number): void {
+		this.index = checkpoint;
+	}
 }

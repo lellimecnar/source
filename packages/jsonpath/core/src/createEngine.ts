@@ -1,5 +1,5 @@
 import { path } from '@jsonpath/ast';
-import { Scanner, TokenStream } from '@jsonpath/lexer';
+import { Scanner, TokenStream, type Token } from '@jsonpath/lexer';
 import { JsonPathParser } from '@jsonpath/parser';
 
 import type { JsonPathEngine, CompileResult, EvaluateOptions } from './engine';
@@ -17,7 +17,7 @@ import type { JsonPathNode } from './runtime/node';
 import { rootNode } from './runtime/node';
 
 export interface CreateEngineOptions {
-	plugins: readonly JsonPathPlugin[];
+	plugins: readonly JsonPathPlugin<any>[];
 	options?: {
 		maxDepth?: number;
 		maxResults?: number;
@@ -89,7 +89,7 @@ export function createEngine({
 
 	const parse = (expression: string) => {
 		try {
-			let tokens = scanner.scanAll(expression);
+			let tokens: readonly Token[] = scanner.scanAll(expression);
 			for (const transform of lifecycle.getTokenTransforms()) {
 				try {
 					tokens = transform.fn(tokens, { expression });
@@ -131,6 +131,14 @@ export function createEngine({
 			return ast;
 		} catch (err) {
 			const enriched = enrichError(err, { expression });
+			if (
+				enriched &&
+				typeof enriched === 'object' &&
+				'code' in enriched &&
+				(enriched as any).name === 'JsonPathError'
+			) {
+				throw enriched;
+			}
 			throw new JsonPathError(
 				{
 					code: JsonPathErrorCodes.Syntax,

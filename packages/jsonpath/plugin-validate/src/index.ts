@@ -1,7 +1,12 @@
 import type { JsonPathPlugin } from '@jsonpath/core';
 
-export type { Issue, ValidatorAdapter } from './types';
-export { validateAll } from './validate';
+export type {
+	Issue,
+	ValidatorAdapter,
+	ValidationItem,
+	ValidationResult,
+} from './types';
+export { validateAll, validateQuerySync } from './validate';
 
 export const plugin: JsonPathPlugin = {
 	meta: {

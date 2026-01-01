@@ -58,7 +58,7 @@ export function JSONPath<T = any>(options: JSONPathOptions): T {
 
 	const nodes = engine.evaluateSync(engine.compile(path), json, {
 		resultType: 'node',
-	});
+	}) as any[];
 
 	let results: any[];
 

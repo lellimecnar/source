@@ -6,7 +6,8 @@ export interface CompiledIRegexp {
 
 export function compile(pattern: string): CompiledIRegexp | null {
 	try {
-		// RFC 9485 (I-Regexp) validation
+		// RFC 9485: I-Regexp is based on Unicode-aware matching.
+		// JavaScript RegExp requires the `u` flag for Unicode property escapes and correct code point handling.
 		// This is a pragmatic implementation that rejects common non-I-Regexp features.
 		if (
 			pattern.includes('(?') || // Lookaround or named groups

@@ -65,14 +65,15 @@ export const plugin: JsonPathPlugin = {
 			SelectorKinds.Slice,
 			(input, selector: any, ctx: EvalContext) => {
 				if (!Array.isArray(input.value)) return [];
+				const val = input.value as any[];
 				const indices = computeSliceIndices({
 					start: selector.start,
 					end: selector.end,
 					step: selector.step,
-					length: input.value.length,
+					length: val.length,
 				});
 				return indices.map((i) => ({
-					value: input.value[i],
+					value: val[i],
 					location: appendIndex(input.location, i),
 					root: input.root,
 				}));

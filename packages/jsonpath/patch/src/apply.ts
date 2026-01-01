@@ -1,111 +1,66 @@
-import type { JsonPathEngine, JsonPathPlugin } from '@jsonpath/core';
-import { createEngine } from '@jsonpath/core';
-import { setAll, removeAll } from '@jsonpath/mutate';
-import { rfc9535Plugins } from '@jsonpath/plugin-rfc-9535';
-import { getByPointer, setByPointer, removeByPointer } from '@jsonpath/pointer';
+import { getByPointer, removeByPointer, setByPointer } from '@jsonpath/pointer';
 
 import type { JsonPatchOp } from './types';
 
-export interface ApplyPatchOptions {
-	engine?: JsonPathEngine;
-	plugins?: JsonPathPlugin[];
-	engineOptions?: {
-		maxDepth?: number;
-		maxResults?: number;
-		plugins?: Record<string, unknown>;
-	};
-	compare?: (actual: unknown, expected: unknown) => boolean;
-}
-
-let defaultEngine: JsonPathEngine | undefined;
-
-function getEngine(options?: ApplyPatchOptions): JsonPathEngine {
-	if (options?.engine) return options.engine;
-	if (options?.plugins) {
-		return createEngine({
-			plugins: options.plugins,
-			options: options.engineOptions as any,
-		});
+function deepEqual(a: any, b: any): boolean {
+	if (Object.is(a, b)) return true;
+	if (typeof a !== typeof b) return false;
+	if (a == null || b == null) return false;
+	if (Array.isArray(a) && Array.isArray(b)) {
+		if (a.length !== b.length) return false;
+		for (let i = 0; i < a.length; i += 1) {
+			if (!deepEqual(a[i], b[i])) return false;
+		}
+		return true;
 	}
-	defaultEngine ??= createEngine({ plugins: rfc9535Plugins });
-	return defaultEngine;
+	if (typeof a === 'object' && typeof b === 'object') {
+		const ak = Object.keys(a);
+		const bk = Object.keys(b);
+		if (ak.length !== bk.length) return false;
+		ak.sort();
+		bk.sort();
+		for (let i = 0; i < ak.length; i += 1) {
+			if (ak[i] !== bk[i]) return false;
+		}
+		for (const k of ak) {
+			if (!deepEqual(a[k], b[k])) return false;
+		}
+		return true;
+	}
+	return false;
 }
 
-function isStringArray(value: unknown): value is string[] {
-	return Array.isArray(value) && value.every((v) => typeof v === 'string');
-}
-
-function defaultCompare(actual: unknown, expected: unknown): boolean {
-	return JSON.stringify(actual) === JSON.stringify(expected);
-}
-
-export function applyPatch(
-	doc: unknown,
-	ops: readonly JsonPatchOp[],
-	options?: ApplyPatchOptions,
-): unknown {
-	const engine = getEngine(options);
-	const compare = options?.compare ?? defaultCompare;
-
+export function applyPatch(doc: unknown, ops: readonly JsonPatchOp[]): unknown {
 	let current: unknown = doc;
 	for (const op of ops) {
-		const compiled = engine.compile(op.path);
-		const nodes = engine.evaluateSync(compiled, current, {
-			resultType: 'pointer',
-		});
-		if (!isStringArray(nodes)) {
-			throw new Error(
-				`Expected resultType "pointer" to return string[], got: ${typeof nodes}`,
-			);
+		if (op.op === 'add' || op.op === 'replace') {
+			current = setByPointer(current, op.path, op.value);
+			continue;
 		}
-
-		switch (op.op) {
-			case 'add':
-			case 'replace':
-				current = setAll(current, nodes, op.value);
-				break;
-
-			case 'remove':
-				current = removeAll(current, nodes);
-				break;
-
-			case 'move':
-			case 'copy': {
-				const fromCompiled = engine.compile(op.from);
-				const fromNodes = engine.evaluateSync(fromCompiled, current, {
-					resultType: 'pointer',
-				});
-				if (!isStringArray(fromNodes)) {
-					throw new Error(
-						`Expected resultType "pointer" to return string[], got: ${typeof fromNodes}`,
-					);
-				}
-				for (const toP of nodes) {
-					for (const fromP of fromNodes) {
-						const val = getByPointer(current, fromP);
-						current = setByPointer(current, toP, val);
-						if (op.op === 'move') {
-							current = removeByPointer(current, fromP);
-						}
-					}
-				}
-				break;
-			}
-
-			case 'test':
-				for (const p of nodes) {
-					const val = getByPointer(current, p);
-					if (!compare(val, op.value)) {
-						throw new Error(`Test failed at path: ${op.path} (pointer: ${p})`);
-					}
-				}
-				break;
-
-			default: {
-				const _exhaustive: never = op;
-				throw new Error('Unsupported JSON Patch operation');
-			}
+		if (op.op === 'remove') {
+			current = removeByPointer(current, op.path);
+			continue;
 		}
+		if (op.op === 'copy') {
+			const value = getByPointer(current, op.from);
+			current = setByPointer(current, op.path, value);
+			continue;
+		}
+		if (op.op === 'move') {
+			const value = getByPointer(current, op.from);
+			current = removeByPointer(current, op.from);
+			current = setByPointer(current, op.path, value);
+			continue;
+		}
+		if (op.op === 'test') {
+			const actual = getByPointer(current, op.path);
+			if (!deepEqual(actual, op.value)) {
+				throw new Error('JSON Patch test operation failed');
+			}
+			continue;
+		}
+		const _exhaustive: never = op;
+		throw new Error('Unsupported JSON Patch operation');
 	}
 	return current;
 }

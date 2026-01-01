@@ -32,6 +32,8 @@
 		"ses": "^1.14.0"
 	},
 	"devDependencies": {
+		"@jsonpath/plugin-rfc-9535": "workspace:^",
+		"@jsonpath/plugin-syntax-root": "workspace:^",
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
 		"@lellimecnar/vite-config": "workspace:^",

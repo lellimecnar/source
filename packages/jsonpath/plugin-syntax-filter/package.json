@@ -31,7 +31,8 @@
 		"@jsonpath/ast": "workspace:^",
 		"@jsonpath/core": "workspace:^",
 		"@jsonpath/lexer": "workspace:^",
-		"@jsonpath/parser": "workspace:^"
+		"@jsonpath/parser": "workspace:^",
+		"@jsonpath/plugin-iregexp": "workspace:^"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

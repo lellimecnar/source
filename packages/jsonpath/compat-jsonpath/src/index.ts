@@ -45,7 +45,7 @@ export const value = (obj: any, path: string, newValue?: any) => {
 		if (pointers.length > 0) {
 			// Note: setAll returns a new object, but jsonpath package mutates.
 			// For true compatibility we might need to mutate, but let's see if this is enough.
-			const next = setAll(obj, [pointers[0]], newValue);
+			const next = setAll(obj, [pointers[0]!], newValue);
 			Object.assign(obj, next);
 			return newValue;
 		}

@@ -7,10 +7,13 @@ describe('@jsonpath/plugin-rfc-9535', () => {
 		expect(rfc9535Plugins.length).toBeGreaterThan(5);
 	});
 
-	it('creates an engine', () => {
+	describe('createRfc9535Engine()', () => {
 		const engine = createRfc9535Engine();
-		const compiled = engine.compile('$.x');
-		expect(compiled.expression).toBe('$.x');
+
+		it('creates an engine', () => {
+			const compiled = engine.compile('$.x');
+			expect(compiled.expression).toBe('$.x');
+		});
 	});
 
 	it('exports plugin metadata', () => {

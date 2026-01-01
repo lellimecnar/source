@@ -28,7 +28,8 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@jsonpath/ast": "workspace:*"
+		"@jsonpath/ast": "workspace:*",
+		"@jsonpath/lexer": "workspace:*"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

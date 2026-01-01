@@ -16,7 +16,7 @@ export const plugin: JsonPathPlugin = {
 		capabilities: ['result:parent'],
 	},
 	setup: ({ engine }) => {
-		engine.results.register('parent', (nodes: any[]) =>
+		engine.results.register('parent', (nodes) =>
 			nodes.map((n) => {
 				const p = parentPointerFromLocation(n.location);
 				if (p == null) return undefined;

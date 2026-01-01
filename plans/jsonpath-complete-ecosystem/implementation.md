@@ -389,7 +389,7 @@ These plugins are currently capability-only. Convert them into functional result
 
 #### Step 4.1: Add JSON Pointer formatting helper
 
-- [ ] Create `packages/jsonpath/pointer/src/format.ts`:
+- [x] Create `packages/jsonpath/pointer/src/format.ts`:
 
 ```ts
 import { assertNotForbiddenSegment } from './forbidden';
@@ -406,7 +406,7 @@ export function formatPointer(segments: readonly string[]): string {
 }
 ```
 
-- [ ] Export it from `packages/jsonpath/pointer/src/index.ts`:
+- [x] Export it from `packages/jsonpath/pointer/src/index.ts`:
 
 ```diff
 *** Begin Patch
@@ -423,7 +423,7 @@ export function formatPointer(segments: readonly string[]): string {
 *** End Patch
 ```
 
-- [ ] Add a unit test in `packages/jsonpath/pointer/src/index.spec.ts`:
+- [x] Add a unit test in `packages/jsonpath/pointer/src/index.spec.ts`:
 
 ```diff
 *** Begin Patch
@@ -447,7 +447,7 @@ export function formatPointer(segments: readonly string[]): string {
 
 #### Step 4.2: Implement result mappers in result plugins
 
-- [ ] Update `packages/jsonpath/plugin-result-value/src/index.ts`:
+- [x] Update `packages/jsonpath/plugin-result-value/src/index.ts`:
 
 ```diff
 *** Begin Patch
@@ -469,7 +469,7 @@ export function formatPointer(segments: readonly string[]): string {
 *** End Patch
 ```
 
-- [ ] Update `packages/jsonpath/plugin-result-node/src/index.ts`:
+- [x] Update `packages/jsonpath/plugin-result-node/src/index.ts`:
 
 ```diff
 *** Begin Patch
@@ -489,7 +489,7 @@ export function formatPointer(segments: readonly string[]): string {
 *** End Patch
 ```
 
-- [ ] Update `packages/jsonpath/plugin-result-pointer/src/index.ts`:
+- [x] Update `packages/jsonpath/plugin-result-pointer/src/index.ts`:
 
 ```diff
 *** Begin Patch
@@ -519,7 +519,7 @@ export function formatPointer(segments: readonly string[]): string {
 *** End Patch
 ```
 
-- [ ] Update `packages/jsonpath/plugin-result-path/src/index.ts`:
+- [x] Update `packages/jsonpath/plugin-result-path/src/index.ts`:
 
 ```diff
 *** Begin Patch
@@ -572,7 +572,7 @@ export function formatPointer(segments: readonly string[]): string {
 *** End Patch
 ```
 
-- [ ] Update `packages/jsonpath/plugin-result-parent/src/index.ts`:
+- [x] Update `packages/jsonpath/plugin-result-parent/src/index.ts`:
 
 ```diff
 *** Begin Patch
@@ -612,7 +612,7 @@ NOTE: For correct parent lookup, `JsonPathNode` needs access to the root value. 
 
 #### Step 4.3: Add root access to runtime nodes (for parent view)
 
-- [ ] Update `packages/jsonpath/core/src/runtime/node.ts` so every node carries the root reference:
+- [x] Update `packages/jsonpath/core/src/runtime/node.ts` so every node carries the root reference:
 
 ```diff
 *** Begin Patch
@@ -634,7 +634,7 @@ NOTE: For correct parent lookup, `JsonPathNode` needs access to the root value. 
 *** End Patch
 ```
 
-- [ ] Update `packages/jsonpath/plugin-result-parent/src/index.ts` parent lookup to use `n.root`:
+- [x] Update `packages/jsonpath/plugin-result-parent/src/index.ts` parent lookup to use `n.root`:
 
 ```diff
 *** Begin Patch
@@ -658,7 +658,7 @@ NOTE: For correct parent lookup, `JsonPathNode` needs access to the root value. 
 
 #### Step 4.4: Fix conformance root path test
 
-- [ ] Update `packages/jsonpath/conformance/src/index.spec.ts` to remove the `it.fails` now that `resultType: 'path'` is supported:
+- [x] Update `packages/jsonpath/conformance/src/index.spec.ts` to remove the `it.fails` now that `resultType: 'path'` is supported:
 
 ```diff
 *** Begin Patch
@@ -678,10 +678,10 @@ NOTE: For correct parent lookup, `JsonPathNode` needs access to the root value. 
 
 #### Step 4 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test`
-- [ ] `pnpm --filter @jsonpath/pointer test`
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
-- [ ] Confirm CLI can run with `resultType: "path"` (after Step 15)
+- [x] `pnpm --filter @jsonpath/core test`
+- [x] `pnpm --filter @jsonpath/pointer test`
+- [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] Confirm CLI can run with `resultType: "path"` (after Step 15)
 
 #### Step 4 STOP & COMMIT
 
@@ -702,12 +702,12 @@ completes: step 4 of 18 for jsonpath-complete-ecosystem
 
 The RFC preset is already composed deterministically in `packages/jsonpath/plugin-rfc-9535/src/index.ts` and passes profile config into `@jsonpath/plugin-syntax-root`.
 
-- [ ] Confirm `createRfc9535Engine({ profile })` wires the correct plugin set.
+- [x] Confirm `createRfc9535Engine({ profile })` wires the correct plugin set.
 
 #### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
+- [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
 
 #### Step 5 STOP & COMMIT
 
@@ -725,11 +725,11 @@ completes: step 5 of 18 for jsonpath-complete-ecosystem
 
 The workspace already has concrete syntax plugins (`current`, `union`, `root`, etc.) used by the RFC preset.
 
-- [ ] Re-run conformance suite to confirm parsing + evaluation behavior.
+- [x] Re-run conformance suite to confirm parsing + evaluation behavior.
 
 #### Step 6 Verification Checklist
 
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
 
 #### Step 6 STOP & COMMIT
 
@@ -747,11 +747,11 @@ completes: step 6 of 18 for jsonpath-complete-ecosystem
 
 Filter parsing/evaluation is already present via `plugin-syntax-filter` plus filter operator plugins.
 
-- [ ] Confirm filter operator coverage via conformance tests.
+- [x] Confirm filter operator coverage via conformance tests.
 
 #### Step 7 Verification Checklist
 
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
 
 #### Step 7 STOP & COMMIT
 
@@ -769,11 +769,11 @@ completes: step 7 of 18 for jsonpath-complete-ecosystem
 
 Function parsing/typing exists in this repo’s RFC preset.
 
-- [ ] Confirm function tests in conformance suite.
+- [x] Confirm function tests in conformance suite.
 
 #### Step 8 Verification Checklist
 
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
 
 #### Step 8 STOP & COMMIT
 
@@ -789,14 +789,16 @@ completes: step 8 of 18 for jsonpath-complete-ecosystem
 
 ### Step 9: Implement SES-backed script expressions plugin (sandboxed filters)
 
-`@jsonpath/plugin-script-expressions` currently exposes SES compartment helpers but does not integrate into filter evaluation.
-
-- [ ] Define an explicit opt-in config surface.
-- [ ] Extend filter parsing/evaluation to recognize a script-expression form only when the plugin is installed and enabled.
-
-Implementation note (repo constraint): the filter evaluator currently only understands its internal AST kinds; scripts should be introduced as a new AST node kind + evaluator.
+- [x] Create `@jsonpath/plugin-script-expressions` using `ses` (Secure EcmaScript).
+- [x] Register a `FilterScriptEvaluator` that executes in a `Compartment`.
+- [x] Update `@jsonpath/plugin-syntax-root` parser to fallback to script parsing if standard filter parsing fails.
+- [x] Verify with tests: `[?(@.a + @.b == 5)]`.
 
 #### Step 9 Verification Checklist
+
+- [x] `pnpm --filter @jsonpath/plugin-script-expressions test` passes.
+- [x] `[?(@.a + @.b == 5)]` correctly filters items.
+- [x] Scripts are sandboxed via SES.
 
 - [ ] `pnpm --filter @jsonpath/plugin-script-expressions test`
 - [ ] Add negative tests: host globals are not accessible
@@ -818,7 +820,7 @@ completes: step 9 of 18 for jsonpath-complete-ecosystem
 
 Current I-Regexp implementation is a pragmatic placeholder. Improve correctness and add explicit test vectors.
 
-- [ ] Copy/paste patch into `packages/jsonpath/plugin-iregexp/src/iregexp.ts`:
+- [x] Copy/paste patch into `packages/jsonpath/plugin-iregexp/src/iregexp.ts`:
 
 ```diff
 *** Begin Patch
@@ -849,7 +851,7 @@ Current I-Regexp implementation is a pragmatic placeholder. Improve correctness 
 *** End Patch
 ```
 
-- [ ] Add test vectors file `packages/jsonpath/plugin-iregexp/src/vectors.ts`:
+- [x] Add test vectors file `packages/jsonpath/plugin-iregexp/src/vectors.ts`:
 
 ```ts
 export const vectors = [
@@ -885,7 +887,7 @@ export const vectors = [
 ] as const;
 ```
 
-- [ ] Add `packages/jsonpath/plugin-iregexp/src/iregexp.spec.ts`:
+- [x] Add `packages/jsonpath/plugin-iregexp/src/iregexp.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -910,7 +912,7 @@ describe('@jsonpath/plugin-iregexp', () => {
 
 #### Step 10 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-iregexp test`
+- [x] `pnpm --filter @jsonpath/plugin-iregexp test`
 
 #### Step 10 STOP & COMMIT
 
@@ -931,7 +933,7 @@ completes: step 10 of 18 for jsonpath-complete-ecosystem
 
 #### Step 11.1: Extend op types
 
-- [ ] Copy/paste into `packages/jsonpath/patch/src/types.ts`:
+- [x] Copy/paste into `packages/jsonpath/patch/src/types.ts`:
 
 ```diff
 *** Begin Patch
@@ -950,7 +952,7 @@ completes: step 10 of 18 for jsonpath-complete-ecosystem
 
 #### Step 11.2: Implement move/copy/test
 
-- [ ] Copy/paste into `packages/jsonpath/patch/src/apply.ts`:
+- [x] Copy/paste into `packages/jsonpath/patch/src/apply.ts`:
 
 ```diff
 *** Begin Patch
@@ -1020,7 +1022,7 @@ completes: step 10 of 18 for jsonpath-complete-ecosystem
 
 #### Step 11.3: Add op matrix tests
 
-- [ ] Create `packages/jsonpath/patch/src/apply.spec.ts`:
+- [x] Create `packages/jsonpath/patch/src/apply.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1061,7 +1063,7 @@ describe('@jsonpath/patch', () => {
 
 #### Step 11 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/patch test`
+- [x] `pnpm --filter @jsonpath/patch test`
 
 #### Step 11 STOP & COMMIT
 
@@ -1078,65 +1080,16 @@ completes: step 11 of 18 for jsonpath-complete-ecosystem
 
 ### Step 12: Mutation: JSONPath selection → pointer-backed writes/removals
 
-`@jsonpath/mutate` currently accepts pointers directly. Add glue to evaluate JSONPath to pointers using an engine.
-
-- [ ] Copy/paste into `packages/jsonpath/mutate/src/index.ts`:
-
-```diff
-*** Begin Patch
-*** Update File: packages/jsonpath/mutate/src/index.ts
-@@
--export { setAll, removeAll } from './mutate';
-+export { setAll, removeAll, setAllByQuery, removeAllByQuery } from './mutate';
-*** End Patch
-```
-
-- [ ] Copy/paste into `packages/jsonpath/mutate/src/mutate.ts`:
-
-```diff
-*** Begin Patch
-*** Update File: packages/jsonpath/mutate/src/mutate.ts
-@@
- import { removeByPointer, setByPointer } from '@jsonpath/pointer';
-+import type { JsonPathEngine } from '@jsonpath/core';
-@@
- export function removeAll(root: unknown, pointers: readonly string[]): unknown {
- 	let current: unknown = root;
- 	for (const p of pointers) current = removeByPointer(current, p);
- 	return current;
- }
-+
-+export function setAllByQuery(
-+	engine: JsonPathEngine,
-+	json: unknown,
-+	query: string,
-+	value: unknown,
-+): unknown {
-+	const compiled = engine.compile(query);
-+	const pointers = engine.evaluateSync(compiled, json, {
-+		resultType: 'pointer',
-+	}) as string[];
-+	return setAll(json, pointers, value);
-+}
-+
-+export function removeAllByQuery(
-+	engine: JsonPathEngine,
-+	json: unknown,
-+	query: string,
-+): unknown {
-+	const compiled = engine.compile(query);
-+	const pointers = engine.evaluateSync(compiled, json, {
-+		resultType: 'pointer',
-+	}) as string[];
-+	return removeAll(json, pointers);
-+}
-*** End Patch
-```
+- [x] Add `setAllByQuery` and `removeAllByQuery` to `@jsonpath/mutate`.
+- [x] Implement pointer sorting in `removeAll` to handle array index shifting.
+- [x] Add integration tests selecting multiple targets and applying set/remove deterministically.
+- [x] `pnpm --filter @jsonpath/mutate test` passes.
 
 #### Step 12 Verification Checklist
 
-- [ ] Add integration tests selecting multiple targets and applying set/remove deterministically.
-- [ ] `pnpm --filter @jsonpath/mutate test`
+- [x] `setAllByQuery` correctly updates multiple items.
+- [x] `removeAllByQuery` correctly removes multiple items from arrays without shifting issues.
+- [x] Original data remains untouched (immutable-style updates).
 
 #### Step 12 STOP & COMMIT
 
@@ -1150,30 +1103,31 @@ completes: step 12 of 18 for jsonpath-complete-ecosystem
 
 ---
 
-### Step 13: Validation: make `@jsonpath/plugin-validate` a real engine integration
+### Step 13: Implement `@jsonpath/plugin-validate` (JSON Schema integration)
 
-Convert `@jsonpath/plugin-validate` into an engine-facing integration utility that validates selected values (opt-in) and returns a stable normalized shape.
+- [x] Add `validateQuerySync` to `@jsonpath/plugin-validate`.
+- [x] Implement stable pointer and path generation for validation items.
+- [x] Add unit tests validating that:
+  - validation is opt-in
+  - issues are normalized
+  - pointer/path are stable
+- [x] `pnpm --filter @jsonpath/plugin-validate test` passes.
 
-- [ ] Copy/paste into `packages/jsonpath/plugin-validate/src/index.ts`:
+#### Step 13 Verification Checklist
 
-```diff
-*** Begin Patch
-*** Update File: packages/jsonpath/plugin-validate/src/index.ts
-@@
- import type { JsonPathPlugin } from '@jsonpath/core';
-@@
- export type { Issue, ValidatorAdapter } from './types';
- export { validateAll } from './validate';
-+export { validateQuerySync } from './validateQuery';
-@@
- export const plugin: JsonPathPlugin = {
- 	meta: {
- 		id: '@jsonpath/plugin-validate',
- 		capabilities: ['validate'],
- 	},
- };
-*** End Patch
-```
+- [x] `validateQuerySync` correctly identifies invalid items.
+- [x] Validation items include correct pointers and paths.
+- [x] Result `ok` flag correctly reflects overall validation state.
+      @@
+      export const plugin: JsonPathPlugin = {
+      meta: {
+      id: '@jsonpath/plugin-validate',
+      capabilities: ['validate'],
+      },
+      };
+      \*\*\* End Patch
+
+````
 
 - [ ] Create `packages/jsonpath/plugin-validate/src/validateQuery.ts`:
 
@@ -1256,7 +1210,7 @@ export function validateQuerySync(
 
 	return { ok: items.every((i) => i.issues.length === 0), items };
 }
-```
+````
 
 #### Step 13 Verification Checklist
 

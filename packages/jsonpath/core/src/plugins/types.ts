@@ -16,7 +16,7 @@ export interface JsonPathPluginMeta {
 	peerDependencies?: readonly string[];
 }
 
-export interface PluginSetupContext<Config = unknown> {
+export interface PluginSetupContext<Config = any> {
 	pluginId: JsonPathPluginId;
 	config: Config | undefined;
 	engine: {
@@ -28,7 +28,7 @@ export interface PluginSetupContext<Config = unknown> {
 	};
 }
 
-export interface JsonPathPlugin<Config = unknown> {
+export interface JsonPathPlugin<Config = any> {
 	meta: JsonPathPluginMeta;
 	setup: (ctx: PluginSetupContext<Config>) => void;
 }

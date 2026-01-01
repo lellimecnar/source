@@ -33,7 +33,7 @@ export class Scanner {
 
 			if (!matched) {
 				// Unknown character becomes a 1-char token.
-				tokens.push({ kind: 'Unknown', lexeme: input[offset], offset });
+				tokens.push({ kind: 'Unknown', lexeme: input[offset]!, offset });
 				offset += 1;
 			}
 		}

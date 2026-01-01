@@ -32,6 +32,12 @@ export type SegmentEvaluatorAsync = (
 	ctx: EvalContext,
 ) => Promise<readonly JsonPathNode[]>;
 
+export type FilterScriptEvaluator = (
+	script: string,
+	currentNode: JsonPathNode,
+	ctx: EvalContext,
+) => boolean;
+
 export class EvaluatorRegistry {
 	private readonly selectorEvaluators = new Map<string, SelectorEvaluator>();
 	private readonly selectorEvaluatorsAsync = new Map<
@@ -43,6 +49,7 @@ export class EvaluatorRegistry {
 		string,
 		SegmentEvaluatorAsync
 	>();
+	private filterScriptEvaluator?: FilterScriptEvaluator;
 
 	public registerSelector(kind: string, evaluator: SelectorEvaluator): void {
 		this.selectorEvaluators.set(kind, evaluator);
@@ -80,6 +87,14 @@ export class EvaluatorRegistry {
 
 	public getSegmentAsync(kind: string): SegmentEvaluatorAsync | undefined {
 		return this.segmentEvaluatorsAsync.get(kind);
+	}
+
+	public registerFilterScriptEvaluator(evaluator: FilterScriptEvaluator): void {
+		this.filterScriptEvaluator = evaluator;
+	}
+
+	public getFilterScriptEvaluator(): FilterScriptEvaluator | undefined {
+		return this.filterScriptEvaluator;
 	}
 }
 

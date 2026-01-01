@@ -50,18 +50,46 @@ console.log(authors);
 
 ## Included Plugins
 
-This bundle includes a wide array of plugins, such as:
+This bundle includes a wide array of plugins, providing a comprehensive JSONPath environment:
 
-- `@jsonpath/plugin-rfc-9535`: For full RFC 9535 compliance.
-- `@jsonpath/plugin-filter-regex`: For regular expression matching in filters.
-- `@jsonpath/plugin-script-expressions`: For using script expressions in filters.
-- `@jsonpath/plugin-parent-selector`: For the `^` parent selector.
-- And many more...
+- **RFC 9535 Compliance**:
+  - `@jsonpath/plugin-rfc-9535`: Full support for the JSONPath RFC, including all standard selectors and functions.
+- **Extended Selectors**:
+  - `@jsonpath/plugin-parent-selector`: Support for the `^` parent selector.
+  - `@jsonpath/plugin-property-name-selector`: Support for the `~` property name selector.
+  - `@jsonpath/plugin-type-selectors`: Support for type-based selectors (e.g., `$.store.book[?(@.price is number)]`).
+- **Advanced Filters**:
+  - `@jsonpath/plugin-filter-regex`: Support for regular expression matching in filters using the `=~` operator.
+  - `@jsonpath/plugin-script-expressions`: Support for script expressions in filters (e.g., `$[?(@.price > 10)]`).
+  - `@jsonpath/plugin-iregexp`: Support for I-RegExp (RFC 9485) matching.
+- **Result Customization**:
+  - `@jsonpath/plugin-result-types`: Support for multiple result formats: `value`, `path`, `pointer`, `node`, `parent`.
+- **Validation & Functions**:
+  - `@jsonpath/plugin-validate`: Integration with schema validators (Zod, Yup, JSON Schema).
+  - `@jsonpath/plugin-functions-core`: A collection of core utility functions for use in expressions.
 
-## Contributing
+## API Reference
 
-Contributions are welcome! Please see the [contributing guidelines](../../../CONTRIBUTING.md) for more information.
+### `createCompleteEngine()`
 
-## License
+Creates a new JSONPath engine pre-configured with all the plugins listed above.
 
-[MIT](../../../LICENSE)
+```typescript
+const engine = createCompleteEngine();
+```
+
+### `completePlugins`
+
+An array of all the plugin instances included in the complete bundle. Useful if you want to create a custom engine that includes most but not all of the standard features.
+
+```typescript
+import { createEngine } from '@jsonpath/core';
+import { completePlugins } from '@jsonpath/complete';
+
+const engine = createEngine({
+	plugins: [
+		...completePlugins,
+		// add your custom plugins here
+	],
+});
+```

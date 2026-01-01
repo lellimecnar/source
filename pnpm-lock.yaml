@@ -934,10 +934,19 @@ importers:
 
   packages/jsonpath/mutate:
     dependencies:
+      '@jsonpath/core':
+        specifier: workspace:^
+        version: link:../core
       '@jsonpath/pointer':
         specifier: workspace:^
         version: link:../pointer
     devDependencies:
+      '@jsonpath/plugin-result-pointer':
+        specifier: workspace:^
+        version: link:../plugin-result-pointer
+      '@jsonpath/plugin-rfc-9535':
+        specifier: workspace:^
+        version: link:../plugin-rfc-9535
       '@lellimecnar/eslint-config':
         specifier: workspace:*
         version: link:../../config-eslint
@@ -2002,6 +2011,12 @@ importers:
         specifier: ^1.14.0
         version: 1.14.0
     devDependencies:
+      '@jsonpath/plugin-rfc-9535':
+        specifier: workspace:^
+        version: link:../plugin-rfc-9535
+      '@jsonpath/plugin-syntax-root':
+        specifier: workspace:^
+        version: link:../plugin-syntax-root
       '@lellimecnar/eslint-config':
         specifier: workspace:*
         version: link:../../config-eslint
@@ -2548,7 +2563,13 @@ importers:
       '@jsonpath/core':
         specifier: workspace:^
         version: link:../core
+      '@jsonpath/pointer':
+        specifier: workspace:^
+        version: link:../pointer
     devDependencies:
+      '@jsonpath/plugin-rfc-9535':
+        specifier: workspace:^
+        version: link:../plugin-rfc-9535
       '@lellimecnar/eslint-config':
         specifier: workspace:*
         version: link:../../config-eslint

@@ -20,6 +20,7 @@ export const FilterExprKinds = {
 	Literal: 'FilterExpr:Literal',
 	EmbeddedQuery: 'FilterExpr:EmbeddedQuery',
 	FunctionCall: 'FilterExpr:FunctionCall',
+	Script: 'FilterExpr:Script',
 } as const;
 
 export type NameSelectorNode = AstNodeBase<(typeof SelectorKinds)['Name']> & {
@@ -89,6 +90,12 @@ export type FilterFunctionCallNode = AstNodeBase<
 	args: FilterExprNode[];
 };
 
+export type FilterScriptNode = AstNodeBase<
+	(typeof FilterExprKinds)['Script']
+> & {
+	script: string;
+};
+
 export type FilterExprNode =
 	| FilterOrNode
 	| FilterAndNode
@@ -96,7 +103,8 @@ export type FilterExprNode =
 	| FilterCompareNode
 	| FilterLiteralNode
 	| EmbeddedQueryNode
-	| FilterFunctionCallNode;
+	| FilterFunctionCallNode
+	| FilterScriptNode;
 
 export type SelectorNode =
 	| NameSelectorNode
@@ -208,4 +216,8 @@ export function filterFunctionCall(
 	args: FilterExprNode[],
 ): FilterFunctionCallNode {
 	return { kind: FilterExprKinds.FunctionCall, name, args };
+}
+
+export function filterScript(script: string): FilterScriptNode {
+	return { kind: FilterExprKinds.Script, script };
 }

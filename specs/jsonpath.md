@@ -75,15 +75,24 @@ Notes:
 
 All features are implemented as plugins.
 
-Minimum official plugin inventory (non-exhaustive; see Appendix A for proposed breakdown):
+Official plugin inventory:
 
 ```
 @jsonpath/plugin-rfc-9535            # ALL RFC 9535 features bundled
 @jsonpath/plugin-script-expressions  # Script expressions using ses
 @jsonpath/plugin-validate            # Validation orchestration for selected values
-
 @jsonpath/plugin-result-types        # resultType adapters: value/path/pointer/node/parent/etc
 @jsonpath/plugin-iregexp             # RFC 9485 (I-Regexp) support for regex filters
+@jsonpath/plugin-parent-selector     # Support for the '^' parent selector
+@jsonpath/plugin-property-name-selector # Support for the '~' property name selector
+@jsonpath/plugin-type-selectors      # Support for type-based selectors (is number, etc.)
+@jsonpath/plugin-functions-core      # Core utility functions (length, count, etc.)
+@jsonpath/plugin-filter-regex        # Regex matching in filters (=~)
+@jsonpath/plugin-filter-functions    # Function calls in filters
+@jsonpath/plugin-filter-comparison   # Comparison operators in filters
+@jsonpath/plugin-filter-boolean      # Boolean logic in filters
+@jsonpath/plugin-filter-existence    # Existence checks in filters
+@jsonpath/plugin-filter-literals     # Literal values in filters
 ```
 
 Rules:

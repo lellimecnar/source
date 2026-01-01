@@ -8,6 +8,7 @@ import {
 	filterOr,
 	filterSelector,
 	filterFunctionCall,
+	filterScript,
 	indexSelector,
 	nameSelector,
 	path,
@@ -36,8 +37,8 @@ function syntaxError(
 
 function decodeQuotedString(lexeme: string): string {
 	// Lexer includes the surrounding quote characters.
-	const quote = lexeme[0];
-	const raw = lexeme.slice(1, lexeme.endsWith(quote) ? -1 : undefined);
+	const quote = lexeme[0]!;
+	const raw = lexeme.slice(1, lexeme.endsWith(quote) ? -1 : lexeme.length);
 	// Minimal decoding: \\ and escaped quotes.
 	return raw
 		.replaceAll('\\\\', '\\')
@@ -389,6 +390,24 @@ function parseEmbeddedQuery(
 	return embeddedQuery(scope, segments, validateSingular);
 }
 
+function parseFilterScript(ctx: ParserContext): any {
+	const start = ctx.tokens.peek()?.offset ?? ctx.input.length;
+	let depth = 0;
+	while (true) {
+		const t = ctx.tokens.peek();
+		if (!t) break;
+		if (t.kind === TokenKinds.LBracket) depth++;
+		if (t.kind === TokenKinds.RBracket) {
+			if (depth === 0) break;
+			depth--;
+		}
+		ctx.tokens.next();
+	}
+	const end = ctx.tokens.peek()?.offset ?? ctx.input.length;
+	const script = ctx.input.slice(start, end).trim();
+	return filterScript(script);
+}
+
 function parseBracketSelectors(
 	ctx: ParserContext,
 	profile: Profile,
@@ -405,9 +424,30 @@ function parseBracketSelectors(
 				'Filter selectors are not supported in rfc9535-core',
 			);
 		}
-		const expr = parseFilterOr(ctx, profile);
-		expect(ctx, TokenKinds.RBracket);
-		return { selectors: [filterSelector(expr)] };
+
+		const cp = ctx.tokens.checkpoint();
+		try {
+			const expr = parseFilterOr(ctx, profile);
+			expect(ctx, TokenKinds.RBracket);
+			return { selectors: [filterSelector(expr)] };
+		} catch (e) {
+			// Fallback to script expression ONLY if it doesn't look like a malformed RFC filter.
+			// If it's a JsonPathError from our own syntaxError, it's likely a real error we should preserve.
+			if (
+				e &&
+				typeof e === 'object' &&
+				'code' in e &&
+				(e as any).code === JsonPathErrorCodes.Syntax &&
+				(e as any).message !== 'Expected token RBracket' // Generic enough to fallback
+			) {
+				throw e;
+			}
+
+			ctx.tokens.restore(cp);
+			const expr = parseFilterScript(ctx);
+			expect(ctx, TokenKinds.RBracket);
+			return { selectors: [filterSelector(expr)] };
+		}
 	}
 
 	const selectors: any[] = [];

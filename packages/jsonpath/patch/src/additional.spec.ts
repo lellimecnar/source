@@ -6,30 +6,28 @@ describe('@jsonpath/patch (additional)', () => {
 	it('replace updates selected nodes (immutably)', () => {
 		const root = { a: 1 };
 		const next = applyPatch(root, [
-			{ op: 'replace', path: '$.a', value: 3 },
+			{ op: 'replace', path: '/a', value: 3 },
 		]) as any;
 		expect(next).toEqual({ a: 3 });
 		expect(root).toEqual({ a: 1 });
 	});
 
-	it('add is selection-based (no-op when the path matches nothing)', () => {
+	it('add is pointer-based', () => {
 		const root = { a: 1 };
-		const next = applyPatch(root, [
-			{ op: 'add', path: '$.b', value: 2 },
-		]) as any;
-		expect(next).toEqual({ a: 1 });
+		const next = applyPatch(root, [{ op: 'add', path: '/b', value: 2 }]) as any;
+		expect(next).toEqual({ a: 1, b: 2 });
 	});
 
 	it('remove deletes selected nodes', () => {
 		const root = { a: 1, b: 2 };
-		const next = applyPatch(root, [{ op: 'remove', path: '$.b' }]) as any;
+		const next = applyPatch(root, [{ op: 'remove', path: '/b' }]) as any;
 		expect(next).toEqual({ a: 1 });
 	});
 
 	it('copy copies from -> to', () => {
 		const root = { a: { b: 1 }, c: 0 };
 		const next = applyPatch(root, [
-			{ op: 'copy', from: '$.a.b', path: '$.c' },
+			{ op: 'copy', from: '/a/b', path: '/c' },
 		]) as any;
 		expect(next.c).toBe(1);
 		expect(root.c).toBe(0);
@@ -38,7 +36,7 @@ describe('@jsonpath/patch (additional)', () => {
 	it('move copies then removes from', () => {
 		const root = { a: { b: 1 }, c: 0 };
 		const next = applyPatch(root, [
-			{ op: 'move', from: '$.a.b', path: '$.c' },
+			{ op: 'move', from: '/a/b', path: '/c' },
 		]) as any;
 		expect(next.c).toBe(1);
 		expect(next.a).toEqual({});
@@ -46,7 +44,7 @@ describe('@jsonpath/patch (additional)', () => {
 
 	it('test throws when values do not match', () => {
 		expect(() =>
-			applyPatch({ a: 1 }, [{ op: 'test', path: '$.a', value: 2 }]),
-		).toThrow(/Test failed/);
+			applyPatch({ a: 1 }, [{ op: 'test', path: '/a', value: 2 }]),
+		).toThrow(/JSON Patch test operation failed/);
 	});
 });

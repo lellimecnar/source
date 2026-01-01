@@ -33,13 +33,60 @@ const myPlugins: JsonPathPlugin[] = [
 // Create the engine
 const engine = createEngine({
 	plugins: myPlugins,
+	options: {
+		maxDepth: 100, // Optional: limit recursion depth
+		maxResults: 1000, // Optional: limit total results
+		plugins: {
+			// Optional: plugin-specific configuration
+			'my-plugin-id': { someSetting: true },
+		},
+	},
 });
 
 // Use the engine
 const compiled = engine.compile('$.store.book[*].author');
+
+// Synchronous evaluation
 const results = engine.evaluateSync(compiled, myJsonData);
 
+// Asynchronous evaluation (for plugins that use async functions/expressions)
+const asyncResults = await engine.evaluate(compiled, myJsonData);
+
 console.log(results);
+```
+
+### API Reference
+
+#### `createEngine(options: CreateEngineOptions): JsonPathEngine`
+
+Creates a new engine instance.
+
+- `plugins`: An array of `JsonPathPlugin` objects.
+- `options`:
+  - `maxDepth`: Maximum recursion depth for the engine (default: 100).
+  - `maxResults`: Maximum number of results to return (default: Infinity).
+  - `plugins`: A record of plugin-specific configurations, keyed by plugin ID.
+
+#### `JsonPathEngine`
+
+- `compile(expression: string): CompileResult`: Parses and compiles a JSONPath expression into an AST.
+- `evaluateSync(compiled: CompileResult, data: unknown, options?: EvaluateOptions): unknown[]`: Evaluates a compiled expression against data synchronously.
+- `evaluate(compiled: CompileResult, data: unknown, options?: EvaluateOptions): Promise<unknown[]>`: Evaluates a compiled expression against data asynchronously.
+
+#### `JsonPathError`
+
+All errors thrown by the engine are instances of `JsonPathError`. They include a `code` property for programmatic handling.
+
+```typescript
+import { JsonPathError } from '@jsonpath/core';
+
+try {
+	engine.compile('invalid path');
+} catch (err) {
+	if (err instanceof JsonPathError) {
+		console.error(`Error [${err.code}]: ${err.message}`);
+	}
+}
 ```
 
 ### Plugins

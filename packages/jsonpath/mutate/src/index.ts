@@ -1,1 +1,1 @@
-export { setAll, removeAll } from './mutate';
+export { setAll, removeAll, setAllByQuery, removeAllByQuery } from './mutate';
