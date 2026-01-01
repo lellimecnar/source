@@ -28,7 +28,17 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@jsonpath/plugin-rfc-9535": "workspace:^"
+		"@jsonpath/core": "workspace:*",
+		"@jsonpath/plugin-filter-functions": "workspace:*",
+		"@jsonpath/plugin-filter-regex": "workspace:*",
+		"@jsonpath/plugin-functions-core": "workspace:*",
+		"@jsonpath/plugin-parent-selector": "workspace:*",
+		"@jsonpath/plugin-property-name-selector": "workspace:*",
+		"@jsonpath/plugin-result-types": "workspace:*",
+		"@jsonpath/plugin-rfc-9535": "workspace:*",
+		"@jsonpath/plugin-script-expressions": "workspace:*",
+		"@jsonpath/plugin-type-selectors": "workspace:*",
+		"@jsonpath/plugin-validate": "workspace:*"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

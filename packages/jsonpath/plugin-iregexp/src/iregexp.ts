@@ -6,11 +6,20 @@ export interface CompiledIRegexp {
 
 export function compile(pattern: string): CompiledIRegexp | null {
 	try {
-		// NOTE: This is a pragmatic placeholder. Full RFC 9485 validation belongs here.
+		// RFC 9485 (I-Regexp) validation
+		// This is a pragmatic implementation that rejects common non-I-Regexp features.
+		if (
+			pattern.includes('(?') || // Lookaround or named groups
+			/\\\d/.test(pattern) || // Backreferences
+			/[*+?}](\?)/.test(pattern) // Non-greedy quantifiers
+		) {
+			return null;
+		}
+
 		return {
 			pattern,
-			full: new RegExp(`^(?:${pattern})$`),
-			partial: new RegExp(pattern),
+			full: new RegExp(`^(?:${pattern})$`, 'u'),
+			partial: new RegExp(pattern, 'u'),
 		};
 	} catch {
 		return null;

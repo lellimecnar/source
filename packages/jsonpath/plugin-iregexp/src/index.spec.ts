@@ -18,6 +18,15 @@ describe('@jsonpath/plugin-iregexp', () => {
 		expect(searches('(', 'abc')).toBe(false);
 	});
 
+	it('rejects non-I-Regexp features', () => {
+		// Lookaround
+		expect(matchesEntire('(?=a)', 'a')).toBe(false);
+		// Backreferences
+		expect(matchesEntire('(a)\\1', 'aa')).toBe(false);
+		// Non-greedy
+		expect(searches('a*?', 'aaa')).toBe(false);
+	});
+
 	it('exports plugin metadata', () => {
 		expect(plugin.meta.id).toBe('@jsonpath/plugin-iregexp');
 	});

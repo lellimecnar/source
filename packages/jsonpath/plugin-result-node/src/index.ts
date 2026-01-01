@@ -7,7 +7,7 @@ export const plugin: JsonPathPlugin = {
 	},
 	hooks: {
 		registerResults: (registry) => {
-			(registry as any).register('node', (nodes: any[]) => nodes);
+			registry.register('node', (nodes: any[]) => nodes);
 		},
 	},
 };

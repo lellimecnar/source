@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { getByPointer, removeByPointer, setByPointer } from './index';
+import {
+	formatPointer,
+	getByPointer,
+	removeByPointer,
+	setByPointer,
+} from './index';
 
 describe('@jsonpath/pointer', () => {
 	it('gets values', () => {
@@ -22,5 +27,11 @@ describe('@jsonpath/pointer', () => {
 		expect(() => removeByPointer({}, '/constructor/x')).toThrow(
 			/Forbidden JSON Pointer segment/,
 		);
+	});
+
+	it('formats pointers (roundtrippable via parse)', () => {
+		expect(formatPointer([])).toBe('');
+		expect(formatPointer(['a', 'b'])).toBe('/a/b');
+		expect(formatPointer(['a/b', '~x'])).toBe('/a~1b/~0x');
 	});
 });

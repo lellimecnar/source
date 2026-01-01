@@ -28,7 +28,8 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"jsonpath-plus": "^10.3.0"
+		"@jsonpath/core": "workspace:*",
+		"@jsonpath/plugin-rfc-9535": "workspace:*"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

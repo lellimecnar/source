@@ -59,6 +59,7 @@ export const plugin: JsonPathPlugin = {
 						{
 							value: input.value[idx],
 							location: appendIndex(input.location, idx),
+							root: input.root,
 						},
 					];
 				},
@@ -77,6 +78,7 @@ export const plugin: JsonPathPlugin = {
 					return indices.map((i) => ({
 						value: input.value[i],
 						location: appendIndex(input.location, i),
+						root: input.root,
 					}));
 				},
 			);

@@ -13,7 +13,6 @@
 		"./icons": "./src/icons/index.ts",
 		"./qrcode": "./src/qrcode/index.ts",
 		"./theme": "./src/theme/index.ts",
-		"./hooks": "./src/hooks/index.ts",
 		"./button": "./src/components/button.tsx",
 		"./checkbox": "./src/components/checkbox.tsx",
 		"./form": "./src/components/form.tsx",

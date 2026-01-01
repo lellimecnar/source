@@ -37,6 +37,7 @@ export const plugin: JsonPathPlugin = {
 									const child = {
 										value: v[i],
 										location: appendIndex(current.location, i),
+										root: current.root,
 									};
 									out.push(child);
 									queue.push(child);
@@ -48,6 +49,7 @@ export const plugin: JsonPathPlugin = {
 									const child = {
 										value: v[key],
 										location: appendMember(current.location, key),
+										root: current.root,
 									};
 									out.push(child);
 									queue.push(child);

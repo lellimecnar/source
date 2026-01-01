@@ -1,5 +1,6 @@
 import type { JsonPathAst } from '@jsonpath/ast';
 import { FilterExprKinds, SelectorKinds } from '@jsonpath/ast';
+
 import type { PrintOptions } from './options';
 
 export function printAst(ast: JsonPathAst, _options?: PrintOptions): string {
@@ -19,7 +20,7 @@ export function printAst(ast: JsonPathAst, _options?: PrintOptions): string {
 			(selectors[0] as any).kind === SelectorKinds.Name &&
 			isSimpleIdentifier((selectors[0] as any).name)
 		) {
-			out += '.' + (selectors[0] as any).name;
+			out += `.${(selectors[0] as any).name}`;
 			continue;
 		}
 
@@ -42,7 +43,7 @@ export function printAst(ast: JsonPathAst, _options?: PrintOptions): string {
 			continue;
 		}
 
-		out += '[' + selectors.map((s) => printSelector(s as any)).join(',') + ']';
+		out += `[${selectors.map((s) => printSelector(s as any)).join(',')}]`;
 	}
 	return out;
 }
@@ -59,7 +60,7 @@ function printSelector(sel: any): string {
 		const start = sel.start != null ? String(sel.start) : '';
 		const end = sel.end != null ? String(sel.end) : '';
 		const step = sel.step != null ? String(sel.step) : '';
-		return `${start}:${end}${sel.step != null ? ':' + step : ''}`;
+		return `${start}:${end}${sel.step != null ? `:${step}` : ''}`;
 	}
 	if (sel.kind === SelectorKinds.Filter) {
 		return `?(${printFilterExpr(sel.expr)})`;

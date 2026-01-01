@@ -21,6 +21,7 @@ export const plugin: JsonPathPlugin = {
 						return v.map((item, i) => ({
 							value: item,
 							location: appendIndex(input.location, i),
+							root: input.root,
 						}));
 					}
 					if (isRecord(v)) {
@@ -28,6 +29,7 @@ export const plugin: JsonPathPlugin = {
 						return keys.map((k) => ({
 							value: (v as any)[k],
 							location: appendMember(input.location, k),
+							root: input.root,
 						}));
 					}
 					return [];

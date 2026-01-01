@@ -9,7 +9,7 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./components": "./src/components/index.ts",
-		"./icons": "./src/icons/index.ts",
+		"./icons": "./src/icons/index.tsx",
 		"./flatlist": "./src/components/flatlist.tsx",
 		"./stack": "./src/components/stack.tsx",
 		"./tabs": "./src/components/tabs.tsx",

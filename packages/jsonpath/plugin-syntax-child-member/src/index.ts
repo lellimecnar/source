@@ -23,6 +23,7 @@ export const plugin: JsonPathPlugin = {
 						{
 							value: input.value[name],
 							location: appendMember(input.location, name),
+							root: input.root,
 						},
 					];
 				},

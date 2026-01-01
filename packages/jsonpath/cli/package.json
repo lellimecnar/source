@@ -32,7 +32,7 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@jsonpath/plugin-rfc-9535": "workspace:^"
+		"@jsonpath/complete": "workspace:*"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

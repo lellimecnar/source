@@ -15,7 +15,7 @@ export const plugin: JsonPathPlugin = {
 	},
 	hooks: {
 		registerResults: (registry) => {
-			(registry as any).register('pointer', (nodes: any[]) =>
+			registry.register('pointer', (nodes: any[]) =>
 				nodes.map((n) => pointerFromLocation(n.location)),
 			);
 		},
