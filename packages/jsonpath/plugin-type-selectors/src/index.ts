@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-type-selectors',
 		capabilities: ['extension:type-selectors'],
 	},
+	setup: () => undefined,
 };

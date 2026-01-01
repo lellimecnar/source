@@ -8,4 +8,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-validate',
 		capabilities: ['validate'],
 	},
+	setup: () => undefined,
 };

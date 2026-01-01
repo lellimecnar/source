@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-filter-literals',
 		capabilities: ['filter:rfc9535:literals'],
 	},
+	setup: () => undefined,
 };

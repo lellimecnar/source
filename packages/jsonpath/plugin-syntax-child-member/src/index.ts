@@ -11,23 +11,21 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-syntax-child-member',
 		capabilities: ['syntax:rfc9535:child-member'],
 	},
-	hooks: {
-		registerEvaluators: (registry) => {
-			registry.registerSelector(
-				SelectorKinds.Name,
-				(input, selector: any, ctx: EvalContext) => {
-					if (!isRecord(input.value)) return [];
-					const name = String(selector.name);
-					if (!(name in input.value)) return [];
-					return [
-						{
-							value: input.value[name],
-							location: appendMember(input.location, name),
-							root: input.root,
-						},
-					];
-				},
-			);
-		},
+	setup: ({ engine }) => {
+		engine.evaluators.registerSelector(
+			SelectorKinds.Name,
+			(input, selector: any, ctx: EvalContext) => {
+				if (!isRecord(input.value)) return [];
+				const name = String(selector.name);
+				if (!(name in input.value)) return [];
+				return [
+					{
+						value: input.value[name],
+						location: appendMember(input.location, name),
+						root: input.root,
+					},
+				];
+			},
+		);
 	},
 };

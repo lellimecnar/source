@@ -10,12 +10,19 @@ describe('@jsonpath/plugin-syntax-root (additional)', () => {
 		profile?: 'rfc9535-draft' | 'rfc9535-core' | 'rfc9535-full',
 	) {
 		const p = createSyntaxRootPlugin();
-		p.configure?.(profile ? { profile } : undefined);
-
 		const scanner = new Scanner();
 		const parser = new JsonPathParser();
-		p.hooks?.registerTokens?.(scanner);
-		p.hooks?.registerParsers?.(parser);
+		p.setup({
+			pluginId: p.meta.id,
+			config: profile ? { profile } : undefined,
+			engine: {
+				scanner,
+				parser,
+				evaluators: {} as any,
+				results: {} as any,
+				lifecycle: {} as any,
+			},
+		});
 
 		return (expr: string) =>
 			parser.parse({

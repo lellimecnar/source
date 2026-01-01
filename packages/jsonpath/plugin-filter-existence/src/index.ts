@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-filter-existence',
 		capabilities: ['filter:rfc9535:existence'],
 	},
+	setup: () => undefined,
 };

@@ -13,11 +13,9 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-result-pointer',
 		capabilities: ['result:pointer'],
 	},
-	hooks: {
-		registerResults: (registry) => {
-			registry.register('pointer', (nodes: any[]) =>
-				nodes.map((n) => pointerFromLocation(n.location)),
-			);
-		},
+	setup: ({ engine }) => {
+		engine.results.register('pointer', (nodes: any[]) =>
+			nodes.map((n) => pointerFromLocation(n.location)),
+		);
 	},
 };

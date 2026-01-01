@@ -10,32 +10,62 @@ describe('@jsonpath/plugin-result-value (additional)', () => {
 
 	it('registers a value mapper', () => {
 		let mapper: ((nodes: any[]) => unknown[]) | undefined;
-		plugin.hooks?.registerResults?.({
-			register: (type: any, fn: any) => {
-				if (type === 'value') mapper = fn;
+		plugin.setup({
+			pluginId: plugin.meta.id,
+			config: undefined,
+			engine: {
+				scanner: {} as any,
+				parser: {} as any,
+				evaluators: {} as any,
+				results: {
+					register: (type: any, fn: any) => {
+						if (type === 'value') mapper = fn;
+					},
+				} as any,
+				lifecycle: {} as any,
 			},
-		} as any);
+		});
 		expect(mapper).toBeTypeOf('function');
 	});
 
 	it('maps node values in order', () => {
 		let mapper!: (nodes: any[]) => unknown[];
-		plugin.hooks?.registerResults?.({
-			register: (_type: any, fn: any) => {
-				mapper = fn;
+		plugin.setup({
+			pluginId: plugin.meta.id,
+			config: undefined,
+			engine: {
+				scanner: {} as any,
+				parser: {} as any,
+				evaluators: {} as any,
+				results: {
+					register: (_type: any, fn: any) => {
+						mapper = fn;
+					},
+				} as any,
+				lifecycle: {} as any,
 			},
-		} as any);
+		});
 
 		expect(mapper([{ value: 1 }, { value: 2 }])).toEqual([1, 2]);
 	});
 
 	it('preserves undefined values', () => {
 		let mapper!: (nodes: any[]) => unknown[];
-		plugin.hooks?.registerResults?.({
-			register: (_type: any, fn: any) => {
-				mapper = fn;
+		plugin.setup({
+			pluginId: plugin.meta.id,
+			config: undefined,
+			engine: {
+				scanner: {} as any,
+				parser: {} as any,
+				evaluators: {} as any,
+				results: {
+					register: (_type: any, fn: any) => {
+						mapper = fn;
+					},
+				} as any,
+				lifecycle: {} as any,
 			},
-		} as any);
+		});
 
 		expect(mapper([{ value: undefined }])).toEqual([undefined]);
 	});

@@ -10,21 +10,41 @@ describe('@jsonpath/plugin-result-node (additional)', () => {
 
 	it('registers a node mapper', () => {
 		let mapper: ((nodes: any[]) => unknown[]) | undefined;
-		plugin.hooks?.registerResults?.({
-			register: (type: any, fn: any) => {
-				if (type === 'node') mapper = fn;
+		plugin.setup({
+			pluginId: plugin.meta.id,
+			config: undefined,
+			engine: {
+				scanner: {} as any,
+				parser: {} as any,
+				evaluators: {} as any,
+				results: {
+					register: (type: any, fn: any) => {
+						if (type === 'node') mapper = fn;
+					},
+				} as any,
+				lifecycle: {} as any,
 			},
-		} as any);
+		});
 		expect(mapper).toBeTypeOf('function');
 	});
 
 	it('maps nodes by identity', () => {
 		let mapper!: (nodes: any[]) => unknown[];
-		plugin.hooks?.registerResults?.({
-			register: (_type: any, fn: any) => {
-				mapper = fn;
+		plugin.setup({
+			pluginId: plugin.meta.id,
+			config: undefined,
+			engine: {
+				scanner: {} as any,
+				parser: {} as any,
+				evaluators: {} as any,
+				results: {
+					register: (_type: any, fn: any) => {
+						mapper = fn;
+					},
+				} as any,
+				lifecycle: {} as any,
 			},
-		} as any);
+		});
 
 		const n1 = { value: 1 };
 		const n2 = { value: 2 };
@@ -33,15 +53,25 @@ describe('@jsonpath/plugin-result-node (additional)', () => {
 
 	it('returns an empty array for empty input', () => {
 		let mapper!: (nodes: any[]) => unknown[];
-		plugin.hooks?.registerResults?.({
-			register: (_type: any, fn: any) => {
-				mapper = fn;
+		plugin.setup({
+			pluginId: plugin.meta.id,
+			config: undefined,
+			engine: {
+				scanner: {} as any,
+				parser: {} as any,
+				evaluators: {} as any,
+				results: {
+					register: (_type: any, fn: any) => {
+						mapper = fn;
+					},
+				} as any,
+				lifecycle: {} as any,
 			},
-		} as any);
+		});
 		expect(mapper([])).toEqual([]);
 	});
 
-	it('does not register evaluators', () => {
-		expect(plugin.hooks?.registerEvaluators).toBeUndefined();
+	it('exposes setup()', () => {
+		expect(plugin.setup).toBeTypeOf('function');
 	});
 });

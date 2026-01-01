@@ -22,7 +22,7 @@
   - Engine pipeline (scan → parse → eval), plugin hook orchestration, per-plugin configuration `options.plugins[plugin.meta.id]`, default result behavior (value/node) when no result plugin exists.
 
 - packages/jsonpath/core/src/plugins/types.ts
-  - Plugin metadata contract (`meta.id`, `capabilities`, `dependsOn`) and hook points (`registerTokens`, `registerParsers`, `registerEvaluators`, `registerResults`, plus `configure`).
+  - Plugin contract: `setup(ctx)` receives `{ pluginId, config, engine: { scanner, parser, evaluators, results, lifecycle } }`.
 
 - packages/jsonpath/core/src/plugins/resolve.ts
   - Deterministic plugin ordering and validation: dependency existence, capability conflicts, and error reporting via `JsonPathErrorCodes.Plugin`.
@@ -37,7 +37,7 @@
   - Preset composition; creates a fresh syntax-root plugin instance per engine (avoids module-level shared mutable state).
 
 - packages/jsonpath/plugin-syntax-root/src/index.ts
-  - Canonical example of per-engine plugin state via `configure`; registers RFC9535 scan rules and parser integration.
+  - Canonical example of per-engine plugin state via `setup(ctx)` using `ctx.config`, and registering RFC9535 scan rules + parser integration.
 
 - packages/jsonpath/plugin-syntax-root/src/parser.ts
   - Concrete RFC9535 parser implementation patterns: `syntaxError()` throws `JsonPathError` with offset; filter parsing supports `&&`, `||`, `!`, comparisons; includes well-typedness checks for functions used in comparisons.
@@ -126,11 +126,10 @@
   - Plugins are resolved in deterministic order (via core resolver), and dependency/capability conflicts are validated at engine creation time.
 
 - **Per-plugin runtime config**.
-  - Engine calls `plugin.configure(options.plugins[plugin.meta.id])` (pattern is used by syntax-root plugin to set profile).
+  - Engine passes per-plugin config into `setup(ctx)` as `ctx.config`.
 
 - **Per-engine plugin state is preferred over module-level mutation**.
-  - Syntax-root plugin uses a closure variable `profile` updated by `configure()`.
-  - The RFC9535 preset creates a fresh syntax-root plugin instance per engine, and also exports a legacy singleton for back-compat.
+  - Stateful plugins should be instantiated per-engine; `setup(ctx)` can read `ctx.config` and capture config in a closure.
 
 - **Error surface is stable and typed**.
   - Syntax errors are thrown as `JsonPathError` with `code: JsonPathErrorCodes.Syntax` and a specific `offset`.
@@ -195,17 +194,13 @@ export function createSyntaxRootPlugin(): JsonPathPlugin<{
 			id: '@jsonpath/plugin-syntax-root',
 			capabilities: ['syntax:rfc9535:root'],
 		},
-		configure: (cfg) => {
-			profile = cfg?.profile ?? 'rfc9535-draft';
-		},
-		hooks: {
-			registerTokens: (scanner) => {
-				registerRfc9535ScanRules(scanner);
-				registerRfc9535LiteralScanRules(scanner);
-			},
-			registerParsers: (parser) => {
-				parser.registerSegmentParser((ctx) => parseRfc9535Path(ctx, profile));
-			},
+		setup: ({ config, engine }) => {
+			profile = config?.profile ?? 'rfc9535-draft';
+			registerRfc9535ScanRules(engine.scanner);
+			registerRfc9535LiteralScanRules(engine.scanner);
+			engine.parser.registerSegmentParser((ctx) =>
+				parseRfc9535Path(ctx, profile),
+			);
 		},
 	};
 }
@@ -242,7 +237,7 @@ output: {
 Use the existing engine/plugin architecture as the spine of the ecosystem plan:
 
 1. Treat `@jsonpath/core` as stable orchestration and expand functionality via plugins (syntax/filter/function/result).
-2. Keep profile-gated behavior in plugin-level `configure()` state, and ensure presets instantiate per-engine plugin instances.
+2. Keep profile-gated behavior in per-engine plugin state derived from `setup(ctx).config`, and ensure presets instantiate per-engine plugin instances.
 3. Extend pointer/patch/mutate carefully:
    - Keep structural sharing semantics.
    - Keep forbidden segments protections.

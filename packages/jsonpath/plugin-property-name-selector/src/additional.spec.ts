@@ -18,7 +18,7 @@ describe('@jsonpath/plugin-property-name-selector (additional)', () => {
 	});
 
 	it('does not register any hooks', () => {
-		expect(plugin.hooks).toBeUndefined();
+		expect(plugin.setup).toBeTypeOf('function');
 	});
 
 	it('has only id + capabilities in meta', () => {

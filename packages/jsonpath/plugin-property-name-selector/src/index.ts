@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-property-name-selector',
 		capabilities: ['extension:property-name-selector'],
 	},
+	setup: () => undefined,
 };

@@ -36,11 +36,9 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-result-path',
 		capabilities: ['result:path'],
 	},
-	hooks: {
-		registerResults: (registry) => {
-			registry.register('path', (nodes: any[]) =>
-				nodes.map((n) => normalizedPathFromLocation(n.location)),
-			);
-		},
+	setup: ({ engine }) => {
+		engine.results.register('path', (nodes: any[]) =>
+			nodes.map((n) => normalizedPathFromLocation(n.location)),
+		);
 	},
 };

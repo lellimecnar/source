@@ -16,7 +16,7 @@
 - [packages/jsonpath/core/src/createEngine.ts](packages/jsonpath/core/src/createEngine.ts)
   - Engine pipeline (scan → parse → eval) + plugin hook invocation + per-plugin config passing.
 - [packages/jsonpath/core/src/plugins/types.ts](packages/jsonpath/core/src/plugins/types.ts)
-  - Core plugin surface: `hooks.registerTokens/registerParsers/registerEvaluators/registerResults`.
+  - Core plugin surface: `setup(ctx)` with `ctx.engine.{scanner,parser,evaluators,results,lifecycle}` and `ctx.config`.
 - [packages/jsonpath/core/src/plugins/resolve.ts](packages/jsonpath/core/src/plugins/resolve.ts)
   - Deterministic ordering + required dependency validation + capability conflict checks.
 - [packages/jsonpath/core/src/runtime/hooks.ts](packages/jsonpath/core/src/runtime/hooks.ts)
@@ -110,19 +110,20 @@
 
 ### Implementation Patterns
 
-#### Plugin hooks are the intended extension mechanism
+#### Plugin setup is the intended extension mechanism
 
 Core plugin surface is in [packages/jsonpath/core/src/plugins/types.ts](packages/jsonpath/core/src/plugins/types.ts):
 
-- `registerTokens(scanner)`
-- `registerParsers(parser)`
-- `registerEvaluators(registry)`
-- `registerResults(registry)`
+- `plugin.setup(ctx)`
+  - `ctx.engine.scanner` (token rules)
+  - `ctx.engine.parser` (segment parsers)
+  - `ctx.engine.evaluators` (selector/segment evaluators)
+  - `ctx.engine.results` (result mappers)
 
-Engine hook invocation and per-plugin config passing are in [packages/jsonpath/core/src/createEngine.ts](packages/jsonpath/core/src/createEngine.ts):
+Engine setup invocation and per-plugin config passing are in [packages/jsonpath/core/src/createEngine.ts](packages/jsonpath/core/src/createEngine.ts):
 
 - Plugin config is read via `options?.plugins?.[plugin.meta.id]`.
-- Hooks run in deterministic plugin order (via `resolvePlugins`).
+- Setup runs in deterministic plugin order (via `resolvePlugins`).
 
 #### Deterministic plugin ordering affects parsing/precedence design
 
@@ -142,11 +143,11 @@ This matches the `@jsonpath/ast` current design where `SelectorNode` is an open 
 // Engine hook invocation + per-plugin config passing (source: packages/jsonpath/core/src/createEngine.ts)
 for (const plugin of resolved.ordered) {
 	const pluginConfig = options?.plugins?.[plugin.meta.id];
-	plugin.configure?.(pluginConfig as any);
-	plugin.hooks?.registerTokens?.(scanner);
-	plugin.hooks?.registerParsers?.(parser);
-	plugin.hooks?.registerEvaluators?.(evaluators);
-	plugin.hooks?.registerResults?.(results);
+	plugin.setup({
+		pluginId: plugin.meta.id,
+		config: pluginConfig as any,
+		engine: { scanner, parser, evaluators, results, lifecycle },
+	});
 }
 ```
 
@@ -185,7 +186,7 @@ scanner.register(TokenKinds.DotDot, (input, offset) =>
 #### Preset configuration
 
 - `createRfc9535Engine({ profile })` (source: [packages/jsonpath/plugin-rfc-9535/src/index.ts](packages/jsonpath/plugin-rfc-9535/src/index.ts)) passes config into `createEngine` via `options.plugins['@jsonpath/plugin-rfc-9535']`.
-- The preset plugin currently has `configure: () => undefined`, meaning profile-gating is not implemented yet.
+- The preset plugin config is provided to `setup(ctx)` as `ctx.config` (profile-gating is implemented by plugins that read it).
 
 ### Configuration Examples
 
@@ -222,14 +223,14 @@ Implement RFC 9535 features by leaning into the existing framework contracts:
   - Use `JsonPathError`/`JsonPathErrorCodes` and `JsonPathLocation.offset` as the canonical error surface.
 
 - Keep `@jsonpath/lexer` and `@jsonpath/parser` as feature-agnostic infrastructure:
-  - Tokenization: re-use `registerRfc9535ScanRules(scanner)` but wire it via plugin `registerTokens` so profiles can gate features.
+  - Tokenization: re-use `registerRfc9535ScanRules(scanner)` but wire it via `plugin.setup(ctx)` so profiles can gate features.
   - Parsing: evolve parser infrastructure (as required by C07+) so syntax plugins can register small, testable parsing units rather than implementing a monolithic parser.
 
 - Implement semantics in RFC plugins, keyed by selector kind:
   - Each syntax/filter plugin should register:
-    - selector evaluators (`registerEvaluators`) keyed by the selector node `kind` it introduces.
-    - parser entries (`registerParsers`) for the grammar surface it owns.
-  - Result plugins should register result mappers via `registerResults`.
+    - selector evaluators (via `ctx.engine.evaluators`) keyed by the selector node `kind` it introduces.
+    - parser entries (via `ctx.engine.parser.registerSegmentParser(...)`) for the grammar surface it owns.
+  - Result plugins should register result mappers via `ctx.engine.results`.
 
 This aligns with how evaluation currently dispatches (`selector.kind` → registry lookup) and avoids coupling RFC semantics into the core engine.
 
@@ -288,7 +289,7 @@ This aligns with how evaluation currently dispatches (`selector.kind` → regist
 
 ### Code Search Results
 
-- `resolvePlugins(|PluginRegistry|JsonPathError|configure?:|scanner.register`
+- `resolvePlugins(|PluginRegistry|JsonPathError|setup\(|scanner.register`
   - Observed in:
     - [packages/jsonpath/core/src/plugins/resolve.ts](packages/jsonpath/core/src/plugins/resolve.ts)
     - [packages/jsonpath/core/src/plugins/registry.ts](packages/jsonpath/core/src/plugins/registry.ts)
@@ -423,7 +424,7 @@ This aligns with how evaluation currently dispatches (`selector.kind` → regist
 - Core plugin types:
   - [packages/jsonpath/core/src/plugins/types.ts](packages/jsonpath/core/src/plugins/types.ts)
     - `JsonPathPluginMeta`: `{ id, capabilities?, dependsOn?, optionalDependsOn?, peerDependencies? }`.
-    - `JsonPathPlugin<Config = unknown>` currently supports only `meta` and optional `configure(config)`.
+    - `JsonPathPlugin<Config = unknown>` supports `meta` and required `setup(ctx)`.
 
 - Plugin ordering + dedupe:
   - [packages/jsonpath/core/src/plugins/order.ts](packages/jsonpath/core/src/plugins/order.ts)
@@ -541,5 +542,5 @@ So the plan likely needs to define new plugin hook interfaces (lexer/parser/eval
   - Consequence: the explicit order of `rfc9535Plugins` does not currently influence execution precedence.
 
 - **Config plumbing is not implemented**
-  - `JsonPathPlugin.configure` exists but is not invoked by `createEngine`.
+  - `JsonPathPlugin.setup` is invoked by `createEngine`.
   - `CreateEngineOptions.options` exists but is unused.

@@ -83,5 +83,5 @@ export const plugin: JsonPathPlugin<{ profile?: Rfc9535Profile }> = {
 		capabilities: ['preset:rfc9535'],
 		dependsOn: rfc9535Plugins.map((p) => p.meta.id),
 	},
-	configure: () => undefined,
+	setup: () => undefined,
 };

@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-syntax-current',
 		capabilities: ['syntax:rfc9535:current'],
 	},
+	setup: () => undefined,
 };

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { applyPatch } from './index';
+import type { JsonPathEngine } from '@jsonpath/core';
 
 describe('@jsonpath/patch', () => {
 	it('applies add/replace/remove operations using JSONPath', () => {
@@ -34,5 +35,28 @@ describe('@jsonpath/patch', () => {
 		expect(() =>
 			applyPatch(doc, [{ op: 'test', path: '$.a', value: 2 }]),
 		).toThrow('Test failed');
+	});
+
+	it('supports injecting a custom engine', () => {
+		const compiledExpressions: string[] = [];
+		const engine: JsonPathEngine = {
+			compile: (expression) => {
+				compiledExpressions.push(expression);
+				return { expression, ast: {} as any };
+			},
+			parse: () => ({}) as any,
+			evaluateSync: (compiled) => {
+				if (compiled.expression === '$.a') return ['/a'];
+				return [];
+			},
+			evaluateAsync: async () => [],
+		};
+
+		const doc = { a: 1, b: 2 };
+		const next = applyPatch(doc, [{ op: 'replace', path: '$.a', value: 3 }], {
+			engine,
+		}) as any;
+		expect(next).toEqual({ a: 3, b: 2 });
+		expect(compiledExpressions).toEqual(['$.a']);
 	});
 });

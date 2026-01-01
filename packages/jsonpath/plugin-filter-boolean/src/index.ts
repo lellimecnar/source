@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-filter-boolean',
 		capabilities: ['filter:rfc9535:boolean'],
 	},
+	setup: () => undefined,
 };

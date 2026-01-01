@@ -8,11 +8,21 @@ import { plugin } from './index';
 describe('@jsonpath/plugin-syntax-child-member (additional)', () => {
 	function getNameEvaluator() {
 		let evaluator: any;
-		plugin.hooks?.registerEvaluators?.({
-			registerSelector: (kind: string, fn: any) => {
-				if (kind === SelectorKinds.Name) evaluator = fn;
+		plugin.setup({
+			pluginId: plugin.meta.id,
+			config: undefined,
+			engine: {
+				scanner: {} as any,
+				parser: {} as any,
+				evaluators: {
+					registerSelector: (kind: string, fn: any) => {
+						if (kind === SelectorKinds.Name) evaluator = fn;
+					},
+				} as any,
+				results: {} as any,
+				lifecycle: {} as any,
 			},
-		} as any);
+		});
 		expect(evaluator).toBeTypeOf('function');
 		return evaluator;
 	}

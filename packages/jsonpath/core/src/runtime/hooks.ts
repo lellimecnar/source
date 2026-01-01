@@ -12,6 +12,12 @@ export type SelectorEvaluator = (
 	ctx: EvalContext,
 ) => readonly JsonPathNode[];
 
+export type SelectorEvaluatorAsync = (
+	input: JsonPathNode,
+	selector: SelectorNode,
+	ctx: EvalContext,
+) => Promise<readonly JsonPathNode[]>;
+
 export type SegmentEvaluator = (
 	inputs: readonly JsonPathNode[],
 	segment: SegmentNode,
@@ -19,24 +25,61 @@ export type SegmentEvaluator = (
 	ctx: EvalContext,
 ) => readonly JsonPathNode[];
 
+export type SegmentEvaluatorAsync = (
+	inputs: readonly JsonPathNode[],
+	segment: SegmentNode,
+	evaluators: EvaluatorRegistry,
+	ctx: EvalContext,
+) => Promise<readonly JsonPathNode[]>;
+
 export class EvaluatorRegistry {
 	private readonly selectorEvaluators = new Map<string, SelectorEvaluator>();
+	private readonly selectorEvaluatorsAsync = new Map<
+		string,
+		SelectorEvaluatorAsync
+	>();
 	private readonly segmentEvaluators = new Map<string, SegmentEvaluator>();
+	private readonly segmentEvaluatorsAsync = new Map<
+		string,
+		SegmentEvaluatorAsync
+	>();
 
 	public registerSelector(kind: string, evaluator: SelectorEvaluator): void {
 		this.selectorEvaluators.set(kind, evaluator);
+	}
+
+	public registerSelectorAsync(
+		kind: string,
+		evaluator: SelectorEvaluatorAsync,
+	): void {
+		this.selectorEvaluatorsAsync.set(kind, evaluator);
 	}
 
 	public getSelector(kind: string): SelectorEvaluator | undefined {
 		return this.selectorEvaluators.get(kind);
 	}
 
+	public getSelectorAsync(kind: string): SelectorEvaluatorAsync | undefined {
+		return this.selectorEvaluatorsAsync.get(kind);
+	}
+
 	public registerSegment(kind: string, evaluator: SegmentEvaluator): void {
 		this.segmentEvaluators.set(kind, evaluator);
 	}
 
+	public registerSegmentAsync(
+		kind: string,
+		evaluator: SegmentEvaluatorAsync,
+	): void {
+		this.segmentEvaluatorsAsync.set(kind, evaluator);
+	}
+
 	public getSegment(kind: string): SegmentEvaluator | undefined {
 		return this.segmentEvaluators.get(kind);
+	}
+
+	public getSegmentAsync(kind: string): SegmentEvaluatorAsync | undefined {
+		return this.segmentEvaluatorsAsync.get(kind);
 	}
 }
 

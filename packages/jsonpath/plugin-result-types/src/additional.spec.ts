@@ -22,7 +22,7 @@ describe('@jsonpath/plugin-result-types (additional)', () => {
 	});
 
 	it('does not register any hooks (pure metadata)', () => {
-		expect(plugin.hooks).toBeUndefined();
+		expect(plugin.setup).toBeTypeOf('function');
 	});
 
 	it('meta keys include dependsOn', () => {

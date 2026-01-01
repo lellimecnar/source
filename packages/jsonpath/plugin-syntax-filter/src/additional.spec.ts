@@ -8,13 +8,23 @@ import { plugin } from './index';
 describe('@jsonpath/plugin-syntax-filter (additional)', () => {
 	function getFilterEvaluator() {
 		let evaluator: any;
-		plugin.hooks?.registerEvaluators?.({
-			registerSelector: (kind: string, fn: any) => {
-				if (kind === SelectorKinds.Filter) evaluator = fn;
+		plugin.setup({
+			pluginId: plugin.meta.id,
+			config: undefined,
+			engine: {
+				scanner: {} as any,
+				parser: {} as any,
+				evaluators: {
+					registerSelector: (kind: string, fn: any) => {
+						if (kind === SelectorKinds.Filter) evaluator = fn;
+					},
+					getSegment: () => undefined,
+					getSelector: () => undefined,
+				} as any,
+				results: {} as any,
+				lifecycle: {} as any,
 			},
-			getSegment: () => undefined,
-			getSelector: () => undefined,
-		} as any);
+		});
 		expect(evaluator).toBeTypeOf('function');
 		return evaluator;
 	}

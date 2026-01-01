@@ -261,20 +261,23 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-syntax-filter',
 		capabilities: ['syntax:rfc9535:filter'],
 	},
-	hooks: {
-		registerEvaluators: (registry) => {
-			registry.registerSelector(
-				SelectorKinds.Filter,
-				(input, selector: any, ctx: EvalContext) => {
-					const result = evalFilterExpr(selector.expr, input, ctx, registry);
-					// Truthy result (including true, non-zero, non-empty strings, etc.)
-					// but not Nothing or falsy
-					if (!isNothing(result) && result) {
-						return [input];
-					}
-					return [];
-				},
-			);
-		},
+	setup: ({ engine }) => {
+		engine.evaluators.registerSelector(
+			SelectorKinds.Filter,
+			(input, selector: any, ctx: EvalContext) => {
+				const result = evalFilterExpr(
+					selector.expr,
+					input,
+					ctx,
+					engine.evaluators,
+				);
+				// Truthy result (including true, non-zero, non-empty strings, etc.)
+				// but not Nothing or falsy
+				if (!isNothing(result) && result) {
+					return [input];
+				}
+				return [];
+			},
+		);
 	},
 };

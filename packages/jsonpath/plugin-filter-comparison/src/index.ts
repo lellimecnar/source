@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-filter-comparison',
 		capabilities: ['filter:rfc9535:comparison'],
 	},
+	setup: () => undefined,
 };

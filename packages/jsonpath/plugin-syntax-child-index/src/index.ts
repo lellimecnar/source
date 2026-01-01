@@ -44,44 +44,39 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-syntax-child-index',
 		capabilities: ['syntax:rfc9535:child-index', 'syntax:rfc9535:slice'],
 	},
-	hooks: {
-		registerEvaluators: (registry) => {
-			registry.registerSelector(
-				SelectorKinds.Index,
-				(input, selector: any, ctx: EvalContext) => {
-					if (!Array.isArray(input.value)) return [];
-					const idx = normalizeIndex(
-						Number(selector.index),
-						input.value.length,
-					);
-					if (idx < 0 || idx >= input.value.length) return [];
-					return [
-						{
-							value: input.value[idx],
-							location: appendIndex(input.location, idx),
-							root: input.root,
-						},
-					];
-				},
-			);
-
-			registry.registerSelector(
-				SelectorKinds.Slice,
-				(input, selector: any, ctx: EvalContext) => {
-					if (!Array.isArray(input.value)) return [];
-					const indices = computeSliceIndices({
-						start: selector.start,
-						end: selector.end,
-						step: selector.step,
-						length: input.value.length,
-					});
-					return indices.map((i) => ({
-						value: input.value[i],
-						location: appendIndex(input.location, i),
+	setup: ({ engine }) => {
+		engine.evaluators.registerSelector(
+			SelectorKinds.Index,
+			(input, selector: any, ctx: EvalContext) => {
+				if (!Array.isArray(input.value)) return [];
+				const idx = normalizeIndex(Number(selector.index), input.value.length);
+				if (idx < 0 || idx >= input.value.length) return [];
+				return [
+					{
+						value: input.value[idx],
+						location: appendIndex(input.location, idx),
 						root: input.root,
-					}));
-				},
-			);
-		},
+					},
+				];
+			},
+		);
+
+		engine.evaluators.registerSelector(
+			SelectorKinds.Slice,
+			(input, selector: any, ctx: EvalContext) => {
+				if (!Array.isArray(input.value)) return [];
+				const indices = computeSliceIndices({
+					start: selector.start,
+					end: selector.end,
+					step: selector.step,
+					length: input.value.length,
+				});
+				return indices.map((i) => ({
+					value: input.value[i],
+					location: appendIndex(input.location, i),
+					root: input.root,
+				}));
+			},
+		);
 	},
 };

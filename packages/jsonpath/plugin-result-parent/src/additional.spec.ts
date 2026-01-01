@@ -5,11 +5,21 @@ import { plugin } from './index';
 describe('@jsonpath/plugin-result-parent (additional)', () => {
 	function getParentMapper() {
 		let mapper!: (nodes: any[]) => unknown[];
-		plugin.hooks?.registerResults?.({
-			register: (_type: any, fn: any) => {
-				mapper = fn;
+		plugin.setup({
+			pluginId: plugin.meta.id,
+			config: undefined,
+			engine: {
+				scanner: {} as any,
+				parser: {} as any,
+				evaluators: {} as any,
+				results: {
+					register: (_type: any, fn: any) => {
+						mapper = fn;
+					},
+				} as any,
+				lifecycle: {} as any,
 			},
-		} as any);
+		});
 		return mapper;
 	}
 

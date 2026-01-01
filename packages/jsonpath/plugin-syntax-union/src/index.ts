@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-syntax-union',
 		capabilities: ['syntax:rfc9535:union'],
 	},
+	setup: () => undefined,
 };

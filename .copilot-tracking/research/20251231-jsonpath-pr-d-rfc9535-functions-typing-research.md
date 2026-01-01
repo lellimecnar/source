@@ -154,7 +154,7 @@
 - `createEngine` flow is:
   1. `resolvePlugins` (deterministic order, deps, capability conflicts)
   2. Create `Scanner` + `JsonPathParser`
-  3. Plugins register tokens/parsers/evaluators/results
+  3. Plugins run `setup(ctx)` to register tokens/parsers/evaluators/results
   4. `parse` = `scanner.scanAll` → `parser.parse`
   5. `compile` wraps `expression` + `ast`
   6. `evaluateSync` walks AST segments and uses either a segment evaluator (if registered) or falls back to per-selector evaluation.
@@ -163,10 +163,11 @@
 #### How plugins contribute to lexer/parser/evaluator
 
 - Contribution points are exactly:
-  - `hooks.registerTokens(scanner)`
-  - `hooks.registerParsers(parser)`
-  - `hooks.registerEvaluators(registry)`
-  - `hooks.registerResults(registry)`
+  - `plugin.setup(ctx)`
+    - `ctx.engine.scanner` (token rules)
+    - `ctx.engine.parser` (segment parsers)
+    - `ctx.engine.evaluators` (selector/segment evaluators)
+    - `ctx.engine.results` (result mappers)
   - Evidence: [packages/jsonpath/core/src/plugins/types.ts](packages/jsonpath/core/src/plugins/types.ts) and invocation loop in [packages/jsonpath/core/src/createEngine.ts](packages/jsonpath/core/src/createEngine.ts).
 
 #### Profiles (rfc9535-core/full/draft)
@@ -244,7 +245,7 @@ Focus PR-D on enabling function expressions and RFC-required typing in a way tha
   - Current root parser is monolithic for filter expressions and does not delegate function parsing to plugins.
   - Options implied by the current parser framework:
     1. Add function parsing directly into the root RFC9535 parser.
-    2. Add a second segment parser via `registerParsers` that fully parses RFC9535 paths (including functions) and returns `PathNode` before the root parser runs (registration order is sorted by plugin id).
+    2. Add a second segment parser via `setup(ctx)` (i.e. `ctx.engine.parser.registerSegmentParser(...)`) that fully parses RFC9535 paths (including functions) and returns `PathNode` before the root parser runs (registration order is sorted by plugin id).
   - Evidence: parser registry behavior in [packages/jsonpath/parser/src/parser.ts](packages/jsonpath/parser/src/parser.ts) and plugin ordering in [packages/jsonpath/core/src/plugins/order.ts](packages/jsonpath/core/src/plugins/order.ts).
 
 - Implement typing validation as a “validity” phase (parse-time) rather than runtime evaluation, matching the RFC plan’s intent.

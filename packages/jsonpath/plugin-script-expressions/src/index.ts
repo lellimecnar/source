@@ -8,4 +8,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-script-expressions',
 		capabilities: ['filter:script:ses'],
 	},
+	setup: () => undefined,
 };

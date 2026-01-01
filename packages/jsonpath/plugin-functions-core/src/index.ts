@@ -8,4 +8,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-functions-core',
 		capabilities: ['functions:rfc9535:core'],
 	},
+	setup: () => undefined,
 };

@@ -460,12 +460,10 @@ export function formatPointer(segments: readonly string[]): string {
  		id: '@jsonpath/plugin-result-value',
  		capabilities: ['result:value'],
  	},
-+	hooks: {
-+		registerResults: (registry) => {
-+			(registry as any).register('value', (nodes: any[]) =>
-+				nodes.map((n) => n.value),
-+			);
-+		},
++	setup: ({ engine }) => {
++		(engine.results as any).register('value', (nodes: any[]) =>
++			nodes.map((n) => n.value),
++		);
 +	},
  };
 *** End Patch
@@ -484,10 +482,8 @@ export function formatPointer(segments: readonly string[]): string {
  		id: '@jsonpath/plugin-result-node',
  		capabilities: ['result:node'],
  	},
-+	hooks: {
-+		registerResults: (registry) => {
-+			(registry as any).register('node', (nodes: any[]) => nodes);
-+		},
++	setup: ({ engine }) => {
++		(engine.results as any).register('node', (nodes: any[]) => nodes);
 +	},
  };
 *** End Patch
@@ -514,12 +510,10 @@ export function formatPointer(segments: readonly string[]): string {
  		id: '@jsonpath/plugin-result-pointer',
  		capabilities: ['result:pointer'],
  	},
-+	hooks: {
-+		registerResults: (registry) => {
-+			(registry as any).register('pointer', (nodes: any[]) =>
-+				nodes.map((n) => pointerFromLocation(n.location)),
-+			);
-+		},
++	setup: ({ engine }) => {
++		(engine.results as any).register('pointer', (nodes: any[]) =>
++			nodes.map((n) => pointerFromLocation(n.location)),
++		);
 +	},
  };
 *** End Patch
@@ -569,12 +563,10 @@ export function formatPointer(segments: readonly string[]): string {
  		id: '@jsonpath/plugin-result-path',
  		capabilities: ['result:path'],
  	},
-+	hooks: {
-+		registerResults: (registry) => {
-+			(registry as any).register('path', (nodes: any[]) =>
-+				nodes.map((n) => normalizedPathFromLocation(n.location)),
-+			);
-+		},
++	setup: ({ engine }) => {
++		(engine.results as any).register('path', (nodes: any[]) =>
++			nodes.map((n) => normalizedPathFromLocation(n.location)),
++		);
 +	},
  };
 *** End Patch
@@ -603,16 +595,14 @@ export function formatPointer(segments: readonly string[]): string {
  		id: '@jsonpath/plugin-result-parent',
  		capabilities: ['result:parent'],
  	},
-+	hooks: {
-+		registerResults: (registry) => {
-+			(registry as any).register('parent', (nodes: any[]) =>
-+				nodes.map((n) => {
++	setup: ({ engine }) => {
++		(engine.results as any).register('parent', (nodes: any[]) =>
++			nodes.map((n) => {
 +					const p = parentPointerFromLocation(n.location);
 +					if (p == null) return undefined;
 +					return getByPointer((n as any)._rootValue ?? (n as any).root ?? (n as any).valueRoot ?? undefined, p);
 +				}),
 +			);
-+		},
 +	},
  };
 *** End Patch

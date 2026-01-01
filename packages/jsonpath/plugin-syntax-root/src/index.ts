@@ -19,17 +19,13 @@ export function createSyntaxRootPlugin(): JsonPathPlugin<{
 			id: '@jsonpath/plugin-syntax-root',
 			capabilities: ['syntax:rfc9535:root'],
 		},
-		configure: (cfg) => {
-			profile = cfg?.profile ?? 'rfc9535-draft';
-		},
-		hooks: {
-			registerTokens: (scanner) => {
-				registerRfc9535ScanRules(scanner);
-				registerRfc9535LiteralScanRules(scanner);
-			},
-			registerParsers: (parser) => {
-				parser.registerSegmentParser((ctx) => parseRfc9535Path(ctx, profile));
-			},
+		setup: ({ config, engine }) => {
+			profile = config?.profile ?? 'rfc9535-draft';
+			registerRfc9535ScanRules(engine.scanner);
+			registerRfc9535LiteralScanRules(engine.scanner);
+			engine.parser.registerSegmentParser((ctx) =>
+				parseRfc9535Path(ctx, profile),
+			);
 		},
 	};
 }

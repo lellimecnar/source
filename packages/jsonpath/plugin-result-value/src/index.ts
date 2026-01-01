@@ -5,9 +5,9 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-result-value',
 		capabilities: ['result:value'],
 	},
-	hooks: {
-		registerResults: (registry) => {
-			registry.register('value', (nodes: any[]) => nodes.map((n) => n.value));
-		},
+	setup: ({ engine }) => {
+		engine.results.register('value', (nodes: any[]) =>
+			nodes.map((n) => n.value),
+		);
 	},
 };

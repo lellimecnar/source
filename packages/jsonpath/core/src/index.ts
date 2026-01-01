@@ -8,6 +8,7 @@ export type { JsonPathDiagnostic } from './diagnostics/types';
 
 export type {
 	JsonPathPlugin,
+	PluginSetupContext,
 	JsonPathPluginMeta,
 	JsonPathPluginId,
 	JsonPathCapability,
@@ -23,3 +24,11 @@ export { appendIndex, appendMember, rootLocation } from './runtime/location';
 export type { JsonPathNode } from './runtime/node';
 export { rootNode } from './runtime/node';
 export type { EvalContext } from './runtime/hooks';
+
+export {
+	EngineLifecycleHooks,
+	type TokenTransform,
+	type AstTransform,
+	type EvaluateMiddlewareSync,
+	type EvaluateMiddlewareAsync,
+} from './runtime/lifecycle';

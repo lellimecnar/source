@@ -15,15 +15,13 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-result-parent',
 		capabilities: ['result:parent'],
 	},
-	hooks: {
-		registerResults: (registry) => {
-			registry.register('parent', (nodes: any[]) =>
-				nodes.map((n) => {
-					const p = parentPointerFromLocation(n.location);
-					if (p == null) return undefined;
-					return getByPointer(n.root, p);
-				}),
-			);
-		},
+	setup: ({ engine }) => {
+		engine.results.register('parent', (nodes: any[]) =>
+			nodes.map((n) => {
+				const p = parentPointerFromLocation(n.location);
+				if (p == null) return undefined;
+				return getByPointer(n.root, p);
+			}),
+		);
 	},
 };

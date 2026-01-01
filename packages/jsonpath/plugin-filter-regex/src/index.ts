@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-filter-regex',
 		capabilities: ['filter:rfc9535:regex'],
 	},
+	setup: () => undefined,
 };

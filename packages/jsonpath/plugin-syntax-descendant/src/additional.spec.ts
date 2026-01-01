@@ -7,11 +7,21 @@ import { plugin } from './index';
 describe('@jsonpath/plugin-syntax-descendant (additional)', () => {
 	function getDescendantEvaluator() {
 		let evaluator: any;
-		plugin.hooks?.registerEvaluators?.({
-			registerSegment: (kind: string, fn: any) => {
-				if (kind === 'DescendantSegment') evaluator = fn;
+		plugin.setup({
+			pluginId: plugin.meta.id,
+			config: undefined,
+			engine: {
+				scanner: {} as any,
+				parser: {} as any,
+				evaluators: {
+					registerSegment: (kind: string, fn: any) => {
+						if (kind === 'DescendantSegment') evaluator = fn;
+					},
+				} as any,
+				results: {} as any,
+				lifecycle: {} as any,
 			},
-		} as any);
+		});
 		expect(evaluator).toBeTypeOf('function');
 		return evaluator;
 	}

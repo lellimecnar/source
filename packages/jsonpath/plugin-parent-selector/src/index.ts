@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-parent-selector',
 		capabilities: ['extension:parent-selector'],
 	},
+	setup: () => undefined,
 };

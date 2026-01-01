@@ -7,4 +7,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-iregexp',
 		capabilities: ['regex:rfc9485:iregexp'],
 	},
+	setup: () => undefined,
 };

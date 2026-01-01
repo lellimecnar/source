@@ -2,6 +2,7 @@ import type { Scanner } from '@jsonpath/lexer';
 import type { JsonPathParser } from '@jsonpath/parser';
 
 import type { EvaluatorRegistry, ResultRegistry } from '../runtime/hooks';
+import type { EngineLifecycleHooks } from '../runtime/lifecycle';
 
 export type JsonPathPluginId = string;
 
@@ -15,15 +16,19 @@ export interface JsonPathPluginMeta {
 	peerDependencies?: readonly string[];
 }
 
-export interface EngineHooks {
-	registerTokens?: (scanner: Scanner) => void;
-	registerParsers?: (parser: JsonPathParser) => void;
-	registerEvaluators?: (registry: EvaluatorRegistry) => void;
-	registerResults?: (registry: ResultRegistry) => void;
+export interface PluginSetupContext<Config = unknown> {
+	pluginId: JsonPathPluginId;
+	config: Config | undefined;
+	engine: {
+		scanner: Scanner;
+		parser: JsonPathParser;
+		evaluators: EvaluatorRegistry;
+		results: ResultRegistry;
+		lifecycle: EngineLifecycleHooks;
+	};
 }
 
 export interface JsonPathPlugin<Config = unknown> {
 	meta: JsonPathPluginMeta;
-	configure?: (config: Config | undefined) => void;
-	hooks?: EngineHooks;
+	setup: (ctx: PluginSetupContext<Config>) => void;
 }

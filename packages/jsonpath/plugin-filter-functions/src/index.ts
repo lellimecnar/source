@@ -5,4 +5,5 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-filter-functions',
 		capabilities: ['filter:rfc9535:functions'],
 	},
+	setup: () => undefined,
 };

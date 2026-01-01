@@ -7,10 +7,8 @@ import { createEngine } from './createEngine';
 
 const segmentOverride: JsonPathPlugin = {
 	meta: { id: 'test:segment-override' },
-	hooks: {
-		registerEvaluators: (registry) => {
-			registry.registerSegment('Segment', () => []);
-		},
+	setup: ({ engine }) => {
+		engine.evaluators.registerSegment('Segment', () => []);
 	},
 };
 
