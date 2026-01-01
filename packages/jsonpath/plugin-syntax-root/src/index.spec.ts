@@ -86,7 +86,10 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 			plugins: [createSyntaxRootPlugin()],
 			options: {
 				plugins: {
-					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+					'@jsonpath/plugin-syntax-root': {
+						profile: 'rfc9535-full',
+						strict: true,
+					},
 				},
 			},
 		});
@@ -100,7 +103,10 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 			plugins: [createSyntaxRootPlugin()],
 			options: {
 				plugins: {
-					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+					'@jsonpath/plugin-syntax-root': {
+						profile: 'rfc9535-full',
+						strict: true,
+					},
 				},
 			},
 		});
@@ -152,7 +158,10 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 			plugins: [createSyntaxRootPlugin()],
 			options: {
 				plugins: {
-					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+					'@jsonpath/plugin-syntax-root': {
+						profile: 'rfc9535-full',
+						strict: true,
+					},
 				},
 			},
 		});
@@ -178,7 +187,10 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 			plugins: [createSyntaxRootPlugin()],
 			options: {
 				plugins: {
-					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+					'@jsonpath/plugin-syntax-root': {
+						profile: 'rfc9535-full',
+						strict: true,
+					},
 				},
 			},
 		});
@@ -192,7 +204,10 @@ describe('@jsonpath/plugin-syntax-root parser', () => {
 			plugins: [createSyntaxRootPlugin()],
 			options: {
 				plugins: {
-					'@jsonpath/plugin-syntax-root': { profile: 'rfc9535-full' },
+					'@jsonpath/plugin-syntax-root': {
+						profile: 'rfc9535-full',
+						strict: true,
+					},
 				},
 			},
 		});

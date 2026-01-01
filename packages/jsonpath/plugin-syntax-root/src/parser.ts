@@ -411,6 +411,7 @@ function parseFilterScript(ctx: ParserContext): any {
 function parseBracketSelectors(
 	ctx: ParserContext,
 	profile: Profile,
+	strict: boolean,
 ): { selectors: any[] } {
 	expect(ctx, TokenKinds.LBracket);
 
@@ -431,18 +432,10 @@ function parseBracketSelectors(
 			expect(ctx, TokenKinds.RBracket);
 			return { selectors: [filterSelector(expr)] };
 		} catch (e) {
-			// Fallback to script expression ONLY if it doesn't look like a malformed RFC filter.
-			// If it's a JsonPathError from our own syntaxError, it's likely a real error we should preserve.
-			if (
-				e &&
-				typeof e === 'object' &&
-				'code' in e &&
-				(e as any).code === JsonPathErrorCodes.Syntax &&
-				(e as any).message !== 'Expected token RBracket' // Generic enough to fallback
-			) {
+			if (strict) {
 				throw e;
 			}
-
+			// Fallback to script expression if RFC filter parsing fails.
 			ctx.tokens.restore(cp);
 			const expr = parseFilterScript(ctx);
 			expect(ctx, TokenKinds.RBracket);
@@ -464,7 +457,11 @@ function parseDotName(ctx: ParserContext): any {
 	return nameSelector(id.lexeme);
 }
 
-function parseSegments(ctx: ParserContext, profile: Profile): any[] {
+function parseSegments(
+	ctx: ParserContext,
+	profile: Profile,
+	strict: boolean,
+): any[] {
 	const segments: any[] = [];
 	while (true) {
 		const t = ctx.tokens.peek();
@@ -499,7 +496,7 @@ function parseSegments(ctx: ParserContext, profile: Profile): any[] {
 				continue;
 			}
 			if (next.kind === TokenKinds.LBracket) {
-				const { selectors } = parseBracketSelectors(ctx, profile);
+				const { selectors } = parseBracketSelectors(ctx, profile, strict);
 				segments.push(descendantSegment(selectors));
 				continue;
 			}
@@ -507,7 +504,7 @@ function parseSegments(ctx: ParserContext, profile: Profile): any[] {
 		}
 
 		if (t.kind === TokenKinds.LBracket) {
-			const { selectors } = parseBracketSelectors(ctx, profile);
+			const { selectors } = parseBracketSelectors(ctx, profile, strict);
 			segments.push(segment(selectors));
 			continue;
 		}
@@ -517,7 +514,11 @@ function parseSegments(ctx: ParserContext, profile: Profile): any[] {
 	return segments;
 }
 
-export function parseRfc9535Path(ctx: ParserContext, profile: Profile) {
+export function parseRfc9535Path(
+	ctx: ParserContext,
+	profile: Profile,
+	strict: boolean,
+) {
 	expect(ctx, TokenKinds.Dollar);
-	return path(parseSegments(ctx, profile));
+	return path(parseSegments(ctx, profile, strict));
 }

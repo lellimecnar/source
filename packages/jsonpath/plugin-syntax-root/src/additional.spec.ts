@@ -8,13 +8,14 @@ import { createSyntaxRootPlugin } from './index';
 describe('@jsonpath/plugin-syntax-root (additional)', () => {
 	function makeParse(
 		profile?: 'rfc9535-draft' | 'rfc9535-core' | 'rfc9535-full',
+		strict = false,
 	) {
 		const p = createSyntaxRootPlugin();
 		const scanner = new Scanner();
 		const parser = new JsonPathParser();
 		p.setup({
 			pluginId: p.meta.id,
-			config: profile ? { profile } : undefined,
+			config: profile ? { profile, strict } : undefined,
 			engine: {
 				scanner,
 				parser,
@@ -49,7 +50,7 @@ describe('@jsonpath/plugin-syntax-root (additional)', () => {
 	});
 
 	it('rejects function expressions outside rfc9535-full', () => {
-		const parse = makeParse('rfc9535-draft');
+		const parse = makeParse('rfc9535-draft', true);
 		expect(() => parse('$[?length(@.a) == 1]')).toThrow(
 			/Function expressions are not supported/i,
 		);

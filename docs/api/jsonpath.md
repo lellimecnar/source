@@ -5,7 +5,7 @@ This document provides an overview of the @jsonpath plugin-first JSONPath packag
 ## Overview
 
 The ecosystem is split into a small framework package (@jsonpath/core) and many wiring-only plugins.
-The initial implementation focuses on scaffolding and stable public surfaces, not full RFC 9535 semantics.
+The implementation provides full RFC 9535 compliance, including filter expressions, function calls, and script expressions.
 
 ## Key Packages
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { FilterExprKinds, SelectorKinds } from '@jsonpath/ast';
-import { rootLocation } from '@jsonpath/core';
+import { rootLocation, appendMember } from '@jsonpath/core';
 
 import { plugin } from './index';
 
@@ -46,7 +46,13 @@ describe('@jsonpath/plugin-syntax-filter (additional)', () => {
 			},
 			{ root: input },
 		);
-		expect(out).toEqual([input]);
+		expect(out).toEqual([
+			{
+				value: 1,
+				location: appendMember(rootLocation(), 'a'),
+				root,
+			},
+		]);
 	});
 
 	it('filters out when expression is falsy', () => {
@@ -81,7 +87,13 @@ describe('@jsonpath/plugin-syntax-filter (additional)', () => {
 			},
 			{ root: input },
 		);
-		expect(out).toEqual([input]);
+		expect(out).toEqual([
+			{
+				value: 1,
+				location: appendMember(rootLocation(), 'a'),
+				root,
+			},
+		]);
 	});
 
 	it('length() counts Unicode scalar values', () => {
@@ -105,12 +117,18 @@ describe('@jsonpath/plugin-syntax-filter (additional)', () => {
 			},
 			{ root: input },
 		);
-		expect(out).toEqual([input]);
+		expect(out).toEqual([
+			{
+				value: '💩',
+				location: appendMember(rootLocation(), 's'),
+				root,
+			},
+		]);
 	});
 
 	it('match() and search() differ (full vs partial)', () => {
 		const evalFilter = getFilterEvaluator();
-		const root = { a: 1 };
+		const root = { a: 'abc' };
 		const input = { value: root, location: rootLocation(), root };
 
 		const matchOut = evalFilter(
@@ -146,6 +164,12 @@ describe('@jsonpath/plugin-syntax-filter (additional)', () => {
 		);
 
 		expect(matchOut).toEqual([]);
-		expect(searchOut).toEqual([input]);
+		expect(searchOut).toEqual([
+			{
+				value: 'abc',
+				location: appendMember(rootLocation(), 'a'),
+				root,
+			},
+		]);
 	});
 });
