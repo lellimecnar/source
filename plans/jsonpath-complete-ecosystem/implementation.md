@@ -224,7 +224,7 @@ completes: step 2 of 18 for jsonpath-complete-ecosystem
 
 The current printer is a framework-only placeholder. Replace it with a stable printer for RFC 9535 AST shapes.
 
-- [ ] Copy/paste the patch below into `packages/jsonpath/printer/src/printer.ts`:
+- [x] Copy/paste the patch below into `packages/jsonpath/printer/src/printer.ts`:
 
 ```diff
 *** Begin Patch
@@ -341,7 +341,7 @@ The current printer is a framework-only placeholder. Replace it with a stable pr
 *** End Patch
 ```
 
-- [ ] Update `packages/jsonpath/printer/src/printer.spec.ts`:
+- [x] Update `packages/jsonpath/printer/src/printer.spec.ts`:
 
 ```diff
 *** Begin Patch
@@ -368,7 +368,7 @@ The current printer is a framework-only placeholder. Replace it with a stable pr
 
 #### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/printer test`
+- [x] `pnpm --filter @jsonpath/printer test`
 
 #### Step 3 STOP & COMMIT
 
