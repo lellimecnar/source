@@ -34,6 +34,67 @@ Aside from optional additional plugins, consumers should not need to install any
 
 ---
 
+## RFC 9535 Feature Verification
+
+This section documents the complete mapping between RFC 9535 specification sections and the plugins consolidated into `@jsonpath/plugin-rfc-9535`. Cross-referenced with [json-p3 documentation](https://jg-rp.github.io/json-p3/guides/jsonpath-syntax) for implementation accuracy.
+
+### Selectors (RFC 9535 Section 2.3)
+
+| RFC Section | Feature              | Syntax Example      | Source Plugin                | Status |
+| ----------- | -------------------- | ------------------- | ---------------------------- | ------ |
+| 2.3.1       | Name selector        | `.name`, `['name']` | `plugin-syntax-child-member` | ✅     |
+| 2.3.2       | Wildcard selector    | `*`, `[*]`          | `plugin-syntax-wildcard`     | ✅     |
+| 2.3.3       | Index selector       | `[0]`, `[-1]`       | `plugin-syntax-child-index`  | ✅     |
+| 2.3.4       | Array slice selector | `[0:5:2]`, `[::2]`  | `plugin-syntax-child-index`  | ✅     |
+| 2.3.5       | Filter selector      | `[?@.active]`       | `plugin-syntax-filter`       | ✅     |
+
+### Segments (RFC 9535 Section 2.4-2.5)
+
+| RFC Section | Feature              | Syntax Example      | Source Plugin              | Status |
+| ----------- | -------------------- | ------------------- | -------------------------- | ------ |
+| 2.4.1       | Child segment        | `.name`, `[sel]`    | `plugin-syntax-child-*`    | ✅     |
+| 2.4.2       | Descendant segment   | `..name`, `..[sel]` | `plugin-syntax-descendant` | ✅     |
+| 2.5         | Union/selector lists | `[0,1,'a']`         | `plugin-syntax-union`      | ✅     |
+
+### Identifiers (RFC 9535 Section 2.1-2.2)
+
+| RFC Section | Feature                 | Syntax Example | Source Plugin           | Status |
+| ----------- | ----------------------- | -------------- | ----------------------- | ------ |
+| 2.1         | Root identifier         | `$`            | `plugin-syntax-root`    | ✅     |
+| 2.2         | Current node identifier | `@`            | `plugin-syntax-current` | ✅     |
+
+### Filter Expressions (RFC 9535 Section 2.5)
+
+| RFC Section | Feature              | Syntax Example        | Source Plugin                           | Status |
+| ----------- | -------------------- | --------------------- | --------------------------------------- | ------ |
+| 2.5.1       | Literals             | `true`, `42`, `"str"` | `plugin-filter-literals`                | ✅     |
+| 2.5.2       | Boolean operators    | `&&`, `\|\|`, `!`     | `plugin-filter-boolean`                 | ✅     |
+| 2.5.3       | Comparison operators | `==`, `<`, `>=`       | `plugin-filter-comparison`              | ✅     |
+| 2.5.4       | Existence tests      | `@.optional`          | `plugin-filter-existence`               | ✅     |
+| 2.5.5       | Function expressions | `func(...)`           | `plugin-filter-functions`               | ✅     |
+| 2.5.5.2     | Regular expressions  | I-Regexp patterns     | `plugin-filter-regex`, `plugin-iregexp` | ✅     |
+
+### Core Functions (RFC 9535 Section 2.6)
+
+| RFC Section | Function   | Signature                             | Source Plugin           | Status |
+| ----------- | ---------- | ------------------------------------- | ----------------------- | ------ |
+| 2.6.1       | `length()` | `length(value) → number \| undefined` | `plugin-functions-core` | ✅     |
+| 2.6.2       | `count()`  | `count(nodes) → number`               | `plugin-functions-core` | ✅     |
+| 2.6.3       | `match()`  | `match(value, pattern) → boolean`     | `plugin-functions-core` | ✅     |
+| 2.6.4       | `search()` | `search(value, pattern) → boolean`    | `plugin-functions-core` | ✅     |
+| 2.6.5       | `value()`  | `value(nodes) → value \| undefined`   | `plugin-functions-core` | ✅     |
+
+### Result Types (RFC 9535 Sections 2.7-2.8)
+
+| RFC Section | Feature          | Description           | Source Plugin           | Status |
+| ----------- | ---------------- | --------------------- | ----------------------- | ------ |
+| 2.7         | Nodelist         | Query result nodes    | `plugin-result-node`    | ✅     |
+| 2.7         | Values           | Extracted values      | `plugin-result-value`   | ✅     |
+| 2.8         | Normalized paths | Canonical path format | `plugin-result-path`    | ✅     |
+| RFC 6901    | JSON Pointer     | `/a/0/b` format       | `plugin-result-pointer` | ✅     |
+
+---
+
 ## Package Changes Summary
 
 ### Packages to CREATE
@@ -68,8 +129,6 @@ Aside from optional additional plugins, consumers should not need to install any
 | `@jsonpath/plugin-result-node`         | Consolidated into `@jsonpath/plugin-rfc-9535`       |
 | `@jsonpath/plugin-result-path`         | Consolidated into `@jsonpath/plugin-rfc-9535`       |
 | `@jsonpath/plugin-result-pointer`      | Consolidated into `@jsonpath/plugin-rfc-9535`       |
-| `@jsonpath/plugin-result-parent`       | Consolidated into `@jsonpath/plugin-rfc-9535`       |
-| `@jsonpath/plugin-result-types`        | Consolidated into `@jsonpath/plugin-rfc-9535`       |
 
 ### Packages to MODIFY
 
@@ -86,11 +145,24 @@ Aside from optional additional plugins, consumers should not need to install any
 
 These remain as separate published packages:
 
-- `@jsonpath/plugin-parent-selector` - `^` parent selector
-- `@jsonpath/plugin-property-name-selector` - `~` property name selector
-- `@jsonpath/plugin-type-selectors` - Type-based selectors (`@string()`, etc.)
+- `@jsonpath/plugin-parent-selector` - `^` parent selector (stub - needs implementation)
+- `@jsonpath/plugin-property-name-selector` - `~` key/keys selector (stub - needs implementation)
+- `@jsonpath/plugin-type-selectors` - Type-based selectors (`@string()`, etc.) (stub - needs implementation)
 - `@jsonpath/plugin-script-expressions` - SES-sandboxed script evaluation
 - `@jsonpath/plugin-validate` - Validation orchestration
+- `@jsonpath/plugin-result-parent` - Parent node references in results (NOT RFC 9535)
+- `@jsonpath/plugin-result-types` - Type introspection for results (NOT RFC 9535)
+
+### Packages to CREATE (Extension Plugins - Future Work)
+
+These are NOT part of RFC 9535 but provide json-p3 feature parity:
+
+| Package                                 | Purpose                           | json-p3 Reference                    |
+| --------------------------------------- | --------------------------------- | ------------------------------------ |
+| `@jsonpath/plugin-current-key-selector` | `#` current key/index identifier  | Extra Syntax: Current key identifier |
+| `@jsonpath/plugin-functions-has`        | `has(@, pattern)` filter function | Extra Functions: `has()`             |
+
+> **Note:** These extension plugins are tracked for future work but are NOT required for the RFC 9535 entrypoint (`@jsonpath/jsonpath`). Implementation of these plugins should be a separate PR.
 
 ---
 
@@ -320,13 +392,15 @@ pnpm --filter @jsonpath/core test
 
 **Files to create:**
 
+> **Note:** `plugin-syntax-child-index` handles both array index `[n]` AND array slice `[start:end:step]` per RFC 9535 Sections 2.3.3-2.3.4.
+
 ```
 packages/jsonpath/plugin-rfc-9535/src/plugins/
 ├── syntax/
 │   ├── root.ts
 │   ├── current.ts
 │   ├── child-member.ts
-│   ├── child-index.ts
+│   ├── child-index.ts          # Handles both Index and Slice selectors
 │   ├── wildcard.ts
 │   ├── union.ts
 │   ├── descendant.ts
@@ -344,9 +418,7 @@ packages/jsonpath/plugin-rfc-9535/src/plugins/
 │   ├── value.ts
 │   ├── node.ts
 │   ├── path.ts
-│   ├── pointer.ts
-│   ├── parent.ts
-│   └── types.ts
+│   └── pointer.ts
 ├── iregexp.ts
 └── index.ts
 ```
@@ -489,10 +561,10 @@ packages/jsonpath/plugin-result-value/
 packages/jsonpath/plugin-result-node/
 packages/jsonpath/plugin-result-path/
 packages/jsonpath/plugin-result-pointer/
-packages/jsonpath/plugin-result-parent/
-packages/jsonpath/plugin-result-types/
 packages/jsonpath/complete/
 ```
+
+> **Note:** `plugin-result-parent/` and `plugin-result-types/` are NOT deleted. They remain as separate extension plugins (not RFC 9535 standard).
 
 **Files to update:**
 
