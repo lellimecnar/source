@@ -102,6 +102,12 @@ function evalFunctionCall(
 			return c.partial.test(value);
 		}
 
+		case 'value': {
+			const nodes = evalNodesExpr(call.args[0], currentNode, ctx, evaluators);
+			if (nodes.length === 1) return nodes[0].value;
+			return Nothing;
+		}
+
 		default:
 			return Nothing;
 	}

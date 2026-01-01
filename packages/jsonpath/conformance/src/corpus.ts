@@ -178,4 +178,13 @@ export const cases: ConformanceCase[] = [
 			values: ['j', 'k'],
 		},
 	},
+	{
+		name: 'rfc: value() extracts singular node value (full)',
+		profile: 'rfc9535-full',
+		documentName: 'rfc-bookstore-mini',
+		query: '$.store.book[*][?value(@.price) >= 10].title',
+		expect: {
+			values: ['Sword'],
+		},
+	},
 ];

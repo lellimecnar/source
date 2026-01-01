@@ -109,4 +109,13 @@ describe('@lellimecnar/jsonpath-conformance', () => {
 		const out = runConformanceCase(engine, testCase);
 		expect(out).toEqual(testCase.expect?.values);
 	});
+
+	it('RFC 9535 (full): value() extracts singular node values', () => {
+		const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
+		const testCase = cases.find(
+			(c) => c.name === 'rfc: value() extracts singular node value (full)',
+		)!;
+		const out = runConformanceCase(engine, testCase);
+		expect(out).toEqual(testCase.expect?.values);
+	});
 });

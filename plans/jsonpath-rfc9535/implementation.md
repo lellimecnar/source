@@ -892,7 +892,7 @@ completes: PR-D step 4 of 5 for jsonpath-rfc9535
 
 #### Step 5: C25 — Implement `value()`
 
-- [ ] Implement `value(NodesType) -> ValueType` (empty/multi-node => Nothing) in filter runtime.
+- [x] Implement `value(NodesType) -> ValueType` (empty/multi-node => Nothing) in filter runtime.
 - [ ] Copy and paste code below into `packages/jsonpath/plugin-syntax-filter/src/index.ts`:
 
 ```diff
@@ -925,7 +925,7 @@ completes: PR-D step 4 of 5 for jsonpath-rfc9535
 *** End Patch
 ```
 
-- [ ] Add a conformance case that uses `value()` inside a comparison.
+- [x] Add a conformance case that uses `value()` inside a comparison.
 - [ ] Copy and paste code below into `packages/jsonpath/conformance/src/corpus.ts`:
 
 ```diff
@@ -949,7 +949,7 @@ completes: PR-D step 4 of 5 for jsonpath-rfc9535
 *** End Patch
 ```
 
-- [ ] Add the conformance spec assertion.
+- [x] Add the conformance spec assertion.
 - [ ] Copy and paste code below into `packages/jsonpath/conformance/src/index.spec.ts`:
 
 ````diff
