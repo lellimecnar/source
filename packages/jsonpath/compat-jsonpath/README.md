@@ -1,21 +1,51 @@
 # @jsonpath/compat-jsonpath
 
-A drop-in compatibility adapter for the original `jsonpath` package, powered by the modern `@jsonpath` engine.
+This package is a compatibility adapter for the popular `dchester/jsonpath` library. It provides a drop-in replacement that mimics the original API, but is powered by the modern, RFC 9535 compliant `@jsonpath/core` engine.
+
+## Features
+
+- **Drop-in Replacement**: Use the same API you are familiar with from `dchester/jsonpath`.
+- **Modern Engine**: Leverages the extensible and powerful `@jsonpath/core` engine.
+- **RFC 9535 Compliant**: Benefits from the compliance of the underlying engine.
+
+## Installation
+
+```bash
+pnpm add @jsonpath/compat-jsonpath
+```
 
 ## Usage
+
+This package can be used as a direct replacement for `dchester/jsonpath`.
 
 ```typescript
 import jp from '@jsonpath/compat-jsonpath';
 
-const data = { a: { b: 1 } };
-const result = jp.query(data, '$.a.b');
-// [1]
+const data = {
+  store: {
+    book: [
+      {
+        category: 'reference',
+        author: 'Nigel Rees',
+        title: 'Sayings of the Century',
+        price": 8.95
+      },
+    ]
+  }
+};
 
-const nodes = jp.nodes(data, '$.a.b');
-// [{ path: ['$', 'a', 'b'], value: 1 }]
+// Get values
+const authors = jp.query(data, '$.store.book[*].author');
+// [ 'Nigel Rees' ]
+
+// Get paths
+const paths = jp.paths(data, '$.store.book[0].price');
+// [ [ '$', 'store', 'book', 0, 'price' ] ]
 ```
 
 ## API
+
+This package implements the following methods from the `dchester/jsonpath` API:
 
 - `query(obj, path, count)`
 - `paths(obj, path, count)`
@@ -23,9 +53,11 @@ const nodes = jp.nodes(data, '$.a.b');
 - `value(obj, path, newValue)`
 - `parent(obj, path)`
 - `apply(obj, path, fn)`
-- `parse(path)`
-- `stringify(path)`
 
-## Why use this?
+## Contributing
 
-This package provides a modern, RFC 9535 compliant engine while maintaining the API surface of the legacy `jsonpath` package. It fixes many long-standing bugs and adds support for modern JSONPath features.
+Contributions are welcome! Please see the [contributing guidelines](../../../CONTRIBUTING.md) for more information.
+
+## License
+
+[MIT](../../../LICENSE)
