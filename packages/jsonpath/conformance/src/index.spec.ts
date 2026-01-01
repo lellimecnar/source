@@ -1,121 +1,54 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 import { createRfc9535Engine } from '@jsonpath/plugin-rfc-9535';
 
-import { cases, documents, runConformanceCase } from './index';
+import type { CtsTestCase } from './cts';
+import { loadCtsSuite } from './cts';
 
-describe('@lellimecnar/jsonpath-conformance', () => {
-	it('exports a corpus with documents + cases', () => {
-		expect(documents.length).toBeGreaterThan(0);
-		expect(cases.length).toBeGreaterThan(0);
-	});
+type CtsCaseTuple = readonly [
+	name: string,
+	selector: string,
+	testCase: CtsTestCase,
+];
 
-	it('RFC 9535 (draft): root normalized path ($)', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-draft' });
-		const testCase = cases.find(
-			(c) => c.query === '$' && c.profile === 'rfc9535-draft',
-		)!;
-		const out = runConformanceCase(engine, testCase, { resultType: 'path' });
-		expect(out).toEqual(['$']);
-	});
+function groupNameFromTestName(name: string): string {
+	const head = name.split(',')[0]?.trim();
+	return head && head.length > 0 ? head : 'misc';
+}
 
-	it('RFC 9535 (core): root value ($)', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
-		const testCase = cases.find(
-			(c) => c.query === '$' && c.profile === 'rfc9535-core',
-		)!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual(testCase.expect?.values);
-	});
+function toGroupedTuples(
+	tests: CtsTestCase[],
+): Array<readonly [group: string, cases: CtsCaseTuple[]]> {
+	const groups = new Map<string, CtsCaseTuple[]>();
+	for (const t of tests) {
+		const group = groupNameFromTestName(String(t.name));
+		const list = groups.get(group) ?? [];
+		list.push([String(t.name), String(t.selector), t] as const);
+		groups.set(group, list);
+	}
+	return [...groups.entries()];
+}
 
-	it('RFC 9535 (core): child member with space', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
-		const testCase = cases.find(
-			(c) => c.name === 'rfc: child member with space',
-		)!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual([42]);
-	});
+describe('@lellimecnar/jsonpath-conformance (RFC 9535 CTS: values)', () => {
+	const { tests: ctsTests } = loadCtsSuite();
+	const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
 
-	it('RFC 9535 (core): wildcard selector', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
-		const testCase = cases.find((c) => c.name === 'rfc: wildcard selector')!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual([1, 2]);
-	});
+	describe.each(toGroupedTuples(ctsTests))('%s', (_group, cases) => {
+		test.each(cases)('%s', (_name, selector, tc) => {
+			if (tc.invalid_selector === true) {
+				expect(() => engine.compile(selector)).toThrow();
+				return;
+			}
 
-	it('RFC 9535 (core): index union', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
-		const testCase = cases.find((c) => c.name === 'rfc: index union')!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual([1, 2]);
-	});
+			const compiled = engine.compile(selector);
+			const out = engine.evaluateSync(compiled, tc.document);
 
-	it('RFC 9535 (core): descendant name', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
-		const testCase = cases.find((c) => c.name === 'rfc: descendant name')!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual(['Nigel Rees', 'Evelyn Waugh']);
-	});
+			if (Array.isArray(tc.results)) {
+				expect(tc.results).toContainEqual(out);
+				return;
+			}
 
-	it('RFC 9535 (core): rejects filter syntax', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
-		const testCase = cases.find(
-			(c) => c.name === 'rfc: reject filter in core',
-		)!;
-		try {
-			runConformanceCase(engine, testCase);
-			expect.fail('Should have thrown');
-		} catch (e: any) {
-			expect(e.message).toBe(
-				'Filter selectors are not supported in rfc9535-core',
-			);
-			expect(e.code).toBe('JSONPATH_SYNTAX_ERROR');
-		}
-	});
-
-	it('RFC 9535 (full): length() works in filters', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
-		const testCase = cases.find(
-			(c) => c.name === 'rfc: length() over author string (full)',
-		)!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual(testCase.expect?.values);
-	});
-
-	it('RFC 9535 (full): count() works in filters', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
-		const testCase = cases.find(
-			(c) => c.name === 'rfc: count() over wildcard expansion (full)',
-		)!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual(testCase.expect?.values);
-	});
-
-	it('RFC 9535 (full): search() finds substring matches', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
-		const testCase = cases.find(
-			(c) => c.name === 'rfc: match() vs search() (full)',
-		)!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual(testCase.expect?.values);
-	});
-
-	it('RFC 9535 (full): match() requires full-string match', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
-		const testCase = cases.find(
-			(c) => c.name === 'rfc: match() anchors the full string (full)',
-		)!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual(testCase.expect?.values);
-	});
-
-	it('RFC 9535 (full): value() extracts singular node values', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
-		const testCase = cases.find(
-			(c) => c.name === 'rfc: value() extracts singular node value (full)',
-		)!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual(testCase.expect?.values);
+			expect(out).toEqual(tc.result);
+		});
 	});
 });

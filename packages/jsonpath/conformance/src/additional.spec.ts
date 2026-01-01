@@ -1,52 +1,60 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 import { createRfc9535Engine } from '@jsonpath/plugin-rfc-9535';
 
-import { cases, documents, runConformanceCase } from './index';
+import type {
+	CtsDeterministicTestCase,
+	CtsNonDeterministicTestCase,
+	CtsTestCase,
+} from './cts';
+import { loadCtsSuite } from './cts';
 
-describe('@jsonpath/conformance (additional)', () => {
-	it('has a small built-in document corpus', () => {
-		expect(documents.length).toBeGreaterThanOrEqual(3);
-		expect(documents.map((d) => d.name)).toContain('simple');
+type CtsValidCase = CtsDeterministicTestCase | CtsNonDeterministicTestCase;
+type CtsCaseTuple = readonly [
+	name: string,
+	selector: string,
+	testCase: CtsValidCase,
+];
+
+function groupNameFromTestName(name: string): string {
+	const head = name.split(',')[0]?.trim();
+	return head && head.length > 0 ? head : 'misc';
+}
+
+function toGroupedTuples(
+	tests: CtsValidCase[],
+): Array<readonly [group: string, cases: CtsCaseTuple[]]> {
+	const groups = new Map<string, CtsCaseTuple[]>();
+	for (const t of tests) {
+		const group = groupNameFromTestName(String(t.name));
+		const list = groups.get(group) ?? [];
+		list.push([String(t.name), String(t.selector), t] as const);
+		groups.set(group, list);
+	}
+	return [...groups.entries()];
+}
+
+describe('@lellimecnar/jsonpath-conformance (RFC 9535 CTS: paths)', () => {
+	const { tests } = loadCtsSuite();
+	const ctsTests = tests.filter((t): t is CtsValidCase => {
+		const tc: CtsTestCase = t;
+		return !('invalid_selector' in tc && tc.invalid_selector === true);
 	});
+	const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
 
-	it('runConformanceCase throws for unknown documents', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
-		expect(() =>
-			runConformanceCase(engine, {
-				name: 'bad',
-				profile: 'rfc9535-core',
-				documentName: 'nope',
-				query: '$',
-			}),
-		).toThrow(/Unknown conformance document/);
-	});
+	describe.each(toGroupedTuples(ctsTests))('%s', (_group, cases) => {
+		test.each(cases)('%s', (_name, selector, tc) => {
+			const compiled = engine.compile(selector);
+			const out = engine.evaluateSync(compiled, tc.document, {
+				resultType: 'path',
+			} as any);
 
-	it('can run a basic child-member case in rfc9535-core', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
-		const testCase = cases.find((c) => c.query === "$.o['j j']")!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual([42]);
-	});
+			if (Array.isArray(tc.results_paths)) {
+				expect(tc.results_paths).toContainEqual(out);
+				return;
+			}
 
-	it('can run wildcard selector case in rfc9535-core', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
-		const testCase = cases.find((c) => c.query === '$.xs[*]')!;
-		const out = runConformanceCase(engine, testCase);
-		expect(out).toEqual([1, 2]);
-	});
-
-	it('supports resultType=path wiring for stable paths', () => {
-		const engine = createRfc9535Engine({ profile: 'rfc9535-core' });
-		const testCase = {
-			name: 'path check',
-			profile: 'rfc9535-core',
-			documentName: 'simple',
-			query: '$.a.b',
-		};
-		const out = runConformanceCase(engine, testCase as any, {
-			resultType: 'path',
+			expect(out).toEqual(tc.result_paths);
 		});
-		expect(out).toEqual(['$.a.b']);
 	});
 });

@@ -21,6 +21,7 @@
 		"build": "vite build",
 		"clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
 		"dev": "vite build --watch",
+		"install": "napa",
 		"lint": "eslint .",
 		"prepack": "pnpm run build",
 		"test": "vitest run",
@@ -54,5 +55,8 @@
 		"vite-plugin-dts": "^4.5.4",
 		"vite-tsconfig-paths": "^6.0.3",
 		"vitest": "^4.0.16"
+	},
+	"napa": {
+		"jsonpath-compliance-test-suite": "jsonpath-standard/jsonpath-compliance-test-suite#main"
 	}
 }

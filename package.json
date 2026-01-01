@@ -48,6 +48,7 @@
 		"react-dom": "^19"
 	},
 	"dependencies": {
+		"napa": "^3.0.0",
 		"web-vitals": "^5.1.0"
 	},
 	"devDependencies": {
