@@ -1,290 +1,860 @@
 # RFC 9535 Default JSONPath Package
 
 **Branch:** `jsonpath/rfc9535-default-package`
-**Description:** Introduces `@jsonpath/jsonpath` as the zero-config RFC 9535 engine entrypoint, consolidates RFC 9535 spec plugins into `@jsonpath/plugin-rfc-9535`, moves the internal compliance harness into `@jsonpath/jsonpath` (deleting the old `@lellimecnar/jsonpath-conformance` workspace), and refactors `@jsonpath/core` to expose default components + overrides.
+**Delivery:** Single PR with step-based commits (one commit per step)
+**Status:** Draft
+
+---
+
+## Overview
+
+This plan introduces `@jsonpath/jsonpath` as the zero-config RFC 9535 engine entrypoint, consolidates RFC 9535 spec plugins into `@jsonpath/plugin-rfc-9535` as internal modules (exposed via subpath exports), moves the internal compliance harness into `@jsonpath/jsonpath` (deleting the old `@lellimecnar/jsonpath-conformance` workspace), deletes `@jsonpath/complete` entirely, and refactors `@jsonpath/core` to expose a `createPlugin` helper and accept component overrides.
 
 ## Goal
 
-Provide a single, ergonomic import (`@jsonpath/jsonpath`) that yields a ready-to-use RFC 9535 JSONPath engine with `compile`, `parse`, `evaluateSync`, and `evaluateAsync` available with zero configuration, while keeping the ecosystem composable (default plugins/components remain individually exportable and fully overridable).
+Provide a single, ergonomic import (`@jsonpath/jsonpath`) that yields a ready-to-use **RFC 9535-only** JSONPath engine with `compile`, `parse`, `evaluateSync`, and `evaluateAsync` available with zero configuration, while keeping the ecosystem composable (default plugins/components remain individually exportable and fully overridable).
 
-`@jsonpath/jsonpath` is the **main entrypoint** for typical consumers: aside from optional additional plugins, consumers should not need to install any other dependencies unless they have an advanced use case requiring custom configuration of parser/AST/lexer/etc. or are creating their own plugins.
+`@jsonpath/jsonpath` is the **main entrypoint** for typical consumers. It is **strictly RFC 9535 compliant** and does NOT include extension plugins (parent selector, script expressions, type selectors, etc.). Users who need extensions must install and configure them separately.
+
+Aside from optional additional plugins, consumers should not need to install any other dependencies unless they have an advanced use case requiring custom configuration of parser/AST/lexer/etc. or are creating their own plugins.
+
+---
+
+## Key Decisions (Resolved)
+
+| Decision                   | Choice                                  | Rationale                                                                     |
+| -------------------------- | --------------------------------------- | ----------------------------------------------------------------------------- |
+| `@jsonpath/jsonpath` scope | RFC 9535-only                           | Pure standards compliance; extensions are opt-in                              |
+| `createPlugin` abstraction | Introduce in `@jsonpath/core`           | Standardizes plugin authoring pattern                                         |
+| Plugin phase declarations  | Implement now                           | Required for deterministic ordering                                           |
+| `@jsonpath/complete` fate  | Delete entirely                         | Replaced by `@jsonpath/jsonpath`                                              |
+| RFC plugin consolidation   | Internal modules with subpath exports   | Not published separately; available via `@jsonpath/plugin-rfc-9535/plugins/*` |
+| Compliance suite wiring    | Keep `postinstall` with `napa`          | Auto-fetches for all installs                                                 |
+| Delivery strategy          | Single large PR with step-based commits | Atomic delivery, easier to review as a whole                                  |
+
+---
+
+## Package Changes Summary
+
+### Packages to CREATE
+
+| Package              | Purpose                                               |
+| -------------------- | ----------------------------------------------------- |
+| `@jsonpath/jsonpath` | Zero-config RFC 9535 engine entrypoint (main library) |
+
+### Packages to DELETE
+
+| Package                                | Reason                                              |
+| -------------------------------------- | --------------------------------------------------- |
+| `@jsonpath/complete`                   | Replaced by `@jsonpath/jsonpath`                    |
+| `@lellimecnar/jsonpath-conformance`    | Moved into `@jsonpath/jsonpath` as test-only module |
+| `@jsonpath/plugin-syntax-root`         | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-syntax-current`      | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-syntax-child-member` | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-syntax-child-index`  | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-syntax-wildcard`     | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-syntax-union`        | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-syntax-descendant`   | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-syntax-filter`       | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-filter-literals`     | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-filter-boolean`      | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-filter-comparison`   | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-filter-existence`    | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-filter-functions`    | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-filter-regex`        | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-iregexp`             | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-functions-core`      | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-result-value`        | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-result-node`         | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-result-path`         | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-result-pointer`      | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-result-parent`       | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+| `@jsonpath/plugin-result-types`        | Consolidated into `@jsonpath/plugin-rfc-9535`       |
+
+### Packages to MODIFY
+
+| Package                          | Changes                                                                       |
+| -------------------------------- | ----------------------------------------------------------------------------- |
+| `@jsonpath/core`                 | Add `createPlugin` helper, phase system, component overrides, subpath exports |
+| `@jsonpath/plugin-rfc-9535`      | Consolidate all RFC plugins as internal modules, add subpath exports          |
+| `@jsonpath/cli`                  | Update imports to use `@jsonpath/jsonpath`                                    |
+| `@jsonpath/compat-jsonpath`      | Update imports                                                                |
+| `@jsonpath/compat-jsonpath-plus` | Update imports                                                                |
+| `@jsonpath/compat-harness`       | Update imports                                                                |
+
+### Packages UNCHANGED (Extension Plugins)
+
+These remain as separate published packages:
+
+- `@jsonpath/plugin-parent-selector` - `^` parent selector
+- `@jsonpath/plugin-property-name-selector` - `~` property name selector
+- `@jsonpath/plugin-type-selectors` - Type-based selectors (`@string()`, etc.)
+- `@jsonpath/plugin-script-expressions` - SES-sandboxed script evaluation
+- `@jsonpath/plugin-validate` - Validation orchestration
+
+---
 
 ## Implementation Steps
 
 ### Step 1: Audit current engine + plugin wiring
 
-**Files:**
+**Commit message:** `chore(jsonpath): audit current engine and plugin architecture`
+
+**Files to analyze:**
 
 - `packages/jsonpath/core/src/createEngine.ts`
 - `packages/jsonpath/core/src/index.ts`
+- `packages/jsonpath/core/src/plugins/types.ts`
+- `packages/jsonpath/core/src/plugins/resolve.ts`
+- `packages/jsonpath/core/src/runtime/hooks.ts`
 - `packages/jsonpath/plugin-rfc-9535/src/index.ts`
 - `packages/jsonpath/conformance/src/{corpus.ts,harness.ts,index.ts}`
 - `packages/jsonpath/complete/src/index.ts`
 - `packages/jsonpath/cli/src/run.ts`
-- Workspace-wide grep: `@jsonpath/plugin-syntax-*`, `@jsonpath/plugin-filter-*`, `@jsonpath/plugin-result-*`, `createRfc9535Engine`, `rfc9535Plugins`
 
 **What:**
 
-- Document the exact “default” engine surface today (core provides an engine factory; RFC preset is currently implemented as a bundle over many plugin packages; the internal compliance harness currently lives under the `@lellimecnar/jsonpath-conformance` workspace).
-- Identify all import sites that will be affected when RFC plugins are consolidated and when a new top-level `@jsonpath/jsonpath` entrypoint is introduced.
+- Document the exact "default" engine surface today:
+  - Core provides `createEngine({ plugins, options })` factory
+  - RFC preset is implemented as `rfc9535Plugins` array + `createRfc9535Engine()` in `@jsonpath/plugin-rfc-9535`
+  - Compliance harness lives under `@lellimecnar/jsonpath-conformance` (private)
+  - `@jsonpath/complete` bundles RFC + extension plugins (to be deleted)
+- Identify all import sites affected by:
+  - Consolidating RFC plugins into `@jsonpath/plugin-rfc-9535`
+  - Introducing `@jsonpath/jsonpath` entrypoint
+  - Deleting `@jsonpath/complete`
+- Map current hook registration patterns:
+  - `ctx.engine.scanner` - Token rules via `scanner.register()`
+  - `ctx.engine.parser.registerSegmentParser()` - Parsing
+  - `ctx.engine.evaluators.registerSelector(kind, fn)` - Evaluation keyed by `selector.kind`
+  - `ctx.engine.results` - Result mappers
+  - `ctx.engine.lifecycle` - Token/AST transforms, evaluate middleware, error enrichers
 
-**Open questions to resolve during this audit (decision drivers):**
+**Deliverable:**
 
-- Determine the concrete plugin object shape and hook surface based on the needs of the existing `@jsonpath/*` plugin packages in this monorepo.
-- Confirm which hooks must be supported per phase and whether plugins commonly register hooks in multiple phases (this plan assumes they can).
+Create `plans/jsonpath/audit-notes.md` with:
 
-**Testing:**
+- [ ] Current plugin inventory (plugin IDs, capabilities, dependencies)
+- [ ] Hook registration patterns used by each plugin category
+- [ ] Import dependency graph for RFC plugins
+- [ ] List of packages that import `@jsonpath/complete` or individual RFC plugins
+- [ ] Mapping of existing plugins to proposed phases (`syntax`, `filter`, `runtime`, `result`)
 
-- No behavioral changes. Verify only that analysis is complete (a short checklist in the PR description or an internal note).
+**Acceptance criteria:**
 
-### Step 2: Refactor `@jsonpath/core` to expose default components + accept overrides
+- Audit document exists and is complete
+- No code changes in this step
 
-**Files:**
+---
 
+### Step 2: Introduce `createPlugin` helper and phase system in `@jsonpath/core`
+
+**Commit message:** `feat(core): add createPlugin helper and plugin phase system`
+
+**Files to create:**
+
+- `packages/jsonpath/core/src/plugins/createPlugin.ts`
+- `packages/jsonpath/core/src/plugins/phases.ts`
+
+**Files to modify:**
+
+- `packages/jsonpath/core/src/plugins/types.ts`
+- `packages/jsonpath/core/src/plugins/resolve.ts`
 - `packages/jsonpath/core/src/createEngine.ts`
 - `packages/jsonpath/core/src/index.ts`
 - `packages/jsonpath/core/package.json`
-- (If needed) `packages/jsonpath/core/src/engine.ts` and any types referenced
 
 **What:**
 
-- Introduce a `CreateEngineOptions` shape that supports:
-  - `plugins`: required (core remains plugin-first)
-  - `components` (new): optional overrides for component-level dependencies such as `ast`, `lexer`, `parser`, plus any other engine primitives/registries to maximize composability.
-- Make `@jsonpath/core` continue to _use_ the default component packages (`@jsonpath/ast`, `@jsonpath/lexer`, `@jsonpath/parser`) when overrides are not provided.
-- Keep `@jsonpath/core` as the single owner of plugin lifecycle management (decision):
-  - Core is responsible for resolving plugins (including order-independence + constraints), deduping, and registering hooks into the engine.
-  - Preset/plugin packages (like `@jsonpath/plugin-rfc-9535`) only _provide_ plugin factories and convenience lists; they do not implement resolution logic.
-- Plugin authoring API (decision):
-  - `createPlugin` is provided by `@jsonpath/core` and returns a **plugin factory function**.
-  - The returned factory accepts per-plugin options and produces the final plugin object consumed by `createEngine`.
-  - Example:
-    - `const myPlugin = createPlugin((opts) => { /* ... */ })`
-    - `createEngine({ plugins: [myPlugin({ /* opts */ })] })`
-- Export component modules from core **via subpath exports** (decision: do not pollute namespaces):
-  - Add `exports` entries in `packages/jsonpath/core/package.json` for:
-    - `@jsonpath/core/ast`
-    - `@jsonpath/core/lexer`
-    - `@jsonpath/core/parser`
-  - Implement each subpath as a tiny re-export module in core (e.g. `src/ast.ts` re-exporting `@jsonpath/ast`).
-- Ensure `createEngine` remains deterministic with respect to plugin resolution ordering and continues to support `compile`, `parse`, `evaluateSync`, `evaluateAsync`.
+#### 2.1 Define phase enum and types
 
-**Warnings and logging (decision):**
+```typescript
+// packages/jsonpath/core/src/plugins/phases.ts
+export const PluginPhases = {
+	syntax: 'syntax', // Parse-time syntax/grammar registration and AST construction
+	filter: 'filter', // Filter-expression operators, literals, functions, evaluation
+	runtime: 'runtime', // Core evaluation semantics for selectors/segments
+	result: 'result', // Result shaping/mapping
+} as const;
 
-- Plugins should be able to hook into warning/error events.
-- Core should log by default.
-- Provide a `verbosity` option to control which log levels are emitted (e.g. show/silence warnings/errors) and to redirect logging.
+export type PluginPhase = (typeof PluginPhases)[keyof typeof PluginPhases];
+
+// Deterministic execution order
+export const PhaseOrder: readonly PluginPhase[] = [
+	'syntax',
+	'filter',
+	'runtime',
+	'result',
+];
+```
+
+#### 2.2 Extend plugin meta types
+
+```typescript
+// packages/jsonpath/core/src/plugins/types.ts (additions)
+export interface JsonPathPluginMeta {
+	id: JsonPathPluginId;
+	capabilities?: readonly JsonPathCapability[];
+	dependsOn?: readonly JsonPathPluginId[];
+	optionalDependsOn?: readonly JsonPathPluginId[];
+	peerDependencies?: readonly string[];
+	// NEW: Phase declarations
+	phases: readonly PluginPhase[]; // Required: at least one phase
+	allowMultiple?: boolean; // Default: false
+	// NEW: Ordering constraints (optional)
+	order?: {
+		first?: boolean; // Run first in its phase
+		last?: boolean; // Run last in its phase
+		before?: readonly JsonPathPluginId[]; // Run before these plugins
+		after?: readonly JsonPathPluginId[]; // Run after these plugins
+	};
+}
+```
+
+#### 2.3 Implement `createPlugin` helper
+
+```typescript
+// packages/jsonpath/core/src/plugins/createPlugin.ts
+export interface PluginDefinition<Config = unknown> {
+	meta: Omit<JsonPathPluginMeta, 'id'> & { id?: JsonPathPluginId };
+	setup: (ctx: PluginSetupContext<Config>) => void;
+}
+
+export function createPlugin<Config = unknown>(
+	definition:
+		| PluginDefinition<Config>
+		| ((config: Config) => PluginDefinition<Config>),
+): JsonPathPlugin<Config> | ((config?: Config) => JsonPathPlugin<Config>) {
+	// If definition is a function, return a factory
+	if (typeof definition === 'function') {
+		return (config?: Config) => {
+			const resolved = definition(config as Config);
+			return {
+				meta: resolved.meta as JsonPathPluginMeta,
+				setup: resolved.setup,
+			};
+		};
+	}
+	// Otherwise return the plugin directly
+	return {
+		meta: definition.meta as JsonPathPluginMeta,
+		setup: definition.setup,
+	};
+}
+```
+
+#### 2.4 Update resolver for phase-based ordering
+
+- Modify `resolvePlugins()` to:
+  - Group plugins by declared phase
+  - Apply ordering constraints within each phase
+  - Produce deterministic execution order: `syntax` → `filter` → `runtime` → `result`
+  - Handle duplicate detection (`allowMultiple: false` → warn + last wins)
+  - Handle unsatisfiable constraints (warn + fallback to stable `id` ordering)
+
+#### 2.5 Add component overrides to `CreateEngineOptions`
+
+```typescript
+// packages/jsonpath/core/src/createEngine.ts
+export interface CreateEngineOptions {
+	plugins: readonly JsonPathPlugin<any>[];
+	components?: {
+		scanner?: Scanner;
+		parser?: JsonPathParser;
+		evaluators?: EvaluatorRegistry;
+		results?: ResultRegistry;
+		lifecycle?: EngineLifecycleHooks;
+	};
+	options?: {
+		maxDepth?: number;
+		maxResults?: number;
+		verbosity?: 'silent' | 'warn' | 'error' | 'debug';
+		plugins?: Record<string, unknown>;
+	};
+}
+```
+
+#### 2.6 Add subpath exports for components
+
+Update `packages/jsonpath/core/package.json`:
+
+```json
+{
+	"exports": {
+		".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+		"./ast": { "types": "./dist/ast.d.ts", "default": "./dist/ast.js" },
+		"./lexer": { "types": "./dist/lexer.d.ts", "default": "./dist/lexer.js" },
+		"./parser": { "types": "./dist/parser.d.ts", "default": "./dist/parser.js" }
+	}
+}
+```
+
+Create re-export modules:
+
+- `packages/jsonpath/core/src/ast.ts` → re-exports `@jsonpath/ast`
+- `packages/jsonpath/core/src/lexer.ts` → re-exports `@jsonpath/lexer`
+- `packages/jsonpath/core/src/parser.ts` → re-exports `@jsonpath/parser`
+
+**Acceptance criteria:**
+
+- [ ] `createPlugin` is exported from `@jsonpath/core`
+- [ ] `PluginPhases` and `PhaseOrder` are exported
+- [ ] `JsonPathPluginMeta` includes `phases`, `allowMultiple`, and `order` fields
+- [ ] `resolvePlugins()` orders plugins by phase then by constraints
+- [ ] `createEngine()` accepts `components` overrides
+- [ ] Subpath exports work: `import { ... } from '@jsonpath/core/ast'`
+- [ ] All existing `@jsonpath/core` tests pass
+- [ ] New tests cover phase ordering and constraint resolution
 
 **Testing:**
 
-- Run the existing `@jsonpath/core` unit tests (`pnpm --filter @jsonpath/core test`).
-- Add/adjust a minimal test ensuring `createEngine({ plugins, components: { … } })` routes through overrides (does not need full compliance).
+```bash
+pnpm --filter @jsonpath/core test
+```
 
-### Step 3: Consolidate RFC 9535 “official spec plugins” into `@jsonpath/plugin-rfc-9535`
+---
 
-**Files:**
+### Step 3: Consolidate RFC 9535 plugins into `@jsonpath/plugin-rfc-9535`
+
+**Commit message:** `feat(plugin-rfc-9535): consolidate all RFC plugins as internal modules`
+
+**Files to create:**
+
+```
+packages/jsonpath/plugin-rfc-9535/src/plugins/
+├── syntax/
+│   ├── root.ts
+│   ├── current.ts
+│   ├── child-member.ts
+│   ├── child-index.ts
+│   ├── wildcard.ts
+│   ├── union.ts
+│   ├── descendant.ts
+│   └── filter.ts
+├── filter/
+│   ├── literals.ts
+│   ├── boolean.ts
+│   ├── comparison.ts
+│   ├── existence.ts
+│   ├── functions.ts
+│   └── regex.ts
+├── functions/
+│   └── core.ts
+├── result/
+│   ├── value.ts
+│   ├── node.ts
+│   ├── path.ts
+│   ├── pointer.ts
+│   ├── parent.ts
+│   └── types.ts
+├── iregexp.ts
+└── index.ts
+```
+
+**Files to modify:**
 
 - `packages/jsonpath/plugin-rfc-9535/package.json`
 - `packages/jsonpath/plugin-rfc-9535/src/index.ts`
-- New internal modules under `packages/jsonpath/plugin-rfc-9535/src/plugins/**`
-- Delete/migrate source from (current packages):
-  - Syntax: `packages/jsonpath/plugin-syntax-root`, `plugin-syntax-current`, `plugin-syntax-child-member`, `plugin-syntax-child-index`, `plugin-syntax-wildcard`, `plugin-syntax-union`, `plugin-syntax-descendant`, `plugin-syntax-filter`
-  - Filters / expressions: `plugin-filter-literals`, `plugin-filter-boolean`, `plugin-filter-comparison`, `plugin-filter-existence`, `plugin-filter-functions`, `plugin-filter-regex`, `plugin-iregexp`, `plugin-functions-core`
-  - Results: `plugin-result-value`, `plugin-result-node`, `plugin-result-path`, `plugin-result-pointer`, `plugin-result-parent`, `plugin-result-types`
 
 **What:**
 
-- Move the implementation of all RFC 9535 “official” plugins into `@jsonpath/plugin-rfc-9535` as internal modules.
-- Preserve _individual composability_ by exporting each plugin factory from `@jsonpath/plugin-rfc-9535` (decision: these are plugin-specific factories produced using `@jsonpath/core`'s `createPlugin`, e.g. `createSyntaxRootPlugin(options)` → plugin).
-- Keep the “bundle convenience” behavior while enforcing order-independence (decision):
-  - `rfc9535Plugins`: exported array of all official plugins. The array order must not encode semantics.
-  - Evolve the plugin contract so that **plugins declare which phase(s) they hook into**, plus **optional ordering constraints** (decision: plugins are produced by the factories returned from `@jsonpath/core`'s `createPlugin`):
-    - Plugin identity (decision):
-      - Each plugin must declare a globally-unique, stable `id` string.
-      - Each plugin must declare whether it can be used more than once in a single engine (e.g. `allowMultiple: boolean`).
-      - If `allowMultiple` is `false` and duplicates are provided:
-        - Emit a warning.
-        - The last instance wins (takes precedence) within that engine (deterministic rule: “last” means last in the caller-provided plugin array for that engine).
-    - Phases (required): each plugin declares one or more phases it participates in.
-    - Proposed phase enum (decision):
-      - `syntax`: parse-time syntax/grammar registration and AST construction.
-      - `filter`: filter-expression operators, literals, functions, and evaluation semantics.
-      - `runtime`: core evaluation semantics for selectors/segments (walking documents, node selection).
-      - `result`: result shaping/mapping (values vs nodes vs paths vs pointers vs types/parent).
-    - Deterministic phase ordering (decision): `syntax` → `filter` → `runtime` → `result`.
-    - Ordering (optional): a plugin may declare constraints such as:
-      - `first` / `last` within its phase
-      - `before: [...]` / `after: [...]` relative to other plugin IDs within its phase
-  - Resolver behavior (decision):
-    - The resolver lives in `@jsonpath/core` and produces a deterministic **execution order**.
-    - Consumer-provided plugin array order must not encode semantics; the resolver produces the configured execution order (via phases + constraints).
-    - Hooks are executed in the resolver-configured execution order.
-    - A plugin may register hooks in multiple phases; each phase’s hooks are executed in the configured order for that phase.
-    - Constraints are validated and satisfied where they exist.
-    - If a plugin references a constraint target that is not present:
-      - Emit a warning.
-      - Ignore the constraint otherwise (no auto-inclusion).
-    - If constraints are unsatisfiable (cycle, conflicting `first`/`last`, etc.):
-      - Emit a warning.
-      - Fall back deterministically (decision): drop only the constraints that cannot be satisfied and order the remaining plugins in that phase by stable key (e.g. `id`), then proceed.
-    - Warnings/verbosity (decision):
-      - Provide a warning handler option (or verbosity option) so warnings can be silenced or redirected.
-  - `plugin` (the preset plugin): remains a convenience meta-plugin that depends on all official plugins.
-- Ensure any per-engine mutable state stays per-engine (follow the existing pattern of `createSyntaxRootPlugin()` where applicable).
+#### 3.1 Migrate plugin source code
+
+For each RFC plugin package:
+
+1. Copy `src/` contents into appropriate subdirectory under `plugin-rfc-9535/src/plugins/`
+2. Update imports to use relative paths or `@jsonpath/core`
+3. Convert to use `createPlugin` helper from `@jsonpath/core`
+4. Add phase declarations to each plugin meta
+
+Example migration for `plugin-syntax-root`:
+
+```typescript
+// packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/root.ts
+import { createPlugin, PluginPhases } from '@jsonpath/core';
+
+export const createSyntaxRootPlugin = createPlugin<{
+	profile?: Profile;
+	strict?: boolean;
+}>((config) => ({
+	meta: {
+		id: '@jsonpath/plugin-rfc-9535/syntax-root',
+		phases: [PluginPhases.syntax],
+		capabilities: ['syntax:rfc9535:root'],
+	},
+	setup: ({ engine }) => {
+		// ... existing setup logic
+	},
+}));
+```
+
+#### 3.2 Update package.json with subpath exports
+
+```json
+{
+	"exports": {
+		".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+		"./plugins/syntax/root": {
+			"types": "./dist/plugins/syntax/root.d.ts",
+			"default": "./dist/plugins/syntax/root.js"
+		},
+		"./plugins/syntax/current": { "...": "..." }
+		// ... all other plugin subpaths
+	}
+}
+```
+
+#### 3.3 Update main index.ts
+
+```typescript
+// packages/jsonpath/plugin-rfc-9535/src/index.ts
+import { createPlugin, PluginPhases } from '@jsonpath/core';
+
+// Re-export individual plugin factories
+export { createSyntaxRootPlugin } from './plugins/syntax/root';
+export { createSyntaxCurrentPlugin } from './plugins/syntax/current';
+// ... all other exports
+
+// Bundle array (order does NOT encode semantics)
+export const rfc9535Plugins = [
+	createSyntaxRootPlugin(),
+	createSyntaxCurrentPlugin(),
+	// ... all plugins
+] as const;
+
+// Convenience engine factory
+export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
+	return createEngine({
+		plugins: rfc9535Plugins,
+		options: {
+			/* ... */
+		},
+	});
+}
+
+// Preset meta-plugin
+export const plugin = createPlugin({
+	meta: {
+		id: '@jsonpath/plugin-rfc-9535',
+		phases: [], // Meta-plugin has no phases
+		capabilities: ['preset:rfc9535'],
+		dependsOn: rfc9535Plugins.map((p) => p.meta.id),
+	},
+	setup: () => undefined,
+});
+```
+
+**Acceptance criteria:**
+
+- [ ] All RFC plugin source code lives under `plugin-rfc-9535/src/plugins/`
+- [ ] Each plugin uses `createPlugin` helper
+- [ ] Each plugin declares appropriate phase(s)
+- [ ] Subpath exports work: `import { createSyntaxRootPlugin } from '@jsonpath/plugin-rfc-9535/plugins/syntax/root'`
+- [ ] `rfc9535Plugins` array is exported and non-empty
+- [ ] All existing `@jsonpath/plugin-rfc-9535` tests pass
+- [ ] New smoke tests verify plugin meta stability
 
 **Testing:**
 
-- Run `pnpm --filter @jsonpath/plugin-rfc-9535 test`.
-- Add a smoke test verifying that importing the individual plugins from `@jsonpath/plugin-rfc-9535` yields stable plugin metas and that `rfc9535Plugins` is non-empty.
+```bash
+pnpm --filter @jsonpath/plugin-rfc-9535 test
+```
 
-### Step 4: Delete the old RFC plugin packages (workspace cleanup)
+---
 
-**Files:**
+### Step 4: Delete old RFC plugin packages (workspace cleanup)
 
-- Delete directories listed in Step 3 (the old `packages/jsonpath/plugin-*` workspaces that were consolidated)
-- Root/workspace config files as needed:
-  - `pnpm-workspace.yaml` (if it enumerates plugin folders explicitly)
-  - Root `package.json` (if scripts/reference lists exist)
-  - Any Turbo filters/docs referencing removed package names
+**Commit message:** `chore(jsonpath): delete consolidated RFC plugin packages`
+
+**Directories to delete:**
+
+```
+packages/jsonpath/plugin-syntax-root/
+packages/jsonpath/plugin-syntax-current/
+packages/jsonpath/plugin-syntax-child-member/
+packages/jsonpath/plugin-syntax-child-index/
+packages/jsonpath/plugin-syntax-wildcard/
+packages/jsonpath/plugin-syntax-union/
+packages/jsonpath/plugin-syntax-descendant/
+packages/jsonpath/plugin-syntax-filter/
+packages/jsonpath/plugin-filter-literals/
+packages/jsonpath/plugin-filter-boolean/
+packages/jsonpath/plugin-filter-comparison/
+packages/jsonpath/plugin-filter-existence/
+packages/jsonpath/plugin-filter-functions/
+packages/jsonpath/plugin-filter-regex/
+packages/jsonpath/plugin-iregexp/
+packages/jsonpath/plugin-functions-core/
+packages/jsonpath/plugin-result-value/
+packages/jsonpath/plugin-result-node/
+packages/jsonpath/plugin-result-path/
+packages/jsonpath/plugin-result-pointer/
+packages/jsonpath/plugin-result-parent/
+packages/jsonpath/plugin-result-types/
+packages/jsonpath/complete/
+```
+
+**Files to update:**
+
+- `pnpm-workspace.yaml` (if it enumerates packages explicitly)
+- Any Turbo filters referencing deleted packages
+- Any root-level scripts referencing deleted packages
 
 **What:**
 
-- Remove obsolete workspaces now that RFC plugins live in `@jsonpath/plugin-rfc-9535`.
-- Ensure remaining packages do not depend on removed workspace names.
-- Scope decision: delete RFC “official spec” plugin packages outright. Only non-spec/extension plugin packages remain as separate workspaces.
+- Remove all consolidated plugin directories
+- Remove `@jsonpath/complete` (replaced by `@jsonpath/jsonpath`)
+- Ensure workspace resolves cleanly
+
+**Acceptance criteria:**
+
+- [ ] All listed directories are deleted
+- [ ] `pnpm install` succeeds
+- [ ] `pnpm -w -r build --filter @jsonpath/*` succeeds
+- [ ] No remaining references to deleted package names in workspace
 
 **Testing:**
 
-- `pnpm -w -r build --filter @jsonpath/*` (or equivalent) to ensure the workspace graph resolves.
+```bash
+pnpm install
+pnpm -w -r build --filter @jsonpath/*
+```
+
+---
 
 ### Step 5: Introduce `@jsonpath/jsonpath` (zero-config engine entrypoint)
 
-**Files:**
+**Commit message:** `feat(jsonpath): add @jsonpath/jsonpath as main entrypoint`
 
-- New package: `packages/jsonpath/jsonpath/package.json`
-- New entrypoint: `packages/jsonpath/jsonpath/src/index.ts`
-- New tests: `packages/jsonpath/jsonpath/src/index.spec.ts` (or equivalent)
-- Build config: `packages/jsonpath/jsonpath/vite.config.ts`, `tsconfig.json`, `vitest.config.ts` (match existing jsonpath package conventions)
+**Files to create:**
 
-**What:**
-
-- Create a new public package `@jsonpath/jsonpath` that exports:
-  - A pre-configured engine instance that can be used immediately with `compile`, `parse`, `evaluateSync`, `evaluateAsync`.
-  - `createEngine` (from `@jsonpath/jsonpath`) that creates _new_ engines when configuration beyond defaults is needed:
-    - Applies RFC 9535 defaults automatically.
-    - If the caller passes additional plugins, they are _appended_ to the default RFC plugin list (they do not replace defaults).
-    - Accepts **fully overridable** components (delegating to the new `@jsonpath/core` overrides).
-    - Accepts an options object where all keys are optional.
-- Export shape (decision):
-  - Provide **both** a named export and a default export for the preconfigured engine:
-    - `export const engine = …`
-    - `export default engine`
-- Default engine configuration strategy (decision):
-  - The default exported engine does **not** accept configuration.
-  - Per-call options are accepted only on the engine methods themselves (and can all share the same singleton default engine).
-  - If a caller needs configuration beyond the defaults (plugins/components/engine wiring), they must create a new engine via `createEngine(...)`.
-- Default engine creation strategy (decision):
-  - The default engine is created **lazily** (module-scope memoization) the first time any method is called.
-- Add **justified convenience helpers** (decision):
-  - Provide helpers that remove multi-step/boilerplate usage for common cases, while keeping the engine surface the primary API.
-  - Candidate helpers:
-    - `evaluateSync(expression, json, options?)` (internally compiles then evaluates)
-    - `evaluateAsync(expression, json, options?)`
-  - Defaults (decision):
-    - The default behaviors of `@jsonpath/jsonpath` must be 100% RFC 9535 compliant.
-    - Where an API choice requires a default (e.g. result shaping), use the RFC 9535-defined default semantics for the chosen public surface.
-  - Document each helper’s purpose (why it exists) and keep argument shapes minimal.
-- Ensure no configuration is required for the default engine (all required plugins/components are wired by default).
-- Re-export surface (decision):
-  - Re-export only the commonly needed public API/types so consumers who want “the defaults” only need `@jsonpath/jsonpath`.
-  - Include RFC defaults (`rfc9535Plugins`, preset `plugin`, and individual RFC plugin exports).
-  - Include a curated subset of `@jsonpath/core` types/errors (and any other commonly used exports), rather than a blanket re-export of everything.
-
-**Primary entrypoint + dependency posture (decision):**
-
-- Treat `@jsonpath/jsonpath` as the main library entrypoint.
-- A typical consumer should only need to install `@jsonpath/jsonpath` (plus any optional extra plugins they choose to add).
-- Installing lower-level packages (e.g. `@jsonpath/core`, `@jsonpath/ast`, `@jsonpath/lexer`, `@jsonpath/parser`) should be reserved for advanced/custom component override scenarios.
-
-**Testing:**
-
-- Add a smoke test that:
-  - Imports the engine from `@jsonpath/jsonpath` and runs `compile`, `parse`, `evaluateSync`, `evaluateAsync` on a trivial document.
-  - Verifies `createEngine({ plugins: [extra] })` results in RFC plugins + extra plugin being present (can be asserted via behavior or plugin registry metadata if exposed).
-
-### Step 6: Move internal compliance apparatus into `@jsonpath/jsonpath` and delete old conformance workspace
-
-**Files:**
-
-- New location under `packages/jsonpath/jsonpath/src/compliance/**` (or `packages/jsonpath/jsonpath/src/testing/**`)
-  - Migrate: `packages/jsonpath/conformance/src/{corpus.ts,harness.ts,index.ts,cts.ts}`
-- Delete: `packages/jsonpath/conformance/**`
-- Update any references:
-  - `packages/jsonpath/compat-harness/**` (imports `@lellimecnar/jsonpath-conformance` today)
-  - Any scripts/docs referencing the conformance package name
+```
+packages/jsonpath/jsonpath/
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── vitest.config.ts
+└── src/
+    ├── index.ts
+    └── index.spec.ts
+```
 
 **What:**
 
-- Move the corpus + harness APIs into `@jsonpath/jsonpath` for internal RFC 9535 compliance testing.
-- Export strategy (decision):
-  - The compliance helpers are **TEST ONLY**.
-  - They must not be bundled, exported, or exposed in any way outside of running tests.
-  - They should live under a test-only path within the package (e.g. `src/__tests__/...`) and be referenced only by tests.
-- External compliance suite fetch (decision):
-  - Keep using `napa` to fetch `jsonpath-standard/jsonpath-compliance-test-suite`.
-  - Configure `napa` in `packages/jsonpath/jsonpath/package.json`.
-  - Fetch as part of repo testing/dev only (decision): do **not** fetch via an `install` script for end-users; wire this to a test-only workflow (e.g. a dedicated script invoked by CI / local test runs).
-  - Import compliance fixtures like a normal dependency (decision: follow existing `@lellimecnar/jsonpath-conformance` pattern):
-    - Example: `import cts from 'jsonpath-compliance-test-suite/cts.json' assert { type: 'json' }` in a `cts.ts` helper.
-- Remove the original conformance workspace package entirely.
+#### 5.1 Create package.json
+
+```json
+{
+	"name": "@jsonpath/jsonpath",
+	"version": "0.0.1",
+	"description": "RFC 9535 JSONPath for JavaScript - zero configuration required",
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" }
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "vite build",
+		"test": "vitest run",
+		"postinstall": "napa"
+	},
+	"dependencies": {
+		"@jsonpath/core": "workspace:*",
+		"@jsonpath/plugin-rfc-9535": "workspace:*"
+	},
+	"napa": {
+		"jsonpath-compliance-test-suite": "jsonpath-standard/jsonpath-compliance-test-suite#main"
+	}
+}
+```
+
+#### 5.2 Create main entrypoint
+
+```typescript
+// packages/jsonpath/jsonpath/src/index.ts
+import {
+	createEngine as coreCreateEngine,
+	type JsonPathEngine,
+} from '@jsonpath/core';
+import { rfc9535Plugins, createRfc9535Engine } from '@jsonpath/plugin-rfc-9535';
+
+// Re-export commonly needed types/errors
+export { JsonPathError, JsonPathErrorCodes } from '@jsonpath/core';
+export type {
+	JsonPathEngine,
+	CompileResult,
+	EvaluateOptions,
+} from '@jsonpath/core';
+export { rfc9535Plugins } from '@jsonpath/plugin-rfc-9535';
+
+// Lazy singleton default engine
+let defaultEngine: JsonPathEngine | null = null;
+
+function getDefaultEngine(): JsonPathEngine {
+	if (!defaultEngine) {
+		defaultEngine = createRfc9535Engine();
+	}
+	return defaultEngine;
+}
+
+// Default engine export (lazy)
+export const engine: JsonPathEngine = new Proxy({} as JsonPathEngine, {
+	get(_, prop) {
+		return (getDefaultEngine() as any)[prop];
+	},
+});
+
+export default engine;
+
+// Factory for custom engines (RFC defaults + extra plugins)
+export interface CreateEngineOptions {
+	plugins?: readonly JsonPathPlugin<any>[];
+	components?: CreateEngineComponentOverrides;
+	options?: CreateEngineRuntimeOptions;
+}
+
+export function createEngine(opts?: CreateEngineOptions): JsonPathEngine {
+	const plugins = [...rfc9535Plugins, ...(opts?.plugins ?? [])];
+	return coreCreateEngine({
+		plugins,
+		components: opts?.components,
+		options: opts?.options,
+	});
+}
+
+// Convenience helpers (compile + evaluate in one call)
+export function evaluateSync(
+	expression: string,
+	json: unknown,
+	options?: EvaluateOptions,
+): unknown[] {
+	const eng = getDefaultEngine();
+	const compiled = eng.compile(expression);
+	return eng.evaluateSync(compiled, json, options);
+}
+
+export async function evaluateAsync(
+	expression: string,
+	json: unknown,
+	options?: EvaluateOptions,
+): Promise<unknown[]> {
+	const eng = getDefaultEngine();
+	const compiled = eng.compile(expression);
+	return eng.evaluateAsync(compiled, json, options);
+}
+
+// Compile and parse shortcuts
+export function compile(expression: string) {
+	return getDefaultEngine().compile(expression);
+}
+
+export function parse(expression: string) {
+	return getDefaultEngine().parse(expression);
+}
+```
+
+**Acceptance criteria:**
+
+- [ ] Package builds successfully
+- [ ] `import engine from '@jsonpath/jsonpath'` works
+- [ ] `import { evaluateSync } from '@jsonpath/jsonpath'` works
+- [ ] `createEngine({ plugins: [myPlugin] })` appends to RFC plugins
+- [ ] Default engine is RFC 9535 compliant
+- [ ] Convenience helpers work correctly
 
 **Testing:**
 
-- Add a placeholder test that verifies the compliance harness can be imported from its internal module path within the package (without exporting it as public API) and runs a minimal in-repo corpus case.
-- Do not attempt to run full compliance suite yet; only verify that wiring is in place.
+```bash
+pnpm --filter @jsonpath/jsonpath test
+```
 
-### Step 7: Update ecosystem packages to use the new entrypoint and new RFC plugin exports
+---
 
-**Files:**
+### Step 6: Move compliance apparatus into `@jsonpath/jsonpath`
+
+**Commit message:** `chore(jsonpath): move compliance harness into @jsonpath/jsonpath`
+
+**Files to create/move:**
+
+```
+packages/jsonpath/jsonpath/src/__tests__/
+├── compliance/
+│   ├── corpus.ts      # Migrated from conformance/src/corpus.ts
+│   ├── harness.ts     # Migrated from conformance/src/harness.ts
+│   ├── cts.ts         # Migrated from conformance/src/cts.ts
+│   └── index.ts
+└── compliance.spec.ts
+```
+
+**Directories to delete:**
+
+```
+packages/jsonpath/conformance/
+```
+
+**Files to update:**
+
+- `packages/jsonpath/compat-harness/src/compat.spec.ts` (update imports)
+
+**What:**
+
+- Move compliance corpus + harness into `@jsonpath/jsonpath` as **test-only modules**
+- Keep `napa` configuration in `package.json` for fetching external test suite
+- The compliance code lives under `src/__tests__/` and is NOT exported
+- Update `compat-harness` to import from the new location (or inline what it needs)
+
+**Acceptance criteria:**
+
+- [ ] `packages/jsonpath/conformance/` is deleted
+- [ ] Compliance harness lives under `@jsonpath/jsonpath/src/__tests__/compliance/`
+- [ ] Compliance code is NOT exported from the package
+- [ ] `napa` fetch still works via `postinstall`
+- [ ] Basic compliance test runs and passes
+
+**Testing:**
+
+```bash
+pnpm --filter @jsonpath/jsonpath test
+```
+
+---
+
+### Step 7: Update ecosystem packages
+
+**Commit message:** `refactor(jsonpath): update ecosystem to use @jsonpath/jsonpath`
+
+**Files to update:**
 
 - `packages/jsonpath/cli/src/run.ts`
+- `packages/jsonpath/cli/package.json`
 - `packages/jsonpath/compat-jsonpath/src/index.ts`
+- `packages/jsonpath/compat-jsonpath/package.json`
 - `packages/jsonpath/compat-jsonpath-plus/src/index.ts`
-- `packages/jsonpath/compat-harness/**`
-- Any other packages importing deleted `@jsonpath/plugin-*` workspaces
+- `packages/jsonpath/compat-jsonpath-plus/package.json`
+- `packages/jsonpath/compat-harness/src/compat.spec.ts`
+- `packages/jsonpath/compat-harness/package.json`
 
 **What:**
 
-- Remove `@jsonpath/complete` (decision: replaced by `@jsonpath/jsonpath`).
-- Migrate consumers away from:
-  - `@jsonpath/complete`.
-  - Any imports from deleted RFC plugin package names.
-- Prefer:
-  - `@jsonpath/jsonpath` for the “default engine” use case.
-  - `@jsonpath/plugin-rfc-9535` for composing plugin sets.
-- Keep changes minimal: only update imports, dependency lists, and any obviously broken glue.
-- Versioning/compatibility (decision): this is a v0 implementation, so backward compatibility and deprecation shims are out of scope.
+#### 7.1 Update CLI
+
+```typescript
+// packages/jsonpath/cli/src/run.ts
+import { createEngine } from '@jsonpath/jsonpath';
+// Previously: import { createCompleteEngine } from '@jsonpath/complete';
+
+export function runJsonPathCli(configPath: string): unknown[] {
+	const engine = createEngine();
+	// ...
+}
+```
+
+#### 7.2 Update compat packages
+
+Replace imports from:
+
+- `@jsonpath/complete` → `@jsonpath/jsonpath`
+- `@jsonpath/plugin-syntax-*` → `@jsonpath/plugin-rfc-9535/plugins/syntax/*`
+- `@jsonpath/plugin-filter-*` → `@jsonpath/plugin-rfc-9535/plugins/filter/*`
+- `@jsonpath/plugin-result-*` → `@jsonpath/plugin-rfc-9535/plugins/result/*`
+
+Update `package.json` dependencies accordingly.
+
+**Acceptance criteria:**
+
+- [ ] No references to `@jsonpath/complete` remain
+- [ ] No references to deleted plugin packages remain
+- [ ] All updated packages build successfully
+- [ ] All updated packages' tests pass
 
 **Testing:**
 
-- Build + unit test the directly touched packages (do not chase unrelated failures):
-  - `pnpm --filter @jsonpath/cli test`
-  - `pnpm --filter @jsonpath/compat-jsonpath test`
-  - `pnpm --filter @jsonpath/compat-jsonpath-plus test`
+```bash
+pnpm --filter @jsonpath/cli test
+pnpm --filter @jsonpath/compat-jsonpath test
+pnpm --filter @jsonpath/compat-jsonpath-plus test
+pnpm --filter @jsonpath/compat-harness test
+```
 
-### Step 8: Final workspace integrity pass (package graph, exports, docs touch-ups)
+---
 
-**Files:**
+### Step 8: Final workspace integrity pass
 
-- Root `package.json` / turbo config if filters need updates
-- Any jsonpath docs referencing old package names
+**Commit message:** `chore(jsonpath): finalize workspace after restructure`
+
+**Files to review/update:**
+
+- `turbo.json` (remove any filters referencing deleted packages)
+- Root `package.json` (update any jsonpath-related scripts)
+- `README.md` files in jsonpath packages
+- `specs/jsonpath.md` (update package references)
+- `docs/api/jsonpath.md` (if exists)
 
 **What:**
 
-- Ensure workspace build/test tasks can resolve all packages after deletions.
-- Update any documentation or READMEs that mention the removed RFC plugin package names or the old conformance package.
+- Verify all workspace packages build and test
+- Update documentation to reflect new package structure
+- Ensure no dangling references to deleted packages
+
+**Acceptance criteria:**
+
+- [ ] `pnpm -w -r build --filter @jsonpath/*` succeeds
+- [ ] `pnpm -w -r test --filter @jsonpath/*` succeeds
+- [ ] No references to deleted packages in docs
+- [ ] README files are updated with new import paths
 
 **Testing:**
 
-- `pnpm -w -r build --filter @jsonpath/*`.
-- Optional: `pnpm -w -r test --filter @jsonpath/*` (do not fix failures unless they are caused by these changes or are environment-only).
+```bash
+pnpm -w -r build --filter @jsonpath/*
+pnpm -w -r test --filter @jsonpath/*
+```
+
+---
+
+## Risk Mitigation
+
+| Risk                                | Mitigation                                                   |
+| ----------------------------------- | ------------------------------------------------------------ |
+| Breaking existing consumers         | v0 implementation; no backward compat required               |
+| Plugin ordering regression          | Comprehensive tests for phase ordering                       |
+| Missing imports after consolidation | Grep for all old package names before merging                |
+| Build failures                      | Incremental commits allow rollback to specific step          |
+| Test failures in compat packages    | May have pre-existing issues; document and skip if unrelated |
+
+---
+
+## Success Criteria
+
+1. **`@jsonpath/jsonpath` is the main entrypoint**
+   - Zero-config import works: `import engine from '@jsonpath/jsonpath'`
+   - Convenience helpers work: `evaluateSync('$.store.books[*].title', data)`
+
+2. **RFC 9535 plugins are consolidated**
+   - All RFC plugins live in `@jsonpath/plugin-rfc-9535`
+   - Individual plugins accessible via subpath exports
+   - Old plugin packages are deleted
+
+3. **Phase system is implemented**
+   - Plugins declare phases
+   - Ordering is deterministic per phase
+   - Constraints work correctly
+
+4. **Workspace is clean**
+   - No references to deleted packages
+   - All packages build and test
+   - Documentation is updated
+
+---
+
+## Post-Implementation Follow-up
+
+After this plan is complete, consider:
+
+1. **Publish to npm** - Publish all `@jsonpath/*` packages
+2. **Update specs** - Sync `specs/jsonpath.md` with final implementation
+3. **Migration guide** - Document migration from old imports
+4. **Performance testing** - Benchmark the consolidated plugin bundle
+5. **Compliance suite** - Run full RFC 9535 compliance tests
