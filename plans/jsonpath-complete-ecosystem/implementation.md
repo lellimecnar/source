@@ -201,12 +201,12 @@ completes: step 1 of 18 for jsonpath-complete-ecosystem
 
 This repo already has deterministic plugin ordering, conflict detection, and stable error codes in `@jsonpath/core`.
 
-- [ ] Confirm core contracts are enforced by tests.
+- [x] Confirm core contracts are enforced by tests.
 
 #### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test`
-- [ ] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
+- [x] `pnpm --filter @jsonpath/core test`
+- [x] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
 
 #### Step 2 STOP & COMMIT
 
