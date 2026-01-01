@@ -10,7 +10,7 @@ describe('@lellimecnar/jsonpath-conformance', () => {
 		expect(cases.length).toBeGreaterThan(0);
 	});
 
-	it.fails('RFC 9535 (draft): root normalized path ($)', () => {
+	it('RFC 9535 (draft): root normalized path ($)', () => {
 		const engine = createRfc9535Engine({ profile: 'rfc9535-draft' });
 		const testCase = cases.find(
 			(c) => c.query === '$' && c.profile === 'rfc9535-draft',

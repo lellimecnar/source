@@ -5,4 +5,9 @@ export const plugin: JsonPathPlugin = {
 		id: '@jsonpath/plugin-result-node',
 		capabilities: ['result:node'],
 	},
+	hooks: {
+		registerResults: (registry) => {
+			(registry as any).register('node', (nodes: any[]) => nodes);
+		},
+	},
 };

@@ -1581,6 +1581,9 @@ importers:
       '@jsonpath/core':
         specifier: workspace:^
         version: link:../core
+      '@jsonpath/pointer':
+        specifier: workspace:^
+        version: link:../pointer
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
