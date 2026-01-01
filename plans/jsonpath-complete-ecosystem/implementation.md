@@ -52,12 +52,12 @@ pnpm -w verify:exports
 
 ### Step 1: Baseline inventory + guardrails (tests + CI sanity)
 
-- [ ] Produce an “implemented vs placeholder vs missing” matrix for every `packages/jsonpath/*` workspace.
-- [ ] Add a small smoke test ensuring each `@jsonpath/*` package has a meaningful runtime export.
+- [x] Produce an “implemented vs placeholder vs missing” matrix for every `packages/jsonpath/*` workspace.
+- [x] Add a small smoke test ensuring each `@jsonpath/*` package has a meaningful runtime export.
 
 #### Step 1.1: Add an inventory script
 
-- [ ] Create `scripts/jsonpath/ecosystem-inventory.mjs`:
+- [x] Create `scripts/jsonpath/ecosystem-inventory.mjs`:
 
 ```js
 import fs from 'node:fs';
@@ -134,7 +134,7 @@ const total = rows.reduce((n, r) => n + r.placeholders, 0);
 process.stdout.write(`TOTAL placeholder-matches: ${total}\n`);
 ```
 
-- [ ] Run it:
+- [x] Run it:
 
 ```bash
 node scripts/jsonpath/ecosystem-inventory.mjs
@@ -142,7 +142,7 @@ node scripts/jsonpath/ecosystem-inventory.mjs
 
 #### Step 1.2: Add a minimal import smoke test
 
-- [ ] Copy/paste into `packages/jsonpath/conformance/src/ecosystem-smoke.spec.ts` (new file):
+- [x] Copy/paste into `packages/jsonpath/conformance/src/ecosystem-smoke.spec.ts` (new file):
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -181,8 +181,8 @@ describe('jsonpath ecosystem smoke', () => {
 
 #### Step 1 Verification Checklist
 
-- [ ] `pnpm --filter @lellimecnar/jsonpath-conformance test`
-- [ ] Smoke test passes
+- [x] `pnpm --filter @lellimecnar/jsonpath-conformance test`
+- [x] Smoke test passes
 
 #### Step 1 STOP & COMMIT
 
