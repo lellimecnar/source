@@ -1,0 +1,10 @@
+{
+	"extends": "@lellimecnar/typescript-config/react.json",
+	"compilerOptions": {
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx"
+	},
+	"include": ["src/**/*.ts", "src/**/*.tsx"],
+	"exclude": ["dist", "node_modules"]
+}

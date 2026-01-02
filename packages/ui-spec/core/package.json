@@ -1,0 +1,41 @@
+{
+	"name": "@ui-spec/core",
+	"version": "0.1.0",
+	"description": "UI-Spec core runtime: schema/types + JSONPath store + JSON Patch mutations",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "vite build",
+		"lint": "eslint .",
+		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"test:watch": "vitest",
+		"type-check": "tsgo --noEmit"
+	},
+	"dependencies": {
+		"json-p3": "2.2.2"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@lellimecnar/vite-config": "workspace:^",
+		"@lellimecnar/vitest-config": "workspace:*",
+		"@vitest/coverage-v8": "^4.0.16",
+		"eslint": "^8.57.1",
+		"typescript": "~5.5",
+		"vite": "^7.3.0",
+		"vite-plugin-dts": "^4.5.4",
+		"vite-tsconfig-paths": "^6.0.3",
+		"vitest": "^4.0.16"
+	}
+}

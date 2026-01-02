@@ -12,12 +12,12 @@ Make sure that the user is currently on the `feat/ui-spec-core-react-adapters-js
 
 #### Step 1: Scaffold `@ui-spec/*` packages (build/test/tooling)
 
-- [ ] Create the following package folders:
-  - [ ] `packages/ui-spec/core/`
-  - [ ] `packages/ui-spec/react/`
-  - [ ] `packages/ui-spec/adapter-shadcn/`
+- [x] Create the following package folders:
+  - [x] `packages/ui-spec/core/`
+  - [x] `packages/ui-spec/react/`
+  - [x] `packages/ui-spec/adapter-shadcn/`
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/package.json`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/package.json`:
 
 ```json
 {
@@ -61,7 +61,7 @@ Make sure that the user is currently on the `feat/ui-spec-core-react-adapters-js
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/tsconfig.json`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/tsconfig.json`:
 
 ```jsonc
 {
@@ -81,7 +81,7 @@ Make sure that the user is currently on the `feat/ui-spec-core-react-adapters-js
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/vite.config.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/vite.config.ts`:
 
 ```ts
 import { createRequire } from 'node:module';
@@ -130,7 +130,7 @@ export default defineConfig(
 );
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/vitest.config.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/vitest.config.ts`:
 
 ```ts
 import { defineConfig } from 'vitest/config';
@@ -140,7 +140,7 @@ import { vitestBrowserConfigHappyDom } from '@lellimecnar/vitest-config/browser'
 export default defineConfig(vitestBrowserConfigHappyDom());
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/README.md`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/README.md`:
 
 ```md
 # @ui-spec/core
@@ -153,13 +153,13 @@ Framework-agnostic core runtime for UI-Spec:
 This package intentionally does not depend on React or any component library.
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/index.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/index.ts`:
 
 ```ts
 export {};
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/package.json`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/package.json`:
 
 ```json
 {
@@ -214,7 +214,7 @@ export {};
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/tsconfig.json`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/tsconfig.json`:
 
 ```jsonc
 {
@@ -229,7 +229,7 @@ export {};
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/vite.config.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/vite.config.ts`:
 
 ```ts
 import { createRequire } from 'node:module';
@@ -278,7 +278,7 @@ export default defineConfig(
 );
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/vitest.config.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/vitest.config.ts`:
 
 ```ts
 import { defineConfig } from 'vitest/config';
@@ -288,7 +288,7 @@ import { vitestBrowserConfigHappyDom } from '@lellimecnar/vitest-config/browser'
 export default defineConfig(vitestBrowserConfigHappyDom());
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/README.md`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/README.md`:
 
 ```md
 # @ui-spec/react
@@ -302,13 +302,13 @@ React bindings for UI-Spec:
 This package is component-library-agnostic. Use adapters (e.g. `@ui-spec/adapter-shadcn`) to supply component mappings.
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/index.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/index.ts`:
 
 ```ts
 export {};
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/package.json`:
+- [x] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/package.json`:
 
 ```json
 {
@@ -364,7 +364,7 @@ export {};
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/tsconfig.json`:
+- [x] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/tsconfig.json`:
 
 ```jsonc
 {
@@ -379,7 +379,7 @@ export {};
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/vite.config.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/vite.config.ts`:
 
 ```ts
 import { createRequire } from 'node:module';
@@ -428,7 +428,7 @@ export default defineConfig(
 );
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/vitest.config.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/vitest.config.ts`:
 
 ```ts
 import { defineConfig } from 'vitest/config';
@@ -438,7 +438,7 @@ import { vitestBrowserConfigHappyDom } from '@lellimecnar/vitest-config/browser'
 export default defineConfig(vitestBrowserConfigHappyDom());
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/README.md`:
+- [x] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/README.md`:
 
 ```md
 # @ui-spec/adapter-shadcn
@@ -448,7 +448,7 @@ Optional adapter that maps UI-Spec component names to `@lellimecnar/ui/*` (shadc
 This package is intentionally small; add mappings as needed.
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/src/index.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/src/index.ts`:
 
 ```ts
 export {};
@@ -456,9 +456,9 @@ export {};
 
 ##### Step 1 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/core test`
-- [ ] `pnpm --filter @ui-spec/react test`
-- [ ] `pnpm --filter @ui-spec/adapter-shadcn test`
+- [x] `pnpm --filter @ui-spec/core test`
+- [x] `pnpm --filter @ui-spec/react test`
+- [x] `pnpm --filter @ui-spec/adapter-shadcn test`
 
 #### Step 1 STOP & COMMIT
 
