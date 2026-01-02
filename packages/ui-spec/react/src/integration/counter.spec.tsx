@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { createJsonp3FunctionRegistry, FunctionRegistry } from '@ui-spec/core';
-import { createShadcnAdapter } from '@ui-spec/adapter-shadcn';
 
 import { UISpecProvider } from '../provider';
 import { UISpecRoot } from '../render';
@@ -23,7 +22,7 @@ describe('integration: counter', () => {
 						children: [
 							{ type: 'span', children: [{ $path: '$.count' }] },
 							{
-								type: 'Button',
+								type: 'button',
 								$on: { onClick: { $call: { id: 'inc' } } },
 								children: ['+'],
 							},
@@ -31,7 +30,7 @@ describe('integration: counter', () => {
 					},
 				}}
 				functions={functions}
-				adapters={[createShadcnAdapter()]}
+				adapters={[]}
 			>
 				<UISpecRoot />
 			</UISpecProvider>,

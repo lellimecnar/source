@@ -7,9 +7,13 @@ import { useUISpecRuntime } from './context';
 function renderResolved(node: ResolvedNode<any>): ReactNode {
 	const children = node.children.map((child, idx) => {
 		if (typeof child === 'object' && child !== null && 'type' in child) {
-			return <Fragment key={idx}>{renderResolved(child)}</Fragment>;
+			return (
+				<Fragment key={idx}>
+					{renderResolved(child as ResolvedNode<any>)}
+				</Fragment>
+			);
 		}
-		return <Fragment key={idx}>{child}</Fragment>;
+		return <Fragment key={idx}>{child as ReactNode}</Fragment>;
 	});
 
 	if (node.intrinsic) {

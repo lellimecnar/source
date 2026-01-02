@@ -1,5 +1,11 @@
 # @ui-spec/adapter-shadcn
 
-Optional adapter that maps UI-Spec component names to `@lellimecnar/ui/*` (shadcn-style components).
+Optional adapter mapping UI-Spec component names to `@lellimecnar/ui/*` (shadcn components).
 
-This package is intentionally small; add mappings as needed.
+## Exports
+
+- `createShadcnAdapter()`
+
+## Notes
+
+This adapter intentionally stays small and grows incrementally.

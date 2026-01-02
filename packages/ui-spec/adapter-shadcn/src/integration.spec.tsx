@@ -54,7 +54,7 @@ describe('UI-Spec Integration', () => {
 		expect(screen.getByText('Disabled')).toBeTruthy();
 
 		const buttons = screen.getAllByRole('button');
-		fireEvent.click(buttons[1]);
+		fireEvent.click(buttons[1]!);
 
 		expect(await screen.findByText('Enabled')).toBeTruthy();
 	});

@@ -919,7 +919,7 @@ completes: step 10 of 13 for ui-spec
 
 #### Step 11: Optional adapter: `@ui-spec/adapter-shadcn` component mappings
 
-- [ ] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/src/adapter.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/src/adapter.ts`:
 
 ```ts
 import { Button } from '@lellimecnar/ui/button';
@@ -937,13 +937,13 @@ export function createShadcnAdapter(): UISpecComponentAdapter {
 }
 ```
 
-- [ ] Update `packages/ui-spec/adapter-shadcn/src/index.ts` by replacing its contents with:
+- [x] Update `packages/ui-spec/adapter-shadcn/src/index.ts` by replacing its contents with:
 
 ```ts
 export * from './adapter';
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/src/adapter.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/adapter-shadcn/src/adapter.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -961,7 +961,7 @@ describe('createShadcnAdapter', () => {
 
 ##### Step 11 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/adapter-shadcn test`
+- [x] `pnpm --filter @ui-spec/adapter-shadcn test`
 
 #### Step 11 STOP & COMMIT
 
@@ -981,9 +981,9 @@ completes: step 11 of 13 for ui-spec
 
 #### Step 12: Cross-package integration tests (core ↔ react ↔ adapter-shadcn)
 
-- [ ] Create folder `packages/ui-spec/react/src/integration/`.
+- [x] Create folder `packages/ui-spec/react/src/integration/`.
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/integration/counter.spec.tsx`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/integration/counter.spec.tsx`:
 
 ```tsx
 import { describe, expect, it } from 'vitest';
@@ -1034,7 +1034,7 @@ describe('integration: counter', () => {
 
 ##### Step 12 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/react test`
+- [x] `pnpm --filter @ui-spec/react test`
 
 #### Step 12 STOP & COMMIT
 
@@ -1054,7 +1054,7 @@ completes: step 12 of 13 for ui-spec
 
 #### Step 13: Refactor + harden: deterministic errors, edge cases, docs
 
-- [ ] Update `packages/ui-spec/core/README.md` by replacing its contents with:
+- [x] Update `packages/ui-spec/core/README.md` by replacing its contents with:
 
 ```md
 # @ui-spec/core
@@ -1074,7 +1074,7 @@ Framework-agnostic core runtime for UI-Spec.
 - No embedded function strings (no UIScript). All callable behavior is supplied via a function registry.
 ```
 
-- [ ] Update `packages/ui-spec/react/README.md` by replacing its contents with:
+- [x] Update `packages/ui-spec/react/README.md` by replacing its contents with:
 
 ```md
 # @ui-spec/react
@@ -1092,7 +1092,7 @@ React bindings for UI-Spec.
 This package does not import any UI library. Provide component mappings via adapters.
 ```
 
-- [ ] Update `packages/ui-spec/adapter-shadcn/README.md` by replacing its contents with:
+- [x] Update `packages/ui-spec/adapter-shadcn/README.md` by replacing its contents with:
 
 ```md
 # @ui-spec/adapter-shadcn
@@ -1108,19 +1108,19 @@ Optional adapter mapping UI-Spec component names to `@lellimecnar/ui/*` (shadcn 
 This adapter intentionally stays small and grows incrementally.
 ```
 
-- [ ] Leave `specs/ui-spec.md` unchanged in this PR.
+- [x] Leave `specs/ui-spec.md` unchanged in this PR.
   - Rationale: it is a large, broader design document and includes UIScript sections that are explicitly out-of-scope for this PR.
   - This PR’s behavior (“no embedded function strings”) is documented in the package READMEs above.
 
 ##### Step 13 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/core test`
-- [ ] `pnpm --filter @ui-spec/react test`
-- [ ] `pnpm --filter @ui-spec/adapter-shadcn test`
-- [ ] `pnpm --filter @ui-spec/core build`
-- [ ] `pnpm --filter @ui-spec/react build`
-- [ ] `pnpm --filter @ui-spec/adapter-shadcn build`
-- [ ] `pnpm -w type-check`
+- [x] `pnpm --filter @ui-spec/core test`
+- [x] `pnpm --filter @ui-spec/react test`
+- [x] `pnpm --filter @ui-spec/adapter-shadcn test`
+- [x] `pnpm --filter @ui-spec/core build`
+- [x] `pnpm --filter @ui-spec/react build`
+- [x] `pnpm --filter @ui-spec/adapter-shadcn build`
+- [x] `pnpm -w type-check`
 
 #### Step 13 STOP & COMMIT
 

@@ -4,7 +4,8 @@ export type UISpecErrorCode =
 	| 'UI_SPEC_PATH_NOT_UNIQUE'
 	| 'UI_SPEC_INVALID_SCHEMA'
 	| 'UI_SPEC_FUNCTION_NOT_FOUND'
-	| 'UI_SPEC_COMPONENT_NOT_FOUND';
+	| 'UI_SPEC_COMPONENT_NOT_FOUND'
+	| 'UI_SPEC_PATCH_FAILED';
 
 export class UISpecError extends Error {
 	public readonly code: UISpecErrorCode;
