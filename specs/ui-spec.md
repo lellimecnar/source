@@ -84,8 +84,10 @@ Existing solutions (RJSF, JSON Forms) solve forms well but lack:
 
 #### Decision 1: JSONPath for Data Selection
 
-**Choice**: JSONPath over custom syntax  
+**Choice**: JSONPath over custom syntax
 **Rationale**: JSONPath is a well-known standard with existing tooling, parsers, and developer familiarity. It handles complex nested data selection elegantly.
+
+**Implementation requirement**: UI-Spec MUST use the `json-p3` package to evaluate JSONPath expressions.
 
 ```json
 {
@@ -112,7 +114,7 @@ Existing solutions (RJSF, JSON Forms) solve forms well but lack:
 ```json
 {
 	"onClick": {
-		"$fn": "(ctx) => ctx.store.set('count', ctx.store.get('count') + 1)"
+		"$fn": "(ctx) => ctx.set('count', ctx.get('count') + 1)"
 	}
 }
 ```
@@ -700,7 +702,12 @@ Define reusable components in the `components` section:
 
 ### Store Architecture
 
-UI-Spec uses a reactive store based on JSONPath for data access:
+UI-Spec uses a reactive store based on JSONPath for data access.
+
+**Implementation requirement**:
+
+- JSONPath evaluation MUST be implemented via the `json-p3` package.
+- All data mutations MUST be applied using JSON Patch operations (RFC 6902).
 
 ```typescript
 interface UISpecStore {
@@ -709,6 +716,7 @@ interface UISpecStore {
 	select<T>(path: string): Observable<T>; // Reactive subscription
 
 	// Write operations
+	patch(operations: JsonPatchOperation[]): void;
 	set(path: string, value: unknown): void;
 	update(path: string, updater: (current: unknown) => unknown): void;
 	merge(path: string, partial: Record<string, unknown>): void;
@@ -916,6 +924,7 @@ Every function receives a context object:
 interface UISpecContext {
 	// Data access
 	get(path: string): unknown;
+	patch(operations: JsonPatchOperation[]): void;
 	set(path: string, value: unknown): void;
 	update(path: string, fn: (v: unknown) => unknown): void;
 
@@ -952,6 +961,11 @@ interface UISpecContext {
 	env: Record<string, string>;
 }
 ```
+
+Notes:
+
+- `set`, `update`, `merge`, `push`, and `remove` are convenience helpers that MUST be implemented by generating JSON Patch operations and applying them via `patch(...)`.
+- When a write helper takes a JSONPath, it MUST resolve to exactly one target location (otherwise it MUST throw a descriptive error).
 
 > **Note:** The `navigate`, `back`, and `route` properties are only available when `@ui-spec/router` is installed. Attempting to use them without the router will throw a descriptive error.
 
@@ -3223,16 +3237,16 @@ import { UISpecBuilder } from '@ui-spec/builder';
 
 ### Appendix A: JSONPath Quick Reference
 
-| Expression                             | Description             |
-| -------------------------------------- | ----------------------- |
-| `$.store.book[0].title`                | First book's title      |
-| `$.store.book[*].author`               | All authors             |
-| `$..author`                            | All authors (recursive) |
-| `$.store.book[?(@.price<10)]`          | Books under $10         |
-| `$.store.book[?(@.author=='Tolkien')]` | Books by Tolkien        |
-| `$.store.book[-1:]`                    | Last book               |
-| `$.store.book[0,1]`                    | First two books         |
-| `$.store.book[:2]`                     | First two books (slice) |
+| Expression                       | Description             |
+| -------------------------------- | ----------------------- |
+| `$.book[0].title`                | First book's title      |
+| `$.book[*].author`               | All authors             |
+| `$..author`                      | All authors (recursive) |
+| `$.book[?(@.price<10)]`          | Books under $10         |
+| `$.book[?(@.author=='Tolkien')]` | Books by Tolkien        |
+| `$.book[-1:]`                    | Last book               |
+| `$.book[0,1]`                    | First two books         |
+| `$.book[:2]`                     | First two books (slice) |
 
 ### Appendix B: Built-in Format Strings
 
