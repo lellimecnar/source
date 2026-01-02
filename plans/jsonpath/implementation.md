@@ -86,8 +86,6 @@ git switch -c jsonpath/rfc9535-default-package
 
 ## Step 1: Audit current engine + plugin wiring [COMPLETED]
 
-**Commit message:** `chore(jsonpath): audit current engine and plugin architecture`
-
 ### Objective
 
 Create an audit note capturing the current engine surface, plugin inventory, hook registration patterns, and import dependency graph.
@@ -135,8 +133,6 @@ and the mapping to the new RFC 9535 default package architecture.
 ---
 
 ## Step 2: Introduce `createPlugin` helper and phase system in `@jsonpath/core` [COMPLETED]
-
-**Commit message:** `feat(core): add createPlugin helper and plugin phase system`
 
 ### Files to create
 
@@ -306,8 +302,6 @@ core engine component overrides with subpath exports for core components.
 ---
 
 ## Step 3: Consolidate RFC 9535 plugins into `@jsonpath/plugin-rfc-9535`
-
-**Commit message:** `feat(plugin-rfc-9535): consolidate all RFC plugins as internal modules`
 
 ### Files to create
 
@@ -628,8 +622,6 @@ phase declarations and subpath exports.
 
 ## Step 4: Delete old RFC plugin packages (workspace cleanup)
 
-**Commit message:** `chore(jsonpath): delete consolidated RFC plugin packages`
-
 ### Directories to delete
 
 ```
@@ -722,8 +714,6 @@ RFC plugins are internalized under @jsonpath/plugin-rfc-9535.
 ---
 
 ## Step 5: Introduce `@jsonpath/jsonpath` (zero-config engine entrypoint)
-
-**Commit message:** `feat(jsonpath): add @jsonpath/jsonpath as main entrypoint`
 
 ### Files to create
 
@@ -1124,8 +1114,6 @@ entrypoint, re-exporting core types/errors and providing convenience helpers.
 
 ## Step 6: Move compliance apparatus into `@jsonpath/jsonpath`
 
-**Commit message:** `chore(jsonpath): move compliance harness into @jsonpath/jsonpath`
-
 ### Files to create/move
 
 ```
@@ -1313,8 +1301,6 @@ test-only modules and remove the old conformance workspace.
 
 ## Step 7: Update ecosystem packages
 
-**Commit message:** `refactor(jsonpath): update ecosystem to use @jsonpath/jsonpath`
-
 ### Files to update
 
 - `packages/jsonpath/cli/src/run.ts`
@@ -1500,8 +1486,6 @@ the consolidated RFC plugin subpath exports.
 ---
 
 ## Step 8: Final workspace integrity pass
-
-**Commit message:** `chore(jsonpath): finalize workspace after restructure`
 
 ### Files to review/update
 
