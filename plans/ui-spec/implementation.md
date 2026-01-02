@@ -1150,7 +1150,7 @@ completes: step 13 of 13 for ui-spec
 
 #### Step 7: Core runtime context + action execution (registry-backed, no UIScript)
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/context.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/context.ts`:
 
 ```ts
 import type { FunctionRegistry } from './function-registry';
@@ -1197,7 +1197,7 @@ export function createUISpecContext(params: {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/actions.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/actions.ts`:
 
 ```ts
 import { UISpecError } from './errors';
@@ -1241,7 +1241,7 @@ export function resolveAction(
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/context.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/context.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1268,7 +1268,7 @@ describe('UISpecContext', () => {
 });
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/actions.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/actions.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1299,7 +1299,7 @@ describe('resolveAction', () => {
 });
 ```
 
-- [ ] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
+- [x] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
 
 ```ts
 export * from './actions';
@@ -1316,7 +1316,7 @@ export * from './types';
 
 ##### Step 7 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/core test`
+- [x] `pnpm --filter @ui-spec/core test`
 
 #### Step 7 STOP & COMMIT
 
@@ -1337,7 +1337,7 @@ completes: step 7 of 13 for ui-spec
 
 #### Step 8: Node resolution: bindings (`$path`) in props/children + component resolution
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/component-registry.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/component-registry.ts`:
 
 ```ts
 import { UISpecError } from './errors';
@@ -1367,7 +1367,7 @@ export class ComponentRegistry<TComponent> {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/resolve.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/resolve.ts`:
 
 ```ts
 import type { UISpecContext } from './context';
@@ -1449,7 +1449,7 @@ export function resolveNode<TComponent>(
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/component-registry.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/component-registry.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1465,7 +1465,7 @@ describe('ComponentRegistry', () => {
 });
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/resolve.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/resolve.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1523,7 +1523,7 @@ describe('resolveNode', () => {
 });
 ```
 
-- [ ] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
+- [x] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
 
 ```ts
 export * from './actions';
@@ -1542,7 +1542,7 @@ export * from './types';
 
 ##### Step 8 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/core test`
+- [x] `pnpm --filter @ui-spec/core test`
 
 #### Step 8 STOP & COMMIT
 
@@ -1563,7 +1563,7 @@ completes: step 8 of 13 for ui-spec
 
 #### Step 4: Store v1: JSONPath reads (`get`, `select`) with exact-match semantics
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/observable.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/observable.ts`:
 
 ```ts
 export type Unsubscribe = () => void;
@@ -1594,7 +1594,7 @@ export type Observable<T> = {
 };
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/store.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/store.ts`:
 
 ```ts
 import { JSONPointer, jsonpatch } from 'json-p3';
@@ -1694,7 +1694,7 @@ export function createUISpecStore(initialDocument: unknown): UISpecStore {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/store.read.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/store.read.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1737,7 +1737,7 @@ describe('UISpecStore reads', () => {
 });
 ```
 
-- [ ] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
+- [x] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
 
 ```ts
 export * from './errors';
@@ -1751,7 +1751,7 @@ export * from './types';
 
 ##### Step 4 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/core test`
+- [x] `pnpm --filter @ui-spec/core test`
 
 #### Step 4 STOP & COMMIT
 
@@ -1772,7 +1772,7 @@ completes: step 4 of 13 for ui-spec
 
 #### Step 5: Store v1: JSON Patch engine + mutations (`patch`, `set`, `update`, `merge`, `push`, `remove`)
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/patch-helpers.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/patch-helpers.ts`:
 
 ```ts
 import { JSONPointer } from 'json-p3';
@@ -1879,7 +1879,7 @@ export function makeRemoveOps(
 }
 ```
 
-- [ ] Update `packages/ui-spec/core/src/store.ts` by replacing its contents with:
+- [x] Update `packages/ui-spec/core/src/store.ts` by replacing its contents with:
 
 ```ts
 import { JSONPointer, jsonpatch, jsonpath, type JSONValue } from 'json-p3';
@@ -2036,7 +2036,7 @@ export function createUISpecStore(initialDocument: unknown): UISpecStore {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/patch-helpers.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/patch-helpers.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -2084,7 +2084,7 @@ describe('patch helpers', () => {
 });
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/store.write.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/store.write.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -2142,7 +2142,7 @@ describe('UISpecStore writes', () => {
 });
 ```
 
-- [ ] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
+- [x] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
 
 ```ts
 export * from './errors';
@@ -2157,7 +2157,7 @@ export * from './types';
 
 ##### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/core test`
+- [x] `pnpm --filter @ui-spec/core test`
 
 #### Step 5 STOP & COMMIT
 
@@ -2178,7 +2178,7 @@ completes: step 5 of 13 for ui-spec
 
 #### Step 6: Store v1: subscription correctness + notification semantics
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/store.subscribe.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/store.subscribe.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -2229,7 +2229,7 @@ describe('UISpecStore subscriptions', () => {
 
 ##### Step 6 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/core test`
+- [x] `pnpm --filter @ui-spec/core test`
 
 #### Step 6 STOP & COMMIT
 
@@ -2250,7 +2250,7 @@ completes: step 6 of 13 for ui-spec
 
 #### Step 2: Define core public types + error model (MVP schema subset)
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/errors.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/errors.ts`:
 
 ```ts
 export type UISpecErrorCode =
@@ -2287,7 +2287,7 @@ export class UISpecError extends Error {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/types.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/types.ts`:
 
 ```ts
 export type JsonPath = string;
@@ -2334,7 +2334,7 @@ export function isCallBinding(value: unknown): value is CallBinding {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/schema.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/schema.ts`:
 
 ```ts
 export type {
@@ -2346,7 +2346,7 @@ export type {
 } from './types';
 ```
 
-- [ ] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
+- [x] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
 
 ```ts
 export * from './errors';
@@ -2354,7 +2354,7 @@ export * from './schema';
 export * from './types';
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/errors.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/errors.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -2377,7 +2377,7 @@ describe('UISpecError', () => {
 });
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/types.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/types.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -2401,7 +2401,7 @@ describe('bindings', () => {
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/core test`
+- [x] `pnpm --filter @ui-spec/core test`
 
 #### Step 2 STOP & COMMIT
 
@@ -2422,7 +2422,7 @@ completes: step 2 of 13 for ui-spec
 
 #### Step 3: `json-p3` adapter boundary + function registry (authoritative)
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/jsonp3.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/jsonp3.ts`:
 
 ```ts
 import { JSONPathEnvironment, jsonpath, type JSONValue } from 'json-p3';
@@ -2466,7 +2466,7 @@ export function createJsonp3Evaluator(): Jsonp3Evaluator {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/function-registry.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/function-registry.ts`:
 
 ```ts
 import type { Jsonp3FunctionRegister } from './jsonp3';
@@ -2504,7 +2504,7 @@ export class FunctionRegistry {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/jsonp3.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/jsonp3.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -2525,7 +2525,7 @@ describe('jsonp3 adapter', () => {
 });
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/core/src/function-registry.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/core/src/function-registry.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -2554,7 +2554,7 @@ describe('FunctionRegistry', () => {
 });
 ```
 
-- [ ] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
+- [x] Update `packages/ui-spec/core/src/index.ts` by replacing its contents with:
 
 ```ts
 export * from './errors';
@@ -2566,7 +2566,7 @@ export * from './types';
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/core test`
+- [x] `pnpm --filter @ui-spec/core test`
 
 #### Step 3 STOP & COMMIT
 

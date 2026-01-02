@@ -24,6 +24,7 @@ This is a **pnpm + Turborepo** monorepo containing web applications, mobile appl
 ### API Reference
 
 - **[UI Components](./docs/api/ui-components.md):** Props and usage for `@lellimecnar/ui`.
+- **[UI Spec](./docs/api/ui-spec.md):** JSON-driven UI specification runtime.
 - **[Card Stack](./docs/api/card-stack.md):** Core classes and mixins for the game engine.
 - **[Utilities](./docs/api/utils.md):** Shared utility functions.
 
@@ -44,6 +45,7 @@ The repository is organized into the following workspaces:
 - **`packages/*`**: Shared libraries and configurations.
   - `ui`: Web UI component library (React, Radix UI, Tailwind, shadcn/ui).
   - `ui-nativewind`: Mobile UI component library (NativeWind).
+  - `ui-spec`: JSON-driven UI specification runtime (core, react, adapter-shadcn).
   - `utils`: Shared utilities (date-fns, lodash).
   - `config-*`: Shared configs (eslint, prettier, tailwind, typescript, vite, vitest).
 - **`packages/card-stack/*`**: Domain logic packages.
