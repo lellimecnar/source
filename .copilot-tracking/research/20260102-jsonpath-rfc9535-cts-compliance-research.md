@@ -13,16 +13,28 @@
     - Else it expects `engine.evaluateSync(compiled, document)` to match either `result` (deterministic) or one of `results` (non-deterministic allowed outputs).
   - Engine is created via `createRfc9535Engine({ profile: 'rfc9535-full' })`.
 
+- packages/jsonpath/jsonpath/package.json
+  - `test` runs `vitest run`.
+  - Includes CTS JSON fixture via `napa` postinstall: `jsonpath-standard/jsonpath-compliance-test-suite#main`.
+  - Direct workspace deps: `@jsonpath/core`, `@jsonpath/plugin-rfc-9535`.
+
+- packages/config-vitest/base.ts
+  - Shared `vitestBaseConfig()` enables `globals: true`, `passWithNoTests: true`, coverage config, `setupFiles`.
+
+- packages/jsonpath/jsonpath/src/index.ts
+  - Default export is a lazy singleton `engine` (Proxy) built from `createRfc9535Engine()`.
+  - `createEngine(opts?)` always includes `rfc9535Plugins` plus optional extra plugins.
+
 - packages/jsonpath/plugin-rfc-9535/src/index.ts
   - `createRfc9535Engine(options?: Rfc9535EngineOptions)` forwards options into `createEngine({ ...rest, plugins: [...] })`.
   - `Rfc9535EngineOptions` is `Omit<CreateEngineOptions, 'plugins'>` + `additionalPlugins`.
   - No per-plugin config is wired here; notably, there is no mapping from `{ profile, strict }` into `createEngine({ options: { plugins: { ... }}})`.
-  - This means `createRfc9535Engine({ profile: 'rfc9535-full' })` (as used by the CTS harness) does not actually configure the syntax parser profile.
+  - This means `createRfc9535Engine({ profile: 'rfc9535-full' })` (as used by the CTS harness and ecosystem smoke test) does not actually configure the syntax parser profile.
 
 - packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/root.ts
   - Reads `profile` and `strict` from its plugin config (defaults: `profile='rfc9535-draft'`, `strict=false`).
   - Registers the scanner rules and installs `parseRfc9535Path(ctx, profile, strict)`.
-  - Without explicit plugin config wiring, the parser stays in draft mode and (importantly) filter function expressions are rejected by the parser.
+  - Without explicit plugin config wiring, the parser stays in draft mode.
 
 - packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/parser.ts
   - Implements parsing for segments, selectors, and filter expressions.
@@ -37,10 +49,24 @@
   - Represents filters as a selector kind `Selector:Filter` containing `expr: FilterExprNode`.
 
 - packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/filter.ts
-  - Contains substantial runtime logic for evaluating filter expressions (existence tests, comparisons, and the RFC-defined functions `length`, `count`, `match`, `search`, `value`).
-  - However, its plugin `setup()` currently registers a segment evaluator for a segment kind (`'FilterSegment'`) and calls `evaluators.getExpression(...)`.
+  - Contains substantial runtime logic for evaluating filter expressions (existence tests, comparisons, and functions `length`, `count`, `match`, `search`, `value`).
+  - BUT the plugin `setup()` currently registers a segment evaluator for a non-existent segment kind (`'FilterSegment'`) and calls `evaluators.getExpression(...)`.
   - The core `EvaluatorRegistry` has no expression evaluator API, and the RFC parser builds `Selector:Filter` (not a `FilterSegment`).
-  - This indicates the filter runtime wiring is currently incompatible with the actual AST + core evaluator registry.
+  - This indicates the filter runtime wiring is currently incompatible with the AST shape + core evaluator registry.
+
+- packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/child-member.ts
+  - Registers selector evaluator for `SelectorKinds.Name`.
+
+- packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/child-index.ts
+  - Registers selector evaluators for `SelectorKinds.Index` and `SelectorKinds.Slice`.
+
+- packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/wildcard.ts
+  - Registers selector evaluator for `SelectorKinds.Wildcard`.
+  - Object wildcard enumerates keys via `Object.keys(v).sort()`.
+
+- packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/descendant.ts
+  - Registers segment evaluator for `'DescendantSegment'`.
+  - Traversal is breadth-first over “descendants-or-self”; object keys are sorted.
 
 - packages/jsonpath/core/src/createEngine.ts
   - Compile path: `scanner.scanAll(expression)` -> token transforms -> parser parse -> AST transforms.
@@ -56,13 +82,14 @@
 - packages/jsonpath/lexer/src/scanner.ts
   - Scanner skips all whitespace characters globally:
     - `if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') { offset += 1; continue; }`
-  - This likely conflicts with CTS test cases that treat leading/trailing whitespace as invalid selectors.
+  - This prevents the parser from distinguishing “invalid because of whitespace” from valid selectors.
 
 ### Code Search Results
 
 - "createRfc9535Engine"
   - packages/jsonpath/plugin-rfc-9535/src/index.ts
   - packages/jsonpath/jsonpath/src/**tests**/compliance/cts.spec.ts
+  - packages/jsonpath/jsonpath/src/**tests**/compliance/ecosystem.spec.ts
 
 - "strict" (RFC 9535 engine behavior toggle)
   - packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/root.ts
@@ -71,20 +98,33 @@
 - "Skip whitespace by default"
   - packages/jsonpath/lexer/src/scanner.ts
 
-### External Research
+- "getExpression(" / "registerExpression("
+  - Only occurrences are inside `@jsonpath/plugin-rfc-9535` filter segment evaluator; no matching API exists in core.
 
-- #fetch:https://www.rfc-editor.org/rfc/rfc9535
-  - Grammar explicitly includes optional blank space `S` between segments and around many tokens (e.g., `segments = *(S segment)`), but the CTS requires certain strict invalid-selector behaviors.
-  - RFC semantics explicitly allow non-deterministic ordering where JSON objects are involved.
-  - RFC filter semantics include:
-    - Existence tests: a query in logical context yields true iff it selects at least one node.
-    - Comparisons: `==` has special handling for empty/nothing and requires deep equality for arrays/objects; `<` only applies to numbers/strings.
-    - Function extensions and well-typedness requirements.
+- "registerFilterScriptEvaluator("
+  - packages/jsonpath/plugin-script-expressions/src/index.ts
+  - Core provides `EvaluatorRegistry.registerFilterScriptEvaluator`.
 
 ### Project Conventions
 
 - Standards referenced: plugin-first engine architecture via `@jsonpath/core` + preset plugins; Vitest tests; CTS uses `jsonpath-compliance-test-suite/cts.json`.
 - Instructions followed: repository workspace rules in AGENTS.md and .github/copilot-instructions.md; Task Researcher constraint (write only under `.copilot-tracking/research/`).
+
+## Dependency Map (Workspace)
+
+- `@jsonpath/jsonpath` (packages/jsonpath/jsonpath)
+  - Direct deps: `@jsonpath/core`, `@jsonpath/plugin-rfc-9535`
+  - Test-only fixture dep via `napa`: `jsonpath-compliance-test-suite/cts.json`
+- `@jsonpath/plugin-rfc-9535` (packages/jsonpath/plugin-rfc-9535)
+  - Direct deps: `@jsonpath/ast`, `@jsonpath/core`, `@jsonpath/lexer`, `@jsonpath/parser`, `@jsonpath/pointer`
+- `@jsonpath/core` (packages/jsonpath/core)
+  - Direct deps: `@jsonpath/ast`, `@jsonpath/lexer`, `@jsonpath/parser`
+- `@jsonpath/parser` (packages/jsonpath/parser)
+  - Direct deps: `@jsonpath/ast`, `@jsonpath/lexer`
+- `@jsonpath/lexer` (packages/jsonpath/lexer)
+  - No direct deps
+- `@jsonpath/ast` (packages/jsonpath/ast)
+  - No direct deps
 
 ## Key Discoveries
 
@@ -93,6 +133,11 @@
 - CTS harness expects strict compile-time rejection for `invalid_selector` cases and exact output matching for `result` / `results`.
 - The current CTS harness passes `{ profile: 'rfc9535-full' }` to `createRfc9535Engine`, but `createRfc9535Engine` does not wire that into the plugin config consumed by the RFC parser. This is a primary likely cause of widespread CTS failures (especially function expressions).
 
+### CTS Harness Behavior (Verified)
+
+- CTS currently only checks “values” mode and uses `engine.evaluateSync(compiled, document)` output directly.
+- For `results` (plural), the test expects `out` to be equal to one of the alternative expected results, not that it contains all expected values.
+
 ### Implementation Patterns
 
 - Parsing is plugin-based: RFC parser is installed by `@jsonpath/plugin-rfc-9535/syntax-root` and depends on a `profile`/`strict` config.
@@ -100,6 +145,13 @@
   - Segment evaluators are optional.
   - Selector evaluators are the default mechanism (segment -> selectors -> selector evaluators).
 - Filter expressions are represented as a selector (`Selector:Filter`) in the AST and must therefore be evaluated via a selector evaluator (not a segment evaluator).
+
+### Whitespace / Tokenization Entry Points
+
+- Tokenization entry point: `Scanner.scanAll(expression)` in packages/jsonpath/lexer/src/scanner.ts.
+- RFC scan rule registration: `registerRfc9535ScanRules(scanner)` and `registerRfc9535LiteralScanRules(scanner)` called by the RFC syntax-root plugin.
+- Parser entry point: `JsonPathParser.parse({ input, tokens: new TokenStream(tokens) })` in packages/jsonpath/parser/src/parser.ts.
+- RFC parser: `parseRfc9535Path(ctx, profile, strict)` in packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/parser.ts.
 
 ### Complete Examples
 
@@ -141,6 +193,15 @@ if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') {
 }
 ```
 
+```ts
+// Filter runtime wiring currently calls non-existent evaluator APIs
+// (packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/filter.ts)
+engine.evaluators.registerSegment('FilterSegment', (...) => {
+  const evalExpression = evaluators.getExpression(segment.expression.kind);
+  ...
+});
+```
+
 ### API and Schema Documentation
 
 - RFC 9535 requires:
@@ -152,9 +213,9 @@ if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') {
 
 To make the CTS pass, the implementation likely must:
 
-1. Ensure the CTS harness actually runs the RFC parser in `rfc9535-full` profile and strict mode.
-2. Implement correct runtime behavior for filter selectors (including comparisons and built-in functions) consistent with RFC 9535.
-3. Match CTS invalid-selector cases such as leading/trailing whitespace and not-well-typed filter expressions.
+1. Ensure the CTS harness actually runs the RFC parser in a deterministic selected profile (the suite uses `{ profile: 'rfc9535-full' }`).
+2. Implement correct runtime behavior for `Selector:Filter` (filters) using the selector-evaluator model.
+3. Match CTS invalid-selector cases, likely including whitespace-sensitive inputs (scanner currently erases whitespace).
 
 ## Recommended Approach
 
@@ -179,25 +240,47 @@ Based on observed code (AST + parser produce `Selector:Filter`, core expects sel
   - Keep changes consistent with plugin-first architecture.
 
 - **Key Tasks**:
-  - Wire `profile`/`strict` through `createRfc9535Engine` into `createEngine({ options: { plugins: { ... }}})` for the `@jsonpath/plugin-rfc-9535/syntax-root` plugin.
-    - Ensure the CTS harness’s `{ profile: 'rfc9535-full' }` actually takes effect (or update the CTS harness to pass correct per-plugin config).
-    - Consider defaulting `strict: true` for RFC compliance.
-  - Add strict invalid-selector validation for leading/trailing whitespace.
-    - Current scanner strips whitespace, so this must be done before scanning (e.g., a pre-parse check) or via a lifecycle hook.
-  - Replace the current filter runtime wiring in `@jsonpath/plugin-rfc-9535/syntax-filter`:
-    - Register `engine.evaluators.registerSelector(SelectorKinds.Filter, ...)`.
-    - Implement the RFC filter selector semantics: iterate children of arrays/objects, evaluate logical expression with `@` bound to the child node, and select those children.
-    - Ensure `Nothing` behaves as RFC specifies (particularly in comparisons).
-  - Make filter expression parsing and validity checks match RFC:
-    - Reject bare literals as `basic-expr` (RFC basic-expr does not include literals).
-    - Enforce well-typedness for function expressions depending on context (test-expr vs comparable).
-  - Implement RFC comparison semantics:
-    - `==` deep equality for arrays/objects.
-    - `<` only for numbers/strings; mismatched types yield false.
-    - Derive `!=`, `<=`, `>`, `>=` correctly from `==` and `<`.
+  - Step 2 (wire spec mode):
+    - packages/jsonpath/plugin-rfc-9535/src/index.ts
+      - Symbol: `createRfc9535Engine()` and type `Rfc9535EngineOptions`.
+    - packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/root.ts
+      - Symbol: `createSyntaxRootPlugin` (consumes `{ profile, strict }`).
+    - packages/jsonpath/jsonpath/src/index.ts
+      - Symbol: `createEngine()` wrapper and the default-engine singleton.
+    - packages/jsonpath/jsonpath/src/**tests**/compliance/cts.spec.ts
+      - Symbol usage: `createRfc9535Engine({ profile: 'rfc9535-full' })`.
+
+  - Step 3 (filters as selector evaluators):
+    - packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/filter.ts
+      - Symbols: `evalFilterExpr`, `evalEmbeddedQuery`, `compareValues`, `evalFunctionCall`.
+      - Plugin `setup()` currently registers `FilterSegment` and calls `evaluators.getExpression` (non-existent). This is the primary fix target.
+    - packages/jsonpath/ast/src/nodes.ts
+      - Symbols: `SelectorKinds.Filter`, `FilterExprKinds.*`.
+
+  - Step 4 (whitespace / invalid selector validation):
+    - packages/jsonpath/lexer/src/scanner.ts
+      - Symbol: `Scanner.scanAll()` currently strips whitespace unconditionally.
+    - packages/jsonpath/core/src/createEngine.ts
+      - Location: inner `parse(expression)` function is where the scanner is invoked.
+    - packages/jsonpath/core/src/runtime/lifecycle.ts
+      - Likely integration point: token transforms / error enrichers (if strict checks are implemented as lifecycle hooks).
+
+  - Step 5 (remaining selector behaviors likely implicated by CTS):
+    - Wildcards: packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/wildcard.ts (`createSyntaxWildcardPlugin`)
+      - Note: object wildcard sorts keys, which affects ordering.
+    - Descendant: packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/descendant.ts (`createSyntaxDescendantPlugin`)
+      - Note: descendant traversal is breadth-first and sorts object keys.
+    - Slices / indices: packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/child-index.ts
+      - Symbols: `computeSliceIndices`, `normalizeIndex`.
+    - String decoding: packages/jsonpath/plugin-rfc-9535/src/plugins/syntax/parser.ts
+      - Symbol: `decodeQuotedString` is a minimal decoder (only `\\` and escaped quotes).
+
+  - Step 6 (exports / boundaries):
+    - packages/jsonpath/jsonpath/package.json (exports/surface)
+    - packages/jsonpath/plugin-rfc-9535/package.json (exports map for granular plugin entrypoints)
 
 - **Dependencies**:
-  - `@jsonpath/core` lifecycle hooks (for whitespace validation) and evaluator registry.
+  - `@jsonpath/core` lifecycle hooks and evaluator registry.
   - `@jsonpath/plugin-rfc-9535` parser + runtime plugins.
   - RFC 9535 semantics (filter + comparison + function extension rules).
 
