@@ -1,456 +1,293 @@
-# UI-Spec v1
+# UI Spec MVP (`@ui-spec/*`)
 
-**Branch:** feature/ui-spec-v1
-
-**Description:** Complete the UI-Spec v1 surface described in specs/ui-spec.md, evolving the existing MVP (read-only $path + intrinsic React renderer) into a full JSON-driven UI runtime. Work ships as a single PR with commit-sized steps and package-scoped tests.
+**Branch:** `ui-spec/mvp-packages`
+**Description:** Implement the MVP set of `@ui-spec/*` packages (core + React binding + router add-ons + Zod validation adapter) as described in the architecture plans and UI-Spec JSONPath/Patch requirements.
 
 ## Goal
 
-Deliver a complete, usable v1 of UI-Spec for React with a framework-agnostic core, including directives, reactivity, UIScript, validation, optional routing, and CLI type generation.
+Deliver a minimal, production-viable UI-Spec runtime and React renderer that:
 
-## Implementation Steps
+- Uses **only** `json-p3` for JSONPath evaluation and JSON Patch application.
+- Keeps router/validation optional add-ons.
+- Avoids arbitrary code execution (no UIScript in MVP).
 
-### Step 1 — Expand core schema/types (v1 surface, MVP-compatible)
+## Scope (MVP only)
 
-**Files:**
+This plan implements **only**:
 
-- packages/ui-spec/core/src/schema.ts
-- packages/ui-spec/core/src/index.ts
-- packages/ui-spec/core/src/**fixtures**/types.\*
+- `@ui-spec/core`
+- `@ui-spec/react`
+- `@ui-spec/router`
+- `@ui-spec/router-react`
+- `@ui-spec/validate-zod`
 
-**What:**
+Explicitly out of scope (deferred): `@ui-spec/vue`, `@ui-spec/svelte`, `@ui-spec/solid`, `@ui-spec/web`, `@ui-spec/angular`, any `@ui-spec/ui-*`, `@ui-spec/cli`, `@ui-spec/devtools`, `@ui-spec/server`, and any other validator adapters.
 
-- Expand `UISpecSchema` to include optional `meta`, `data`, `components`, `functions`, `plugins`, `schemas`, `computed`, and optional `routes`.
-- Expand `NodeSchema` to include `$id`, `$ref`, `$if/$else`, `$switch`, `$for`, `$bind`, `$on`, `$slots`, and lifecycle hooks.
-- Define binding/expression unions: `$path`, `$expr`, `$call`, `FunctionSchema`.
-- Add compile-only TypeScript fixtures to lock the public type surface (decision: fixtures for type tests).
+## Global Constraints
 
-**Testing:**
+- **JSON engine**: `@ui-spec/*` MUST use `json-p3` as the single JSONPath/JSON Patch implementation source.
+- **Failure behavior**: Core store operations MUST be non-mutating on error (e.g., failed select/patch).
+- **UIScript**: Out of scope for MVP. Use JSONPath only; if scripting is needed later, prefer `json-p3` extension points.
+- **Monorepo**: All internal deps MUST use `workspace:*` and respect workspace boundaries.
+- **Build outputs**: Each new package MUST produce `dist/` outputs consistent with repo validation tooling.
+- **Zod packaging**: `zod` MUST be a `peerDependency` for `@ui-spec/validate-zod`.
+- **json-p3 gaps**: If required `json-p3` API capabilities are missing (e.g., cannot derive a JSON Pointer for a match), the implementation MUST throw a clear error (e.g., `UI-SPEC_JSONP3_API_MISSING`) rather than silently degrading.
 
-- pnpm --filter @ui-spec/core type-check
+## Implementation Steps (commit-sized)
 
-### Step 2 — Core parsing + structural validation (schema + node directives)
-
-**Files:**
-
-- packages/ui-spec/core/src/errors.ts
-- packages/ui-spec/core/src/parse/index.ts
-- packages/ui-spec/core/src/parse/validate.ts
-- packages/ui-spec/core/src/parse.spec.ts
-
-**What:**
-
-- Extend parsing to accept the full root schema shape while keeping the current MVP valid.
-- Add structural validation for directive shapes (`$if/$else`, `$switch`, `$for`, `$bind`, `$on`, `$slots`, lifecycle hooks).
-- Add `validateSchema(schema, options)` consistent with the Security Model section (unknown property strictness, maxDepth/maxNodes, JSONPath checks, UIScript checks toggled).
-- Validate routed vs non-routed constraints (when `routes` is present, `root` becomes the app shell and is optional/required per chosen semantics).
-
-**Testing:**
-
-- pnpm --filter @ui-spec/core test
-
-### Step 3 — Store v1: fine-grained select + write operations + JSONPath write semantics
+### Step 1: Scaffold the MVP packages
 
 **Files:**
 
-- packages/ui-spec/core/src/store/types.ts
-- packages/ui-spec/core/src/store/store.ts
-- packages/ui-spec/core/src/store.spec.ts
-- packages/ui-spec/core/src/bindings/jsonpath.ts
+- `packages/ui-spec/core/*`
+- `packages/ui-spec/react/*`
+- `packages/ui-spec/router/*`
+- `packages/ui-spec/router-react/*`
+- `packages/ui-spec/validate-zod/*`
 
 **What:**
 
-- Add `select(path)` subscriptions and keep `subscribe()` for compatibility.
-- Add write API: `set`, `update`, `merge`, `push`, `remove`, `batch`, `transaction`, plus `computed` registration.
-- Implement JSONPath write semantics (decision): writes apply to all matches (including filters/wildcards) in stable match order.
-- Return structured write results (e.g., `{ matched, changed, errors }`) so callers and tests can assert multi-match behavior.
+- Create the package folders with:
+  - `package.json` (name, version, `type`, `exports`, `files`, scripts)
+  - `tsconfig.json` extending repo defaults
+  - `vite.config.*` producing `dist/`
+  - `vitest.config.ts` using shared `packages/config-vitest/*`
+  - `src/index.ts`
+- Use `workspace:*` for internal dependencies.
+- Configure peers where appropriate:
+  - `@ui-spec/react`: peers for `react`/`react-dom`
+  - `@ui-spec/router-react`: peers for `react`/`react-dom`
+  - `@ui-spec/validate-zod`: peerDependency `zod`
 
 **Testing:**
 
-- pnpm --filter @ui-spec/core test
-
-### Step 4 — Core evaluation: resolve bindings + style/class helpers (no UIScript execution yet)
-
-**Files:**
-
-- packages/ui-spec/core/src/eval/index.ts
-- packages/ui-spec/core/src/eval/resolveValue.ts
-- packages/ui-spec/core/src/eval/resolveClass.ts
-- packages/ui-spec/core/src/eval/resolveStyle.ts
-- packages/ui-spec/core/src/eval.spec.ts
-
-**What:**
-
-- Implement pure evaluation of binding expressions:
-  - `$path` reads via store
-  - `$expr` evaluation spec (decision): full JavaScript expressions (execution gated; see Step 7)
-  - `$call` (named function invocation wiring; runtime in Step 7)
-- Implement styling helpers: `class` string/array, `$classes`, `$map`, `$if/$then`, `$css`, and `style` resolution.
-- Keep deterministic, side-effect-free evaluation by default; no inline `$fn` execution until UIScript is enabled.
-
-**Testing:**
-
-- pnpm --filter @ui-spec/core test
-
-### Step 5 — Component system: components registry, $ref, $extends, slots
-
-**Files:**
-
-- packages/ui-spec/core/src/components/index.ts
-- packages/ui-spec/core/src/components/resolveRef.ts
-- packages/ui-spec/core/src/components/slots.ts
-- packages/ui-spec/core/src/components.spec.ts
-
-**What:**
-
-- Implement component definition registry from `schema.components`.
-- Support `$ref` resolution and `$extends` inheritance semantics.
-- Implement `$slots` projection and a `Slot` node convention consistent with the spec examples.
-- Encode a minimal, consistent scope resolution order for bindings:
-  1. local scope (`$for` locals / slot params)
-  2. `$props`
-  3. root `data`
-  4. route/query scope only when router installed
-
-**Testing:**
-
-- pnpm --filter @ui-spec/core test
-
-### Step 6 — Compile/resolve pass: $if/$else, $switch, $for
-
-**Files:**
-
-- packages/ui-spec/core/src/compile/index.ts
-- packages/ui-spec/core/src/compile/compileNode.ts
-- packages/ui-spec/core/src/compile/compile.spec.ts
-
-**What:**
-
-- Implement a compile/resolve pass that transforms a schema node into a renderable node tree:
-  - `$if` and `$else` (including `$else: true` shorthand used in examples)
-  - `$switch`
-  - `$for` iteration with locals (`as`, `$index`, stable key behavior)
-- Ensure compilation composes with `$ref` and slots.
-
-**Testing:**
-
-- pnpm --filter @ui-spec/core test
-
-### Step 7 — UIScript runtime: $fn, $call, $expr (restricted Function, opt-in)
-
-**Files:**
-
-- packages/ui-spec/core/src/uiscript/index.ts
-- packages/ui-spec/core/src/uiscript/sandbox.ts
-- packages/ui-spec/core/src/uiscript/spec.ts
-- packages/ui-spec/core/src/uiscript.spec.ts
-- packages/ui-spec/core/src/eval/resolveValue.ts
-
-**What:**
-
-- Implement `FunctionSchema` compilation and execution with `UISpecContext`.
-- Sandbox decision: restricted `Function` compilation (opt-in; default disabled) with configurable allowlist/timeouts.
-- `$expr` decision: full JavaScript (evaluated through the same gated execution pathway).
-- Implement named functions (`schema.functions`) and `$call` invocation.
-- Ensure router-only context methods (`navigate`, `back`, `route`) throw descriptive errors when router is not installed.
-
-**Testing:**
-
-- pnpm --filter @ui-spec/core test
-
-### Step 8 — React binding API: Provider(schema/plugins/initialData), UISpecApp, UISpecNode
-
-**Files:**
-
-- packages/ui-spec/react/src/provider.tsx
-- packages/ui-spec/react/src/types.ts
-- packages/ui-spec/react/src/index.ts
-- packages/ui-spec/react/src/render.tsx
-- packages/ui-spec/react/src/render.spec.tsx
-
-**What:**
-
-- Update `UISpecProvider` to accept `schema`, `plugins`, and `initialData` (retain a store-override escape hatch if needed).
-- Add `UISpecApp` (renders schema root or routed shell) and `UISpecNode` (render arbitrary node schema).
-- Integrate the core compile/eval pipeline so React renders resolved nodes rather than raw schema.
-
-**Testing:**
-
-- pnpm --filter @ui-spec/react test
-
-### Step 9 — React runtime: $on events, $bind (two-way), lifecycle hooks + jsdom tests
-
-**Files:**
-
-- packages/ui-spec/react/jest.config.js
-- packages/ui-spec/react/src/render.tsx
-- packages/ui-spec/react/src/hooks/useBind.ts
-- packages/ui-spec/react/src/hooks/useLifecycle.ts
-- packages/ui-spec/react/src/runtime/events.ts
-- packages/ui-spec/react/src/runtime/bind.ts
-- packages/ui-spec/react/src/runtime.spec.tsx
-
-**What:**
-
-- Implement `$on` event wiring (schema lower-case DOM event names → React handler props).
-- Implement `$bind` semantics:
-  - read/write/two-way modes
-  - `transform` on read, `parse` on write
-  - `debounce`/`throttle` behaviors
-- Implement lifecycle hooks: `$mounted`, `$updated`, `$unmounted`.
-- Switch React package tests to `jsdom` for DOM interaction coverage (decision: jsdom tests).
-
-**Testing:**
-
-- pnpm --filter @ui-spec/react test
-
-### Step 10 — Validation: core plugin API + JSON Schema validator package
-
-**Files:**
-
-- packages/ui-spec/core/src/validation/index.ts
-- packages/ui-spec/core/src/validation/types.ts
-- packages/ui-spec/core/src/validation.spec.ts
-- packages/ui-spec/validate-jsonschema/package.json
-- packages/ui-spec/validate-jsonschema/tsconfig.json
-- packages/ui-spec/validate-jsonschema/jest.config.js
-- packages/ui-spec/validate-jsonschema/src/index.ts
-- packages/ui-spec/validate-jsonschema/src/index.spec.ts
-
-**What:**
-
-- Add `ValidationPlugin` interfaces in core and integrate with context (`ctx.validate`) and `$bind.validate`.
-- Support `schema.schemas` registry and plugin registration via `schema.plugins`.
-- Implement `@ui-spec/validate-jsonschema` as the first validator package.
-
-**Testing:**
-
-- pnpm --filter @ui-spec/core test
-- pnpm --filter @ui-spec/validate-jsonschema test
-
-### Step 11 — Routing (optional add-on): router + router-react with fetch-based lazy loading
-
-**Files:**
-
-- packages/ui-spec/router/package.json
-- packages/ui-spec/router/tsconfig.json
-- packages/ui-spec/router/jest.config.js
-- packages/ui-spec/router/src/index.ts
-- packages/ui-spec/router/src/match.ts
-- packages/ui-spec/router/src/history.ts
-- packages/ui-spec/router/src/lazy.ts
-- packages/ui-spec/router/src/index.spec.ts
-- packages/ui-spec/router-react/package.json
-- packages/ui-spec/router-react/tsconfig.json
-- packages/ui-spec/router-react/jest.config.js
-- packages/ui-spec/router-react/src/index.ts
-- packages/ui-spec/router-react/src/UISpecRouter.tsx
-- packages/ui-spec/router-react/src/index.spec.tsx
-
-**What:**
-
-- Implement `@ui-spec/router` as a core-optional package (no dependency from `@ui-spec/core`).
-- Support route matching, params/query extraction, navigation, and `beforeEnter` guards.
-- Implement lazy route loading decision: router uses `fetch()` to load remote JSON schema (and then delegates to core parse/validate).
-- Implement `@ui-spec/router-react` integration (`UISpecRouter`, `RouterOutlet`, `NavLink`) and expose `$route.params` and `$query` binding surfaces.
-
-**Testing:**
-
-- pnpm --filter @ui-spec/router test
-- pnpm --filter @ui-spec/router-react test
-
-### Step 12 — TypeScript authoring helpers + CLI (validate + comprehensive generate-types)
-
-**Files:**
-
-- packages/ui-spec/core/src/ts/index.ts
-- packages/ui-spec/core/src/ts/defineComponent.ts
-- packages/ui-spec/core/src/ts/infer.ts
-- packages/ui-spec/core/src/**fixtures**/types.\*
-- packages/ui-spec/cli/package.json
-- packages/ui-spec/cli/tsconfig.json
-- packages/ui-spec/cli/jest.config.js
-- packages/ui-spec/cli/src/index.ts
-- packages/ui-spec/cli/src/commands/validate.ts
-- packages/ui-spec/cli/src/commands/generateTypes.ts
-- packages/ui-spec/cli/src/fixtures/\*\*
-- packages/ui-spec/cli/src/index.spec.ts
-
-**What:**
-
-- Add best-effort authoring helpers in core: `defineComponent`, `inferDataType`, `inferPropsType`, and `UISpecContext<TData>` typing.
-- Implement CLI with:
-  - `uispec validate <file>` using `validateSchema`
-  - `uispec generate-types <file> -o <out>` (decision: comprehensive CLI typegen) generating:
-    - `data` interface
-    - component prop types
-    - route unions (when routes are present)
-    - schemas registry types
-    - typed `UISpecContext<TData>` helpers
-- Use compile-only fixtures to lock generated type shapes (decision: fixtures for type tests).
-
-**Testing:**
-
-- pnpm --filter @ui-spec/core type-check
-- pnpm --filter @ui-spec/cli test
-
-### Step 13 — AsyncBoundary for React (no caching in v1 plan)
-
-**Files:**
-
-- packages/ui-spec/react/src/components/AsyncBoundary.tsx
-- packages/ui-spec/react/src/components/AsyncBoundary.spec.tsx
-- packages/ui-spec/react/src/index.ts
-
-**What:**
-
-- Implement `AsyncBoundary` support for `$async` sources using `ctx.api`.
-- Implement loading/error/default slots.
-- Explicitly defer caching features (`cache`, `staleWhileRevalidate`) to a follow-up (decision: caching deferred).
-
-**Testing:**
-
-- pnpm --filter @ui-spec/react test
-
-- Feature Name: validation plugin API
-- Branch name (kebab-case): feature/ui-spec-v1-core
-- Goal: Add the validation interfaces and integrate them into `$bind` and `ctx.validate`.
-- Implementation Steps
-  - Step 1
-    - Files: new `packages/ui-spec/core/src/validation/**`, update `packages/ui-spec/core/src/index.ts`
-    - What:
-      - Implement `ValidationPlugin` interface and registration via `plugins`.
-      - Support `schema.schemas` registry (JSON Schema or arbitrary plugin schemas).
-      - Implement `ctx.validate(value, schemaName)` and `$bind.validate` hooks.
-    - Testing:
-      - Unit tests with a fake validator plugin.
-
-### Commit 12 — JSON Schema Validator Workspace
-
-- Feature Name: validate-jsonschema plugin
-- Branch name (kebab-case): feature/ui-spec-v1-core
-- Goal: Provide a real validator implementation per spec.
-- Implementation Steps
-  - Step 1
-    - Files: new `packages/ui-spec/validate-jsonschema/**` (package.json/tsconfig/jest/src)
-    - What:
-      - Implement `@ui-spec/validate-jsonschema` using Ajv.
-      - Expose a plugin factory that matches the core validation plugin interface (same shape as other validation plugins).
-    - Testing:
-      - Unit tests: valid/invalid values, field error mapping.
-      - `pnpm --filter @ui-spec/validate-jsonschema test`
-
-### Commit 13 — Router Core Workspace
-
-- Feature Name: router (framework-agnostic)
-- Branch name (kebab-case): feature/ui-spec-v1-core
-- Goal: Implement route matching, params/query, navigation, guards, lazy loading.
-- Implementation Steps
-  - Step 1
-    - Files: new `packages/ui-spec/router/**`
-    - What:
-      - Route schema types and matcher.
-      - Support `redirect` routes and `meta` fields (examples use `$route.meta.title`).
-      - Navigation state + history integration.
-      - Guards (`beforeEnter`) and route context.
-      - Lazy route loading contract (decision): fetch-based (HTTP).
-        - Recommendation: `loader: { url: string, method?: 'GET'|'POST', headers?: Record<string,string> }` and the router calls `fetch(url, ...)` then `parseUISpecSchema(await res.json())`.
-    - Testing:
-      - Pure unit tests for matching and guard behavior.
-
-### Commit 14 — Router React Workspace
-
-- Feature Name: router-react integration
-- Branch name (kebab-case): feature/ui-spec-v1-core
-- Goal: Provide `UISpecRouter`, `RouterOutlet`, `NavLink` React components.
-- Implementation Steps
-  - Step 1
-    - Files: new `packages/ui-spec/router-react/**`, update `@ui-spec/react` integration points
-    - What:
-      - Render matched route component.
-      - Provide `$route.params` and `$query` bindings.
-      - Provide `$route.meta` binding surface.
-      - Implement `ctx.navigate/back/route`.
-    - Testing:
-      - Unit tests for route switching and link active state.
-
-### Commit 15 — TypeScript Authoring Helpers
-
-- Feature Name: TS integration helpers
-- Branch name (kebab-case): feature/ui-spec-v1-core
-- Goal: Provide the key authoring helpers referenced in the spec.
-- Implementation Steps
-  - Step 1
-    - Files: new `packages/ui-spec/core/src/ts/**` or similar, update exports
-    - What:
-      - Implement `defineComponent` helper.
-      - Implement `inferDataType` / `inferPropsType` generics (best-effort).
-      - Provide `UISpecContext<TData>` typing.
-    - Testing:
-      - Type-check fixtures and minimal runtime tests.
-
-### Commit 16 — CLI (minimal: validate + generate-types)
-
-- Feature Name: CLI scaffolding
-- Branch name (kebab-case): feature/ui-spec-v1-core
-- Goal: Implement a minimal CLI matching the spec’s most essential commands.
-- Implementation Steps
-  - Step 1
-    - Files: new `packages/ui-spec/cli/**`
-    - What:
-      - `uispec validate <file>` using `validateSchema`.
-      - `uispec generate-types <file> -o <out>` generates comprehensive TypeScript types:
-        - root `data` shape
-        - component prop types
-        - schema registry types (validators / schemas)
-        - a strongly typed `UISpecContext<TData>` and helper types for bindings
-      - Defer `convert/dev/build/analyze` unless requested.
-    - Testing:
-      - Node-based CLI tests with fixture schemas.
-
-### Commit 17 — Async Data + AsyncBoundary (React)
-
-- Feature Name: async data boundary
-- Branch name (kebab-case): feature/ui-spec-v1-core
-- Goal: Implement the `AsyncBoundary` behavior from the Data Layer section for React.
-- Implementation Steps
-  - Step 1
-    - Files: `packages/ui-spec/react/src/components/AsyncBoundary.tsx` (new), `packages/ui-spec/react/src/index.ts`, plus core helper types under `@ui-spec/core`
-    - What:
-      - Support a schema-driven async source (`$async`) that loads data via `ctx.api` and writes to a target path.
-      - Implement loading/error/default slots.
-      - Defer caching (`cache`, `staleWhileRevalidate`) for a future iteration; implement a correct, minimal no-cache baseline.
-    - Testing:
-      - Unit tests using mocked `ctx.api` and deterministic timers.
+- Ensure Vitest project discovery includes `packages/ui-spec/*/vitest.config.ts`.
+- `pnpm -r --filter @ui-spec/* test` (or equivalent repo test invocation) should at least discover configs.
 
 ---
 
-## Open Questions (Resolved)
+### Step 2: Implement `@ui-spec/core` runtime (store + context + required contracts)
 
-- Scope rules: accepted.
-- Event conventions: accepted.
+**Files:**
 
-### Recommended Scope Rules (proposal)
+- `packages/ui-spec/core/src/**`
+- `packages/ui-spec/core/src/**/*.spec.ts`
 
-- Resolution order for `$path` / `$expr` reads:
-  1. loop/component `scope` (locals created by `$for`, slot params)
-  2. `$props` (props passed into a component via `$ref`)
-  3. store `data` (root application data)
-  4. `$route` / `$query` (only if router installed)
+**What:**
+Implement all required core functionality from `plan/architecture-ui-spec-core-1.md`, aligned with the `@ui-spec/*` package-architecture contracts.
 
-- Standard scope bindings:
-  - `$props`: component props object
-  - `$binding`: only set while evaluating `$bind` expressions; includes `{ path, value, mode, errors? }`
-  - `$field`: only set while evaluating validation for a specific bound field; includes `{ path, value }`
-  - `$error`: only set inside validation error rendering contexts; includes `{ code, message, path }`
+#### 2.1 Public exports (required contracts)
 
-- `$for` locals:
-  - `$item`: current item (name configurable via schema, default `$item`)
-  - `$index`: number
-  - `$key`: stable key (if provided; otherwise `$index`)
+Export (at minimum):
 
-### Recommended Event Conventions (proposal)
+- `JsonPatchOperation` (RFC 6902 union).
+- `Observable<T>` with `subscribe(listener) => unsubscribe`.
+- `UISpecStore` interface with:
+  - `get<T>(path: string): T` (JSONPath read; requires exactly one match).
+  - `select<T>(path: string): Observable<T>` (reactive; emits immediately and after patches).
+  - `patch(ops: JsonPatchOperation[]): void` (atomic apply).
+  - `set(path, value)`, `update(path, updater)`, `merge(path, partial)`, `push(path, ...items)`, `remove(path, predicate)` convenience helpers implemented via `patch(...)`.
+- `UISpecContext` base shape (router fields are not present unless router plugins are used):
+  - `get`, `select`, `patch`, `set`, `update`, `merge`, `push`, `remove` delegating to store.
+- Router and validation contracts for downstream packages:
+  - `RouteContext`, `RouterController`
+  - `ValidationError`, `ValidationResult`, `ValidationPlugin`
 
-- Schema event key names are lower-case DOM names (e.g. `click`, `change`, `input`, `submit`, `keydown`).
-- `$on` value is either a UIScript function ref or inline function schema.
-- `ctx.event` is populated with `{ type, target, native? }` during handler execution.
+#### 2.2 `json-p3` adapter module (single import boundary)
+
+- Create a single adapter module that is the only place allowed to import from `json-p3`.
+- Adapter must provide:
+  - `jsonp3FindAll(path, doc) -> Array<{ value: unknown; pointer: string }>` where `pointer` is a JSON Pointer for each match (or is derivable).
+  - `jsonp3ApplyPatch(doc, ops) -> newDoc`.
+- If required `json-p3` API capabilities are missing, throw `UI-SPEC_JSONP3_API_MISSING:` including missing symbol/capability details.
+
+#### 2.3 Store behavior: reads
+
+- `get(path)`:
+  - Uses `jsonp3FindAll`.
+  - Requires exactly one match.
+  - Error prefixes:
+    - 0 matches: `UI_SPEC_GET_NO_MATCH:`
+    - > 1 match: `UI_SPEC_GET_MULTI_MATCH:`
+- `select(path)`:
+  - Returns `Observable<T>`.
+  - Emits immediately upon subscribe with the current `get(path)` value.
+  - Re-emits after any successful `patch([...])`.
+
+#### 2.4 Store behavior: patch + write helpers
+
+- `patch(ops)`:
+  - Applies ops atomically.
+  - Notifies subscribers only on success.
+- Write helpers must:
+  - Resolve JSONPath to exactly one match.
+  - Generate JSON Patch operations and delegate to a single `patch([...])` call.
+  - Never mutate on error.
+  - Use error prefixes:
+    - 0 matches: `UI_SPEC_WRITE_NO_MATCH:`
+    - > 1 match: `UI_SPEC_WRITE_MULTI_MATCH:`
+  - Type-error prefixes:
+    - `merge` target not object: `UI_SPEC_MERGE_TARGET_NOT_OBJECT:`
+    - `push` target not array: `UI_SPEC_PUSH_TARGET_NOT_ARRAY:`
+    - `remove` target not array: `UI_SPEC_REMOVE_TARGET_NOT_ARRAY:`
+- Performance constraint:
+  - `push(path, ...items)` must batch into a single `patch([...])` call.
+  - `remove(path, predicate)` must batch into a single `patch([...])` call.
+
+#### 2.5 Context composition
+
+- Provide `createUISpecContext(store, extras?)` that delegates to `UISpecStore`.
+- Do not include routing fields in the base `UISpecContext` shape; router packages provide their own augmented context types/providers.
+
+#### 2.6 UIScript (explicitly deferred)
+
+- MVP does not include UIScript (`$fn`) execution.
+- If schema contains function-like directives, core should treat them as unsupported in MVP (documented behavior; exact runtime handling is an implementation detail of `@ui-spec/react`).
+
+**Testing:**
+
+- Unit tests validating:
+  - JSONPath read correctness via `json-p3` adapter.
+  - Exact-one-match enforcement (`get` and write helpers).
+  - JSON Patch application correctness via `patch(ops)`.
+  - No mutation on any thrown error.
+  - `push`/`remove` batching (single `patch([...])` call behavior).
+  - Type errors (`merge` target not object, `push/remove` target not array) with required prefixes.
+  - `select()` emits immediately and re-emits after successful patches.
+  - Clear error codes/messages for `UI-SPEC_JSONP3_API_MISSING:` including missing capability details.
+
+---
+
+### Step 3: Implement `@ui-spec/react` provider + renderer
+
+**Files:**
+
+- `packages/ui-spec/react/src/**`
+- `packages/ui-spec/react/src/**/*.spec.ts`
+
+**What:**
+
+- Implement:
+  - `UISpecProvider` to provide schema/store/context.
+  - `renderNode(node, ctx)` or equivalent entry point to render a schema node.
+  - Hooks:
+    - `useUISpecValue(path)` (or equivalent) that subscribes to store updates.
+- Schema behavior:
+  - Resolve JSONPath-bound props against the current store doc.
+  - Track changes so updates re-render minimal necessary React components.
+- Router guard:
+  - If `schema.routes` exists and no router integration is installed, throw a deterministic error (`UI-SPEC_ROUTER_REQUIRED` or similar).
+
+**Testing:**
+
+- happy-dom tests validating:
+  - Rendering of basic node trees.
+  - JSONPath prop binding resolution.
+  - Reactive updates: store mutation triggers re-render.
+  - Router guard behavior when routes are present but router is not installed.
+
+---
+
+### Step 4: Implement `@ui-spec/router` (optional add-on)
+
+**Files:**
+
+- `packages/ui-spec/router/src/**`
+- `packages/ui-spec/router/src/**/*.spec.ts`
+
+**What:**
+
+- Implement `RouterController` per architecture spec:
+  - `getRoute()`
+  - `navigate(to)`
+  - `back()`
+- Implement `RouteContext` types and an in-memory controller suitable for apps.
+- Keep the dependency direction strictly optional: core and react must work without router.
+
+**Testing:**
+
+- Unit tests for controller behavior and route state transitions.
+
+---
+
+### Step 5: Implement `@ui-spec/router-react` adapter
+
+**Files:**
+
+- `packages/ui-spec/router-react/src/**`
+- `packages/ui-spec/router-react/src/**/*.spec.ts`
+
+**What:**
+
+- Implement:
+  - `UISpecRouterProvider` that composes route capability into the UI-Spec React context.
+  - `useRoute()` for route consumption.
+- Ensure the router guard in `@ui-spec/react` passes when router-react is installed.
+
+**Testing:**
+
+- happy-dom tests:
+  - Provider composition.
+  - `useRoute()` updates on navigation.
+  - React re-render correctness when route changes.
+
+---
+
+### Step 6: Implement `@ui-spec/validate-zod` (Zod adapter)
+
+**Files:**
+
+- `packages/ui-spec/validate-zod/src/**`
+- `packages/ui-spec/validate-zod/src/**/*.spec.ts`
+
+**What:**
+
+- Implement a `ValidationPlugin` backed by Zod that:
+  - Produces `ValidationResult` in the common core format.
+  - Extracts field-level errors (`getFieldErrors`) deterministically.
+- Packaging:
+  - `zod` is a `peerDependency`.
+  - Vite build externalizes `zod`.
+
+**Testing:**
+
+- Unit tests:
+  - Valid payload returns success.
+  - Invalid payload maps errors as expected.
+  - Missing peer scenario is documented (tests should not rely on missing peer at runtime).
+
+---
+
+### Step 7: Add minimal cross-package integration tests
+
+**Files:**
+
+- Prefer placing in `@ui-spec/react` or a dedicated `packages/ui-spec/react/src/integration/*.spec.ts` (keep minimal)
+
+**What:**
+
+- A small integration suite that verifies:
+  - Core store + React binding renders and updates.
+  - Router installed vs missing behavior.
+  - Zod plugin can be registered/used through core contracts.
+
+**Testing:**
+
+- Run the full `@ui-spec/*` test suite.
+
+## Acceptance Criteria
+
+- All five MVP packages build successfully and output `dist/`.
+- All unit/integration tests pass under Vitest.
+- `@ui-spec/core` uses `json-p3` exclusively for JSONPath/Patch.
+- `@ui-spec/core` exports the required package-architecture contracts (`JsonPatchOperation`, `UISpecStore`, base `UISpecContext`, router/validation types).
+- Store operations enforce exact-match rules, required error prefixes, `push/remove` batching, and do not mutate on failure.
+- `@ui-spec/react` throws if routes exist and router is not installed.
+- `@ui-spec/validate-zod` uses `zod` as a peerDependency and works when provided by the host.
+
+## Notes / Decisions (recorded)
+
+- MVP-only implementation (no non-React bindings in this PR).
+- `zod` is a peerDependency for `@ui-spec/validate-zod`.
+- If `json-p3` cannot provide required pointer/match details, the adapter throws a hard error (`UI-SPEC_JSONP3_API_MISSING`).
+- No UIScript in MVP.
