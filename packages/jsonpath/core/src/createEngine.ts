@@ -18,6 +18,13 @@ import { rootNode } from './runtime/node';
 
 export interface CreateEngineOptions {
 	plugins: readonly JsonPathPlugin<any>[];
+	components?: {
+		scanner?: Scanner;
+		parser?: JsonPathParser;
+		evaluators?: EvaluatorRegistry;
+		results?: ResultRegistry;
+		lifecycle?: EngineLifecycleHooks;
+	};
 	options?: {
 		maxDepth?: number;
 		maxResults?: number;
@@ -27,18 +34,19 @@ export interface CreateEngineOptions {
 
 export function createEngine({
 	plugins,
+	components,
 	options,
 }: CreateEngineOptions): JsonPathEngine {
 	// Resolve (deterministic order + deps + conflicts)
 	const resolved = resolvePlugins(plugins);
 
-	const scanner = new Scanner();
-	const parser = new JsonPathParser();
+	const scanner = components?.scanner ?? new Scanner();
+	const parser = components?.parser ?? new JsonPathParser();
 
 	// Runtime registries populated by plugins
-	const evaluators = new EvaluatorRegistry();
-	const results = new ResultRegistry();
-	const lifecycle = new EngineLifecycleHooks();
+	const evaluators = components?.evaluators ?? new EvaluatorRegistry();
+	const results = components?.results ?? new ResultRegistry();
+	const lifecycle = components?.lifecycle ?? new EngineLifecycleHooks();
 
 	// Configure plugins + register hooks in deterministic order
 	for (const plugin of resolved.ordered) {

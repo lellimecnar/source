@@ -7,11 +7,12 @@ import { JsonPathError } from './errors/JsonPathError';
 import { JsonPathErrorCodes } from './errors/codes';
 
 import type { JsonPathPlugin } from './plugins/types';
+import { PluginPhases } from './plugins/phases';
 
 describe('@jsonpath/core plugin setup()', () => {
 	it('allows plugins to register parser + evaluator + result mapper', () => {
 		const plugin: JsonPathPlugin<{ sentinel?: string }> = {
-			meta: { id: 'test.plugin' },
+			meta: { id: 'test.plugin', phases: [PluginPhases.runtime] },
 			setup: ({ config, engine }) => {
 				expect(config?.sentinel).toBe('x');
 				engine.parser.registerSegmentParser(() =>
@@ -46,7 +47,7 @@ describe('@jsonpath/core plugin setup()', () => {
 
 	it('supports async evaluators via evaluateAsync()', async () => {
 		const plugin: JsonPathPlugin = {
-			meta: { id: 'test.async-plugin' },
+			meta: { id: 'test.async-plugin', phases: [PluginPhases.runtime] },
 			setup: ({ engine }) => {
 				engine.parser.registerSegmentParser(() =>
 					path([
@@ -72,7 +73,7 @@ describe('@jsonpath/core plugin setup()', () => {
 
 	it('wraps plugin hook failures as JsonPathError with pluginIds', () => {
 		const plugin: JsonPathPlugin = {
-			meta: { id: 'test.failing-plugin' },
+			meta: { id: 'test.failing-plugin', phases: [PluginPhases.runtime] },
 			setup: () => {
 				throw new Error('boom');
 			},

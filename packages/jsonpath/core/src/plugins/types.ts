@@ -1,6 +1,7 @@
 import type { Scanner } from '@jsonpath/lexer';
 import type { JsonPathParser } from '@jsonpath/parser';
 
+import type { PluginPhase } from './phases';
 import type { EvaluatorRegistry, ResultRegistry } from '../runtime/hooks';
 import type { EngineLifecycleHooks } from '../runtime/lifecycle';
 
@@ -14,6 +15,14 @@ export interface JsonPathPluginMeta {
 	dependsOn?: readonly JsonPathPluginId[];
 	optionalDependsOn?: readonly JsonPathPluginId[];
 	peerDependencies?: readonly string[];
+	phases: readonly PluginPhase[]; // Required: at least one phase
+	allowMultiple?: boolean; // Default: false
+	order?: {
+		first?: boolean; // Run first in its phase
+		last?: boolean; // Run last in its phase
+		before?: readonly JsonPathPluginId[]; // Run before these plugins
+		after?: readonly JsonPathPluginId[]; // Run after these plugins
+	};
 }
 
 export interface PluginSetupContext<Config = any> {

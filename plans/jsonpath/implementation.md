@@ -134,7 +134,7 @@ and the mapping to the new RFC 9535 default package architecture.
 
 ---
 
-## Step 2: Introduce `createPlugin` helper and phase system in `@jsonpath/core`
+## Step 2: Introduce `createPlugin` helper and phase system in `@jsonpath/core` [COMPLETED]
 
 **Commit message:** `feat(core): add createPlugin helper and plugin phase system`
 
@@ -229,11 +229,11 @@ export function createPlugin<Config = unknown>(
 
 Modify `resolvePlugins()` to:
 
-- [ ] Group plugins by declared phase.
-- [ ] Apply ordering constraints within each phase.
-- [ ] Execute deterministically: `syntax` → `filter` → `runtime` → `result`.
-- [ ] Handle duplicates: `allowMultiple: false` → warn + last wins.
-- [ ] Handle unsatisfiable constraints: warn + fallback to stable id ordering.
+- [x] Group plugins by declared phase.
+- [x] Apply ordering constraints within each phase.
+- [x] Execute deterministically: `syntax` → `filter` → `runtime` → `result`.
+- [x] Handle duplicates: `allowMultiple: false` → warn + last wins.
+- [x] Handle unsatisfiable constraints: warn + fallback to stable id ordering.
 
 #### 2.5 Add component overrides to `CreateEngineOptions`
 
@@ -281,20 +281,18 @@ Create re-export modules:
 
 ### Acceptance criteria
 
-- [ ] `createPlugin` is exported from `@jsonpath/core`.
-- [ ] `PluginPhases` and `PhaseOrder` are exported.
-- [ ] `JsonPathPluginMeta` includes `phases`, `allowMultiple`, and `order`.
-- [ ] `resolvePlugins()` orders by phase then by constraints.
-- [ ] `createEngine()` accepts `components` overrides.
-- [ ] Subpath exports work.
-- [ ] All existing `@jsonpath/core` tests pass.
-- [ ] New tests cover phase ordering and constraint resolution.
+- [x] `createPlugin` is exported from `@jsonpath/core`.
+- [x] `PluginPhases` and `PhaseOrder` are exported.
+- [x] `JsonPathPluginMeta` includes `phases`, `allowMultiple`, and `order`.
+- [x] `resolvePlugins()` orders by phase then by constraints.
+- [x] `createEngine()` accepts `components` overrides.
+- [x] Subpath exports work.
+- [x] All existing `@jsonpath/core` tests pass.
+- [x] New tests cover phase ordering and constraint resolution.
 
 ### Verification
 
-```bash
-pnpm --filter @jsonpath/core test
-```
+- [x] `pnpm --filter @jsonpath/core test`
 
 ### STOP & COMMIT
 

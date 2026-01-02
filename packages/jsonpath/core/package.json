@@ -9,6 +9,18 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
+		},
+		"./ast": {
+			"types": "./dist/ast.d.ts",
+			"default": "./dist/ast.js"
+		},
+		"./lexer": {
+			"types": "./dist/lexer.d.ts",
+			"default": "./dist/lexer.js"
+		},
+		"./parser": {
+			"types": "./dist/parser.d.ts",
+			"default": "./dist/parser.js"
 		}
 	},
 	"main": "./dist/index.js",

@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import { nameSelector, path, segment } from '@jsonpath/ast';
 import type { JsonPathPlugin } from './plugins/types';
+import { PluginPhases } from './plugins/phases';
 
 import { createEngine } from './createEngine';
 
 const segmentOverride: JsonPathPlugin = {
-	meta: { id: 'test:segment-override' },
+	meta: { id: 'test:segment-override', phases: [PluginPhases.runtime] },
 	setup: ({ engine }) => {
 		engine.evaluators.registerSegment('Segment', () => []);
 	},
