@@ -9,6 +9,86 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
+		},
+		"./plugins/syntax/root": {
+			"types": "./dist/plugins/syntax/root.d.ts",
+			"default": "./dist/plugins/syntax/root.js"
+		},
+		"./plugins/syntax/current": {
+			"types": "./dist/plugins/syntax/current.d.ts",
+			"default": "./dist/plugins/syntax/current.js"
+		},
+		"./plugins/syntax/child-member": {
+			"types": "./dist/plugins/syntax/child-member.d.ts",
+			"default": "./dist/plugins/syntax/child-member.js"
+		},
+		"./plugins/syntax/child-index": {
+			"types": "./dist/plugins/syntax/child-index.d.ts",
+			"default": "./dist/plugins/syntax/child-index.js"
+		},
+		"./plugins/syntax/wildcard": {
+			"types": "./dist/plugins/syntax/wildcard.d.ts",
+			"default": "./dist/plugins/syntax/wildcard.js"
+		},
+		"./plugins/syntax/union": {
+			"types": "./dist/plugins/syntax/union.d.ts",
+			"default": "./dist/plugins/syntax/union.js"
+		},
+		"./plugins/syntax/descendant": {
+			"types": "./dist/plugins/syntax/descendant.d.ts",
+			"default": "./dist/plugins/syntax/descendant.js"
+		},
+		"./plugins/syntax/filter": {
+			"types": "./dist/plugins/syntax/filter.d.ts",
+			"default": "./dist/plugins/syntax/filter.js"
+		},
+		"./plugins/filter/literals": {
+			"types": "./dist/plugins/filter/literals.d.ts",
+			"default": "./dist/plugins/filter/literals.js"
+		},
+		"./plugins/filter/boolean": {
+			"types": "./dist/plugins/filter/boolean.d.ts",
+			"default": "./dist/plugins/filter/boolean.js"
+		},
+		"./plugins/filter/comparison": {
+			"types": "./dist/plugins/filter/comparison.d.ts",
+			"default": "./dist/plugins/filter/comparison.js"
+		},
+		"./plugins/filter/existence": {
+			"types": "./dist/plugins/filter/existence.d.ts",
+			"default": "./dist/plugins/filter/existence.js"
+		},
+		"./plugins/filter/functions": {
+			"types": "./dist/plugins/filter/functions.d.ts",
+			"default": "./dist/plugins/filter/functions.js"
+		},
+		"./plugins/filter/regex": {
+			"types": "./dist/plugins/filter/regex.d.ts",
+			"default": "./dist/plugins/filter/regex.js"
+		},
+		"./plugins/functions/core": {
+			"types": "./dist/plugins/functions/core.d.ts",
+			"default": "./dist/plugins/functions/core.js"
+		},
+		"./plugins/result/value": {
+			"types": "./dist/plugins/result/value.d.ts",
+			"default": "./dist/plugins/result/value.js"
+		},
+		"./plugins/result/node": {
+			"types": "./dist/plugins/result/node.d.ts",
+			"default": "./dist/plugins/result/node.js"
+		},
+		"./plugins/result/path": {
+			"types": "./dist/plugins/result/path.d.ts",
+			"default": "./dist/plugins/result/path.js"
+		},
+		"./plugins/result/pointer": {
+			"types": "./dist/plugins/result/pointer.d.ts",
+			"default": "./dist/plugins/result/pointer.js"
+		},
+		"./iregexp": {
+			"types": "./dist/iregexp.d.ts",
+			"default": "./dist/iregexp.js"
 		}
 	},
 	"main": "./dist/index.js",
@@ -29,28 +109,7 @@
 	},
 	"dependencies": {
 		"@jsonpath/core": "workspace:^",
-		"@jsonpath/plugin-filter-boolean": "workspace:^",
-		"@jsonpath/plugin-filter-comparison": "workspace:^",
-		"@jsonpath/plugin-filter-existence": "workspace:^",
-		"@jsonpath/plugin-filter-functions": "workspace:^",
-		"@jsonpath/plugin-filter-literals": "workspace:^",
-		"@jsonpath/plugin-filter-regex": "workspace:^",
-		"@jsonpath/plugin-functions-core": "workspace:^",
-		"@jsonpath/plugin-iregexp": "workspace:^",
-		"@jsonpath/plugin-result-node": "workspace:^",
-		"@jsonpath/plugin-result-parent": "workspace:^",
-		"@jsonpath/plugin-result-path": "workspace:^",
-		"@jsonpath/plugin-result-pointer": "workspace:^",
-		"@jsonpath/plugin-result-types": "workspace:^",
-		"@jsonpath/plugin-result-value": "workspace:^",
-		"@jsonpath/plugin-syntax-child-index": "workspace:^",
-		"@jsonpath/plugin-syntax-child-member": "workspace:^",
-		"@jsonpath/plugin-syntax-current": "workspace:^",
-		"@jsonpath/plugin-syntax-descendant": "workspace:^",
-		"@jsonpath/plugin-syntax-filter": "workspace:^",
-		"@jsonpath/plugin-syntax-root": "workspace:^",
-		"@jsonpath/plugin-syntax-union": "workspace:^",
-		"@jsonpath/plugin-syntax-wildcard": "workspace:^"
+		"@jsonpath/pointer": "workspace:^"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

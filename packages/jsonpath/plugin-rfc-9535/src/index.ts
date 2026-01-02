@@ -1,87 +1,138 @@
-import type { JsonPathPlugin } from '@jsonpath/core';
-import { createEngine } from '@jsonpath/core';
-import { plugin as boolOps } from '@jsonpath/plugin-filter-boolean';
-import { plugin as comparison } from '@jsonpath/plugin-filter-comparison';
-import { plugin as existence } from '@jsonpath/plugin-filter-existence';
-import { plugin as filterFunctions } from '@jsonpath/plugin-filter-functions';
-import { plugin as literals } from '@jsonpath/plugin-filter-literals';
-import { plugin as filterRegex } from '@jsonpath/plugin-filter-regex';
-import { plugin as functionsCore } from '@jsonpath/plugin-functions-core';
-import { plugin as iregexp } from '@jsonpath/plugin-iregexp';
-import { plugin as resultNode } from '@jsonpath/plugin-result-node';
-import { plugin as resultParent } from '@jsonpath/plugin-result-parent';
-import { plugin as resultPath } from '@jsonpath/plugin-result-path';
-import { plugin as resultPointer } from '@jsonpath/plugin-result-pointer';
-import { plugin as resultTypes } from '@jsonpath/plugin-result-types';
-import { plugin as resultValue } from '@jsonpath/plugin-result-value';
-import { plugin as childIndex } from '@jsonpath/plugin-syntax-child-index';
-import { plugin as childMember } from '@jsonpath/plugin-syntax-child-member';
-import { plugin as current } from '@jsonpath/plugin-syntax-current';
-import { plugin as descendant } from '@jsonpath/plugin-syntax-descendant';
-import { plugin as filterContainer } from '@jsonpath/plugin-syntax-filter';
 import {
-	createSyntaxRootPlugin,
-	plugin as root,
-} from '@jsonpath/plugin-syntax-root';
-import { plugin as union } from '@jsonpath/plugin-syntax-union';
-import { plugin as wildcard } from '@jsonpath/plugin-syntax-wildcard';
+	createPlugin,
+	createEngine as createCoreEngine,
+	type CreateEngineOptions,
+} from '@jsonpath/core';
 
-export type Rfc9535Profile = 'rfc9535-draft' | 'rfc9535-core' | 'rfc9535-full';
+// Import for internal use
+import { createFilterBooleanPlugin } from './plugins/filter/boolean';
+import { createFilterComparisonPlugin } from './plugins/filter/comparison';
+import { createFilterExistencePlugin } from './plugins/filter/existence';
+import { createFilterFunctionsPlugin } from './plugins/filter/functions';
+import { createFilterLiteralsPlugin } from './plugins/filter/literals';
+import { createFilterRegexPlugin } from './plugins/filter/regex';
+import { createFunctionsCorePlugin } from './plugins/functions/core';
+import { createResultNodePlugin } from './plugins/result/node';
+import { createResultPathPlugin } from './plugins/result/path';
+import { createResultPointerPlugin } from './plugins/result/pointer';
+import { createResultValuePlugin } from './plugins/result/value';
+import { createSyntaxChildIndexPlugin } from './plugins/syntax/child-index';
+import { createSyntaxChildMemberPlugin } from './plugins/syntax/child-member';
+import { createSyntaxCurrentPlugin } from './plugins/syntax/current';
+import { createSyntaxDescendantPlugin } from './plugins/syntax/descendant';
+import { createSyntaxFilterPlugin } from './plugins/syntax/filter';
+import { createSyntaxRootPlugin } from './plugins/syntax/root';
+import { createSyntaxUnionPlugin } from './plugins/syntax/union';
+import { createSyntaxWildcardPlugin } from './plugins/syntax/wildcard';
 
-export interface Rfc9535EngineOptions {
-	profile?: Rfc9535Profile;
-}
+// Syntax plugins
+export { createSyntaxRootPlugin } from './plugins/syntax/root';
+export { createSyntaxCurrentPlugin } from './plugins/syntax/current';
+export { createSyntaxChildMemberPlugin } from './plugins/syntax/child-member';
+export { createSyntaxChildIndexPlugin } from './plugins/syntax/child-index';
+export { createSyntaxWildcardPlugin } from './plugins/syntax/wildcard';
+export { createSyntaxUnionPlugin } from './plugins/syntax/union';
+export { createSyntaxDescendantPlugin } from './plugins/syntax/descendant';
+export { createSyntaxFilterPlugin } from './plugins/syntax/filter';
 
+// Filter plugins
+export { createFilterLiteralsPlugin } from './plugins/filter/literals';
+export { createFilterBooleanPlugin } from './plugins/filter/boolean';
+export { createFilterComparisonPlugin } from './plugins/filter/comparison';
+export { createFilterExistencePlugin } from './plugins/filter/existence';
+export { createFilterFunctionsPlugin } from './plugins/filter/functions';
+export { createFilterRegexPlugin } from './plugins/filter/regex';
+
+// Function plugins
+export { createFunctionsCorePlugin } from './plugins/functions/core';
+
+// Result plugins
+export { createResultValuePlugin } from './plugins/result/value';
+export { createResultNodePlugin } from './plugins/result/node';
+export { createResultPathPlugin } from './plugins/result/path';
+export { createResultPointerPlugin } from './plugins/result/pointer';
+
+// IRegexp utility
+export { iregexp } from './iregexp';
+
+/**
+ * All RFC 9535 plugins in dependency order.
+ *
+ * Note: this order is manually curated based on logical dependencies
+ * between plugins (e.g., syntax before filters, filters before functions).
+ * The new phase system will make this ordering more robust.
+ */
 export const rfc9535Plugins = [
-	root,
-	current,
-	childMember,
-	childIndex,
-	wildcard,
-	union,
-	descendant,
-	filterContainer,
-	literals,
-	boolOps,
-	comparison,
-	existence,
-	functionsCore,
-	filterFunctions,
-	iregexp,
-	filterRegex,
-	resultValue,
-	resultNode,
-	resultPath,
-	resultPointer,
-	resultParent,
-	resultTypes,
-] as const satisfies readonly JsonPathPlugin[];
+	// Syntax plugins (order matters for parsing)
+	createSyntaxRootPlugin(),
+	createSyntaxCurrentPlugin(),
+	createSyntaxChildMemberPlugin(),
+	createSyntaxChildIndexPlugin(),
+	createSyntaxWildcardPlugin(),
+	createSyntaxUnionPlugin(),
+	createSyntaxDescendantPlugin(),
+	createSyntaxFilterPlugin(),
+
+	// Filter operand plugins
+	createFilterLiteralsPlugin(),
+	createFilterBooleanPlugin(),
+	createFilterComparisonPlugin(),
+	createFilterExistencePlugin(),
+	createFilterFunctionsPlugin(),
+	createFilterRegexPlugin(),
+
+	// Function plugins
+	createFunctionsCorePlugin(),
+
+	// Result formatters
+	createResultValuePlugin(),
+	createResultNodePlugin(),
+	createResultPathPlugin(),
+	createResultPointerPlugin(),
+] as const;
+
+export type Rfc9535EngineOptions = Omit<CreateEngineOptions, 'plugins'> & {
+	/**
+	 * Optional additional plugins to load. These will be loaded _after_
+	 * the core RFC 9535 plugins.
+	 */
+	additionalPlugins?: CreateEngineOptions['plugins'];
+};
+
+/**
+ * A single plugin that registers all RFC 9535 functionality.
+ */
+export const plugin = createPlugin({
+	meta: {
+		id: '@jsonpath/plugin-rfc-9535',
+		// This plugin covers all phases by proxy
+		phases: ['syntax', 'filter', 'runtime', 'result'],
+		capabilities: rfc9535Plugins.flatMap((p) => p.meta.capabilities ?? []),
+	},
+	setup: ({ engine }) => {
+		engine.registerPlugin(...rfc9535Plugins);
+	},
+});
 
 export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
-	const profile = options?.profile ?? 'rfc9535-draft';
-	// IMPORTANT: create a fresh syntax-root plugin instance per engine to avoid shared mutable state.
-	const root = createSyntaxRootPlugin();
-	return createEngine({
-		plugins: [
-			root,
-			...rfc9535Plugins.filter(
-				(p) => p.meta.id !== '@jsonpath/plugin-syntax-root',
-			),
-		],
-		options: {
-			plugins: {
-				'@jsonpath/plugin-rfc-9535': { profile },
-				'@jsonpath/plugin-syntax-root': { profile },
-			},
-		},
+	const { additionalPlugins = [], ...rest } = options ?? {};
+	return createCoreEngine({
+		...rest,
+		plugins: [...rfc9535Plugins, ...additionalPlugins],
 	});
 }
 
-export const plugin: JsonPathPlugin<{ profile?: Rfc9535Profile }> = {
+/**
+ * Preset plugin that declares dependency on all RFC 9535 plugins.
+ *
+ * This is useful for building other plugins that extend RFC 9535 functionality
+ * without needing to manually list all the individual plugins.
+ */
+export const rfc9535PresetPlugin = createPlugin({
 	meta: {
-		id: '@jsonpath/plugin-rfc-9535',
+		id: '@jsonpath/plugin-rfc-9535-preset',
 		capabilities: ['preset:rfc9535'],
 		dependsOn: rfc9535Plugins.map((p) => p.meta.id),
 	},
 	setup: () => undefined,
-};
+});

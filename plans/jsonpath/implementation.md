@@ -595,13 +595,13 @@ export const plugin = createPlugin({
 
 ### Acceptance criteria
 
-- [ ] All RFC plugin source code lives under `plugin-rfc-9535/src/plugins/`.
-- [ ] Each plugin uses `createPlugin`.
-- [ ] Each plugin declares appropriate phase(s).
-- [ ] Subpath exports work.
-- [ ] `rfc9535Plugins` is exported and non-empty.
-- [ ] All existing `@jsonpath/plugin-rfc-9535` tests pass.
-- [ ] New smoke tests verify plugin meta stability.
+- [x] All RFC plugin source code lives under `plugin-rfc-9535/src/plugins/`.
+- [x] Each plugin uses `createPlugin`.
+- [x] Each plugin declares appropriate phase(s).
+- [x] Subpath exports work.
+- [x] `rfc9535Plugins` is exported and non-empty.
+- [x] All existing `@jsonpath/plugin-rfc-9535` tests pass.
+- [x] New smoke tests verify plugin meta stability.
 
 ### Verification
 

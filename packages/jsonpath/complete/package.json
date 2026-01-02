@@ -29,9 +29,6 @@
 	},
 	"dependencies": {
 		"@jsonpath/core": "workspace:*",
-		"@jsonpath/plugin-filter-functions": "workspace:*",
-		"@jsonpath/plugin-filter-regex": "workspace:*",
-		"@jsonpath/plugin-functions-core": "workspace:*",
 		"@jsonpath/plugin-parent-selector": "workspace:*",
 		"@jsonpath/plugin-property-name-selector": "workspace:*",
 		"@jsonpath/plugin-result-types": "workspace:*",

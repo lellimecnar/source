@@ -161,7 +161,10 @@ function resolvePhase(plugins: JsonPathPlugin<any>[]): JsonPathPlugin<any>[] {
 	const ordered: JsonPathPlugin<any>[] = [];
 	while (queue.length > 0) {
 		const id = queue.shift()!;
-		ordered.push(byId.get(id));
+		const plugin = byId.get(id);
+		if (plugin) {
+			ordered.push(plugin);
+		}
 
 		const next = outgoing.get(id);
 		if (!next) continue;
@@ -183,7 +186,10 @@ function resolvePhase(plugins: JsonPathPlugin<any>[]): JsonPathPlugin<any>[] {
 		);
 		remainingIds.sort((a, b) => a.localeCompare(b));
 		for (const id of remainingIds) {
-			ordered.push(byId.get(id));
+			const plugin = byId.get(id);
+			if (plugin) {
+				ordered.push(plugin);
+			}
 		}
 	}
 

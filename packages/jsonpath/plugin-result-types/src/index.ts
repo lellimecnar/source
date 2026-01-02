@@ -1,15 +1,17 @@
 import type { JsonPathPlugin } from '@jsonpath/core';
-import { plugin as node } from '@jsonpath/plugin-result-node';
 import { plugin as parent } from '@jsonpath/plugin-result-parent';
-import { plugin as pathPlugin } from '@jsonpath/plugin-result-path';
-import { plugin as pointer } from '@jsonpath/plugin-result-pointer';
-import { plugin as value } from '@jsonpath/plugin-result-value';
+import {
+	createResultNodePlugin,
+	createResultPathPlugin,
+	createResultPointerPlugin,
+	createResultValuePlugin,
+} from '@jsonpath/plugin-rfc-9535';
 
 export const plugins = [
-	value,
-	node,
-	pathPlugin,
-	pointer,
+	createResultValuePlugin(),
+	createResultNodePlugin(),
+	createResultPathPlugin(),
+	createResultPointerPlugin(),
 	parent,
 ] as const satisfies readonly JsonPathPlugin[];
 

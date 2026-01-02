@@ -34,3 +34,7 @@ export {
 	type EvaluateMiddlewareSync,
 	type EvaluateMiddlewareAsync,
 } from './runtime/lifecycle';
+export {
+	registerRfc9535ScanRules,
+	registerRfc9535LiteralScanRules,
+} from '@jsonpath/lexer';

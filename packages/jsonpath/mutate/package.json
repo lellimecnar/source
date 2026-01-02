@@ -32,7 +32,6 @@
 		"@jsonpath/pointer": "workspace:^"
 	},
 	"devDependencies": {
-		"@jsonpath/plugin-result-pointer": "workspace:^",
 		"@jsonpath/plugin-rfc-9535": "workspace:^",
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
