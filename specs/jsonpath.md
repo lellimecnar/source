@@ -1,3 +1,20 @@
+---
+title: JSONPath Ecosystem Spec (Legacy Path)
+version: 2026-01
+date_created: 2026-01-02
+last_updated: 2026-01-02
+owner: @lellimecnar
+tags: [design, jsonpath, legacy-spec, redirect]
+---
+
+# JSONPath Specification
+
+This file remains for backwards compatibility.
+
+The canonical, implementation-aligned specification is:
+
+- [spec/design-jsonpath.md](../spec/design-jsonpath.md)
+
 # @jsonpath Library Specification
 
 ## A Plugin-First JSONPath Ecosystem for JavaScript
