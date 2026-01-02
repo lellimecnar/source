@@ -2,21 +2,21 @@ import type { FunctionRegistry } from './function-registry';
 import type { Observable } from './observable';
 import type { JsonPatchOperation, UISpecStore } from './store';
 
-export type UISpecContext = {
+export interface UISpecContext {
 	store: UISpecStore;
 	functions: FunctionRegistry;
 
-	get<T = unknown>(path: string): T;
-	select<T = unknown>(path: string): Observable<T>;
-	patch(operations: JsonPatchOperation[]): void;
-	set(path: string, value: unknown): void;
-	update(path: string, updater: (current: unknown) => unknown): void;
-	merge(path: string, partial: Record<string, unknown>): void;
-	push(path: string, ...items: unknown[]): void;
-	remove(path: string, predicate: (item: unknown) => boolean): void;
+	get: <T = unknown>(path: string) => T;
+	select: <T = unknown>(path: string) => Observable<T>;
+	patch: (operations: JsonPatchOperation[]) => void;
+	set: (path: string, value: unknown) => void;
+	update: (path: string, updater: (current: unknown) => unknown) => void;
+	merge: (path: string, partial: Record<string, unknown>) => void;
+	push: (path: string, ...items: unknown[]) => void;
+	remove: (path: string, predicate: (item: unknown) => boolean) => void;
 
-	call(id: string, ...args: unknown[]): unknown;
-};
+	call: (id: string, ...args: unknown[]) => unknown;
+}
 
 export function createUISpecContext(params: {
 	store: UISpecStore;

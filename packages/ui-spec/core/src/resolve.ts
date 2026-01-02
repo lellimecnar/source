@@ -1,15 +1,15 @@
-import type { UISpecContext } from './context';
 import { resolveAction, type ActionSchema } from './actions';
 import type { ComponentRegistry } from './component-registry';
+import type { UISpecContext } from './context';
 import { isCallBinding, isPathBinding, type NodeSchema } from './types';
 
-export type ResolvedNode<TComponent = unknown> = {
+export interface ResolvedNode<TComponent = unknown> {
 	type: string;
 	intrinsic?: string;
 	component?: TComponent;
 	props: Record<string, unknown>;
-	children: Array<ResolvedNode<TComponent> | unknown>;
-};
+	children: (ResolvedNode<TComponent> | unknown)[];
+}
 
 function isIntrinsicTag(type: string): boolean {
 	return type.toLowerCase() === type;
@@ -55,7 +55,7 @@ export function resolveNode<TComponent>(
 		}
 	}
 
-	const children: Array<ResolvedNode<TComponent> | unknown> = [];
+	const children: (ResolvedNode<TComponent> | unknown)[] = [];
 	for (const child of node.children ?? []) {
 		if (typeof child === 'object' && child !== null && 'type' in child) {
 			children.push(resolveNode(child as NodeSchema, ctx, registries));

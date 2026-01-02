@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { UISpecProvider, UISpecRoot } from '@ui-spec/react';
-import { shadcnAdapter } from './index';
+import { createShadcnAdapter } from './index';
 
 describe('shadcnAdapter', () => {
 	it('renders a shadcn Button via UISpec', () => {
@@ -14,7 +14,7 @@ describe('shadcnAdapter', () => {
 		};
 
 		render(
-			<UISpecProvider schema={schema} adapters={[shadcnAdapter]}>
+			<UISpecProvider schema={schema} adapters={[createShadcnAdapter()]}>
 				<UISpecRoot />
 			</UISpecProvider>,
 		);

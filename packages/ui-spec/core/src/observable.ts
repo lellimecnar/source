@@ -20,7 +20,7 @@ export function createEmitter<T>() {
 	};
 }
 
-export type Observable<T> = {
-	get(): T;
-	subscribe(listener: Listener<T>): Unsubscribe;
-};
+export interface Observable<T> {
+	get: () => T;
+	subscribe: (listener: Listener<T>) => Unsubscribe;
+}

@@ -479,7 +479,7 @@ completes: step 1 of 13 for ui-spec
 
 #### Step 9: React adapter interface: pluggable component libraries
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/adapter.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/adapter.ts`:
 
 ```ts
 import type { ComponentType } from 'react';
@@ -489,7 +489,7 @@ export type UISpecComponentAdapter = {
 };
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/registry.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/registry.ts`:
 
 ```ts
 import type { ComponentType } from 'react';
@@ -519,14 +519,14 @@ export function createComponentRegistry(params: {
 }
 ```
 
-- [ ] Update `packages/ui-spec/react/src/index.ts` by replacing its contents with:
+- [x] Update `packages/ui-spec/react/src/index.ts` by replacing its contents with:
 
 ```ts
 export * from './adapter';
 export * from './registry';
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/adapter.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/adapter.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -543,7 +543,7 @@ describe('UISpecComponentAdapter', () => {
 });
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/registry.spec.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/registry.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -569,7 +569,7 @@ describe('createComponentRegistry', () => {
 
 ##### Step 9 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/react test`
+- [x] `pnpm --filter @ui-spec/react test`
 
 #### Step 9 STOP & COMMIT
 
@@ -590,7 +590,7 @@ completes: step 9 of 13 for ui-spec
 
 #### Step 10: React binding: provider, renderer, and subscription hooks
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/context.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/context.ts`:
 
 ```ts
 import { createContext, useContext } from 'react';
@@ -624,7 +624,7 @@ export function useUISpecRuntime(): UISpecReactRuntime {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/hooks.ts`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/hooks.ts`:
 
 ```ts
 import { useMemo, useSyncExternalStore } from 'react';
@@ -652,7 +652,7 @@ export function useUISpecValue<T = unknown>(path: string): T {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/provider.tsx`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/provider.tsx`:
 
 ```tsx
 import { useMemo, type ReactNode } from 'react';
@@ -720,7 +720,7 @@ export function UISpecProvider(props: UISpecProviderProps) {
 }
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/render.tsx`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/render.tsx`:
 
 ```tsx
 import { Fragment } from 'react';
@@ -763,7 +763,7 @@ export function UISpecRoot() {
 }
 ```
 
-- [ ] Update `packages/ui-spec/react/src/index.ts` by replacing its contents with:
+- [x] Update `packages/ui-spec/react/src/index.ts` by replacing its contents with:
 
 ```ts
 export * from './adapter';
@@ -774,7 +774,7 @@ export * from './registry';
 export * from './render';
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/provider.spec.tsx`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/provider.spec.tsx`:
 
 ```tsx
 import { describe, expect, it } from 'vitest';
@@ -801,7 +801,7 @@ describe('UISpecProvider', () => {
 });
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/render.spec.tsx`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/render.spec.tsx`:
 
 ```tsx
 import { describe, expect, it } from 'vitest';
@@ -849,7 +849,7 @@ describe('UISpec rendering', () => {
 });
 ```
 
-- [ ] Copy and paste the code below into `packages/ui-spec/react/src/hooks.spec.tsx`:
+- [x] Copy and paste the code below into `packages/ui-spec/react/src/hooks.spec.tsx`:
 
 ```tsx
 import { describe, expect, it } from 'vitest';
@@ -898,7 +898,7 @@ describe('useUISpecValue', () => {
 
 ##### Step 10 Verification Checklist
 
-- [ ] `pnpm --filter @ui-spec/react test`
+- [x] `pnpm --filter @ui-spec/react test`
 
 #### Step 10 STOP & COMMIT
 

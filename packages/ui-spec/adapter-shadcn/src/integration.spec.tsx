@@ -2,17 +2,17 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { UISpecProvider, UISpecRoot } from '@ui-spec/react';
 import { FunctionRegistry, createJsonp3FunctionRegistry } from '@ui-spec/core';
-import { shadcnAdapter } from './index';
+import { createShadcnAdapter } from './index';
 
 describe('UI-Spec Integration', () => {
 	it('full flow: shadcn + store + functions + events', async () => {
 		const functions = new FunctionRegistry(createJsonp3FunctionRegistry());
 		functions.registerFunction('toggle', (ctx) => {
-			const current = ctx.get('$.enabled');
-			ctx.set('$.enabled', !current);
+			const current = (ctx as any).get('$.enabled');
+			(ctx as any).set('$.enabled', !current);
 		});
 		functions.registerFunction('getLabel', (ctx) => {
-			return ctx.get('$.enabled') ? 'Enabled' : 'Disabled';
+			return (ctx as any).get('$.enabled') ? 'Enabled' : 'Disabled';
 		});
 
 		const schema = {
@@ -21,7 +21,7 @@ describe('UI-Spec Integration', () => {
 				type: 'div',
 				children: [
 					{
-						type: 'Label',
+						type: 'Button',
 						children: [
 							{
 								$call: { id: 'getLabel' },
@@ -29,12 +29,12 @@ describe('UI-Spec Integration', () => {
 						],
 					},
 					{
-						type: 'Switch',
+						type: 'Button',
 						props: {
-							checked: { $path: '$.enabled' },
+							title: { $path: '$.enabled' },
 						},
 						$on: {
-							onCheckedChange: { $call: { id: 'toggle' } },
+							onClick: { $call: { id: 'toggle' } },
 						},
 					},
 				],
@@ -44,7 +44,7 @@ describe('UI-Spec Integration', () => {
 		render(
 			<UISpecProvider
 				schema={schema}
-				adapters={[shadcnAdapter]}
+				adapters={[createShadcnAdapter()]}
 				functions={functions}
 			>
 				<UISpecRoot />
@@ -53,8 +53,8 @@ describe('UI-Spec Integration', () => {
 
 		expect(screen.getByText('Disabled')).toBeTruthy();
 
-		const switchEl = screen.getByRole('switch');
-		fireEvent.click(switchEl);
+		const buttons = screen.getAllByRole('button');
+		fireEvent.click(buttons[1]);
 
 		expect(await screen.findByText('Enabled')).toBeTruthy();
 	});

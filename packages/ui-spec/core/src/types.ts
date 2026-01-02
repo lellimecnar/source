@@ -1,25 +1,31 @@
 export type JsonPath = string;
 
-export type PathBinding = { $path: JsonPath };
-export type CallBinding = { $call: { id: string; args?: unknown[] } };
+export interface PathBinding {
+	$path: JsonPath;
+}
+export interface CallBinding {
+	$call: { id: string; args?: unknown[] };
+}
 
 export type BindingValue = unknown | PathBinding | CallBinding;
 
-export type EventHandlerSchema = { $call: { id: string; args?: unknown[] } };
+export interface EventHandlerSchema {
+	$call: { id: string; args?: unknown[] };
+}
 
-export type NodeSchema = {
+export interface NodeSchema {
 	type: string;
 	props?: Record<string, BindingValue>;
-	children?: Array<BindingValue | NodeSchema>;
+	children?: (BindingValue | NodeSchema)[];
 	$on?: Record<string, EventHandlerSchema>;
-};
+}
 
-export type UISpecSchema = {
+export interface UISpecSchema {
 	data?: unknown;
 	root: NodeSchema;
 	components?: Record<string, unknown>;
 	functions?: Record<string, unknown>;
-};
+}
 
 export function isPathBinding(value: unknown): value is PathBinding {
 	return (

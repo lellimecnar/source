@@ -1,6 +1,5 @@
-import type { ComponentType } from 'react';
-
 import { ComponentRegistry } from '@ui-spec/core';
+import type { ComponentType } from 'react';
 
 import type { UISpecComponentAdapter } from './adapter';
 

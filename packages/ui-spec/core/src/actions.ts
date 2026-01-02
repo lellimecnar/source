@@ -1,5 +1,5 @@
-import { UISpecError } from './errors';
 import type { UISpecContext } from './context';
+import { UISpecError } from './errors';
 import { isCallBinding, isPathBinding, type CallBinding } from './types';
 
 export type ActionSchema = CallBinding;

@@ -2,11 +2,14 @@ import { JSONPathEnvironment, jsonpath, type JSONValue } from 'json-p3';
 
 import { UISpecError } from './errors';
 
-export type Jsonp3Match = { value: unknown; pointer: string };
+export interface Jsonp3Match {
+	value: unknown;
+	pointer: string;
+}
 
-export type Jsonp3Evaluator = {
-	findAll(path: string, doc: unknown): Jsonp3Match[];
-};
+export interface Jsonp3Evaluator {
+	findAll: (path: string, doc: unknown) => Jsonp3Match[];
+}
 
 export type Jsonp3FunctionRegister = Map<string, unknown>;
 
@@ -20,7 +23,7 @@ export function createJsonp3FunctionRegistry(): Jsonp3FunctionRegister {
 }
 
 export function createJsonp3Evaluator(): Jsonp3Evaluator {
-	if (!jsonpath?.query) {
+	if (!jsonpath.query) {
 		throw new UISpecError(
 			'UI_SPEC_JSONP3_API_MISSING',
 			'json-p3 jsonpath.query is missing',

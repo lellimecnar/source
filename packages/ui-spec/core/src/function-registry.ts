@@ -1,5 +1,5 @@
-import type { Jsonp3FunctionRegister } from './jsonp3';
 import { UISpecError } from './errors';
+import type { Jsonp3FunctionRegister } from './jsonp3';
 
 export type UISpecCallable = (ctx: unknown, ...args: unknown[]) => unknown;
 

@@ -1,5 +1,3 @@
-import { useMemo, type ReactNode } from 'react';
-
 import {
 	createJsonp3FunctionRegistry,
 	createUISpecContext,
@@ -8,18 +6,19 @@ import {
 	type UISpecSchema,
 	type UISpecStore,
 } from '@ui-spec/core';
+import { useMemo, type ReactNode } from 'react';
 
 import type { UISpecComponentAdapter } from './adapter';
 import { UISpecRuntimeContext } from './context';
 import { createComponentRegistry } from './registry';
 
-export type UISpecProviderProps = {
+export interface UISpecProviderProps {
 	schema: UISpecSchema;
 	adapters?: UISpecComponentAdapter[];
 	store?: UISpecStore;
 	functions?: FunctionRegistry;
 	children?: ReactNode;
-};
+}
 
 export function UISpecProvider(props: UISpecProviderProps) {
 	const {

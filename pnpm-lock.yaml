@@ -827,6 +827,9 @@ importers:
       '@types/react-dom':
         specifier: ^18
         version: 18.3.7(@types/react@18.3.27)
+      '@ui-spec/adapter-shadcn':
+        specifier: workspace:*
+        version: link:../adapter-shadcn
       '@vitest/coverage-v8':
         specifier: ^4.0.16
         version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))

@@ -17,24 +17,24 @@ export type JsonPatchOperation =
 	| { op: 'copy'; from: string; path: string }
 	| { op: 'test'; path: string; value: unknown };
 
-export type UISpecStore = {
-	get<T = unknown>(path: string): T;
-	select<T = unknown>(path: string): Observable<T>;
-	patch(operations: JsonPatchOperation[]): void;
-	set(path: string, value: unknown): void;
-	update(path: string, updater: (current: unknown) => unknown): void;
-	merge(path: string, partial: Record<string, unknown>): void;
-	push(path: string, ...items: unknown[]): void;
-	remove(path: string, predicate: (item: unknown) => boolean): void;
-	subscribe(listener: () => void): Unsubscribe;
-	getDocument(): unknown;
-};
+export interface UISpecStore {
+	get: <T = unknown>(path: string) => T;
+	select: <T = unknown>(path: string) => Observable<T>;
+	patch: (operations: JsonPatchOperation[]) => void;
+	set: (path: string, value: unknown) => void;
+	update: (path: string, updater: (current: unknown) => unknown) => void;
+	merge: (path: string, partial: Record<string, unknown>) => void;
+	push: (path: string, ...items: unknown[]) => void;
+	remove: (path: string, predicate: (item: unknown) => boolean) => void;
+	subscribe: (listener: () => void) => Unsubscribe;
+	getDocument: () => unknown;
+}
 
 function findSinglePointer(
 	document: unknown,
 	path: string,
 ): { pointer: string; value: unknown } {
-	if (!jsonpath?.query) {
+	if (!jsonpath.query) {
 		throw new UISpecError(
 			'UI_SPEC_JSONP3_API_MISSING',
 			'json-p3 jsonpath.query is missing',
@@ -95,13 +95,21 @@ export function createUISpecStore(initialDocument: unknown): UISpecStore {
 
 	const patch = (operations: JsonPatchOperation[]) => {
 		if (operations.length === 0) return;
-		const next = jsonpatch.apply(
-			operations as unknown as jsonpatch.OpObject[],
-			document as any,
-		);
-		// Ensure we always have a new reference for React reactivity
-		document = Array.isArray(next) ? [...next] : { ...(next as any) };
-		emitter.emit(undefined);
+		try {
+			const next = jsonpatch.apply(
+				operations as unknown as jsonpatch.OpObject[],
+				document as any,
+			);
+			// Ensure we always have a new reference for React reactivity
+			document = Array.isArray(next) ? [...next] : { ...(next as any) };
+			emitter.emit(undefined);
+		} catch (err) {
+			throw new UISpecError(
+				'UI_SPEC_PATCH_FAILED',
+				`Failed to apply JSON Patch: ${err instanceof Error ? err.message : String(err)}`,
+				{ operations, error: err },
+			);
+		}
 	};
 
 	const set = (path: string, value: unknown) => {

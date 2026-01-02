@@ -50,4 +50,11 @@ describe('UISpecStore writes', () => {
 
 		unsub();
 	});
+
+	it('patch() throws UISpecError on invalid operation', () => {
+		const store = createUISpecStore({ a: 1 });
+		expect(() => {
+			store.patch([{ op: 'replace', path: '/nonexistent', value: 10 }]);
+		}).toThrow(/Failed to apply JSON Patch/);
+	});
 });
