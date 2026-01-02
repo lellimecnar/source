@@ -30,7 +30,6 @@
 	},
 	"dependencies": {
 		"@jsonpath/compat-jsonpath-plus": "workspace:^",
-		"@lellimecnar/jsonpath-conformance": "workspace:^",
 		"jsonpath-plus": "^10.3.0"
 	},
 	"devDependencies": {

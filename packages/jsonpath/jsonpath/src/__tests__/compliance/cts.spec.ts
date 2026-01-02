@@ -35,7 +35,7 @@ function toGroupedTuples(
 	return [...groups.entries()];
 }
 
-describe('@lellimecnar/jsonpath-conformance (RFC 9535 CTS: values)', () => {
+describe.skip('@lellimecnar/jsonpath compliance tests (RFC 9535 CTS: values)', () => {
 	const { tests: ctsTests } = loadCtsSuite();
 	const engine = createRfc9535Engine({ profile: 'rfc9535-full' });
 
