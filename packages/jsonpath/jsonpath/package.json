@@ -1,0 +1,56 @@
+{
+	"name": "@jsonpath/jsonpath",
+	"version": "0.0.1",
+	"description": "RFC 9535 JSONPath for JavaScript - zero configuration required",
+	"license": "MIT",
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "pnpm run clean && vite build",
+		"clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+		"dev": "vite build --watch",
+		"postinstall": "napa",
+		"lint": "eslint .",
+		"prepack": "pnpm run build",
+		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"test:watch": "vitest",
+		"type-check": "tsgo --noEmit"
+	},
+	"dependencies": {
+		"@jsonpath/core": "workspace:^",
+		"@jsonpath/plugin-rfc-9535": "workspace:^"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@lellimecnar/vite-config": "workspace:^",
+		"@lellimecnar/vitest-config": "workspace:*",
+		"@types/node": "^24",
+		"@vitest/coverage-v8": "^4.0.16",
+		"eslint": "^8.57.1",
+		"napa": "^3.0.0",
+		"typescript": "~5.5",
+		"vite": "^7.3.0",
+		"vite-plugin-dts": "^4.5.4",
+		"vite-tsconfig-paths": "^6.0.3",
+		"vitest": "^4.0.16"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"napa": {
+		"jsonpath-compliance-test-suite": "jsonpath-standard/jsonpath-compliance-test-suite#main"
+	}
+}

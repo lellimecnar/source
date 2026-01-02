@@ -18,7 +18,7 @@ export const createSyntaxRootPlugin = createPlugin<{
 
 	return {
 		meta: {
-			id: '@jsonpath/plugin-syntax-root',
+			id: '@jsonpath/plugin-rfc-9535/syntax-root',
 			phases: [PluginPhases.syntax],
 			capabilities: ['syntax:rfc9535:root'],
 		},

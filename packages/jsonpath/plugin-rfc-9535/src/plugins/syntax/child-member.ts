@@ -9,7 +9,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export const createSyntaxChildMemberPlugin = () =>
 	createPlugin({
 		meta: {
-			id: '@jsonpath/plugin-syntax-child-member',
+			id: '@jsonpath/plugin-rfc-9535/syntax-child-member',
 			phases: [PluginPhases.syntax, PluginPhases.runtime],
 			capabilities: ['syntax:rfc9535:child-member'],
 		},

@@ -14,7 +14,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export const createSyntaxWildcardPlugin = () =>
 	createPlugin({
 		meta: {
-			id: '@jsonpath/plugin-syntax-wildcard',
+			id: '@jsonpath/plugin-rfc-9535/syntax-wildcard',
 			phases: [PluginPhases.syntax, PluginPhases.runtime],
 			capabilities: ['syntax:rfc9535:wildcard'],
 		},

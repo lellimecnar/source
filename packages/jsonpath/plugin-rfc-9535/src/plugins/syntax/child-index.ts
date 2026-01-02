@@ -42,7 +42,7 @@ function computeSliceIndices(args: {
 export const createSyntaxChildIndexPlugin = () =>
 	createPlugin({
 		meta: {
-			id: '@jsonpath/plugin-syntax-child-index',
+			id: '@jsonpath/plugin-rfc-9535/syntax-child-index',
 			phases: [PluginPhases.syntax, PluginPhases.runtime],
 			capabilities: ['syntax:rfc9535:child-index', 'syntax:rfc9535:slice'],
 		},

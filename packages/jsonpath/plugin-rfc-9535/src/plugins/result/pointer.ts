@@ -11,7 +11,7 @@ function pointerFromLocation(location: any): string {
 export const createResultPointerPlugin = () =>
 	createPlugin({
 		meta: {
-			id: '@jsonpath/plugin-result-pointer',
+			id: '@jsonpath/plugin-rfc-9535/result-pointer',
 			phases: [PluginPhases.result],
 			capabilities: ['result:pointer'],
 		},

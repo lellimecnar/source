@@ -34,7 +34,7 @@ function normalizedPathFromLocation(location: any): string {
 export const createResultPathPlugin = () =>
 	createPlugin({
 		meta: {
-			id: '@jsonpath/plugin-result-path',
+			id: '@jsonpath/plugin-rfc-9535/result-path',
 			phases: [PluginPhases.result],
 			capabilities: ['result:path'],
 		},

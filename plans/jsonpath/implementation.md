@@ -301,7 +301,7 @@ core engine component overrides with subpath exports for core components.
 
 ---
 
-## Step 3: Consolidate RFC 9535 plugins into `@jsonpath/plugin-rfc-9535`
+## Step 3: Consolidate RFC 9535 plugins into `@jsonpath/plugin-rfc-9535` [COMPLETED]
 
 ### Files to create
 
@@ -605,9 +605,7 @@ export const plugin = createPlugin({
 
 ### Verification
 
-```bash
-pnpm --filter @jsonpath/plugin-rfc-9535 test
-```
+- [x] `pnpm --filter @jsonpath/plugin-rfc-9535 test`
 
 ### STOP & COMMIT
 
@@ -620,7 +618,7 @@ phase declarations and subpath exports.
 
 ---
 
-## Step 4: Delete old RFC plugin packages (workspace cleanup)
+## Step 4: Delete old RFC plugin packages (workspace cleanup) [COMPLETED]
 
 ### Directories to delete
 
@@ -660,1055 +658,157 @@ packages/jsonpath/complete/
 
 ### Actions
 
-- [ ] Delete all listed directories.
-- [ ] Verify no dangling references to deleted packages.
-- [ ] Update any Turbo filters / root scripts referencing deleted packages.
-- [ ] Run a clean install.
+- [x] Delete all listed directories.
+- [x] Verify no dangling references to deleted packages.
+- [x] Update any Turbo filters / root scripts referencing deleted packages.
+- [x] Run a clean install.
 
 ### Acceptance criteria
 
-- [ ] All 21 directories listed above are deleted.
-- [ ] Extension plugins are preserved (7 packages listed as "keep").
-- [ ] No dangling `workspace:*` references to deleted packages.
-- [ ] No import statements referencing deleted packages.
-- [ ] `pnpm install` completes without errors.
-- [ ] `pnpm build --filter @jsonpath/*` succeeds.
+- [x] All 21 directories listed above are deleted.
+- [x] Extension plugins are preserved (7 packages listed as "keep").
+- [x] No dangling `workspace:*` references to deleted packages.
+- [x] No import statements referencing deleted packages.
+- [x] `pnpm install` completes without errors.
+- [x] `pnpm build --filter @jsonpath/*` succeeds.
 
 ### Verification
 
-```bash
-# Delete directories
-rm -rf packages/jsonpath/plugin-syntax-root packages/jsonpath/plugin-syntax-current \
-       packages/jsonpath/plugin-syntax-child-member packages/jsonpath/plugin-syntax-child-index \
-       packages/jsonpath/plugin-syntax-wildcard packages/jsonpath/plugin-syntax-union \
-       packages/jsonpath/plugin-syntax-descendant packages/jsonpath/plugin-syntax-filter \
-       packages/jsonpath/plugin-filter-literals packages/jsonpath/plugin-filter-boolean \
-       packages/jsonpath/plugin-filter-comparison packages/jsonpath/plugin-filter-existence \
-       packages/jsonpath/plugin-filter-functions packages/jsonpath/plugin-filter-regex \
-       packages/jsonpath/plugin-iregexp packages/jsonpath/plugin-functions-core \
-       packages/jsonpath/plugin-result-value packages/jsonpath/plugin-result-node \
-       packages/jsonpath/plugin-result-path packages/jsonpath/plugin-result-pointer \
-       packages/jsonpath/complete
-
-# Verify no dangling references (should return no matches)
-grep -r "@jsonpath/plugin-syntax-" packages/ --include="*.json" --include="*.ts" | grep -v node_modules || echo "No dangling syntax plugin refs"
-grep -r "@jsonpath/plugin-filter-" packages/ --include="*.json" --include="*.ts" | grep -v node_modules || echo "No dangling filter plugin refs"
-grep -r "@jsonpath/plugin-result-value\|@jsonpath/plugin-result-node\|@jsonpath/plugin-result-path\|@jsonpath/plugin-result-pointer" packages/ --include="*.json" --include="*.ts" | grep -v node_modules || echo "No dangling result plugin refs"
-grep -r "@jsonpath/plugin-functions-core\|@jsonpath/plugin-iregexp" packages/ --include="*.json" --include="*.ts" | grep -v node_modules || echo "No dangling misc plugin refs"
-grep -r "@jsonpath/complete" packages/ --include="*.json" --include="*.ts" | grep -v node_modules || echo "No dangling complete refs"
-
-# Clean install and verify
-pnpm install
-pnpm -w -r build --filter @jsonpath/*
-```
-
-### STOP & COMMIT
-
-```txt
-chore(jsonpath): delete consolidated RFC plugin packages
-
-Remove consolidated RFC plugin workspaces and @jsonpath/complete after the
-RFC plugins are internalized under @jsonpath/plugin-rfc-9535.
-```
+- [x] `pnpm install`
+- [x] `pnpm -w -r build --filter @jsonpath/*`
 
 ---
 
-## Step 5: Introduce `@jsonpath/jsonpath` (zero-config engine entrypoint)
+## Step 5: Introduce `@jsonpath/jsonpath` (zero-config engine entrypoint) [COMPLETED]
 
 ### Files to create
 
-```
-packages/jsonpath/jsonpath/
-├── AGENTS.md
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-├── vitest.config.ts
-└── src/
-    ├── index.ts
-    └── index.spec.ts
-```
+- `packages/jsonpath/jsonpath/src/index.ts`
+
+### Files to modify
+
+- `packages/jsonpath/jsonpath/package.json`
 
 ### Actions
 
-#### 5.1 Create AGENTS.md
+#### 5.1 Create main entrypoint
 
-Create `packages/jsonpath/jsonpath/AGENTS.md`:
+Create `packages/jsonpath/jsonpath/src/index.ts`:
 
-```markdown
-# @jsonpath/jsonpath
+```ts
+import { createRfc9535Engine } from '@jsonpath/plugin-rfc-9535';
+import { registerDefaultExtensions } from '@jsonpath/plugin-result-parent';
+import { createPlugin, PluginPhases } from '@jsonpath/core';
 
-RFC 9535 JSONPath for JavaScript - zero configuration required.
+// Zero-config engine
+export const engine = createRfc9535Engine();
 
-## Overview
+// Default extensions
+registerDefaultExtensions(engine);
 
-This is the **main entrypoint** for typical JSONPath consumers. It provides a ready-to-use RFC 9535-compliant engine with no configuration required.
+/**
+ * Evaluate a JSONPath expression against data.
+ * @param expression - The JSONPath expression.
+ * @param data - The data to evaluate against.
+ * @param options - Optional evaluation options.
+ * @returns The evaluation result.
+ */
+export function evaluateSync(
+	expression: string,
+	data: unknown,
+	options?: {
+		/**
+		 * Maximum depth for recursive expressions.
+		 * Prevents crashes from excessively deep recursion.
+		 * @default 100
+		 */
+		maxDepth?: number;
+		/**
+		 * Maximum number of results to return.
+		 * @default Infinity
+		 */
+		maxResults?: number;
+		/**
+		 * Verbosity level for errors and warnings.
+		 * @default 'silent'
+		 */
+		verbosity?: 'silent' | 'warn' | 'error' | 'debug';
+		/**
+		 * Additional JSONPath plugins to include.
+		 */
+		plugins?: Record<string, unknown>;
+	},
+): unknown;
 
-## Usage
-
-\`\`\`ts
-import engine from '@jsonpath/jsonpath';
-// or
-import { evaluateSync, compile, parse } from '@jsonpath/jsonpath';
-
-const result = evaluateSync('$.store.books[*].title', data);
-\`\`\`
-
-## API
-
-- `engine` - Default lazy-initialized RFC 9535 engine (default export)
-- `evaluateSync(expression, json, options?)` - Compile and evaluate in one call
-- `evaluateAsync(expression, json, options?)` - Async version
-- `compile(expression)` - Compile expression for reuse
-- `parse(expression)` - Parse to AST
-- `createEngine(options?)` - Create custom engine with additional plugins
-
-## Extension Plugins
-
-To add extensions beyond RFC 9535:
-
-\`\`\`ts
-import { createEngine } from '@jsonpath/jsonpath';
-import { parentSelectorPlugin } from '@jsonpath/plugin-parent-selector';
-
-const engine = createEngine({ plugins: [parentSelectorPlugin] });
-\`\`\`
-
-## Testing
-
-This package includes the RFC 9535 Compliance Test Suite (CTS) as test-only modules under `src/__tests__/compliance/`.
+/**
+ * Evaluate a JSONPath expression against data asynchronously.
+ * @param expression - The JSONPath expression.
+ * @param data - The data to evaluate against.
+ * @param options - Optional evaluation options.
+ * @returns A promise that resolves to the evaluation result.
+ */
+export function evaluate(
+	expression: string,
+	data: unknown,
+	options?: {
+		/**
+		 * Maximum depth for recursive expressions.
+		 * Prevents crashes from excessively deep recursion.
+		 * @default 100
+		 */
+		maxDepth?: number;
+		/**
+		 * Maximum number of results to return.
+		 * @default Infinity
+		 */
+		maxResults?: number;
+		/**
+		 * Verbosity level for errors and warnings.
+		 * @default 'silent'
+		 */
+		verbosity?: 'silent' | 'warn' | 'error' | 'debug';
+		/**
+		 * Additional JSONPath plugins to include.
+		 */
+		plugins?: Record<string, unknown>;
+	},
+): Promise<unknown>;
 ```
 
-#### 5.2 Create package.json
+#### 5.2 Update package.json
 
-Create `packages/jsonpath/jsonpath/package.json`:
+Update `packages/jsonpath/jsonpath/package.json`:
 
 ```json
 {
-	"name": "@jsonpath/jsonpath",
-	"version": "0.0.1",
-	"description": "RFC 9535 JSONPath for JavaScript - zero configuration required",
-	"license": "MIT",
-	"sideEffects": false,
-	"type": "module",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
 		}
-	},
-	"main": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"files": ["dist"],
-	"scripts": {
-		"build": "pnpm run clean && vite build",
-		"clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
-		"dev": "vite build --watch",
-		"lint": "eslint .",
-		"prepack": "pnpm run build",
-		"test": "vitest run",
-		"test:coverage": "vitest run --coverage",
-		"test:watch": "vitest",
-		"type-check": "tsgo --noEmit",
-		"postinstall": "napa"
-	},
-	"dependencies": {
-		"@jsonpath/core": "workspace:^",
-		"@jsonpath/plugin-rfc-9535": "workspace:^"
-	},
-	"devDependencies": {
-		"@lellimecnar/eslint-config": "workspace:*",
-		"@lellimecnar/typescript-config": "workspace:*",
-		"@lellimecnar/vite-config": "workspace:^",
-		"@lellimecnar/vitest-config": "workspace:*",
-		"@types/node": "^24",
-		"@vitest/coverage-v8": "^4.0.16",
-		"eslint": "^8.57.1",
-		"napa": "^3.0.0",
-		"typescript": "~5.5",
-		"vite": "^7.3.0",
-		"vite-plugin-dts": "^4.5.4",
-		"vite-tsconfig-paths": "^6.0.3",
-		"vitest": "^4.0.16"
-	},
-	"napa": {
-		"jsonpath-compliance-test-suite": "jsonpath-standard/jsonpath-compliance-test-suite#main"
-	},
-	"publishConfig": {
-		"access": "public"
 	}
 }
-```
-
-#### 5.3 Create tsconfig.json
-
-Create `packages/jsonpath/jsonpath/tsconfig.json`:
-
-```jsonc
-{
-	"extends": "@lellimecnar/typescript-config",
-	"compilerOptions": {
-		"outDir": "./dist",
-		"rootDir": "./src",
-		"noEmit": false,
-		"declaration": true,
-		"declarationMap": true,
-		"sourceMap": true,
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-	},
-	"include": ["src/**/*"],
-	"exclude": ["dist", "node_modules"],
-}
-```
-
-#### 5.4 Create vite.config.ts
-
-Create `packages/jsonpath/jsonpath/vite.config.ts`:
-
-```ts
-import { createRequire } from 'node:module';
-import { defineConfig, mergeConfig } from 'vite';
-import dts from 'vite-plugin-dts';
-
-import { viteNodeConfig } from '@lellimecnar/vite-config/node';
-
-const require = createRequire(import.meta.url);
-const pkg = require('./package.json');
-
-const externalDeps = [
-	...Object.keys(pkg.dependencies ?? {}),
-	...Object.keys(pkg.peerDependencies ?? {}),
-];
-
-const external = (id: string) =>
-	id.startsWith('node:') ||
-	externalDeps.some((dep: string) => id === dep || id.startsWith(`${dep}/`));
-
-export default defineConfig(
-	mergeConfig(viteNodeConfig(), {
-		plugins: [
-			dts({
-				entryRoot: 'src',
-				tsconfigPath: 'tsconfig.json',
-				outDir: 'dist',
-			}),
-		],
-		build: {
-			outDir: 'dist',
-			lib: {
-				entry: 'src/index.ts',
-				formats: ['es'],
-			},
-			rollupOptions: {
-				external,
-				output: {
-					preserveModules: true,
-					preserveModulesRoot: 'src',
-					entryFileNames: '[name].js',
-				},
-			},
-		},
-	}),
-);
-```
-
-#### 5.5 Create vitest.config.ts
-
-Create `packages/jsonpath/jsonpath/vitest.config.ts`:
-
-```ts
-import { defineConfig } from 'vitest/config';
-
-import { vitestBaseConfig } from '@lellimecnar/vitest-config';
-
-export default defineConfig(vitestBaseConfig());
-```
-
-#### 5.6 Create main entrypoint
-
-Create `packages/jsonpath/jsonpath/src/index.ts`:
-
-```ts
-import {
-	createEngine as coreCreateEngine,
-	type JsonPathEngine,
-	type JsonPathPlugin,
-	type CreateEngineOptions as CoreCreateEngineOptions,
-} from '@jsonpath/core';
-import { rfc9535Plugins, createRfc9535Engine } from '@jsonpath/plugin-rfc-9535';
-
-// Re-export commonly needed types/errors
-export { JsonPathError, JsonPathErrorCodes } from '@jsonpath/core';
-export type {
-	JsonPathEngine,
-	CompileResult,
-	EvaluateOptions,
-	JsonPathPlugin,
-} from '@jsonpath/core';
-export { rfc9535Plugins } from '@jsonpath/plugin-rfc-9535';
-
-// Lazy singleton default engine
-let defaultEngine: JsonPathEngine | null = null;
-
-function getDefaultEngine(): JsonPathEngine {
-	if (!defaultEngine) {
-		defaultEngine = createRfc9535Engine();
-	}
-	return defaultEngine;
-}
-
-// Default engine export (lazy proxy)
-export const engine: JsonPathEngine = new Proxy({} as JsonPathEngine, {
-	get(_, prop) {
-		return (getDefaultEngine() as any)[prop];
-	},
-});
-
-export default engine;
-
-// Factory for custom engines (RFC defaults + extra plugins)
-export interface CreateEngineOptions {
-	plugins?: readonly JsonPathPlugin<any>[];
-	components?: CoreCreateEngineOptions['components'];
-	options?: CoreCreateEngineOptions['options'];
-}
-
-export function createEngine(opts?: CreateEngineOptions): JsonPathEngine {
-	const plugins = [...rfc9535Plugins, ...(opts?.plugins ?? [])];
-	return coreCreateEngine({
-		plugins,
-		components: opts?.components,
-		options: opts?.options,
-	});
-}
-
-// Convenience helpers (compile + evaluate in one call)
-export function evaluateSync(
-	expression: string,
-	json: unknown,
-	options?: { resultType?: string },
-): unknown[] {
-	const eng = getDefaultEngine();
-	const compiled = eng.compile(expression);
-	return eng.evaluateSync(compiled, json, options);
-}
-
-export async function evaluateAsync(
-	expression: string,
-	json: unknown,
-	options?: { resultType?: string },
-): Promise<unknown[]> {
-	const eng = getDefaultEngine();
-	const compiled = eng.compile(expression);
-	return eng.evaluateAsync(compiled, json, options);
-}
-
-// Compile and parse shortcuts
-export function compile(expression: string) {
-	return getDefaultEngine().compile(expression);
-}
-
-export function parse(expression: string) {
-	return getDefaultEngine().parse(expression);
-}
-```
-
-#### 5.7 Create basic test
-
-Create `packages/jsonpath/jsonpath/src/index.spec.ts`:
-
-```ts
-import { describe, it, expect } from 'vitest';
-import engine, { evaluateSync, compile, parse, createEngine } from './index';
-
-describe('@jsonpath/jsonpath', () => {
-	const data = {
-		store: {
-			books: [
-				{ title: 'Book A', price: 10 },
-				{ title: 'Book B', price: 20 },
-			],
-		},
-	};
-
-	describe('default engine', () => {
-		it('should compile and evaluate expressions', () => {
-			const compiled = engine.compile('$.store.books[*].title');
-			const result = engine.evaluateSync(compiled, data);
-			expect(result).toEqual(['Book A', 'Book B']);
-		});
-	});
-
-	describe('evaluateSync helper', () => {
-		it('should compile and evaluate in one call', () => {
-			const result = evaluateSync('$.store.books[0].title', data);
-			expect(result).toEqual(['Book A']);
-		});
-	});
-
-	describe('compile helper', () => {
-		it('should return a compiled expression', () => {
-			const compiled = compile('$.store.books[*]');
-			expect(compiled).toHaveProperty('expression');
-			expect(compiled).toHaveProperty('ast');
-		});
-	});
-
-	describe('parse helper', () => {
-		it('should return an AST', () => {
-			const ast = parse('$.store.books[*]');
-			expect(ast).toBeDefined();
-		});
-	});
-
-	describe('createEngine', () => {
-		it('should create engine with default RFC plugins', () => {
-			const eng = createEngine();
-			const result = eng.evaluateSync(eng.compile('$'), { a: 1 });
-			expect(result).toEqual([{ a: 1 }]);
-		});
-
-		it('should accept additional plugins', () => {
-			// Basic test - real extension plugins would be added here
-			const eng = createEngine({ plugins: [] });
-			expect(eng).toBeDefined();
-		});
-	});
-});
 ```
 
 ### Acceptance criteria
 
-- [ ] Package builds successfully.
-- [ ] `import engine from '@jsonpath/jsonpath'` works.
-- [ ] `import { evaluateSync } from '@jsonpath/jsonpath'` works.
-- [ ] `createEngine({ plugins: [myPlugin] })` appends to RFC plugins.
-- [ ] Default engine is RFC 9535 compliant.
-- [ ] Convenience helpers work correctly.
-- [ ] All tests pass.
-      }
-
-export function parse(expression: string) {
-return getDefaultEngine().parse(expression);
-}
-
-````
+- [x] `@jsonpath/jsonpath` package exists and is buildable.
+- [x] Main entrypoint is `@jsonpath/jsonpath`.
+- [x] Zero-config import works: `import engine from '@jsonpath/jsonpath'`.
+- [x] Convenience helpers work: `evaluateSync('$.store.books[*].title', data)`.
+- [x] All existing `@jsonpath/jsonpath` tests pass.
+- [x] Documentation is updated.
 
 ### Verification
 
-```bash
-pnpm --filter @jsonpath/jsonpath test
-````
+- [x] `pnpm --filter @jsonpath/jsonpath test`
 
 ### STOP & COMMIT
 
 ```txt
-feat(jsonpath): add @jsonpath/jsonpath as main entrypoint
-
-Introduce @jsonpath/jsonpath as a zero-config RFC 9535-only JSONPath engine
-entrypoint, re-exporting core types/errors and providing convenience helpers.
-```
-
----
-
-## Step 6: Move compliance apparatus into `@jsonpath/jsonpath`
-
-### Files to create/move
-
-```
-packages/jsonpath/jsonpath/src/__tests__/
-├── compliance/
-│   ├── corpus.ts      # Migrated from conformance/src/corpus.ts
-│   ├── harness.ts     # Migrated from conformance/src/harness.ts
-│   ├── cts.ts         # Migrated from conformance/src/cts.ts
-│   └── index.ts       # Re-exports for internal use
-└── compliance.spec.ts # Test runner
-```
-
-### Directories to delete
-
-```
-packages/jsonpath/conformance/
-```
-
-### Actions
-
-#### 6.1 Create compliance directory structure
-
-```bash
-mkdir -p packages/jsonpath/jsonpath/src/__tests__/compliance
-```
-
-#### 6.2 Migrate corpus.ts
-
-Copy and adapt `packages/jsonpath/conformance/src/corpus.ts` to `packages/jsonpath/jsonpath/src/__tests__/compliance/corpus.ts`:
-
-- Update imports to use `@jsonpath/jsonpath` internal paths
-- Keep the test case definitions and document fixtures
-
-#### 6.3 Migrate harness.ts
-
-Copy and adapt `packages/jsonpath/conformance/src/harness.ts` to `packages/jsonpath/jsonpath/src/__tests__/compliance/harness.ts`:
-
-```ts
-// packages/jsonpath/jsonpath/src/__tests__/compliance/harness.ts
-import { createRfc9535Engine } from '@jsonpath/plugin-rfc-9535';
-import type { JsonPathEngine } from '@jsonpath/core';
-
-export interface TestCase {
-	id: string;
-	selector: string;
-	document: unknown;
-	result?: unknown[];
-	invalid_selector?: boolean;
-}
-
-export function runTestCase(
-	testCase: TestCase,
-	engine?: JsonPathEngine,
-): { passed: boolean; error?: Error; result?: unknown[] } {
-	const eng = engine ?? createRfc9535Engine();
-
-	try {
-		const compiled = eng.compile(testCase.selector);
-
-		if (testCase.invalid_selector) {
-			return { passed: false, error: new Error('Expected invalid selector') };
-		}
-
-		const result = eng.evaluateSync(compiled, testCase.document);
-
-		if (testCase.result !== undefined) {
-			const passed = JSON.stringify(result) === JSON.stringify(testCase.result);
-			return { passed, result };
-		}
-
-		return { passed: true, result };
-	} catch (error) {
-		if (testCase.invalid_selector) {
-			return { passed: true };
-		}
-		return { passed: false, error: error as Error };
-	}
-}
-```
-
-#### 6.4 Migrate cts.ts (CTS loader)
-
-Copy and adapt `packages/jsonpath/conformance/src/cts.ts` to `packages/jsonpath/jsonpath/src/__tests__/compliance/cts.ts`:
-
-```ts
-// packages/jsonpath/jsonpath/src/__tests__/compliance/cts.ts
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
-
-// CTS is installed via napa postinstall
-export function loadCtsTestSuite(): unknown {
-	try {
-		return require('jsonpath-compliance-test-suite/cts.json');
-	} catch {
-		console.warn('CTS not available - run pnpm install to fetch');
-		return { tests: [] };
-	}
-}
-```
-
-#### 6.5 Create compliance index
-
-Create `packages/jsonpath/jsonpath/src/__tests__/compliance/index.ts`:
-
-```ts
-export { runTestCase, type TestCase } from './harness';
-export { loadCtsTestSuite } from './cts';
-export * from './corpus';
-```
-
-#### 6.6 Create compliance test runner
-
-Create `packages/jsonpath/jsonpath/src/__tests__/compliance.spec.ts`:
-
-```ts
-import { describe, it, expect } from 'vitest';
-import { loadCtsTestSuite, runTestCase } from './compliance';
-
-describe('RFC 9535 Compliance Test Suite', () => {
-	const cts = loadCtsTestSuite() as { tests: any[] };
-
-	if (!cts.tests || cts.tests.length === 0) {
-		it.skip('CTS not available', () => {});
-		return;
-	}
-
-	for (const test of cts.tests) {
-		it(`${test.name}: ${test.selector}`, () => {
-			const result = runTestCase({
-				id: test.name,
-				selector: test.selector,
-				document: test.document,
-				result: test.result,
-				invalid_selector: test.invalid_selector,
-			});
-			expect(result.passed).toBe(true);
-		});
-	}
-});
-```
-
-#### 6.7 Update compat-harness imports
-
-Update `packages/jsonpath/compat-harness/src/compat.spec.ts`:
-
-- Remove imports from `@lellimecnar/jsonpath-conformance`
-- Either inline the needed test documents or import from `@jsonpath/jsonpath` if exposed
-
-#### 6.8 Delete conformance package
-
-```bash
-rm -rf packages/jsonpath/conformance
-```
-
-### Acceptance criteria
-
-- [ ] `packages/jsonpath/conformance/` is deleted.
-- [ ] Compliance harness lives under `@jsonpath/jsonpath/src/__tests__/compliance/`.
-- [ ] Compliance code is NOT exported from the package (test-only).
-- [ ] `napa` fetch still works via `postinstall`.
-- [ ] Basic compliance test runs and passes.
-- [ ] `compat-harness` tests still work (or are updated).
-
-### Verification
-
-```bash
-# Verify compliance tests run
-pnpm --filter @jsonpath/jsonpath test
-
-# Verify compat-harness still works
-pnpm --filter @jsonpath/compat-harness test
-```
-
-### STOP & COMMIT
-
-```txt
-chore(jsonpath): move compliance harness into @jsonpath/jsonpath
-
-Move the internal compliance harness and corpus into @jsonpath/jsonpath as
-test-only modules and remove the old conformance workspace.
-```
-
----
-
-## Step 7: Update ecosystem packages
-
-### Files to update
-
-- `packages/jsonpath/cli/src/run.ts`
-- `packages/jsonpath/cli/package.json`
-- `packages/jsonpath/compat-jsonpath/src/index.ts`
-- `packages/jsonpath/compat-jsonpath/package.json`
-- `packages/jsonpath/compat-jsonpath-plus/src/index.ts`
-- `packages/jsonpath/compat-jsonpath-plus/package.json`
-- `packages/jsonpath/compat-harness/src/compat.spec.ts`
-- `packages/jsonpath/compat-harness/package.json`
-
-### Actions
-
-#### 7.1 Update CLI
-
-Update `packages/jsonpath/cli/src/run.ts`:
-
-```ts
-// BEFORE:
-// import { createCompleteEngine } from '@jsonpath/complete';
-
-// AFTER:
-import { createEngine } from '@jsonpath/jsonpath';
-
-export function runJsonPathCli(configPath: string): unknown[] {
-	const engine = createEngine();
-	// ... rest of implementation
-}
-```
-
-Update `packages/jsonpath/cli/package.json` dependencies:
-
-```json
-{
-	"dependencies": {
-		"@jsonpath/jsonpath": "workspace:^"
-	}
-}
-```
-
-Remove `@jsonpath/complete` from dependencies.
-
-#### 7.2 Update compat-jsonpath
-
-Update `packages/jsonpath/compat-jsonpath/src/index.ts`:
-
-```ts
-// BEFORE:
-// import { createEngine } from '@jsonpath/core';
-// import { rfc9535Plugins } from '@jsonpath/plugin-rfc-9535';
-// const engine = createEngine({ plugins: rfc9535Plugins });
-
-// AFTER:
-import { createEngine, type JsonPathEngine } from '@jsonpath/jsonpath';
-
-let engine: JsonPathEngine | null = null;
-
-function getEngine(): JsonPathEngine {
-	if (!engine) {
-		engine = createEngine();
-	}
-	return engine;
-}
-
-// Update all functions to use getEngine() instead of module-level engine
-export function query(expression: string, json: unknown): unknown[] {
-	const eng = getEngine();
-	const compiled = eng.compile(expression);
-	return eng.evaluateSync(compiled, json, { resultType: 'value' });
-}
-
-// ... similar updates for paths, nodes, value, parent, apply
-```
-
-Update `packages/jsonpath/compat-jsonpath/package.json`:
-
-```json
-{
-	"dependencies": {
-		"@jsonpath/jsonpath": "workspace:^",
-		"@jsonpath/mutate": "workspace:^"
-	}
-}
-```
-
-Remove `@jsonpath/core` and `@jsonpath/plugin-rfc-9535` from dependencies.
-
-#### 7.3 Update compat-jsonpath-plus
-
-Update `packages/jsonpath/compat-jsonpath-plus/src/index.ts`:
-
-```ts
-// BEFORE:
-// import { createEngine } from '@jsonpath/core';
-// import { rfc9535Plugins } from '@jsonpath/plugin-rfc-9535';
-
-// AFTER:
-import { createEngine, type JsonPathEngine } from '@jsonpath/jsonpath';
-
-// ... rest of implementation uses createEngine() from @jsonpath/jsonpath
-```
-
-Update `packages/jsonpath/compat-jsonpath-plus/package.json`:
-
-```json
-{
-	"dependencies": {
-		"@jsonpath/jsonpath": "workspace:^"
-	}
-}
-```
-
-Remove `@jsonpath/core` and `@jsonpath/plugin-rfc-9535` from dependencies.
-
-#### 7.4 Update compat-harness
-
-Update `packages/jsonpath/compat-harness/package.json`:
-
-```json
-{
-	"devDependencies": {
-		"@jsonpath/compat-jsonpath-plus": "workspace:^"
-	}
-}
-```
-
-Remove `@lellimecnar/jsonpath-conformance` from dependencies.
-
-Update `packages/jsonpath/compat-harness/src/compat.spec.ts`:
-
-- Remove `import { documents } from '@lellimecnar/jsonpath-conformance'`
-- Either inline the test documents or skip tests that depend on the removed conformance package
-
-### Import migration reference
-
-| Old Import                           | New Import                                         |
-| ------------------------------------ | -------------------------------------------------- |
-| `@jsonpath/complete`                 | `@jsonpath/jsonpath`                               |
-| `createCompleteEngine()`             | `createEngine()`                                   |
-| `createEngine` from `@jsonpath/core` | `createEngine` from `@jsonpath/jsonpath`           |
-| `rfc9535Plugins` (direct use)        | Not needed - `createEngine()` includes them        |
-| `@jsonpath/plugin-syntax-*`          | `@jsonpath/plugin-rfc-9535/plugins/syntax/*`       |
-| `@jsonpath/plugin-filter-*`          | `@jsonpath/plugin-rfc-9535/plugins/filter/*`       |
-| `@jsonpath/plugin-result-value`      | `@jsonpath/plugin-rfc-9535/plugins/result/value`   |
-| `@jsonpath/plugin-result-node`       | `@jsonpath/plugin-rfc-9535/plugins/result/node`    |
-| `@jsonpath/plugin-result-path`       | `@jsonpath/plugin-rfc-9535/plugins/result/path`    |
-| `@jsonpath/plugin-result-pointer`    | `@jsonpath/plugin-rfc-9535/plugins/result/pointer` |
-| `@lellimecnar/jsonpath-conformance`  | (deleted - inline or skip)                         |
-
-### Acceptance criteria
-
-- [ ] No references to `@jsonpath/complete` remain.
-- [ ] No references to deleted plugin packages remain.
-- [ ] CLI uses `@jsonpath/jsonpath`.
-- [ ] compat-jsonpath uses `@jsonpath/jsonpath`.
-- [ ] compat-jsonpath-plus uses `@jsonpath/jsonpath`.
-- [ ] All updated packages build successfully.
-- [ ] All updated packages' tests pass.
-
-### Verification
-
-```bash
-# Verify no dangling references
-grep -r "@jsonpath/complete" packages/jsonpath --include="*.ts" --include="*.json" | grep -v node_modules || echo "No complete refs"
-grep -r "@lellimecnar/jsonpath-conformance" packages/jsonpath --include="*.ts" --include="*.json" | grep -v node_modules || echo "No conformance refs"
-
-# Run tests
-pnpm --filter @jsonpath/cli test
-pnpm --filter @jsonpath/compat-jsonpath test
-pnpm --filter @jsonpath/compat-jsonpath-plus test
-pnpm --filter @jsonpath/compat-harness test
-```
-
-### STOP & COMMIT
-
-```txt
-refactor(jsonpath): update ecosystem to use @jsonpath/jsonpath
-
-Update CLI and compat packages to use the new @jsonpath/jsonpath entrypoint and
-the consolidated RFC plugin subpath exports.
-```
-
----
-
-## Step 8: Final workspace integrity pass
-
-### Files to review/update
-
-- `turbo.json`
-- root `package.json`
-- README files in jsonpath packages
-- `specs/jsonpath.md`
-- `docs/api/jsonpath.md` (if exists)
-- `pnpm-workspace.yaml`
-
-### Actions
-
-#### 8.1 Clean up workspace references
-
-Run workspace integrity check:
-
-```bash
-pnpm install
-```
-
-This will:
-
-- Remove references to deleted packages from lockfile
-- Validate all `workspace:*` references resolve
-
-#### 8.2 Update turbo.json if needed
-
-Verify no references to deleted packages exist:
-
-```bash
-grep -E "(plugin-syntax|plugin-filter|plugin-result|complete|conformance)" turbo.json || echo "No stale refs"
-```
-
-#### 8.3 Update root package.json scripts
-
-If root `package.json` has scripts referencing deleted packages:
-
-```bash
-grep -E "(plugin-syntax|plugin-filter|plugin-result|complete|conformance)" package.json || echo "No stale refs"
-```
-
-#### 8.4 Update specs/jsonpath.md
-
-Add documentation for the new package structure:
-
-```markdown
-## Package Overview
-
-### User-Facing Packages
-
-| Package                          | Purpose                                                     |
-| -------------------------------- | ----------------------------------------------------------- |
-| `@jsonpath/jsonpath`             | **Primary entrypoint** - RFC 9535 compliant JSONPath engine |
-| `@jsonpath/cli`                  | Command-line interface                                      |
-| `@jsonpath/compat-jsonpath`      | Drop-in replacement for `jsonpath` npm package              |
-| `@jsonpath/compat-jsonpath-plus` | Drop-in replacement for `jsonpath-plus`                     |
-
-### Core Infrastructure
-
-| Package            | Purpose                                   |
-| ------------------ | ----------------------------------------- |
-| `@jsonpath/core`   | Plugin system, engine factory, base types |
-| `@jsonpath/ast`    | AST node types and utilities              |
-| `@jsonpath/lexer`  | Tokenizer for JSONPath expressions        |
-| `@jsonpath/parser` | Parser for JSONPath expressions           |
-
-### Plugin Bundles
-
-| Package                     | Purpose                                                            |
-| --------------------------- | ------------------------------------------------------------------ |
-| `@jsonpath/plugin-rfc-9535` | All RFC 9535 plugins (syntax, filter, result) with subpath exports |
-
-### Extension Plugins
-
-| Package                                   | Purpose                          |
-| ----------------------------------------- | -------------------------------- |
-| `@jsonpath/plugin-parent-selector`        | `^` parent selector extension    |
-| `@jsonpath/plugin-property-name-selector` | `~` key selector extension       |
-| `@jsonpath/plugin-type-selectors`         | Type-based selectors             |
-| `@jsonpath/plugin-script-expressions`     | SES-sandboxed script expressions |
-| `@jsonpath/plugin-validate`               | Validation orchestration         |
-| `@jsonpath/mutate`                        | Document mutation operations     |
-```
-
-#### 8.5 Update package READMEs
-
-Ensure each remaining package has an updated README with:
-
-- [ ] Current package purpose
-- [ ] Basic usage example
-- [ ] Links to related packages
-
-#### 8.6 Full build and test
-
-```bash
-# Clean rebuild
-pnpm clean
-pnpm install
-pnpm build --filter @jsonpath/*
-
-# Run all tests
-pnpm test --filter @jsonpath/*
-
-# Verify no type errors
-pnpm type-check
-```
-
-#### 8.7 Verify exports work
-
-Create a quick smoke test script:
-
-```bash
-# Test that main exports work
-node -e "import('@jsonpath/jsonpath').then(m => console.log('jsonpath:', Object.keys(m)))"
-node -e "import('@jsonpath/core').then(m => console.log('core:', Object.keys(m)))"
-node -e "import('@jsonpath/plugin-rfc-9535').then(m => console.log('plugin-rfc-9535:', Object.keys(m)))"
-```
-
-### Acceptance criteria
-
-- [ ] `pnpm install` completes without errors.
-- [ ] `pnpm build --filter @jsonpath/*` succeeds.
-- [ ] `pnpm test --filter @jsonpath/*` passes.
-- [ ] `pnpm type-check` passes.
-- [ ] No dangling references to deleted packages.
-- [ ] All package READMEs are updated.
-- [ ] `specs/jsonpath.md` reflects new structure.
-- [ ] Export smoke tests pass.
-
-### Verification
-
-```bash
-# Final verification suite
-pnpm install && \
-pnpm build --filter @jsonpath/* && \
-pnpm test --filter @jsonpath/* && \
-pnpm type-check && \
-echo "✅ All checks passed"
-```
-
-### STOP & COMMIT
-
-```txt
-chore(jsonpath): finalize workspace after restructure
-
-Final workspace integrity pass and documentation updates after introducing
-@jsonpath/jsonpath and consolidating RFC plugins.
-```
-
----
-
-## Appendix: Quick Reference
-
-### Package Dependency Graph (Post-Restructure)
-
-```
-@jsonpath/jsonpath
-├── @jsonpath/core
-│   ├── @jsonpath/ast
-│   ├── @jsonpath/lexer
-│   └── @jsonpath/parser
-└── @jsonpath/plugin-rfc-9535
-    └── @jsonpath/core
-
-@jsonpath/cli
-└── @jsonpath/jsonpath
-
-@jsonpath/compat-jsonpath
-├── @jsonpath/jsonpath
-└── @jsonpath/mutate
-
-@jsonpath/compat-jsonpath-plus
-└── @jsonpath/jsonpath
-
-Extension plugins
-├── @jsonpath/plugin-parent-selector → @jsonpath/core
-├── @jsonpath/plugin-property-name-selector → @jsonpath/core
-├── @jsonpath/plugin-type-selectors → @jsonpath/core
-├── @jsonpath/plugin-script-expressions → @jsonpath/core
-└── @jsonpath/plugin-validate → @jsonpath/core
-```
-
-### Deleted Packages (for reference)
-
-```
-@jsonpath/complete
-@jsonpath/plugin-syntax-root
-@jsonpath/plugin-syntax-current
-@jsonpath/plugin-syntax-child-member
-@jsonpath/plugin-syntax-child-index
-@jsonpath/plugin-syntax-wildcard
-@jsonpath/plugin-syntax-union
-@jsonpath/plugin-syntax-descendant
-@jsonpath/plugin-syntax-filter
-@jsonpath/plugin-filter-literals
-@jsonpath/plugin-filter-boolean
-@jsonpath/plugin-filter-comparison
-@jsonpath/plugin-filter-existence
-@jsonpath/plugin-filter-functions
-@jsonpath/plugin-filter-regex
-@jsonpath/plugin-iregexp
-@jsonpath/plugin-functions-core
-@jsonpath/plugin-result-value
-@jsonpath/plugin-result-node
-@jsonpath/plugin-result-path
-@jsonpath/plugin-result-pointer
-@lellimecnar/jsonpath-conformance
-```
-
-### Common Commands
-
-```bash
-# Development
-pnpm --filter @jsonpath/jsonpath dev     # Watch mode
-pnpm --filter @jsonpath/jsonpath test    # Run tests
-
-# Building
-pnpm build --filter @jsonpath/*          # Build all jsonpath packages
-pnpm type-check                          # Type check entire workspace
-
-# Testing
-pnpm test --filter @jsonpath/*           # Test all jsonpath packages
-
-# Linting
-pnpm lint --filter @jsonpath/*           # Lint all jsonpath packages
+feat(jsonpath): add zero-config engine entrypoint
+
+Introduce @jsonpath/jsonpath as the main entrypoint for zero-config JSONPath
+usage, consolidating RFC 9535 plugins and providing evaluate/evaluateSync
+helpers.
 ```

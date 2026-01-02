@@ -1,6 +1,6 @@
 import {
 	createPlugin,
-	createEngine as createCoreEngine,
+	createEngine,
 	type CreateEngineOptions,
 } from '@jsonpath/core';
 
@@ -53,14 +53,11 @@ export { createResultPathPlugin } from './plugins/result/path';
 export { createResultPointerPlugin } from './plugins/result/pointer';
 
 // IRegexp utility
-export { iregexp } from './iregexp';
+export { compile as iregexp } from './iregexp';
 
 /**
  * All RFC 9535 plugins in dependency order.
- *
- * Note: this order is manually curated based on logical dependencies
- * between plugins (e.g., syntax before filters, filters before functions).
- * The new phase system will make this ordering more robust.
+ * This array can be used directly with createEngine().
  */
 export const rfc9535Plugins = [
 	// Syntax plugins (order matters for parsing)
@@ -72,19 +69,16 @@ export const rfc9535Plugins = [
 	createSyntaxUnionPlugin(),
 	createSyntaxDescendantPlugin(),
 	createSyntaxFilterPlugin(),
-
-	// Filter operand plugins
+	// Filter plugins
 	createFilterLiteralsPlugin(),
 	createFilterBooleanPlugin(),
 	createFilterComparisonPlugin(),
 	createFilterExistencePlugin(),
 	createFilterFunctionsPlugin(),
 	createFilterRegexPlugin(),
-
 	// Function plugins
 	createFunctionsCorePlugin(),
-
-	// Result formatters
+	// Result plugins
 	createResultValuePlugin(),
 	createResultNodePlugin(),
 	createResultPathPlugin(),
@@ -93,30 +87,19 @@ export const rfc9535Plugins = [
 
 export type Rfc9535EngineOptions = Omit<CreateEngineOptions, 'plugins'> & {
 	/**
-	 * Optional additional plugins to load. These will be loaded _after_
-	 * the core RFC 9535 plugins.
+	 * Additional plugins to include after RFC 9535 plugins.
+	 * Use this to add extensions.
 	 */
 	additionalPlugins?: CreateEngineOptions['plugins'];
 };
 
 /**
- * A single plugin that registers all RFC 9535 functionality.
+ * Create an engine pre-configured with all RFC 9535 plugins.
  */
-export const plugin = createPlugin({
-	meta: {
-		id: '@jsonpath/plugin-rfc-9535',
-		// This plugin covers all phases by proxy
-		phases: ['syntax', 'filter', 'runtime', 'result'],
-		capabilities: rfc9535Plugins.flatMap((p) => p.meta.capabilities ?? []),
-	},
-	setup: ({ engine }) => {
-		engine.registerPlugin(...rfc9535Plugins);
-	},
-});
-
 export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
 	const { additionalPlugins = [], ...rest } = options ?? {};
-	return createCoreEngine({
+
+	return createEngine({
 		...rest,
 		plugins: [...rfc9535Plugins, ...additionalPlugins],
 	});
@@ -124,13 +107,12 @@ export function createRfc9535Engine(options?: Rfc9535EngineOptions) {
 
 /**
  * Preset plugin that declares dependency on all RFC 9535 plugins.
- *
- * This is useful for building other plugins that extend RFC 9535 functionality
- * without needing to manually list all the individual plugins.
+ * Useful for plugin systems that need to declare RFC 9535 as a dependency.
  */
-export const rfc9535PresetPlugin = createPlugin({
+export const plugin = createPlugin({
 	meta: {
-		id: '@jsonpath/plugin-rfc-9535-preset',
+		id: '@jsonpath/plugin-rfc-9535',
+		phases: [],
 		capabilities: ['preset:rfc9535'],
 		dependsOn: rfc9535Plugins.map((p) => p.meta.id),
 	},

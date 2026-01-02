@@ -16,7 +16,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export const createSyntaxDescendantPlugin = () =>
 	createPlugin({
 		meta: {
-			id: '@jsonpath/plugin-syntax-descendant',
+			id: '@jsonpath/plugin-rfc-9535/syntax-descendant',
 			phases: [PluginPhases.syntax, PluginPhases.runtime],
 			capabilities: ['syntax:rfc9535:descendant'],
 		},

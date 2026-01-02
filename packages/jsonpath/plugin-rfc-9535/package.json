@@ -108,7 +108,10 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
+		"@jsonpath/ast": "workspace:^",
 		"@jsonpath/core": "workspace:^",
+		"@jsonpath/lexer": "workspace:^",
+		"@jsonpath/parser": "workspace:^",
 		"@jsonpath/pointer": "workspace:^"
 	},
 	"devDependencies": {

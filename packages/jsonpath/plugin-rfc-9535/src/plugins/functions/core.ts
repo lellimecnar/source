@@ -6,7 +6,7 @@ export type { JsonPathFunction } from './registry';
 export const createFunctionsCorePlugin = () =>
 	createPlugin({
 		meta: {
-			id: '@jsonpath/plugin-functions-core',
+			id: '@jsonpath/plugin-rfc-9535/functions-core',
 			phases: [PluginPhases.runtime],
 			capabilities: ['functions:rfc9535:core'],
 		},

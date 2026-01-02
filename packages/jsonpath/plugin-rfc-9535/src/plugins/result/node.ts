@@ -3,7 +3,7 @@ import { createPlugin, PluginPhases } from '@jsonpath/core';
 export const createResultNodePlugin = () =>
 	createPlugin({
 		meta: {
-			id: '@jsonpath/plugin-result-node',
+			id: '@jsonpath/plugin-rfc-9535/result-node',
 			phases: [PluginPhases.result],
 			capabilities: ['result:node'],
 		},
