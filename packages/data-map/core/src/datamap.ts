@@ -1,5 +1,8 @@
 import { jsonpath, JSONPointer } from 'json-p3';
 
+import { BatchManager } from './batch/manager';
+import type { BatchContext } from './batch/types';
+import { DefinitionRegistry } from './definitions/registry';
 import { applyOperations } from './patch/apply';
 import {
 	buildPopPatch,
@@ -12,12 +15,15 @@ import {
 } from './patch/array';
 import { buildSetPatch } from './patch/builder';
 import { detectPathType } from './path/detect';
+import { SubscriptionManagerImpl } from './subscription/manager';
+import type { Subscription, SubscriptionConfig } from './subscription/types';
 import type {
 	CallOptions,
 	DataMapOptions,
 	Operation,
 	ResolvedMatch,
 } from './types';
+import { deepEqual, deepExtends } from './utils/equal';
 
 function normalizePointerInput(input: string): string {
 	if (input === '#') return '';
@@ -33,15 +39,29 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	private _data: T;
 	private readonly _strict: boolean;
 	private readonly _context: Ctx | undefined;
+	private readonly _subs = new SubscriptionManagerImpl<T, Ctx>(this);
+	private readonly _batch = new BatchManager();
+	private readonly _defs = new DefinitionRegistry<T, Ctx>(this);
 
 	constructor(initialValue: T, options: DataMapOptions<T, Ctx> = {}) {
 		this._strict = options.strict ?? false;
 		this._context = options.context;
 		this._data = cloneSnapshot(initialValue);
+
+		if (options.define && options.context !== undefined) {
+			this._defs.registerAll(options.define, options.context);
+		}
+		if (options.subscribe) {
+			for (const s of options.subscribe) this.subscribe(s);
+		}
 	}
 
 	get context(): Ctx | undefined {
 		return this._context;
+	}
+
+	subscribe(config: SubscriptionConfig<T, Ctx>): Subscription {
+		return this._subs.register(config);
 	}
 
 	toJSON(): T {
@@ -55,6 +75,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	resolve(pathOrPointer: string, options: CallOptions = {}): ResolvedMatch[] {
 		const strict = options.strict ?? this._strict;
 		const pathType = detectPathType(pathOrPointer);
+		const ctx = this._context as any;
 
 		if (pathType === 'relative-pointer') {
 			if (strict) throw new Error('Unsupported path type: relative-pointer');
@@ -64,13 +85,25 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		if (pathType === 'pointer') {
 			const pointerString = normalizePointerInput(pathOrPointer);
 			if (pointerString === '') {
-				return [{ pointer: '', value: cloneSnapshot(this._data) }];
+				return [
+					{
+						pointer: '',
+						value: cloneSnapshot(this._defs.applyGetter('', this._data, ctx)),
+					},
+				];
 			}
 
 			try {
 				const pointer = new JSONPointer(pointerString);
 				const resolved = pointer.resolve(this._data as any);
-				return [{ pointer: pointerString, value: cloneSnapshot(resolved) }];
+				return [
+					{
+						pointer: pointerString,
+						value: cloneSnapshot(
+							this._defs.applyGetter(pointerString, resolved, ctx),
+						),
+					},
+				];
 			} catch {
 				if (strict) throw new Error(`Pointer not found: ${pointerString}`);
 				return [];
@@ -83,7 +116,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			const values = nodes.values();
 			return pointers.map((pointer, idx) => ({
 				pointer,
-				value: cloneSnapshot(values[idx]),
+				value: cloneSnapshot(this._defs.applyGetter(pointer, values[idx], ctx)),
 			}));
 		} catch {
 			if (strict) throw new Error(`Invalid JSONPath: ${pathOrPointer}`);
@@ -111,6 +144,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			const strict = options.strict ?? this._strict;
 			const matches = this.resolve(pathOrPointer, { strict });
 			const targetPointer = matches[0]?.pointer;
+			const ctx = this._context as any;
 
 			// If pointer or singular JSONPath resolved, use it; otherwise if unresolved and strict, throw.
 			if (!targetPointer) {
@@ -118,8 +152,16 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				if (pathType === 'pointer') {
 					const pointerString = normalizePointerInput(pathOrPointer);
 					const current = undefined;
-					const nextValue =
+					let nextValue =
 						typeof value === 'function' ? (value as any)(current) : value;
+
+					nextValue = this._defs.applySetter(
+						pointerString,
+						nextValue,
+						current,
+						ctx,
+					);
+
 					const ops = buildSetPatch(this._data, pointerString, nextValue);
 					this.patch(ops, { strict });
 					return this;
@@ -129,8 +171,16 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			}
 
 			const current = matches[0]?.value;
-			const nextValue =
+			let nextValue =
 				typeof value === 'function' ? (value as any)(current) : value;
+
+			nextValue = this._defs.applySetter(
+				targetPointer,
+				nextValue,
+				current,
+				ctx,
+			);
+
 			const ops = buildSetPatch(this._data, targetPointer, nextValue);
 			this.patch(ops, { strict });
 			return this;
@@ -177,13 +227,23 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			): Operation[] => {
 				const strict = options.strict ?? this._strict;
 				const matches = this.resolve(pathOrPointer, { strict });
+				const ctx = this._context as any;
+
 				if (matches.length === 0) {
 					const pathType = detectPathType(pathOrPointer);
 					if (pathType === 'pointer') {
 						const pointerString = normalizePointerInput(pathOrPointer);
 						const current = undefined;
-						const nextValue =
+						let nextValue =
 							typeof value === 'function' ? (value as any)(current) : value;
+
+						nextValue = this._defs.applySetter(
+							pointerString,
+							nextValue,
+							current,
+							ctx,
+						);
+
 						return buildSetPatch(this._data, pointerString, nextValue);
 					}
 					if (strict) throw new Error('No matches for setAll.toPatch()');
@@ -192,8 +252,16 @@ export class DataMap<T = unknown, Ctx = unknown> {
 
 				const ops: Operation[] = [];
 				for (const m of matches) {
-					const nextValue =
+					let nextValue =
 						typeof value === 'function' ? (value as any)(m.value) : value;
+
+					nextValue = this._defs.applySetter(
+						m.pointer,
+						nextValue,
+						m.value,
+						ctx,
+					);
+
 					ops.push(...buildSetPatch(this._data, m.pointer, nextValue));
 				}
 				return ops;
@@ -220,19 +288,23 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			): Operation[] => {
 				const strict = options.strict ?? this._strict;
 				const matches = this.resolve(pathOrPointer, { strict });
+				const ctx = this._context as any;
+
 				if (matches.length === 0) {
 					if (strict) throw new Error('No matches for map.toPatch()');
 					return [];
 				}
 				const ops: Operation[] = [];
 				for (const m of matches) {
-					ops.push(
-						...buildSetPatch(
-							this._data,
-							m.pointer,
-							mapperFn(m.value, m.pointer),
-						),
+					let nextValue = mapperFn(m.value, m.pointer);
+					nextValue = this._defs.applySetter(
+						m.pointer,
+						nextValue,
+						m.value,
+						ctx,
 					);
+
+					ops.push(...buildSetPatch(this._data, m.pointer, nextValue));
 				}
 				return ops;
 			},
@@ -243,8 +315,54 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		(ops: Operation[], options: CallOptions = {}) => {
 			const strict = options.strict ?? this._strict;
 			try {
-				const { nextData } = applyOperations(this._data, ops);
+				for (const op of ops) {
+					const before = this._subs.notify(
+						op.path,
+						'patch',
+						'before',
+						this.get(op.path),
+						undefined,
+						op,
+						op.path,
+					);
+					if (before.cancelled)
+						throw new Error('Patch cancelled by subscription');
+				}
+
+				const { nextData, affectedPointers, structuralPointers } =
+					applyOperations(this._data, ops);
 				this._data = nextData as T;
+
+				if (this._batch.isBatching) {
+					this._batch.collect(ops, affectedPointers, structuralPointers);
+					return this;
+				}
+
+				for (const p of structuralPointers) {
+					this._subs.handleStructuralChange(p);
+				}
+
+				for (const op of ops) {
+					this._subs.notify(
+						op.path,
+						'patch',
+						'on',
+						this.get(op.path),
+						undefined,
+						op,
+						op.path,
+					);
+					this._subs.notify(
+						op.path,
+						'patch',
+						'after',
+						this.get(op.path),
+						undefined,
+						op,
+						op.path,
+					);
+				}
+
 				return this;
 			} catch (e) {
 				if (strict) throw e;
@@ -360,4 +478,62 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			},
 		},
 	);
+
+	batch<R>(fn: (dm: this) => R): R {
+		this._batch.start();
+		try {
+			const result = fn(this);
+			const context = this._batch.end();
+
+			if (this._batch.depth === 0 && context) {
+				this._flushBatch(context);
+			}
+
+			return result;
+		} catch (e) {
+			this._batch.end();
+			throw e;
+		}
+	}
+
+	transaction<R>(fn: (dm: this) => R): R {
+		const snapshot = this.getSnapshot();
+		try {
+			return this.batch(fn);
+		} catch (e) {
+			this._data = snapshot;
+			throw e;
+		}
+	}
+
+	private _flushBatch(context: BatchContext): void {
+		for (const p of context.structuralPointers) {
+			this._subs.handleStructuralChange(p);
+		}
+
+		for (const p of context.affectedPointers) {
+			const val = this.get(p);
+			this._subs.notify(p, 'patch', 'on', val, undefined, undefined, p);
+			this._subs.notify(p, 'patch', 'after', val, undefined, undefined, p);
+		}
+	}
+
+	equals(other: DataMap<T, Ctx> | T): boolean {
+		const otherValue =
+			other instanceof (this.constructor as any)
+				? (other as any).toJSON()
+				: other;
+		return deepEqual(this.toJSON(), otherValue);
+	}
+
+	extends(other: Partial<T>): boolean {
+		return deepExtends(this.toJSON(), other);
+	}
+
+	clone(): DataMap<T, Ctx> {
+		return new (this.constructor as any)(this.getSnapshot(), {
+			strict: this._strict,
+			context: this._context,
+		});
+	}
 }

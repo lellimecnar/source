@@ -1,3 +1,6 @@
+import type { Definition, DefinitionFactory } from './definitions/types';
+import type { SubscriptionConfig } from './subscription/types';
+
 export type PathType = 'pointer' | 'relative-pointer' | 'jsonpath';
 
 export interface CallOptions {
@@ -24,4 +27,6 @@ export interface ResolvedMatch {
 export interface DataMapOptions<T = unknown, Ctx = unknown> {
 	strict?: boolean;
 	context?: Ctx;
+	define?: (Definition<T, Ctx> | DefinitionFactory<T, Ctx>)[];
+	subscribe?: SubscriptionConfig<T, Ctx>[];
 }

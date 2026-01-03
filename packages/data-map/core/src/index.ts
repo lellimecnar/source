@@ -1,17 +1,14 @@
+export { DataMap } from './datamap';
 export type {
+	Operation,
 	CallOptions,
 	DataMapOptions,
-	PathType,
 	ResolvedMatch,
 } from './types';
-
-export { detectPathType } from './path/detect';
-
-export {
-	buildPointer,
-	escapePointerSegment,
-	parsePointerSegments,
-	unescapePointerSegment,
-} from './utils/pointer';
-
-export { DataMap } from './datamap';
+export type {
+	Subscription,
+	SubscriptionConfig,
+	SubscriptionEvent,
+	SubscriptionEventInfo,
+} from './subscription/types';
+export type { Definition, DefinitionFactory } from './definitions/types';
