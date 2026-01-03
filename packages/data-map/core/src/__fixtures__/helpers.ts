@@ -1,12 +1,15 @@
+import { type DataMapOptions } from 'src/types';
+
 import { DataMap } from '../datamap';
 import { complexData } from './data';
 import type { SubscriptionEventInfo } from '../subscription/types';
 
 export function createDataMap<T = typeof complexData>(
 	overrides?: T,
-	options?: Parameters<typeof DataMap<T>>[1],
+	options?: DataMapOptions<T, any>,
 ) {
 	const initial = overrides ?? (structuredClone(complexData) as T);
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-return -- testing
 	return new DataMap(initial, options);
 }
 

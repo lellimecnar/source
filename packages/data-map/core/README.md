@@ -47,8 +47,44 @@ sub.unsubscribe();
 ## Batch
 
 ```ts
-store.batch(() => {
-	store.set('$.user.name', 'Dana');
-	store.set('$.user.email', 'dana@example.com');
+// Fluent Batch API
+store.batch
+	.set('/user/name', 'Dana')
+	.set('/user/email', 'dana@example.com')
+	.apply();
+```
+
+## Computed Properties & Definitions
+
+```ts
+const store = new DataMap(
+	{ birthYear: 1990 },
+	{
+		define: [
+			{
+				path: '$.age',
+				get: (val, [birthYear], dm, ctx) => ctx.currentYear - birthYear,
+				deps: ['/birthYear'],
+				readOnly: true,
+			},
+		],
+		context: { currentYear: 2026 },
+	},
+);
+
+console.log(store.get('$.age')); // 36
+store.set('/birthYear', 2000);
+console.log(store.get('$.age')); // 26 (auto-updated via deps)
+```
+
+## Read Interception
+
+```ts
+store.subscribe({
+	path: '/secret',
+	before: 'get',
+	fn: (val) => '********',
 });
+
+console.log(store.get('/secret')); // "********"
 ```

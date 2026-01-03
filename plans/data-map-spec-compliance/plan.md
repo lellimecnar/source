@@ -91,40 +91,40 @@ Bring @data-map/core from ~65% to ~95% spec compliance by implementing missing f
 
 ---
 
-### Step 7: queueMicrotask Notification Batching (REQ-016/REQ-017)
+### [x] Step 7: queueMicrotask Notification Batching (REQ-016/REQ-017)
 
 **Files:** `packages/data-map/core/src/subscription/scheduler.ts` (NEW), `packages/data-map/core/src/subscription/manager.ts`, `packages/data-map/core/src/datamap.ts`, `packages/data-map/core/vitest.setup.ts` (NEW)
 **What:** Implement microtask-based notification batching. Create a `NotificationScheduler` that collects notifications during synchronous execution and delivers them via `queueMicrotask`. Add global test setup with `afterEach` that auto-flushes microtasks.
 **Testing:**
 
-- Add global `afterEach` hook in vitest.setup.ts to flush microtasks
-- Add test: notifications don't fire synchronously
-- Add test: multiple changes batch into single microtask
-- Add test: notification order is maintained (before → on → after)
+- [x] Add global `afterEach` hook in vitest.setup.ts to flush microtasks
+- [x] Add test: notifications don't fire synchronously
+- [x] Add test: multiple changes batch into single microtask
+- [x] Add test: notification order is maintained (before → on → after)
 
 ---
 
-### Step 8: Filter Re-expansion on Criteria Change (AC-027)
+### [x] Step 8: Filter Re-expansion on Criteria Change (AC-027)
 
 **Files:** `packages/data-map/core/src/subscription/manager.ts`, `packages/data-map/core/src/subscription/manager.spec.ts`
 **What:** Re-evaluate all filter predicates when any path within a filter's `concretePrefix` changes. Simple approach: on any change within prefix, trigger re-expansion for all filter subscriptions matching that prefix.
 **Testing:**
 
-- Add test: filter subscription removes pointer when `@.active` becomes false
-- Add test: filter subscription adds pointer when `@.active` becomes true
-- Add test: re-expansion doesn't fire spurious notifications
+- [x] Add test: filter subscription removes pointer when `@.active` becomes false
+- [x] Add test: filter subscription adds pointer when `@.active` becomes true
+- [x] Add test: re-expansion doesn't fire spurious notifications
 
 ---
 
-### Step 9: Missing .toPatch() Methods for Array Operations
+### [x] Step 9: Missing .toPatch() Methods for Array Operations
 
-**Files:** `packages/data-map/core/src/datamap.ts`, `packages/data-map/core/src/array.spec.ts`
+**Files:** `packages/data-map/core/src/datamap.ts`, `packages/data-map/core/src/datamap.spec.ts`
 **What:** Add `.toPatch()` variants to `pop()`, `shift()`, and `splice()` methods to match the API surface of `push()`, `unshift()`, `sort()`, and `shuffle()`.
 **Testing:**
 
-- Add test: `pop.toPatch()` returns remove operation
-- Add test: `shift.toPatch()` returns remove operation with index adjustments
-- Add test: `splice.toPatch()` returns combined remove/add operations
+- [x] Add test: `pop.toPatch()` returns remove operation
+- [x] Add test: `shift.toPatch()` returns remove operation
+- [x] Add test: `splice.toPatch()` returns combined remove/add operations
 
 ---
 

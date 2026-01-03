@@ -30,12 +30,12 @@ pnpm --filter @data-map/core test
 
 ### Step 1: Before-Hook Value Transformation (AC-024)
 
-- [ ] Update `DataMap.patch()` to:
-  - [ ] Pass the _incoming_ value (`op.value`) to `before` handlers (not the current stored value)
-  - [ ] Pass the current stored value as `previousValue`
-  - [ ] Apply the returned `transformedValue` (if any) back onto the operation before applying the patch
+- [x] Update `DataMap.patch()` to:
+  - [x] Pass the _incoming_ value (`op.value`) to `before` handlers (not the current stored value)
+  - [x] Pass the current stored value as `previousValue`
+  - [x] Apply the returned `transformedValue` (if any) back onto the operation before applying the patch
 
-- [ ] Copy and paste the full `patch` block below into `packages/data-map/core/src/datamap.ts`, replacing the existing `readonly patch = Object.assign(...);` block entirely:
+- [x] Copy and paste the full `patch` block below into `packages/data-map/core/src/datamap.ts`, replacing the existing `readonly patch = Object.assign(...);` block entirely:
 
 ```ts
 	readonly patch = Object.assign(
@@ -115,7 +115,7 @@ pnpm --filter @data-map/core test
 	);
 ```
 
-- [ ] Add the tests below to `packages/data-map/core/src/datamap.spec.ts` inside `describe('Write API', () => { ... })`:
+- [x] Add the tests below to `packages/data-map/core/src/datamap.spec.ts` inside `describe('Write API', () => { ... })`:
 
 ```ts
 it('applies transformedValue returned by before-hook (AC-024)', async () => {
@@ -152,8 +152,8 @@ it('pipelines multiple before-hook transformations (AC-024)', async () => {
 
 #### Step 1 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/core test -- src/datamap.spec.ts`
-- [ ] The new tests pass
+- [x] `pnpm --filter @data-map/core test -- src/datamap.spec.ts`
+- [x] The new tests pass
 
 #### Step 1 STOP & COMMIT
 
@@ -177,10 +177,10 @@ completes: step 1 of 11 for data-map-spec-compliance
 
 If a definition provides `defaultValue`, initialize the underlying data at construction time (without invoking getters) so reads have a concrete stored value.
 
-- [ ] Add a safe “read-only” accessor in the definition registry to enumerate registered definitions.
-- [ ] Apply definition defaults in the DataMap constructor immediately after definitions are registered, before any user subscriptions are registered.
+- [x] Add a safe “read-only” accessor in the definition registry to enumerate registered definitions.
+- [x] Apply definition defaults in the DataMap constructor immediately after definitions are registered, before any user subscriptions are registered.
 
-- [ ] Copy/paste the method below into `packages/data-map/core/src/definitions/registry.ts` (inside `export class DefinitionRegistry...`) to expose registered definitions:
+- [x] Copy/paste the method below into `packages/data-map/core/src/definitions/registry.ts` (inside `export class DefinitionRegistry...`) to expose registered definitions:
 
 ```ts
 	getRegisteredDefinitions(): Definition<T, Ctx>[] {
@@ -188,7 +188,7 @@ If a definition provides `defaultValue`, initialize the underlying data at const
 	}
 ```
 
-- [ ] In `packages/data-map/core/src/datamap.ts`, add this private helper method inside `export class DataMap...` (anywhere among other private helpers):
+- [x] In `packages/data-map/core/src/datamap.ts`, add this private helper method inside `export class DataMap...` (anywhere among other private helpers):
 
 ```ts
 	private _applyDefinitionDefaults(): void {
@@ -250,13 +250,13 @@ If a definition provides `defaultValue`, initialize the underlying data at const
 	}
 ```
 
-- [ ] Update `packages/data-map/core/src/datamap.ts` imports to include `compilePathPattern` (and ensure it is used only by the defaulting helper):
+- [x] Update `packages/data-map/core/src/datamap.ts` imports to include `compilePathPattern` (and ensure it is used only by the defaulting helper):
 
 ```ts
 import { compilePathPattern } from './path/compile';
 ```
 
-- [ ] In the `DataMap` constructor in `packages/data-map/core/src/datamap.ts`, call the new helper immediately after registering definitions:
+- [x] In the `DataMap` constructor in `packages/data-map/core/src/datamap.ts`, call the new helper immediately after registering definitions:
 
 ```ts
 if (options.define && options.context !== undefined) {
@@ -265,7 +265,7 @@ if (options.define && options.context !== undefined) {
 }
 ```
 
-- [ ] Add tests to `packages/data-map/core/src/definitions/definitions.spec.ts`:
+- [x] Add tests to `packages/data-map/core/src/definitions/definitions.spec.ts`:
 
 ```ts
 it('applies defaultValue into underlying data (AC-003)', () => {
@@ -307,7 +307,7 @@ it('does not invoke getters during construction when defaultValue exists (AC-003
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/core test -- src/definitions/definitions.spec.ts`
+- [x] `pnpm --filter @data-map/core test -- src/definitions/definitions.spec.ts`
 
 #### Step 2 STOP & COMMIT
 
@@ -325,7 +325,7 @@ completes: step 2 of 11 for data-map-spec-compliance
 
 ### Step 3: CompiledPathPattern.toJSON() (REQ-026)
 
-- [ ] Create `packages/data-map/core/src/path/types.ts` with the following content:
+- [x] Create `packages/data-map/core/src/path/types.ts` with the following content:
 
 ```ts
 import type { PathSegment } from './segments';
@@ -374,25 +374,25 @@ export function serializeSegment(seg: PathSegment): SerializedSegment {
 }
 ```
 
-- [ ] Update `packages/data-map/core/src/path/compile.ts`:
-  - [ ] Extend `CompiledPathPattern` to include `toJSON(): SerializedPattern`
-  - [ ] Import `SerializedPattern` + `serializeSegment`
-  - [ ] Implement `toJSON()` on the compiled object
+- [x] Update `packages/data-map/core/src/path/compile.ts`:
+  - [x] Extend `CompiledPathPattern` to include `toJSON(): SerializedPattern`
+  - [x] Import `SerializedPattern` + `serializeSegment`
+  - [x] Implement `toJSON()` on the compiled object
 
-- [ ] In `packages/data-map/core/src/path/compile.ts`, add the import near the top:
+- [x] In `packages/data-map/core/src/path/compile.ts`, add the import near the top:
 
 ```ts
 import type { SerializedPattern } from './types';
 import { serializeSegment } from './types';
 ```
 
-- [ ] In `packages/data-map/core/src/path/compile.ts`, update the interface definition by inserting `toJSON`:
+- [x] In `packages/data-map/core/src/path/compile.ts`, update the interface definition by inserting `toJSON`:
 
 ```ts
 toJSON: () => SerializedPattern;
 ```
 
-- [ ] In `compilePathPattern(...)`, add the method on `pattern`:
+- [x] In `compilePathPattern(...)`, add the method on `pattern`:
 
 ```ts
 		toJSON: () => ({
@@ -403,7 +403,7 @@ toJSON: () => SerializedPattern;
 		}),
 ```
 
-- [ ] Add tests to `packages/data-map/core/src/path/compile.spec.ts`:
+- [x] Add tests to `packages/data-map/core/src/path/compile.spec.ts`:
 
 ```ts
 it('serializes to JSON via toJSON() (REQ-026)', () => {
@@ -430,7 +430,7 @@ it('toJSON source round-trips behavior (REQ-026)', () => {
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/core test -- src/path/compile.spec.ts`
+- [x] `pnpm --filter @data-map/core test -- src/path/compile.spec.ts`
 
 #### Step 3 STOP & COMMIT
 
@@ -452,7 +452,7 @@ completes: step 3 of 11 for data-map-spec-compliance
 
 Cache getter results for definitions that declare dependencies so repeated reads are stable and cheap until invalidated.
 
-- [ ] Replace `packages/data-map/core/src/definitions/registry.ts` entirely with the full content below (this includes the Step 2 accessor and adds caching + invalidation hooks):
+- [x] Replace `packages/data-map/core/src/definitions/registry.ts` entirely with the full content below (this includes the Step 2 accessor and adds caching + invalidation hooks):
 
 ```ts
 import type { Definition, DefinitionFactory, GetterConfig } from './types';
@@ -598,7 +598,7 @@ export class DefinitionRegistry<T, Ctx> {
 }
 ```
 
-- [ ] Add tests to `packages/data-map/core/src/definitions/definitions.spec.ts`:
+- [x] Add tests to `packages/data-map/core/src/definitions/definitions.spec.ts`:
 
 ```ts
 it('caches getter results when deps are declared', () => {
@@ -655,7 +655,7 @@ it('manual invalidation forces recomputation', () => {
 
 ##### Step 4 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/core test -- src/definitions/definitions.spec.ts`
+- [x] `pnpm --filter @data-map/core test -- src/definitions/definitions.spec.ts`
 
 #### Step 4 STOP & COMMIT
 
@@ -677,9 +677,9 @@ completes: step 4 of 11 for data-map-spec-compliance
 
 When a dependency changes, invalidate the cached computed value so subsequent reads recompute.
 
-- [ ] Update `packages/data-map/core/src/definitions/registry.ts` `register(def)` to auto-subscribe to each `dep` path and invalidate caches synchronously using `before: 'set'` (so it runs during the synchronous patch block).
+- [x] Update `packages/data-map/core/src/definitions/registry.ts` `register(def)` to auto-subscribe to each `dep` path and invalidate caches synchronously using `before: 'set'` (so it runs during the synchronous patch block).
 
-- [ ] Replace only the `register(def: Definition<T, Ctx>): void { ... }` method with the version below:
+- [x] Replace only the `register(def: Definition<T, Ctx>): void { ... }` method with the version below:
 
 ```ts
 	register(def: Definition<T, Ctx>): void {
@@ -740,7 +740,7 @@ it('recomputes cached computed value when a dependency changes (AC-031)', () => 
 
 ##### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/core test -- src/definitions/definitions.spec.ts`
+- [x] `pnpm --filter @data-map/core test -- src/definitions/definitions.spec.ts`
 
 #### Step 5 STOP & COMMIT
 
@@ -748,8 +748,8 @@ it('recomputes cached computed value when a dependency changes (AC-031)', () => 
 feat(data-map-spec-compliance): auto-invalidate computed caches via deps subscriptions
 
 - Auto-subscribe to definition deps during registration
-- Invalidate cached computed getter values synchronously on dep changes
-- Add test proving computed values update after dependency set
+- Invalidate cache for specific pointer (or all for patterns) when deps change
+- Support deps declared at top-level or within getter config
 
 completes: step 5 of 11 for data-map-spec-compliance
 ```
@@ -758,15 +758,15 @@ completes: step 5 of 11 for data-map-spec-compliance
 
 ### Step 6: Enhance Batch API (if needed)
 
-- [ ] Audit `packages/data-map/core/src/datamap.ts` `batch()` and `packages/data-map/core/src/batch/manager.ts`:
-  - [ ] Ensure nested batches merge contexts correctly
-  - [ ] Ensure `transaction()` rollback prevents notifications
+- [x] Audit `packages/data-map/core/src/datamap.ts` `batch()` and `packages/data-map/core/src/batch/manager.ts`:
+  - [x] Ensure nested batches merge contexts correctly
+  - [x] Ensure `transaction()` rollback prevents notifications
 
 No code changes are required if existing tests pass.
 
 ##### Step 6 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/core test -- src/batch/batch.spec.ts`
+- [x] `pnpm --filter @data-map/core test -- src/batch/batch.spec.ts`
 
 #### Step 6 STOP & COMMIT
 
@@ -780,33 +780,123 @@ completes: step 6 of 11 for data-map-spec-compliance
 
 ---
 
-### Step 7: queueMicrotask Notification Batching (REQ-016/REQ-017)
+### [x] Step 7: queueMicrotask Notification Batching (REQ-016/REQ-017)
 
 #### Intent
 
 Deliver `on`/`after` notifications asynchronously via `queueMicrotask`, while keeping `before` synchronous (so cancel/transform semantics remain reliable).
 
-- [ ] Create `packages/data-map/core/src/subscription/scheduler.ts`:
+- [x] Create `packages/data-map/core/src/subscription/scheduler.ts`:
+- [x] Update `packages/data-map/core/src/subscription/manager.ts` to use the scheduler for `on`/`after` stages.
+- [x] Update `packages/data-map/core/src/datamap.ts` to call `this._subs.scheduleNotify(...)` for `on` and `after` (and keep `before` synchronous).
+
+---
+
+### [x] Step 8: Filter Re-expansion on Criteria Change (AC-027)
+
+#### Intent
+
+Re-evaluate all filter predicates when any path within a filter's `concretePrefix` changes.
+
+- [x] Implement `handleFilterCriteriaChange` in `SubscriptionManagerImpl`.
+- [x] Track `filterWatchers` in `register`.
+- [x] Call `handleFilterCriteriaChange` in `notify` during `on` stage.
+- [x] Verify with tests in `manager.spec.ts`.
+
+---
+
+### [x] Step 9: Missing .toPatch() Methods for Array Operations
+
+#### Intent
+
+Ensure all array mutation methods (`pop`, `shift`, `splice`) have a corresponding `.toPatch()` variant that returns the JSON Patch operations without applying them.
+
+- [x] Update `packages/data-map/core/src/datamap.ts` to add `.toPatch()` to `pop`, `shift`, and `splice`.
+- [x] Verify with tests in `datamap.spec.ts`.
+
+---
+
+### Step 10: Subscription get/resolve Events
+
+- [ ] Add `.toPatch()` to `shift`:
 
 ```ts
-export class NotificationScheduler {
-	private queue: (() => void)[] = [];
-	private scheduled = false;
+		{
+			toPatch: (pathOrPointer: string, options: CallOptions = {}): Operation[] => {
+				const strict = options.strict ?? this._strict;
+				const matches = this.resolve(pathOrPointer, { strict });
+				const targetPointer = matches[0]?.pointer;
+				if (!targetPointer) {
+					if (strict) throw new Error('No matches for shift()');
+					return [];
+				}
+				const arr = this.get(targetPointer);
+				if (!Array.isArray(arr)) {
+					if (strict) throw new Error('Target is not an array');
+					return [];
+				}
+				if (arr.length === 0) return [];
+				return [{ op: 'remove', path: `${targetPointer}/0` }];
+			},
+		},
+```
 
-	schedule(fn: () => void): void {
-		this.queue.push(fn);
-		if (this.scheduled) return;
-		this.scheduled = true;
-		queueMicrotask(() => this.flush());
-	}
+- [ ] Add `.toPatch()` to `splice`:
 
-	flush(): void {
-		this.scheduled = false;
-		const batch = this.queue;
-		this.queue = [];
-		for (const fn of batch) fn();
-	}
-}
+```ts
+		{
+			toPatch: (
+				pathOrPointer: string,
+				start: number,
+				deleteCount?: number,
+				...items: unknown[]
+			): Operation[] => {
+				const strict = this._strict;
+				const matches = this.resolve(pathOrPointer, { strict });
+				const targetPointer = matches[0]?.pointer;
+				if (!targetPointer) {
+					if (strict) throw new Error('No matches for splice()');
+					return [];
+				}
+				const arr = this.get(targetPointer);
+				if (!Array.isArray(arr)) {
+					if (strict) throw new Error('Target is not an array');
+					return [];
+				}
+
+				const ops: Operation[] = [];
+				const actualStart = start < 0 ? Math.max(arr.length + start, 0) : Math.min(start, arr.length);
+				const actualDeleteCount = deleteCount === undefined ? arr.length - actualStart : Math.min(Math.max(deleteCount, 0), arr.length - actualStart);
+
+				// Remove items from end to start to keep indices stable
+				for (let i = actualDeleteCount - 1; i >= 0; i--) {
+					ops.push({ op: 'remove', path: `${targetPointer}/${actualStart + i}` });
+				}
+
+				// Add items
+				for (let i = 0; i < items.length; i++) {
+					ops.push({ op: 'add', path: `${targetPointer}/${actualStart + i}`, value: items[i] });
+				}
+
+				return ops;
+			},
+		},
+```
+
+#### Step 9 Verification Checklist
+
+- [ ] `pnpm --filter @data-map/core test`
+- [ ] Add tests in `packages/data-map/core/src/datamap.spec.ts` for `pop.toPatch()`, `shift.toPatch()`, and `splice.toPatch()`.
+
+#### Step 9 STOP & COMMIT
+
+```txt
+feat(data-map-spec-compliance): add .toPatch() methods for array operations
+
+- Implement .toPatch() for pop, shift, and splice
+- Ensure strict mode compliance and error handling
+
+completes: step 9 of 11 for data-map-spec-compliance
 ```
 
 - [ ] Update `packages/data-map/core/src/subscription/manager.ts` to use the scheduler for `on`/`after` stages.

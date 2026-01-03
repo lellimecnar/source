@@ -62,4 +62,75 @@ describe('subscription manager', () => {
 		const subs = mgr.getMatchingSubscriptions('/a');
 		expect(subs.length).toBe(2);
 	});
+
+	it('delivers on/after notifications asynchronously (REQ-016)', async () => {
+		const dm = new DataMap({ a: 1 });
+		const calls: string[] = [];
+		dm.subscribe({
+			path: '/a',
+			before: 'set',
+			fn: () => calls.push('before'),
+		});
+		dm.subscribe({
+			path: '/a',
+			on: 'set',
+			fn: () => calls.push('on'),
+		});
+		dm.subscribe({
+			path: '/a',
+			after: 'set',
+			fn: () => calls.push('after'),
+		});
+
+		dm.set('/a', 2);
+		expect(calls).toEqual(['before']); // Only before is synchronous
+		await flushMicrotasks();
+		expect(calls).toEqual(['before', 'on', 'after']);
+	});
+
+	it('re-expands filter subscriptions when criteria changes (AC-027)', async () => {
+		const dm = new DataMap({ users: [{ active: true, name: 'A' }] });
+		const sub = dm.subscribe({
+			path: '$.users[?(@.active)].name',
+			after: 'set',
+			fn: () => {},
+		});
+
+		expect([...sub.expandedPaths]).toContain('/users/0/name');
+
+		dm.set('/users/0/active', false);
+		await flushMicrotasks();
+		expect([...sub.expandedPaths]).not.toContain('/users/0/name');
+	});
+
+	it('fires get and resolve events (Step 10)', async () => {
+		const dm = new DataMap({ a: 1 });
+		const calls: string[] = [];
+		dm.subscribe({
+			path: '/a',
+			on: ['get', 'resolve'],
+			fn: (_, info) => calls.push(`${info.type}:${info.stage}`),
+		});
+
+		dm.get('/a');
+		dm.resolve('/a');
+
+		expect(calls).toEqual([]);
+		await flushMicrotasks();
+		// dm.get('/a') triggers resolve('/a') then get('/a')
+		// dm.resolve('/a') triggers resolve('/a')
+		expect(calls).toEqual(['resolve:on', 'get:on', 'resolve:on']);
+	});
+
+	it('supports read interception via get:before (Step 10)', () => {
+		const dm = new DataMap({ a: 1 });
+		dm.subscribe({
+			path: '/a',
+			before: 'get',
+			fn: () => 'intercepted',
+		});
+
+		const val = dm.get('/a');
+		expect(val).toBe('intercepted');
+	});
 });

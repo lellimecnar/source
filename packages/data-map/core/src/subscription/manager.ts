@@ -2,6 +2,7 @@ import type { DataMap } from '../datamap';
 import type { Operation } from '../types';
 import { BloomFilter } from './bloom';
 import { generateSubscriptionId } from './id';
+import { NotificationScheduler } from './scheduler';
 import type {
 	Subscription,
 	SubscriptionConfig,
@@ -61,7 +62,9 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		InternalSubscription<T, Ctx>
 	>();
 	private readonly structuralWatchers = new Map<string, Set<string>>();
+	private readonly filterWatchers = new Map<string, Set<string>>();
 	private readonly bloomFilter = new BloomFilter(10000, 7);
+	private readonly scheduler = new NotificationScheduler();
 	private readonly dataMap: DataMap<T, Ctx>;
 
 	constructor(dataMap: DataMap<T, Ctx>) {
@@ -94,6 +97,15 @@ export class SubscriptionManagerImpl<T, Ctx> {
 				for (const dep of compiledPattern.structuralDependencies) {
 					this.addStructuralWatcher(dep, id);
 				}
+				if (compiledPattern.hasFilters) {
+					const prefix = compiledPattern.concretePrefixPointer;
+					let set = this.filterWatchers.get(prefix);
+					if (!set) {
+						set = new Set();
+						this.filterWatchers.set(prefix, set);
+					}
+					set.add(id);
+				}
 			}
 		}
 
@@ -125,6 +137,28 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		}
 	}
 
+	scheduleNotify(
+		pointer: string,
+		event: SubscriptionEvent,
+		stage: 'on' | 'after',
+		value: unknown,
+		previousValue?: unknown,
+		operation?: Operation,
+		originalPath: string = pointer,
+	): void {
+		this.scheduler.schedule(() => {
+			this.notify(
+				pointer,
+				event,
+				stage,
+				value,
+				previousValue,
+				operation,
+				originalPath,
+			);
+		});
+	}
+
 	notify(
 		pointer: string,
 		event: SubscriptionEvent,
@@ -134,8 +168,29 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		operation?: Operation,
 		originalPath: string = pointer,
 	): NotificationResult {
-		if (!this.bloomFilter.mightContain(pointer)) {
-			return this.notifyDynamic(
+		if (stage === 'on') {
+			this.handleFilterCriteriaChange(pointer);
+		}
+
+		const execute = () => {
+			if (!this.bloomFilter.mightContain(pointer)) {
+				return this.notifyDynamic(
+					pointer,
+					event,
+					stage,
+					value,
+					previousValue,
+					operation,
+					originalPath,
+				);
+			}
+
+			const staticIds = this.reverseIndex.get(pointer) ?? new Set<string>();
+			const dynamicIds = this.findDynamicMatches(pointer);
+			const all = new Set<string>([...staticIds, ...dynamicIds]);
+
+			return this.invokeHandlers(
+				all,
 				pointer,
 				event,
 				stage,
@@ -144,22 +199,14 @@ export class SubscriptionManagerImpl<T, Ctx> {
 				operation,
 				originalPath,
 			);
+		};
+
+		if (stage !== 'before') {
+			this.scheduler.schedule(execute);
+			return { cancelled: false, handlerCount: 0 };
 		}
 
-		const staticIds = this.reverseIndex.get(pointer) ?? new Set<string>();
-		const dynamicIds = this.findDynamicMatches(pointer);
-		const all = new Set<string>([...staticIds, ...dynamicIds]);
-
-		return this.invokeHandlers(
-			all,
-			pointer,
-			event,
-			stage,
-			value,
-			previousValue,
-			operation,
-			originalPath,
-		);
+		return execute();
 	}
 
 	handleStructuralChange(pointer: string): void {
@@ -188,19 +235,55 @@ export class SubscriptionManagerImpl<T, Ctx> {
 				this.bloomFilter.add(p);
 				// notify new match
 				const v = this.dataMap.get(p);
-				this.invokeHandlers(
-					new Set([id]),
-					p,
-					'set',
-					'after',
-					v,
-					undefined,
-					{ op: 'add', path: p, value: v } as any,
-					sub.config.path,
-				);
+				this.scheduler.schedule(() => {
+					this.invokeHandlers(
+						new Set([id]),
+						p,
+						'set',
+						'after',
+						v,
+						undefined,
+						{ op: 'add', path: p, value: v } as any,
+						sub.config.path,
+					);
+				});
 			}
 
 			sub.expandedPaths = newExpanded;
+		}
+	}
+
+	handleFilterCriteriaChange(changedPointer: string): void {
+		const data = this.dataMap.toJSON();
+		for (const [prefix, ids] of this.filterWatchers) {
+			if (prefix !== '') {
+				const relevant =
+					changedPointer === prefix || changedPointer.startsWith(`${prefix}/`);
+				if (!relevant) continue;
+			}
+
+			for (const id of ids) {
+				const sub = this.subscriptions.get(id);
+				if (!sub?.compiledPattern) continue;
+
+				const newPointers = sub.compiledPattern.expand(data);
+				const newExpanded = new Set(newPointers);
+
+				const added: string[] = [];
+				const removed: string[] = [];
+				for (const p of newExpanded)
+					if (!sub.expandedPaths.has(p)) added.push(p);
+				for (const p of sub.expandedPaths)
+					if (!newExpanded.has(p)) removed.push(p);
+
+				for (const p of removed) this.removeFromReverseIndex(p, id);
+				for (const p of added) {
+					this.addToReverseIndex(p, id);
+					this.bloomFilter.add(p);
+				}
+
+				sub.expandedPaths = newExpanded;
+			}
 		}
 	}
 
@@ -238,7 +321,7 @@ export class SubscriptionManagerImpl<T, Ctx> {
 
 	private findDynamicMatches(pointer: string): Set<string> {
 		const matches = new Set<string>();
-		const getValue = (p: string) => this.dataMap.get(p);
+		const getValue = (p: string) => (this.dataMap as any).peek(p);
 		for (const [id, sub] of this.dynamicSubscriptions) {
 			if (sub.compiledPattern?.match(pointer, getValue).matches)
 				matches.add(id);
@@ -264,7 +347,10 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		for (const id of ids) {
 			const sub = this.subscriptions.get(id);
 			if (!sub) continue;
-			if (!shouldInvoke(sub.config, stage, event)) continue;
+
+			// Check if this subscription cares about this event and stage
+			const hasEvent = shouldInvoke(sub.config, stage, event);
+			if (!hasEvent) continue;
 
 			handlerCount++;
 			const cancel = () => {
@@ -304,7 +390,9 @@ export class SubscriptionManagerImpl<T, Ctx> {
 			id: sub.id,
 			query: sub.config.path,
 			compiledPattern: sub.compiledPattern,
-			expandedPaths: sub.expandedPaths,
+			get expandedPaths() {
+				return sub.expandedPaths;
+			},
 			isDynamic: sub.isDynamic,
 			unsubscribe: () => {
 				this.unregister(sub.id);

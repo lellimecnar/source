@@ -14,6 +14,7 @@ import {
 	buildUnshiftPatch,
 } from './patch/array';
 import { buildSetPatch } from './patch/builder';
+import { compilePathPattern } from './path/compile';
 import { detectPathType } from './path/detect';
 import { SubscriptionManagerImpl } from './subscription/manager';
 import type { Subscription, SubscriptionConfig } from './subscription/types';
@@ -52,6 +53,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 
 		if (options.define && options.context !== undefined) {
 			this._defs.registerAll(options.define, options.context);
+			this._applyDefinitionDefaults();
 		}
 		if (options.subscribe) {
 			for (const s of options.subscribe) this.subscribe(s);
@@ -87,10 +89,31 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		if (pathType === 'pointer') {
 			const pointerString = normalizePointerInput(pathOrPointer);
 			if (pointerString === '') {
+				const value = cloneSnapshot(
+					this._defs.applyGetter('', this._data, ctx),
+				);
+				this._subs.scheduleNotify(
+					'',
+					'resolve',
+					'on',
+					value,
+					undefined,
+					undefined,
+					pathOrPointer,
+				);
+				this._subs.scheduleNotify(
+					'',
+					'resolve',
+					'after',
+					value,
+					undefined,
+					undefined,
+					pathOrPointer,
+				);
 				return [
 					{
 						pointer: '',
-						value: cloneSnapshot(this._defs.applyGetter('', this._data, ctx)),
+						value,
 					},
 				];
 			}
@@ -98,15 +121,36 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			try {
 				const pointer = new JSONPointer(pointerString);
 				const resolved = pointer.resolve(this._data as any);
+				const value = cloneSnapshot(
+					this._defs.applyGetter(pointerString, resolved, ctx),
+				);
+
+				this._subs.scheduleNotify(
+					pointerString,
+					'resolve',
+					'on',
+					value,
+					undefined,
+					undefined,
+					pathOrPointer,
+				);
+				this._subs.scheduleNotify(
+					pointerString,
+					'resolve',
+					'after',
+					value,
+					undefined,
+					undefined,
+					pathOrPointer,
+				);
+
 				return [
 					{
 						pointer: pointerString,
-						value: cloneSnapshot(
-							this._defs.applyGetter(pointerString, resolved, ctx),
-						),
+						value,
 					},
 				];
-			} catch {
+			} catch (e) {
 				if (strict) throw new Error(`Pointer not found: ${pointerString}`);
 				return [];
 			}
@@ -116,10 +160,33 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			const nodes = jsonpath.query(pathOrPointer, this._data as any);
 			const pointers = nodes.pointers().map((p) => p.toString());
 			const values = nodes.values();
-			return pointers.map((pointer, idx) => ({
+			const matches = pointers.map((pointer, idx) => ({
 				pointer,
 				value: cloneSnapshot(this._defs.applyGetter(pointer, values[idx], ctx)),
 			}));
+
+			for (const m of matches) {
+				this._subs.scheduleNotify(
+					m.pointer,
+					'resolve',
+					'on',
+					m.value,
+					undefined,
+					undefined,
+					pathOrPointer,
+				);
+				this._subs.scheduleNotify(
+					m.pointer,
+					'resolve',
+					'after',
+					m.value,
+					undefined,
+					undefined,
+					pathOrPointer,
+				);
+			}
+
+			return matches;
 		} catch {
 			if (strict) throw new Error(`Invalid JSONPath: ${pathOrPointer}`);
 			return [];
@@ -127,11 +194,59 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	}
 
 	get(pathOrPointer: string, options: CallOptions = {}): unknown {
-		return this.resolve(pathOrPointer, options)[0]?.value;
+		const matches = this.resolve(pathOrPointer, options);
+		const match = matches[0];
+		if (!match) return undefined;
+
+		const before = this._subs.notify(
+			match.pointer,
+			'get',
+			'before',
+			match.value,
+			undefined,
+			undefined,
+			pathOrPointer,
+		);
+
+		this._subs.scheduleNotify(
+			match.pointer,
+			'get',
+			'on',
+			match.value,
+			undefined,
+			undefined,
+			pathOrPointer,
+		);
+		this._subs.scheduleNotify(
+			match.pointer,
+			'get',
+			'after',
+			match.value,
+			undefined,
+			undefined,
+			pathOrPointer,
+		);
+
+		return before.transformedValue !== undefined
+			? before.transformedValue
+			: match.value;
 	}
 
 	getAll(pathOrPointer: string, options: CallOptions = {}): unknown[] {
 		return this.resolve(pathOrPointer, options).map((m) => m.value);
+	}
+
+	/**
+	 * Internal get without triggering notifications
+	 */
+	peek(pointer: string): unknown {
+		try {
+			return new JSONPointer(normalizePointerInput(pointer)).resolve(
+				this._data as any,
+			);
+		} catch {
+			return undefined;
+		}
 	}
 
 	/**
@@ -299,27 +414,44 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	readonly patch = Object.assign(
 		(ops: Operation[], options: CallOptions = {}) => {
 			const strict = options.strict ?? this._strict;
+
+			// Never mutate caller-provided operations; we may rewrite `value` when before-hooks transform.
+			const effectiveOps: Operation[] = ops.map((op) => ({ ...op })) as any;
+
 			try {
-				for (const op of ops) {
+				for (const op of effectiveOps) {
+					const previousValue = this.get(op.path);
+					const nextValue = 'value' in op ? op.value : undefined;
+
 					const before = this._subs.notify(
 						op.path,
 						'patch',
 						'before',
-						this.get(op.path),
-						undefined,
+						nextValue,
+						previousValue,
 						op,
 						op.path,
 					);
-					if (before.cancelled)
+
+					if (before.cancelled) {
 						throw new Error('Patch cancelled by subscription');
+					}
+
+					if (before.transformedValue !== undefined && 'value' in op) {
+						op.value = before.transformedValue;
+					}
 				}
 
 				const { nextData, affectedPointers, structuralPointers } =
-					applyOperations(this._data, ops);
+					applyOperations(this._data, effectiveOps);
 				this._data = nextData as T;
 
 				if (this._batch.isBatching) {
-					this._batch.collect(ops, affectedPointers, structuralPointers);
+					this._batch.collect(
+						effectiveOps,
+						affectedPointers,
+						structuralPointers,
+					);
 					return this;
 				}
 
@@ -327,7 +459,11 @@ export class DataMap<T = unknown, Ctx = unknown> {
 					this._subs.handleStructuralChange(p);
 				}
 
-				for (const op of ops) {
+				for (const p of affectedPointers) {
+					this._subs.handleFilterCriteriaChange(p);
+				}
+
+				for (const op of effectiveOps) {
 					this._subs.notify(
 						op.path,
 						'patch',
@@ -375,23 +511,43 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		},
 	);
 
-	pop(pathOrPointer: string): unknown {
-		const pointer =
-			this.resolve(pathOrPointer)[0]?.pointer ??
-			normalizePointerInput(pathOrPointer);
-		const { ops, value } = buildPopPatch(this._data, pointer);
-		this.patch(ops);
-		return value;
-	}
+	readonly pop = Object.assign(
+		(pathOrPointer: string) => {
+			const pointer =
+				this.resolve(pathOrPointer)[0]?.pointer ??
+				normalizePointerInput(pathOrPointer);
+			const { ops, value } = buildPopPatch(this._data, pointer);
+			this.patch(ops);
+			return value;
+		},
+		{
+			toPatch: (pathOrPointer: string): Operation[] => {
+				const pointer =
+					this.resolve(pathOrPointer)[0]?.pointer ??
+					normalizePointerInput(pathOrPointer);
+				return buildPopPatch(this._data, pointer).ops;
+			},
+		},
+	);
 
-	shift(pathOrPointer: string): unknown {
-		const pointer =
-			this.resolve(pathOrPointer)[0]?.pointer ??
-			normalizePointerInput(pathOrPointer);
-		const { ops, value } = buildShiftPatch(this._data, pointer);
-		this.patch(ops);
-		return value;
-	}
+	readonly shift = Object.assign(
+		(pathOrPointer: string) => {
+			const pointer =
+				this.resolve(pathOrPointer)[0]?.pointer ??
+				normalizePointerInput(pathOrPointer);
+			const { ops, value } = buildShiftPatch(this._data, pointer);
+			this.patch(ops);
+			return value;
+		},
+		{
+			toPatch: (pathOrPointer: string): Operation[] => {
+				const pointer =
+					this.resolve(pathOrPointer)[0]?.pointer ??
+					normalizePointerInput(pathOrPointer);
+				return buildShiftPatch(this._data, pointer).ops;
+			},
+		},
+	);
 
 	readonly unshift = Object.assign(
 		(pathOrPointer: string, ...items: unknown[]) => {
@@ -409,25 +565,41 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		},
 	);
 
-	splice(
-		pathOrPointer: string,
-		start: number,
-		deleteCount = 0,
-		...items: unknown[]
-	): unknown[] {
-		const pointer =
-			this.resolve(pathOrPointer)[0]?.pointer ??
-			normalizePointerInput(pathOrPointer);
-		const { ops, removed } = buildSplicePatch(
-			this._data,
-			pointer,
-			start,
-			deleteCount,
-			items,
-		);
-		this.patch(ops);
-		return removed;
-	}
+	readonly splice = Object.assign(
+		(
+			pathOrPointer: string,
+			start: number,
+			deleteCount = 0,
+			...items: unknown[]
+		) => {
+			const pointer =
+				this.resolve(pathOrPointer)[0]?.pointer ??
+				normalizePointerInput(pathOrPointer);
+			const { ops, removed } = buildSplicePatch(
+				this._data,
+				pointer,
+				start,
+				deleteCount,
+				items,
+			);
+			this.patch(ops);
+			return removed;
+		},
+		{
+			toPatch: (
+				pathOrPointer: string,
+				start: number,
+				deleteCount = 0,
+				...items: unknown[]
+			): Operation[] => {
+				const pointer =
+					this.resolve(pathOrPointer)[0]?.pointer ??
+					normalizePointerInput(pathOrPointer);
+				return buildSplicePatch(this._data, pointer, start, deleteCount, items)
+					.ops;
+			},
+		},
+	);
 
 	readonly sort = Object.assign(
 		(pathOrPointer: string, compareFn?: (a: unknown, b: unknown) => number) => {
@@ -491,9 +663,71 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		}
 	}
 
+	private _applyDefinitionDefaults(): void {
+		const defs = this._defs.getRegisteredDefinitions();
+
+		let working = this._data as unknown;
+		const allOps: Operation[] = [];
+
+		const exists = (data: unknown, pointer: string): boolean => {
+			if (pointer === '') return true;
+			try {
+				new JSONPointer(pointer).resolve(data as any);
+				return true;
+			} catch {
+				return false;
+			}
+		};
+
+		const apply = (ops: Operation[]) => {
+			if (ops.length === 0) return;
+			const { nextData } = applyOperations(working, ops);
+			working = nextData;
+			allOps.push(...ops);
+		};
+
+		for (const def of defs) {
+			if (def.defaultValue === undefined) continue;
+
+			if ('pointer' in def && typeof def.pointer === 'string') {
+				const pointer = normalizePointerInput(def.pointer);
+				if (!exists(working, pointer)) {
+					apply(buildSetPatch(working, pointer, def.defaultValue));
+				}
+				continue;
+			}
+
+			if ('path' in def && typeof def.path === 'string') {
+				const pattern = compilePathPattern(def.path);
+
+				if (pattern.isSingular) {
+					const pointer = pattern.concretePrefixPointer;
+					if (!exists(working, pointer)) {
+						apply(buildSetPatch(working, pointer, def.defaultValue));
+					}
+					continue;
+				}
+
+				const pointers = pattern.expand(working);
+				for (const p of pointers) {
+					if (!exists(working, p)) {
+						apply(buildSetPatch(working, p, def.defaultValue));
+					}
+				}
+			}
+		}
+
+		if (allOps.length === 0) return;
+		this._data = working as T;
+	}
+
 	private _flushBatch(context: BatchContext): void {
 		for (const p of context.structuralPointers) {
 			this._subs.handleStructuralChange(p);
+		}
+
+		for (const p of context.affectedPointers) {
+			this._subs.handleFilterCriteriaChange(p);
 		}
 
 		for (const p of context.affectedPointers) {

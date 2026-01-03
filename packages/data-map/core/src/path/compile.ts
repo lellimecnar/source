@@ -1,5 +1,7 @@
 import { compilePredicate } from './predicate';
 import type { PathSegment, StaticSegment, IndexSegment } from './segments';
+import type { SerializedPattern } from './types';
+import { serializeSegment } from './types';
 import { escapePointerSegment } from '../utils/pointer';
 
 export interface CompiledPathPattern {
@@ -23,6 +25,7 @@ export interface CompiledPathPattern {
 	};
 
 	expand: (data: unknown) => string[];
+	toJSON: () => SerializedPattern;
 }
 
 const patternCache = new Map<string, CompiledPathPattern>();
@@ -203,6 +206,12 @@ export function compilePathPattern(jsonpath: string): CompiledPathPattern {
 			return matchSegments(segments, pointerSegs, getValue);
 		},
 		expand: (data) => expandSegments(segments, data, ''),
+		toJSON: () => ({
+			source: jsonpath,
+			segments: segments.map(serializeSegment),
+			isSingular,
+			concretePrefix: concretePrefixPointer,
+		}),
 	};
 
 	patternCache.set(jsonpath, pattern);

@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { DataMap } from '../datamap';
 import { detectPathType } from '../path/detect';
 
+const flushMicrotasks = () => new Promise((resolve) => queueMicrotask(resolve));
+
 describe('spec compliance', () => {
 	describe('REQ-001: json-p3 JSONPath behavior', () => {
 		it('uses json-p3 semantics for JSONPath queries', () => {
@@ -99,7 +101,7 @@ describe('spec compliance', () => {
 	});
 
 	describe('REQ-006: Subscription system', () => {
-		it('supports before/on/after stages', () => {
+		it('supports before/on/after stages', async () => {
 			const dm = new DataMap({ a: 1 });
 			const stages: string[] = [];
 
@@ -112,10 +114,12 @@ describe('spec compliance', () => {
 			});
 
 			dm.patch([{ op: 'replace', path: '/a', value: 2 }]);
+			expect(stages).toEqual(['before']);
+			await flushMicrotasks();
 			expect(stages).toEqual(['before', 'on', 'after']);
 		});
 
-		it('supports unsubscribe', () => {
+		it('supports unsubscribe', async () => {
 			const dm = new DataMap({ a: 1 });
 			const calls: number[] = [];
 
@@ -126,9 +130,11 @@ describe('spec compliance', () => {
 			});
 
 			dm.patch([{ op: 'replace', path: '/a', value: 2 }]);
+			await flushMicrotasks();
 			sub.unsubscribe();
 			dm.patch([{ op: 'replace', path: '/a', value: 3 }]);
 
+			await flushMicrotasks();
 			expect(calls).toEqual([2]);
 		});
 	});

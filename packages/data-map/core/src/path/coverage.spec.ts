@@ -9,6 +9,8 @@ import {
 	buildSplicePatch,
 } from '../patch/array';
 
+const flushMicrotasks = () => new Promise((resolve) => queueMicrotask(resolve));
+
 describe('DataMap Coverage Edge Cases', () => {
 	it('resolve relative-pointer strict error', () => {
 		const dm = new DataMap({ a: 1 }, { strict: true });
@@ -194,7 +196,7 @@ describe('Subscription Manager Coverage Edge Cases', () => {
 		(dm as any)._subs.unregister('non-existent');
 	});
 
-	it('reexpand dynamic subscriptions', () => {
+	it('reexpand dynamic subscriptions', async () => {
 		const dm = new DataMap({ items: [1] });
 		let callCount = 0;
 		dm.subscribe({
@@ -207,6 +209,7 @@ describe('Subscription Manager Coverage Edge Cases', () => {
 
 		// Add item -> reexpand -> notify new match
 		dm.push('/items', 2);
+		await flushMicrotasks();
 		expect(callCount).toBe(1);
 
 		// Remove item -> reexpand

@@ -32,4 +32,25 @@ describe('compilePathPattern', () => {
 		const pattern = compilePathPattern('$.a.b');
 		expect(pattern.expand({ a: 1 })).toEqual([]);
 	});
+
+	it('serializes to JSON via toJSON() (REQ-026)', () => {
+		const pattern = compilePathPattern('$.users[?(@.active)].name');
+		const json = pattern.toJSON();
+		expect(json.source).toBe('$.users[?(@.active)].name');
+		expect(json.isSingular).toBe(false);
+		expect(json.concretePrefix).toBe('/users');
+		expect(json.segments.some((s) => s.type === 'filter')).toBe(true);
+	});
+
+	it('toJSON() covers recursive segment serialization', () => {
+		const pattern = compilePathPattern('$..name');
+		const json = pattern.toJSON();
+		expect(json.segments.some((s) => s.type === 'recursive')).toBe(true);
+	});
+
+	it('toJSON source round-trips behavior (REQ-026)', () => {
+		const p1 = compilePathPattern('$.users[*].name');
+		const p2 = compilePathPattern(p1.toJSON().source);
+		expect(p2.match('/users/0/name', () => undefined).matches).toBe(true);
+	});
 });

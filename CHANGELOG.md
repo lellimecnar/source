@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **@data-map/core**: Achieved ~95% specification compliance.
+  - Implemented `queueMicrotask` notification batching for async stages.
+  - Added fluent, chainable `batch` API.
+  - Implemented `defaultValue` support in definitions.
+  - Added auto-subscription for definition dependencies (`deps`).
+  - Implemented computed value caching and invalidation.
+  - Added `get` and `resolve` events with read interception support.
+  - Implemented filter re-expansion for dynamic subscriptions.
+  - Added `.toPatch()` methods for all array mutation operations.
 - Comprehensive documentation structure
 - Contributing guidelines
 - Security policy

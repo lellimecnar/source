@@ -98,6 +98,37 @@ describe('DataMap', () => {
 			expect(ops).toEqual([{ op: 'replace', path: '/a', value: 2 }]);
 			expect(dm.get('/a')).toBe(1); // unchanged
 		});
+
+		it('applies transformedValue returned by before-hook (AC-024)', async () => {
+			const dm = new DataMap({ a: 1 });
+			dm.subscribe({
+				path: '/a',
+				before: 'set',
+				fn: (v) => (Number(v) * 10) as any,
+			});
+
+			dm.set('/a', 2);
+			await flushMicrotasks();
+			expect(dm.get('/a')).toBe(20);
+		});
+
+		it('pipelines multiple before-hook transformations (AC-024)', async () => {
+			const dm = new DataMap({ a: 0 });
+			dm.subscribe({
+				path: '/a',
+				before: 'set',
+				fn: (v) => Number(v) + 1,
+			});
+			dm.subscribe({
+				path: '/a',
+				before: 'set',
+				fn: (v) => Number(v) * 10,
+			});
+
+			dm.set('/a', 1);
+			await flushMicrotasks();
+			expect(dm.get('/a')).toBe(20);
+		});
 	});
 
 	describe('Immutability', () => {
@@ -320,9 +351,51 @@ describe('DataMap coverage edge cases', () => {
 		expect(ops).toEqual([{ op: 'add', path: '/b', value: 2 }]);
 	});
 
+	it('pop.toPatch() returns operations without applying them', () => {
+		const dm = new DataMap({ arr: [1, 2, 3] });
+		const ops = dm.pop.toPatch('/arr');
+		expect(ops).toEqual([{ op: 'remove', path: '/arr/2' }]);
+		expect(dm.get('/arr')).toEqual([1, 2, 3]);
+	});
+
+	it('shift.toPatch() returns operations without applying them', () => {
+		const dm = new DataMap({ arr: [1, 2, 3] });
+		const ops = dm.shift.toPatch('/arr');
+		expect(ops).toEqual([{ op: 'remove', path: '/arr/0' }]);
+		expect(dm.get('/arr')).toEqual([1, 2, 3]);
+	});
+
+	it('splice.toPatch() returns operations without applying them', () => {
+		const dm = new DataMap({ arr: [1, 2, 3] });
+		const ops = dm.splice.toPatch('/arr', 1, 1, 4, 5);
+		expect(ops).toEqual([
+			{ op: 'remove', path: '/arr/1' },
+			{ op: 'add', path: '/arr/1', value: 4 },
+			{ op: 'add', path: '/arr/2', value: 5 },
+		]);
+		expect(dm.get('/arr')).toEqual([1, 2, 3]);
+	});
+
 	it('clone() accepts options to override', () => {
 		const dm = new DataMap({ a: 1 }, { strict: false });
 		const cloned = dm.clone({ strict: true });
 		expect(() => cloned.get('/b')).toThrow();
+	});
+
+	it('batches multiple operations into a single notification cycle (AC-025)', async () => {
+		const dm = new DataMap({ a: 1, b: 2 });
+		let calls = 0;
+		dm.subscribe({ path: '$.*', on: 'patch', fn: () => calls++ });
+
+		dm.batch((store) => {
+			store.set('/a', 10);
+			store.set('/b', 20);
+		});
+
+		expect(dm.get('/a')).toBe(10);
+		expect(dm.get('/b')).toBe(20);
+		expect(calls).toBe(0);
+		await flushMicrotasks();
+		expect(calls).toBe(2); // One for /a, one for /b
 	});
 });

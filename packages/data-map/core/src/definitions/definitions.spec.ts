@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { DataMap } from '../datamap';
 
+const flushMicrotasks = () => new Promise((resolve) => queueMicrotask(resolve));
+
 describe('definitions', () => {
 	it('applies getter transform', () => {
 		const dm = new DataMap(
@@ -129,5 +131,122 @@ describe('definitions', () => {
 		);
 		dm.set('/out', 123);
 		expect(dm.get('/out')).toBe('1+2=123');
+	});
+
+	it('applies defaultValue into underlying data (AC-003)', () => {
+		const dm = new DataMap<any>(
+			{},
+			{
+				context: {},
+				define: [{ pointer: '/a', defaultValue: 123 }],
+			},
+		);
+
+		expect(dm.get('/a')).toBe(123);
+		expect(dm.getSnapshot()).toEqual({ a: 123 });
+	});
+
+	it('does not invoke getters during construction when defaultValue exists (AC-003)', () => {
+		let calls = 0;
+		const dm = new DataMap<any>(
+			{},
+			{
+				context: {},
+				define: [
+					{
+						pointer: '/a',
+						defaultValue: 1,
+						get: () => {
+							calls++;
+							return 999;
+						},
+					},
+				],
+			},
+		);
+
+		expect(calls).toBe(0);
+		expect(dm.getSnapshot()).toEqual({ a: 1 });
+	});
+
+	it('caches getter results when deps are declared', () => {
+		let calls = 0;
+		const dm = new DataMap(
+			{ a: 1, b: 2, sum: 0 },
+			{
+				context: {},
+				define: [
+					{
+						pointer: '/sum',
+						deps: ['/a', '/b'],
+						get: (_v, deps) => {
+							calls++;
+							return Number(deps[0]) + Number(deps[1]);
+						},
+					},
+				],
+			},
+		);
+
+		expect(dm.get('/sum')).toBe(3);
+		expect(dm.get('/sum')).toBe(3);
+		expect(calls).toBe(1);
+	});
+
+	it('manual invalidation forces recomputation', () => {
+		let calls = 0;
+		const dm = new DataMap(
+			{ a: 1, b: 2, sum: 0 },
+			{
+				context: {},
+				define: [
+					{
+						pointer: '/sum',
+						deps: ['/a', '/b'],
+						get: (_v, deps) => {
+							calls++;
+							return Number(deps[0]) + Number(deps[1]);
+						},
+					},
+				],
+			},
+		);
+
+		expect(dm.get('/sum')).toBe(3);
+		(dm as any)._defs.invalidateAllForDefinition(
+			(dm as any)._defs.getRegisteredDefinitions()[0],
+		);
+		expect(dm.get('/sum')).toBe(3);
+		expect(calls).toBe(2);
+	});
+
+	it('auto-invalidates when dependencies change (AC-031)', async () => {
+		let calls = 0;
+		const dm = new DataMap(
+			{ a: 1, b: 2, sum: 0 },
+			{
+				context: {},
+				define: [
+					{
+						pointer: '/sum',
+						deps: ['/a', '/b'],
+						get: (_v, deps) => {
+							calls++;
+							return Number(deps[0]) + Number(deps[1]);
+						},
+					},
+				],
+			},
+		);
+
+		expect(dm.get('/sum')).toBe(3);
+		expect(dm.get('/sum')).toBe(3);
+		expect(calls).toBe(1);
+
+		// Change dependency
+		dm.set('/a', 10);
+		await flushMicrotasks();
+		expect(dm.get('/sum')).toBe(12);
+		expect(calls).toBe(2);
 	});
 });

@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import { DataMap } from '../datamap';
 
+const flushMicrotasks = () => new Promise((resolve) => queueMicrotask(resolve));
+
 describe('batching and transactions', () => {
-	it('defers notifications until the end of a batch', () => {
+	it('defers notifications until the end of a batch', async () => {
 		const dm = new DataMap({ a: 1, b: 2 });
 		const calls: string[] = [];
 
@@ -24,12 +26,15 @@ describe('batching and transactions', () => {
 			expect(calls).toHaveLength(0);
 		});
 
+		expect(calls).toHaveLength(0);
+		await flushMicrotasks();
+
 		expect(calls).toContain('a');
 		expect(calls).toContain('b');
 		expect(calls).toHaveLength(2);
 	});
 
-	it('handles nested batches correctly', () => {
+	it('handles nested batches correctly', async () => {
 		const dm = new DataMap({ a: 1 });
 		const calls: string[] = [];
 
@@ -45,6 +50,9 @@ describe('batching and transactions', () => {
 			});
 			expect(calls).toHaveLength(0);
 		});
+
+		expect(calls).toHaveLength(0);
+		await flushMicrotasks();
 
 		expect(calls).toEqual(['a']);
 	});
