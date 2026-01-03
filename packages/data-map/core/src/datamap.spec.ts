@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { DataMap } from './datamap';
+import { flushMicrotasks } from './__fixtures__/helpers';
 
 describe('DataMap', () => {
 	describe('Read API', () => {
@@ -169,5 +170,156 @@ describe('DataMap', () => {
 			const ops = dm.push.toPatch('/items', 2);
 			expect(ops).toEqual([{ op: 'add', path: '/items/-', value: 2 }]);
 		});
+	});
+});
+
+describe('DataMap clone()', () => {
+	it('should clone with isolated subscriptions', async () => {
+		const dm = new DataMap({ a: 1 });
+		const calls: string[] = [];
+		dm.subscribe({
+			path: '/a',
+			after: 'patch',
+			fn: () => calls.push('orig'),
+		});
+
+		const cloned = dm.clone();
+		cloned.subscribe({
+			path: '/a',
+			after: 'patch',
+			fn: () => calls.push('clone'),
+		});
+
+		dm.patch([{ op: 'replace', path: '/a', value: 2 }]);
+		cloned.patch([{ op: 'replace', path: '/a', value: 3 }]);
+		await flushMicrotasks();
+		expect(calls.sort()).toEqual(['clone', 'orig']);
+	});
+
+	it('should preserve definitions in clone', () => {
+		type Ctx = { prefix: string };
+		const define = [
+			{
+				pointer: '/x',
+				get: (v: unknown, _depValues: unknown[], _instance: any, ctx: Ctx) =>
+					`${ctx.prefix}${String(v)}`,
+			},
+		];
+
+		const dm = new DataMap({ x: '1' }, { context: { prefix: 'v=' }, define });
+		const cloned = dm.clone();
+		expect(cloned.get('/x')).toBe('v=1');
+	});
+});
+
+describe('DataMap strict mode', () => {
+	it('should throw for relative pointers in strict mode', () => {
+		const dm = new DataMap({ a: 1 }, { strict: true });
+		expect(() => dm.get('0')).toThrow(
+			'Unsupported path type: relative-pointer',
+		);
+	});
+
+	it('should return empty matches for relative pointers in non-strict mode', () => {
+		const dm = new DataMap({ a: 1 }, { strict: false });
+		expect(dm.get('0')).toBeUndefined();
+	});
+});
+
+describe('DataMap error paths', () => {
+	it('should handle get() with invalid JSONPath syntax (non-strict)', () => {
+		const dm = new DataMap({ a: 1 }, { strict: false });
+		expect(dm.get('$.a[')).toBeUndefined();
+	});
+
+	it('should throw for invalid JSONPath in strict mode', () => {
+		const dm = new DataMap({ a: 1 }, { strict: true });
+		expect(() => dm.get('$.a[')).toThrow();
+	});
+});
+
+describe('DataMap transaction edge cases', () => {
+	it('should not trigger notifications on transaction rollback', async () => {
+		const dm = new DataMap({ a: 1 });
+		const calls: string[] = [];
+		dm.subscribe({ path: '/a', after: 'set', fn: () => calls.push('a') });
+
+		try {
+			dm.transaction((d) => {
+				d.set('/a', 2);
+				throw new Error('fail');
+			});
+		} catch {
+			// expected
+		}
+
+		await flushMicrotasks();
+		expect(dm.get('/a')).toBe(1);
+		expect(calls).toHaveLength(0);
+	});
+
+	it('should allow nested transactions', () => {
+		const dm = new DataMap({ a: 1, b: 1 });
+		dm.transaction((d) => {
+			d.set('/a', 2);
+			d.transaction((d2) => {
+				d2.set('/b', 2);
+			});
+		});
+		expect(dm.get('/a')).toBe(2);
+		expect(dm.get('/b')).toBe(2);
+	});
+});
+
+describe('DataMap batch edge cases', () => {
+	it('should defer notifications within batch', async () => {
+		const dm = new DataMap({ a: 1 });
+		const calls: string[] = [];
+		dm.subscribe({ path: '/a', after: 'set', fn: () => calls.push('after') });
+
+		dm.batch((d) => {
+			d.set('/a', 2);
+			expect(calls).toEqual([]);
+		});
+
+		await flushMicrotasks();
+		expect(calls).toEqual(['after']);
+	});
+});
+
+describe('DataMap coverage edge cases', () => {
+	it('swallows errors in patch when strict is false', () => {
+		const dm = new DataMap({ a: 1 }, { strict: false });
+		// op: 'test' failure throws JSONPatchTestFailure
+		expect(() =>
+			dm.patch([{ op: 'test', path: '/a', value: 2 }]),
+		).not.toThrow();
+	});
+
+	it('cancels patch via subscription', () => {
+		const dm = new DataMap({ a: 1 }, { strict: true });
+		dm.subscribe({
+			path: '/a',
+			before: 'patch',
+			fn: (_v, _e, cancel) => {
+				cancel();
+			},
+		});
+		expect(() => dm.patch([{ op: 'replace', path: '/a', value: 2 }])).toThrow(
+			'Patch cancelled by subscription',
+		);
+		expect(dm.get('/a')).toBe(1);
+	});
+
+	it('set.toPatch creates patch for new pointer', () => {
+		const dm = new DataMap({ a: 1 });
+		const ops = dm.set.toPatch('/b', 2);
+		expect(ops).toEqual([{ op: 'add', path: '/b', value: 2 }]);
+	});
+
+	it('clone() accepts options to override', () => {
+		const dm = new DataMap({ a: 1 }, { strict: false });
+		const cloned = dm.clone({ strict: true });
+		expect(() => cloned.get('/b')).toThrow();
 	});
 });

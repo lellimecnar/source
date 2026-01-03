@@ -91,16 +91,7 @@ function parseJsonPathToSegments(source: string): PathSegment[] {
 		if (source.startsWith('..', i)) {
 			i += 2;
 			let following: PathSegment[] = [];
-			if (source[i] === '.') {
-				i++;
-				if (source[i] === '*') {
-					i++;
-					following = [{ type: 'wildcard' }];
-				} else {
-					const name = readIdent();
-					following = [{ type: 'static', value: name }];
-				}
-			} else if (source[i] === '[') {
+			if (source[i] === '[') {
 				const close = source.indexOf(']', i);
 				const inside = source.slice(i + 1, close).trim();
 				i = close + 1;
@@ -149,7 +140,10 @@ function parseJsonPathToSegments(source: string): PathSegment[] {
 				continue;
 			}
 
-			if (inside.startsWith('?(') && inside.endsWith(')')) {
+			if (inside.startsWith('?(')) {
+				if (!inside.endsWith(')')) {
+					throw new Error(`Invalid filter: ${inside}`);
+				}
 				const expr = inside.slice(2, -1).trim();
 				const { predicate, hash } = compilePredicate(expr);
 				segs.push({ type: 'filter', predicate, expression: expr, hash });

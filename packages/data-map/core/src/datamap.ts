@@ -42,11 +42,13 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	private readonly _subs = new SubscriptionManagerImpl<T, Ctx>(this);
 	private readonly _batch = new BatchManager();
 	private readonly _defs = new DefinitionRegistry<T, Ctx>(this);
+	private readonly _defineOptions: DataMapOptions<T, Ctx>['define'] | undefined;
 
 	constructor(initialValue: T, options: DataMapOptions<T, Ctx> = {}) {
 		this._strict = options.strict ?? false;
 		this._context = options.context;
 		this._data = cloneSnapshot(initialValue);
+		this._defineOptions = options.define;
 
 		if (options.define && options.context !== undefined) {
 			this._defs.registerAll(options.define, options.context);
@@ -214,8 +216,12 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			value: unknown | ((current: unknown) => unknown),
 			options: CallOptions = {},
 		) => {
+			const strict = options.strict ?? this._strict;
 			const ops = this.setAll.toPatch(pathOrPointer, value as any, options);
-			if (ops.length === 0) return this;
+			if (ops.length === 0) {
+				if (strict) throw new Error('No matches for setAll()');
+				return this;
+			}
 			this.patch(ops, options);
 			return this;
 		},
@@ -228,27 +234,6 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				const strict = options.strict ?? this._strict;
 				const matches = this.resolve(pathOrPointer, { strict });
 				const ctx = this._context as any;
-
-				if (matches.length === 0) {
-					const pathType = detectPathType(pathOrPointer);
-					if (pathType === 'pointer') {
-						const pointerString = normalizePointerInput(pathOrPointer);
-						const current = undefined;
-						let nextValue =
-							typeof value === 'function' ? (value as any)(current) : value;
-
-						nextValue = this._defs.applySetter(
-							pointerString,
-							nextValue,
-							current,
-							ctx,
-						);
-
-						return buildSetPatch(this._data, pointerString, nextValue);
-					}
-					if (strict) throw new Error('No matches for setAll.toPatch()');
-					return [];
-				}
 
 				const ops: Operation[] = [];
 				for (const m of matches) {
@@ -275,8 +260,12 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			mapperFn: (value: unknown, pointer: string) => unknown,
 			options: CallOptions = {},
 		) => {
+			const strict = options.strict ?? this._strict;
 			const ops = this.map.toPatch(pathOrPointer, mapperFn, options);
-			if (ops.length === 0) return this;
+			if (ops.length === 0) {
+				if (strict) throw new Error('No matches for map()');
+				return this;
+			}
 			this.patch(ops, options);
 			return this;
 		},
@@ -290,10 +279,6 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				const matches = this.resolve(pathOrPointer, { strict });
 				const ctx = this._context as any;
 
-				if (matches.length === 0) {
-					if (strict) throw new Error('No matches for map.toPatch()');
-					return [];
-				}
 				const ops: Operation[] = [];
 				for (const m of matches) {
 					let nextValue = mapperFn(m.value, m.pointer);
@@ -530,10 +515,12 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		return deepExtends(this.toJSON(), other);
 	}
 
-	clone(): DataMap<T, Ctx> {
+	clone(options?: Partial<DataMapOptions<T, Ctx>>): DataMap<T, Ctx> {
 		return new (this.constructor as any)(this.getSnapshot(), {
 			strict: this._strict,
 			context: this._context,
+			define: this._defineOptions,
+			...options,
 		});
 	}
 }

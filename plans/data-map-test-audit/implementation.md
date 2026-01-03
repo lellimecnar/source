@@ -46,10 +46,10 @@ Before implementing, be aware of the current state:
 
 **Tasks:**
 
-- [ ] Create `packages/data-map/core/src/__fixtures__/data.ts`
-- [ ] Create `packages/data-map/core/src/__fixtures__/helpers.ts`
-- [ ] Create `packages/data-map/core/src/__fixtures__/index.ts` (barrel export)
-- [ ] Update `packages/data-map/core/vitest.config.ts` to enforce initial coverage thresholds
+- [x] Create `packages/data-map/core/src/__fixtures__/data.ts`
+- [x] Create `packages/data-map/core/src/__fixtures__/helpers.ts`
+- [x] Create `packages/data-map/core/src/__fixtures__/index.ts` (barrel export)
+- [x] Update `packages/data-map/core/vitest.config.ts` to enforce initial coverage thresholds
 
 #### 1.1 Create `src/__fixtures__/data.ts`
 
@@ -197,9 +197,9 @@ completes: step 1 of 11 for data-map-test-audit
 
 **Tasks:**
 
-- [ ] Update `DataMap` constructor to store `define` options
-- [ ] Update `DataMap.clone()` to pass stored `define` options
-- [ ] Add new tests to `datamap.spec.ts` (do NOT duplicate existing tests)
+- [x] Update `DataMap` constructor to store `define` options
+- [x] Update `DataMap.clone()` to pass stored `define` options
+- [x] Add new tests to `datamap.spec.ts` (do NOT duplicate existing tests)
 
 #### 2.1 Update `src/datamap.ts` - Store define options
 
@@ -383,7 +383,7 @@ completes: step 2 of 11 for data-map-test-audit
 
 **Tasks:**
 
-- [ ] Add new tests to `definitions/definitions.spec.ts` (without duplicating existing ones)
+- [x] Add new tests to `definitions/definitions.spec.ts` (without duplicating existing ones)
 
 The existing file has: getter, setter, readOnly tests. Add these NEW tests:
 
@@ -498,8 +498,8 @@ completes: step 3 of 11 for data-map-test-audit
 
 **Tasks:**
 
-- [ ] Add `src/subscription/events.spec.ts` for event-specific tests
-- [ ] Add `src/subscription/manager.spec.ts` for manager-specific tests
+- [x] Add `src/subscription/events.spec.ts` for event-specific tests
+- [x] Add `src/subscription/manager.spec.ts` for manager-specific tests
 
 Existing tests in `static.spec.ts` and `dynamic.spec.ts` cover basic scenarios. These new files add edge cases.
 
@@ -644,7 +644,7 @@ completes: step 4 of 11 for data-map-test-audit
 
 **Tasks:**
 
-- [ ] Create `src/patch/array.spec.ts`
+- [x] Create `src/patch/array.spec.ts`
 
 The array patch builders have specific return types:
 
@@ -839,7 +839,7 @@ completes: step 5 of 11 for data-map-test-audit
 
 **Tasks:**
 
-- [ ] Create `src/path/filter.spec.ts` for filter expression tests
+- [x] Create `src/path/filter.spec.ts` for filter expression tests
 
 #### 6.1 Create `src/path/filter.spec.ts`
 
@@ -959,9 +959,9 @@ completes: step 6 of 11 for data-map-test-audit
 
 **Tasks:**
 
-- [ ] **REPLACE** `src/utils/equal.ts` with upgraded implementation
-- [ ] Expand `src/utils/util.spec.ts` with new test cases
-- [ ] Add invalid pointer test to `src/utils/pointer.spec.ts`
+- [x] **REPLACE** `src/utils/equal.ts` with upgraded implementation
+- [x] Expand `src/utils/util.spec.ts` with new test cases
+- [x] Add invalid pointer test to `src/utils/pointer.spec.ts`
 
 #### 7.1 Replace `src/utils/equal.ts`
 
@@ -1133,8 +1133,8 @@ completes: step 7 of 11 for data-map-test-audit
 
 **Tasks:**
 
-- [ ] Create `src/__tests__/` directory
-- [ ] Create `src/__tests__/integration.spec.ts`
+- [x] Create `src/__tests__/` directory
+- [x] Create `src/__tests__/integration.spec.ts`
 
 #### 8.1 Create `src/__tests__/integration.spec.ts`
 
@@ -1259,7 +1259,7 @@ completes: step 8 of 11 for data-map-test-audit
 
 **Tasks:**
 
-- [ ] Create `src/__tests__/errors.spec.ts`
+- [x] Create `src/__tests__/errors.spec.ts`
 
 #### 9.1 Create `src/__tests__/errors.spec.ts`
 

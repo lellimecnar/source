@@ -40,4 +40,11 @@ describe('pointer utils', () => {
 			expect(buildPointer(parsePointerSegments(p))).toBe(expected);
 		}
 	});
+
+	it('throws for invalid pointers (not starting with / or #)', () => {
+		expect(() => parsePointerSegments('invalid')).toThrow(
+			'Invalid JSON Pointer',
+		);
+		expect(() => parsePointerSegments('a/b/c')).toThrow('Invalid JSON Pointer');
+	});
 });

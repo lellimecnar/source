@@ -27,4 +27,9 @@ describe('compilePathPattern', () => {
 		const b = compilePathPattern('$.users[*].name');
 		expect(a).toBe(b);
 	});
+
+	it('expand returns empty for non-object data when expecting static segment', () => {
+		const pattern = compilePathPattern('$.a.b');
+		expect(pattern.expand({ a: 1 })).toEqual([]);
+	});
 });
