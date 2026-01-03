@@ -1541,10 +1541,10 @@ completes: step 4 of 12 for DataMap Core
 
 ## Step 5: Compiled path pattern system
 
-- [ ] Implement segment types + compilation from JSONPath strings
-- [ ] Add caching for compiled patterns
-- [ ] Implement `match()` and `expand()` for patterns
-- [ ] Add unit tests for compile/match/expand
+- [x] Implement segment types + compilation from JSONPath strings
+- [x] Add caching for compiled patterns
+- [x] Implement `match()` and `expand()` for patterns
+- [x] Add unit tests for compile/match/expand
 
 ### packages/data-map/core/src/path/segments.ts
 
@@ -2129,10 +2129,10 @@ completes: step 5 of 12 for DataMap Core
 
 ## Step 6: Filter predicate compilation
 
-- [ ] Implement `compilePredicate()` and predicate caching
-- [ ] Support comparisons, logical operators, existence checks, match(), and safe execution
-- [ ] Integrate predicate compilation into `compilePathPattern()`
-- [ ] Add unit tests
+- [x] Implement `compilePredicate()` and predicate caching
+- [x] Support comparisons, logical operators, existence checks, match(), and safe execution
+- [x] Integrate predicate compilation into `compilePathPattern()`
+- [x] Add unit tests
 
 ### packages/data-map/core/src/path/predicate.ts
 
@@ -2254,9 +2254,9 @@ completes: step 6 of 12 for DataMap Core
 
 ## Step 7: Recursive descent matching
 
-- [ ] Implement `$..` matching algorithm per spec
-- [ ] Implement `$..` expansion to concrete pointers
-- [ ] Add unit tests for recursive match + expand
+- [x] Implement `$..` matching algorithm per spec
+- [x] Implement `$..` expansion to concrete pointers
+- [x] Add unit tests for recursive match + expand
 
 ### packages/data-map/core/src/path/compile.ts
 
@@ -2745,9 +2745,9 @@ completes: step 7 of 12 for DataMap Core
 
 ## Step 8: Static subscription system
 
-- [ ] Implement runtime subscription registration for static pointers
-- [ ] Fire subscriptions on patch (before/on/after stages)
-- [ ] Add unit tests
+- [x] Implement runtime subscription registration for static pointers
+- [x] Fire subscriptions on patch (before/on/after stages)
+- [x] Add unit tests
 
 ### packages/data-map/core/src/subscription/types.ts
 
@@ -3122,10 +3122,10 @@ completes: step 8 of 12 for DataMap Core
 
 ## Step 9: Dynamic subscription system
 
-- [ ] Add JSONPath subscription support (compile + expand)
-- [ ] Add structural watchers + re-expansion
-- [ ] Add Bloom filter fast-path
-- [ ] Add unit tests
+- [x] Add JSONPath subscription support (compile + expand)
+- [x] Add structural watchers + re-expansion
+- [x] Add Bloom filter fast-path
+- [x] Add unit tests
 
 ### packages/data-map/core/src/subscription/bloom.ts
 
@@ -3580,9 +3580,9 @@ completes: step 9 of 12 for DataMap Core
 
 ## Step 10: Batch API & transaction support
 
-- [ ] Implement `batch` API accumulating ops
-- [ ] Ensure atomic apply with rollback (no partial changes)
-- [ ] Add unit tests
+- [x] Implement `batch` API accumulating ops
+- [x] Ensure atomic apply with rollback (no partial changes)
+- [x] Add unit tests
 
 ### packages/data-map/core/src/batch.ts
 
@@ -3763,10 +3763,10 @@ completes: step 10 of 12 for DataMap Core
 
 ## Step 11: Dynamic value definitions
 
-- [ ] Add Definition types + DefinitionFactory support
-- [ ] Apply getter/setter transforms on reads/writes
-- [ ] Enforce readOnly
-- [ ] Add unit tests
+- [x] Add Definition types + DefinitionFactory support
+- [x] Apply getter/setter transforms on reads/writes
+- [x] Enforce readOnly
+- [x] Add unit tests
 
 ### packages/data-map/core/src/definitions/types.ts
 
@@ -4078,9 +4078,9 @@ completes: step 11 of 12 for DataMap Core
 
 ## Step 12: Utility API & finalization
 
-- [ ] Implement `equals`, `extends`, `clone` utilities
-- [ ] Create package entry exports and README
-- [ ] Add integration smoke tests
+- [x] Implement `equals`, `extends`, `clone` utilities
+- [x] Create package entry exports and README
+- [x] Add integration smoke tests
 
 ### packages/data-map/core/src/utils/equal.ts
 
