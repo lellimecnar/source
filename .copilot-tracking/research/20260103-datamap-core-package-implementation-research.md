@@ -48,18 +48,13 @@
   - Confirms package scope: JSONPath + JSON Pointer + JSON Patch, zero runtime deps, docs at `https://jg-rp.github.io/json-p3/`.
 - #fetch:https://jg-rp.github.io/json-p3/quick-start
   - Confirms import patterns and common APIs: `import { jsonpath, jsonpointer, jsonpatch, JSONPointer, JSONPatch } from "json-p3"` and top-level re-exports like `query`, `compile`, `apply`.
-- #fetch:https://jg-rp.github.io/json-p3/guides/json-pointer
   - Confirms pointer resolution semantics and error/fallback behavior.
-- #fetch:https://jg-rp.github.io/json-p3/guides/json-patch
   - Confirms patch application is sequential and generally mutates in place unless root replaced.
 - #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpath/functions/query
   - Confirms `jsonpath.query(path, value)` returns `JSONPathNodeList`.
 - #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpath/functions/compile
-  - Confirms `jsonpath.compile(path)` returns compiled `JSONPathQuery`.
 - #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpath/classes/JSONPathNodeList
-  - Confirms `values()`, `pointers()`, `paths()`, `locations()`, `valuesOrSingular()`.
 - #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpath/classes/JSONPathNode
-  - Confirms `toPointer()` available for a single node.
 - #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpointer/classes/JSONPointer
   - Confirms `resolve`, `resolveWithParent`, `exists`, `join`, `parent`, and error semantics.
 - #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpatch/functions/apply
@@ -68,11 +63,8 @@
 ### Project Conventions
 
 - Standards referenced:
-  - packages/utils/vite.config.ts (Vite library build pattern)
   - packages/config-vitest/base.ts (Vitest defaults)
-  - packages/config-eslint/base.js (lint rules + ignore patterns)
   - packages/config-typescript/\*.json (tsconfig baselines)
-- Instructions followed:
   - Root AGENTS.md (monorepo structure, commands, testing)
   - .github/copilot-instructions.md (workspace:\* usage; UI package has granular exports)
 
@@ -81,14 +73,11 @@
 ### Project Structure
 
 - Monorepo: pnpm workspaces + Turborepo.
-- Workspaces:
   - Apps: `web/*` (Next.js 14+), `mobile/*` (Expo)
   - Packages:
     - Shared libraries: `packages/*`
     - Domain packages: `packages/card-stack/*`
-    - UI-Spec packages: `packages/ui-spec/*`
 - Workspace dependency policy:
-  - Internal deps use `workspace:*` (and occasionally `workspace:^` for config packages).
   - Never use file-path dependencies.
 
 ### Implementation Patterns (Library Packages)
@@ -99,72 +88,41 @@
   - `type: "module"`
   - `exports["."] = { types: "./dist/index.d.ts", default: "./dist/index.js" }`
   - `main` + `types` mirror exports
-  - scripts: `build` (vite), `lint` (eslint), `type-check` (tsgo)
   - devDeps include shared workspace configs:
     - `@lellimecnar/eslint-config` `workspace:*`
     - `@lellimecnar/typescript-config` `workspace:*`
-    - `@lellimecnar/vite-config` `workspace:^`
-    - `@lellimecnar/vitest-config` `workspace:*`
 
 - Library-with-tests example: packages/polymix/package.json and packages/card-stack/core/package.json
   - Adds scripts:
     - `test: vitest run`
     - `test:coverage: vitest run --coverage`
-    - `test:watch: vitest`
   - Includes `files: ["dist"]` when publishable.
-
-#### Vite config pattern (libraries)
 
 Observed in packages/utils/vite.config.ts (also polymix, card-stack/core):
 
 - Uses shared config: `mergeConfig(viteNodeConfig(), { ... })`
 - Type declarations:
   - `vite-plugin-dts` with `entryRoot: 'src'`, `outDir: 'dist'`, `tsconfigPath: 'tsconfig.json'`
-- Build output:
   - `build.lib.entry = 'src/index.ts'`, formats `['es']`
   - Rollup output:
     - `preserveModules: true`
-    - `preserveModulesRoot: 'src'`
     - `entryFileNames: '[name].js'`
 - Externalization:
   - Externalize all `dependencies` and `peerDependencies` (plus `node:` builtins) via a function.
 
 #### Vitest config pattern
 
-Observed in packages/utils/vitest.config.ts (also polymix, card-stack/\*):
-
-- `export default defineConfig(vitestBaseConfig());`
-  - `vitestBaseConfig()` from packages/config-vitest/base.ts
-  - Defaults:
-    - `globals: true`
-    - `passWithNoTests: true`
-    - coverage provider `v8`, reporters include `text`, `html`, `lcov`, `json`
-    - `setupFiles` loads optional `reflect-metadata`
-
-#### ESLint config pattern (packages)
-
-- Typical package ESLint file: packages/utils/.eslintrc.cjs
-  - `extends: ['@lellimecnar/eslint-config']`
-  - Sets `parserOptions.project` to local tsconfig
-  - Uses ignorePatterns to re-include `src/**/*` while allowing repo-level ignores.
-
-- Shared eslint rules: packages/config-eslint/base.js
-  - Uses Vercel style guide + TypeScript config + turbo rules + tailwindcss recommended
-  - Enforces `prettier/prettier: 'error'` and strict import ordering
-  - Overrides for `*.spec.*` extend jest rules
-  - Important: base ignore patterns include `**/*.spec.ts(x)` and `vite.config.ts`/`vitest.config.ts` (packages typically counteract with local `.eslintrc.*` ignorePatterns).
-
-#### TypeScript config pattern
+- `vitestBaseConfig()` from packages/config-vitest/base.ts
+  - `globals: true`
+  - `passWithNoTests: true`
+  - coverage provider `v8`, reporters include `text`, `html`, `lcov`, `json`
+  - `setupFiles` loads optional `reflect-metadata`
 
 - Root tsconfig.json extends `@lellimecnar/typescript-config`.
-- Library packages extend `@lellimecnar/typescript-config` and commonly set:
-  - `module: ESNext`, `moduleResolution: Bundler`
-  - include `src/**/*.ts`
   - exclude `dist`, `node_modules`, often excludes `src/**/*.spec.ts`
 
 #### Exports patterns
 
-- “Standard library” export (single entry): packages/utils and packages/card-stack/core export only `.` to `dist/index.*`.
 - “Granular exports” (tree-shakeable UI): packages/ui exports many subpaths and explicitly warns not to import from package root.
   - This granular pattern appears specific to `@lellimecnar/ui` and not required for generic packages.
 
@@ -172,20 +130,13 @@ Observed in packages/utils/vitest.config.ts (also polymix, card-stack/\*):
 
 - Co-located tests under `src/**` with `*.spec.ts` naming.
 - Vitest is configured per-package, not at repo root.
-
-### Architecture Docs: how packages are built/tested here
-
-- Build:
   - Root: `pnpm build` → `turbo build`
   - Packages: `build` generally runs `vite build` for library packages.
+
 - Test:
   - Root: `pnpm test` → `turbo test -- --passWithNoTests`
-  - Packages: `test` scripts typically `vitest run`.
 - Turbo execution model:
   - Filter a single workspace with `turbo run -F <workspace>` (also used in root scripts like `pnpm ui`).
-- Type checking:
-  - Root `pnpm type-check` → `turbo type-check`
-  - Packages: `type-check` script uses `tsgo --noEmit`.
 
 ### External Docs: json-p3 APIs needed for DataMap core
 
@@ -193,22 +144,17 @@ Observed in packages/utils/vitest.config.ts (also polymix, card-stack/\*):
 
 - Imports and entry points:
   - `import { jsonpath } from 'json-p3'`
-  - `jsonpath.query(path, value)` returns `JSONPathNodeList`.
   - `jsonpath.compile(path)` returns `JSONPathQuery` (compiled query object).
   - Top-level re-exports exist (per quick start): `import { query, compile } from 'json-p3'`.
 
-- Result handling:
   - `JSONPathNodeList.values()` returns an array of matched values.
   - `JSONPathNodeList.pointers()` returns `JSONPointer[]` for each match.
   - `JSONPathNodeList.paths()` returns normalized JSONPath strings.
   - `JSONPathNodeList.locations()` returns location arrays (`(string|number)[][]`).
   - `JSONPathNodeList.valuesOrSingular()` returns a single value if only one node.
-  - `JSONPathNode.toPointer()` returns `JSONPointer` for a single node.
 
 #### JSON Pointer
 
-- Imports:
-  - `import { jsonpointer, JSONPointer } from 'json-p3'`
 - Resolve:
   - `jsonpointer.resolve(pointerString, value)` (convenience) or `new JSONPointer(pointerString).resolve(value)`.
   - Errors: throws `JSONPointerResolutionError` subclasses when missing/invalid.
@@ -236,7 +182,6 @@ Observed in packages/utils/vitest.config.ts (also polymix, card-stack/\*):
 ## Complete Examples
 
 ```ts
-// From json-p3 docs (quick start + guides):
 import {
 	jsonpath,
 	jsonpointer,
@@ -265,17 +210,8 @@ const ops = patch.toArray();
 
 ### Configuration Examples
 
-```ts
-// packages/* library Vite config pattern (from packages/utils/vite.config.ts)
-// Key traits: viteNodeConfig + dts + preserveModules + externalize deps
-```
-
 ## Recommended Approach
 
-Implement `packages/data-map/core` as a “standard library package” matching the packages/utils + packages/polymix patterns:
-
-- Use the same Vite library build template (preserve modules, `dist/`, dts) so exports are stable and tree-shakeable.
-- Use Vitest via `@lellimecnar/vitest-config` and co-located `*.spec.ts` tests.
 - Use `@lellimecnar/eslint-config` with a package-local `.eslintrc.cjs` that re-includes `src/**/*` and sets `parserOptions.project` to the package tsconfig.
 - Depend on `json-p3` directly (externalized in Vite rollup external function) and use its:
   - `jsonpath.query` / `jsonpath.compile`
