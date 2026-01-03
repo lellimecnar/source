@@ -165,6 +165,7 @@ describe('DataMap', () => {
 			);
 		});
 
+		// @TODO: Add more tests for *.toPatch() functions
 		it('should generate patches for array methods', () => {
 			const dm = new DataMap({ items: [1] });
 			const ops = dm.push.toPatch('/items', 2);
@@ -210,6 +211,8 @@ describe('DataMap clone()', () => {
 		const cloned = dm.clone();
 		expect(cloned.get('/x')).toBe('v=1');
 	});
+
+	// @ TODO: Add more tests for clone scenarios
 });
 
 describe('DataMap strict mode', () => {
