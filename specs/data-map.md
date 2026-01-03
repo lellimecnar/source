@@ -24,17 +24,21 @@ This spec describes a data store class `DataMap` (package scope: `@data-map/*`) 
 - The store manages a single root JSON value (typically an object) provided at construction.
 - Paths/queries are expressed as JSONPath/JSON Pointer strings (as supported by `json-p3`).
 
-### Internal Storage Model (Flat Pointer Map)
+### Internal Storage Model (Sidecar Metadata)
 
-- Values MUST be stored internally as a flat `Map`, keyed by JSON Pointer strings.
+- The primary data store MUST be a plain JavaScript object (or array).
+  - This object is the canonical source of truth for values.
+  - `json-p3` operations MUST operate directly on this object.
+- A sparse `Map<string, NodeMetadata>` keyed by JSON Pointer MUST be maintained for nodes that have metadata.
   - Keys are JSON Pointer strings (no leading `#`).
   - The root document pointer is `''` (empty string).
   - Array elements are addressed as `${basePointer}/${index}`.
-- Map values MUST be “value records”: objects that contain at least `value` and MAY contain additional mutable metadata.
-  - Examples of metadata include: `getter`, `setter`, `readOnly`, `lastUpdated`, `type`, `originalIndex`, `subscriptions`, `changeHistory`, `previousValue`.
-- Value records MUST be mutable only internally.
-  - External APIs MUST NOT expose the mutable internal record object.
-  - `.resolve()` MUST return an immutable copy of the record (a snapshot), not the record itself.
+  - Only nodes with actual metadata (getter, setter, subscriptions, etc.) have entries in this Map.
+- The `NodeMetadata` type MAY contain:
+  - `getter`, `setter`, `readOnly`, `lastUpdated`, `type`, `originalIndex`, `subscriptions`, `changeHistory`, `previousValue`.
+- Metadata entries MUST be mutable only internally.
+  - External APIs MUST NOT expose the mutable internal metadata object.
+  - `.resolve()` MUST return an immutable snapshot that combines the value from the plain object with any metadata from the sparse Map.
 
 ### Array Index and Pointer Maintenance
 
@@ -50,11 +54,41 @@ This spec describes a data store class `DataMap` (package scope: `@data-map/*`) 
 
 ### Path vs Pointer Detection
 
-- Public APIs that accept `pathOrPointer: string` MUST determine whether the input is a JSON Pointer or JSONPath.
+- Public APIs that accept `pathOrPointer: string` MUST determine whether the input is a JSON Pointer, Relative JSON Pointer, or JSONPath.
 - Detection MUST use `startsWith()` and/or regex-based heuristics.
-- Recommended heuristic:
-  - Treat as JSON Pointer when the input starts with `#/` or `/`.
-  - Otherwise treat as JSONPath.
+
+#### Detection Logic (Mandatory)
+
+```ts
+function detectPathType(
+	input: string,
+): 'pointer' | 'relative-pointer' | 'jsonpath' {
+	// JSON Pointer: starts with '/' or is empty string (root)
+	if (input === '' || input.startsWith('/')) {
+		return 'pointer';
+	}
+
+	// URI Fragment JSON Pointer: starts with '#/'
+	if (input.startsWith('#/') || input === '#') {
+		return 'pointer';
+	}
+
+	// Relative JSON Pointer: starts with digit(s) optionally followed by '#' or '/'
+	// Examples: '0', '1/foo', '2#', '0/bar/baz'
+	if (/^\d+(#|\/|$)/.test(input)) {
+		return 'relative-pointer';
+	}
+
+	// Everything else is treated as JSONPath
+	// (includes '$', '@', '$..', '$.foo', etc.)
+	return 'jsonpath';
+}
+```
+
+#### Handling Relative JSON Pointers
+
+- When `detectPathType` returns `'relative-pointer'`, resolution MUST be performed relative to a context pointer.
+- If no context pointer is available, relative pointers MUST throw in strict mode or be treated as invalid.
 
 ## Construction
 
@@ -111,8 +145,7 @@ This spec describes a data store class `DataMap` (package scope: `@data-map/*`) 
 Illustrative shapes:
 
 ```ts
-type InternalValueRecord = {
-	value: unknown;
+type NodeMetadata = {
 	readOnly?: boolean;
 	lastUpdated?: number;
 	previousValue?: unknown;
@@ -128,7 +161,7 @@ type ResolvedMatch = Readonly<
 	{
 		pointer: string;
 		value: unknown;
-	} & Omit<InternalValueRecord, 'value'>
+	} & Partial<NodeMetadata>
 >;
 ```
 
@@ -155,50 +188,61 @@ All mutations MUST be expressed as RFC 6902 JSON Patch operations. Each mutation
 - Mutation methods MUST be chainable within a batch scope so that multiple mutations can be combined into a single applied patch.
 - `DataMap` MUST expose a `batch` accessor that starts (or returns) a batch-chain scope.
 - In a batch-chain scope:
-  - `.set()`, `.map()`, and `.patch()` MUST create/extend the current batched patch but MUST NOT apply it immediately.
+  - `.set()`, `.setAll()`, `.map()`, and `.patch()` MUST create/extend the current batched patch but MUST NOT apply it immediately.
   - Each mutation method MUST return the same batch scope object to enable chaining.
-  - The accumulated patch MUST be applied exactly once, after the chaining expression completes.
-    - Implementation note: this can be achieved by scheduling a microtask to commit after the current synchronous call stack.
+  - The accumulated patch MUST NOT be applied until `.apply()` is explicitly called.
+- The batch scope MUST expose:
+  - `.apply()`: Applies the accumulated patch to the DataMap and returns the DataMap instance.
+  - `.toPatch()`: Returns the accumulated RFC 6902 patch operations array without applying them.
 
 Example:
 
 ```ts
-myMap.batch
-	.set('$.user.dob', '1990-02-01') // creates the patch, but doesn't apply it
-	.set('$.user.age', 38); // modifies the patch, and then applies it
+// Chained mutations with explicit apply
+myMap.batch.set('$.user.dob', '1990-02-01').set('$.user.name', 'John').apply(); // applies the accumulated patch
+
+// Get patch without applying
+const patch = myMap.batch
+	.set('$.user.dob', '1990-02-01')
+	.set('$.user.name', 'John')
+	.toPatch(); // returns Operation[] without applying
 ```
 
 ##### Reference Implementation Pattern (Illustrative)
 
-This pattern is modeled after a microtask-committed batch scope:
-
-- The batch scope accumulates RFC 6902 operations into a single list.
-- Each chained call appends to the internal list.
-- A single `queueMicrotask` applies the complete patch once via `target.patch()`.
-
 ```ts
 type Batch<Target extends DataMap> = {
 	set(...args: Parameters<Target['set']['toPatch']>): Batch<Target>;
+	setAll(...args: Parameters<Target['setAll']['toPatch']>): Batch<Target>;
 	map(...args: Parameters<Target['map']['toPatch']>): Batch<Target>;
+	apply(): Target;
+	toPatch(): Operation[];
 };
 
 class DataMap {
 	get batch(): Batch<this> {
 		const target = this;
-		const patch = [];
+		const patch: Operation[] = [];
 
-		queueMicrotask(() => {
-			target.patch(patch);
-		});
-
-		const batch = {
+		const batch: Batch<this> = {
 			set(...args: any[]) {
 				patch.push(...target.set.toPatch(...args));
+				return batch;
+			},
+			setAll(...args: any[]) {
+				patch.push(...target.setAll.toPatch(...args));
 				return batch;
 			},
 			map(...args: any[]) {
 				patch.push(...target.map.toPatch(...args));
 				return batch;
+			},
+			apply() {
+				target.patch(patch);
+				return target;
+			},
+			toPatch() {
+				return patch;
 			},
 		};
 
@@ -211,16 +255,37 @@ Mutation methods (representative):
 
 - `.set(pathOrPointer, value, options?)`
   - Non-existent paths MUST be created.
-  - When `pathOrPointer` is JSONPath and matches multiple nodes, `.set()` applies to all matched locations.
+  - When `pathOrPointer` matches multiple nodes, `.set()` applies only to the **first matched location** (mirroring `.get()` behavior).
   - `value` can be a literal value or a setter function.
-    - A setter function can be used to conditionally update only some matches by returning the current value (i.e., `===` unchanged) for matches that should not change.
   - Container creation rules:
     - When creating missing intermediates, the implementation MUST decide whether to create an object or an array based on the path syntax.
     - `[]` or other array filtering/indexing syntax implies an array; otherwise an object.
+- `.setAll(pathOrPointer, value, options?)`
+  - Non-existent paths MUST be created.
+  - When `pathOrPointer` matches multiple nodes, `.setAll()` applies to **all matched locations** (mirroring `.getAll()` behavior).
+  - `value` can be a literal value or a setter function.
+    - A setter function can be used to conditionally update only some matches by returning the current value (i.e., `===` unchanged) for matches that should not change.
+  - Container creation rules are the same as `.set()`.
+
+#### Container Creation for Non-Existent Paths
+
+When a path does not exist and must be created:
+
+- The implementation MUST generate the necessary JSON Patch `add` operations to create all missing intermediate containers **before** setting the final value.
+- Container type determination:
+  - `[]` or other array filtering/indexing syntax implies an array.
+  - Otherwise, an object is created.
+- The patch MUST be valid RFC 6902: parent containers must exist before child values can be added.
+
+Example: Setting `$.foo.bar.baz` when only `$.foo` exists requires:
+
+1. `{ "op": "add", "path": "/foo/bar", "value": {} }`
+2. `{ "op": "add", "path": "/foo/bar/baz", "value": <the value> }`
+
 - `.map(pathOrPointer, mapperFn, options?)`
   - Reads the current value at the path, computes a new value, then sets via patch.
   - If `pathOrPointer` is to an object, the mapper function acts on the entries of the object.
-  - When `pathOrPointer` is JSONPath and matches multiple nodes, `.map()` applies to all matched locations.
+  - When `pathOrPointer` matches multiple nodes, `.map()` applies to **all matched locations** (can be used for selective updates by returning unchanged values).
 - `.patch(ops, options?)`
   - Applies RFC 6902 ops.
 
@@ -252,6 +317,7 @@ Mutation methods (representative):
 Each mutation method also supports patch generation without applying:
 
 - `.set.toPatch(pathOrPointer, value, options?) => Operation[]`
+- `.setAll.toPatch(pathOrPointer, value, options?) => Operation[]`
 - `.map.toPatch(pathOrPointer, mapperFn, options?) => Operation[]`
 - `.patch.toPatch(ops, options?) => Operation[]`
 
@@ -275,53 +341,39 @@ Each mutation method also supports patch generation without applying:
 - Deterministic patch output is required (stable order for multi-op patches).
 - A set of operations that replace all known members of an object or array should be batched into a single operation.
 
-## Flat Map ↔ Plain Object Interop (Performance)
+## RFC 6902 Operation Semantics
 
-`json-p3` evaluates JSONPath and applies JSON Patch against plain JSON values (objects/arrays). `DataMap` stores data internally as a flat pointer map, so it MUST maintain an efficient interop strategy.
+### `move` Operation and Subscriptions
 
-### Key Requirements
+- When a `move` operation is applied, subscriptions MUST NOT move with the value.
+- Subscriptions remain bound to their original path/pointer.
+- The subscription at the `from` path will fire a `remove` event.
+- The subscription at the `path` (destination) will fire a `set` event (if one exists).
+- Metadata associated with the source path MUST be cleaned up (removed from the sparse metadata Map).
+- Metadata associated with the destination path is NOT automatically transferred.
 
-- Converting the internal pointer map into a plain object MUST be extremely fast and inexpensive for repeated calls.
-- When `json-p3` requires a plain object, `DataMap` SHOULD provide the smallest possible subset of the object required for the operation.
-- The interop strategy MUST be correct for all inputs supported by `json-p3`.
+Example: If a subscription exists on `/users/0` and a `move` operation moves `/users/0` to `/archived/0`:
 
-### Recommended Strategy (Hybrid Cache + Lazy Materialization)
+- The subscription on `/users/0` fires with a `remove` event.
+- The subscription on `/users/0` does NOT follow the value to `/archived/0`.
+- If a subscription exists on `/archived/0`, it fires with a `set` event.
 
-- Maintain a cached materialized root document, built lazily from the pointer map.
-  - First build: $O(n)$ in number of stored pointers.
-  - Subsequent reads: $O(1)$ to return the cached object when there have been no writes.
-- Track a monotonic `version` counter for writes and a set of `dirty` pointers.
-  - Each patch application increments the version and records which pointers (and pointer prefixes) were affected.
-  - Materialized caches are updated incrementally for only the dirty pointers.
+## Plain Object Storage and json-p3 Interop
 
-### Limited Subset Materialization
+With the sidecar metadata architecture, the primary data store IS a plain JavaScript object. This simplifies interop with `json-p3`.
 
-- Provide an internal `materialize(pointerPrefix)` capability that builds a plain object subtree for a specific pointer prefix.
-  - For performance, subtree materialization SHOULD avoid scanning the entire map.
-    - Recommended: maintain a secondary prefix index (e.g., a sorted array of pointer keys with binary-searchable ranges, or a trie) to iterate only keys under `pointerPrefix`.
-  - For JSON Pointer operations (exact pointer reads/writes), the subset is the minimal object that contains the pointer path.
-  - For JSON Patch operations, the subset SHOULD be the minimal subtree that contains all operation `path` / `from` pointers.
-  - For JSONPath operations:
-    - If the JSONPath is a simple, unambiguous property chain (no filters, wildcards, recursion, unions, or slices), it SHOULD be converted to a JSON Pointer and materialized as a pointer subset.
-    - Otherwise, fall back to the cached materialized root.
+### Key Benefits
 
-### Syncing Strategies (Research Summary)
+- `json-p3` operations operate directly on the plain object—no materialization needed.
+- JSONPath queries and JSON Patch operations work natively.
+- The sparse metadata `Map` is only consulted when metadata is needed (getters, setters, subscriptions, etc.).
 
-Approaches for syncing between the flat pointer map and materialized objects:
+### Performance Considerations
 
-- **Full re-materialization on every write**
-  - Pros: simplest.
-  - Cons: too expensive for frequent writes.
-
-- **Single cached root + incremental updates (recommended)**
-  - Pros: fast repeated `.toJSON()` / JSONPath reads; updates proportional to changed pointers.
-  - Cons: requires careful invalidation for arrays and deep writes.
-
-- **Per-subtree caches keyed by pointer prefixes**
-  - Pros: very fast targeted JSON Pointer operations and localized JSONPath reads.
-  - Cons: more bookkeeping; needs invalidation across overlapping prefixes.
-
-The recommended approach is a cached root document with incremental updates, optionally complemented by per-subtree caches for hot prefixes.
+- **Reads**: Direct property access on the plain object. $O(1)$ for pointer-based access.
+- **Writes**: JSON Patch is applied directly to the plain object via `json-p3`.
+- **Metadata Lookup**: Sparse `Map` lookup by JSON Pointer string. $O(1)$ average case.
+- **Serialization (`.toJSON()`)**: The plain object can be returned directly or shallow-cloned for immutability.
 
 ## Dynamic Values (`define`)
 
@@ -336,6 +388,9 @@ At a minimum, each definition provides:
 - Optional `set`
 - Optional `deps?: string[]`
 - Optional `readOnly?: boolean`
+- Optional `defaultValue?: unknown`
+  - When provided, `defaultValue` is used as the initial stored value for this path instead of executing the getter during initialization.
+  - This avoids side effects or expensive computations during construction.
 
 Definitions can be literal objects, or factory functions `() => Definition` evaluated at construction time.
 
@@ -380,6 +435,20 @@ Subscriptions can be registered for any valid JSONPath/Pointer supported by `jso
 - Stage handlers execute as a pipeline:
   - The output of one handler becomes the input to the next handler in that stage.
   - This applies to value-transforming stages (e.g., `before: 'set'`) and patch-transforming stages.
+
+### Execution Order
+
+The subscription pipeline MUST execute in the following order:
+
+1. **All `before` handlers** (grouped by stage, most specific first within each stage)
+   - `before` handlers may transform the value or call `cancel()`.
+2. **All `on` handlers** (grouped by stage, most specific first within each stage)
+   - `on` handlers execute after `before` but before the mutation is committed.
+   - `on` handlers may call `cancel()`.
+3. **Commit the mutation** (apply the patch to the data store)
+4. **All `after` handlers** (grouped by stage, most specific first within each stage)
+   - `after` handlers CANNOT affect the stored value (mutation already committed).
+   - `after` handlers are for side effects (logging, notifications, etc.).
 
 ### Events and Stages
 
@@ -426,8 +495,14 @@ Events supported (each may have `before`, `on`, and/or `after` depending on the 
 ### Blocking and Validation
 
 - A subscription may prevent a mutation by:
-  - throwing, or
-  - returning `false`.
+  - throwing an error, or
+  - calling the `cancel()` function passed to the handler.
+- The `cancel()` function MUST be provided as a parameter to subscription handlers in `before` and `on` stages.
+- When `cancel()` is called:
+  - The current mutation MUST be aborted.
+  - Subsequent handlers in the pipeline MUST NOT be executed.
+  - The patch MUST NOT be applied.
+- Signature: subscription handlers receive `cancel: () => void` as part of their arguments.
 
 ## Typing and Path Validity
 
