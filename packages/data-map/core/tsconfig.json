@@ -1,0 +1,18 @@
+{
+	"extends": "@lellimecnar/typescript-config",
+	"compilerOptions": {
+		"paths": {
+			"*": ["./*"]
+		},
+		"module": "ESNext",
+		"moduleResolution": "Bundler"
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": [
+		"dist",
+		"build",
+		"node_modules",
+		"src/**/*.spec.ts",
+		"src/**/__tests__/**"
+	]
+}

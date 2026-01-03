@@ -4,3 +4,4 @@ packages:
   - 'packages/*'
   - 'packages/card-stack/*'
   - 'packages/ui-spec/*'
+  - 'packages/data-map/*'

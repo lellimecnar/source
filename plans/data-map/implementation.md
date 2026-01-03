@@ -20,10 +20,10 @@ Make sure you are currently on the `feat/data-map-core` branch.
 
 ## Step 1: Package scaffolding & path detection
 
-- [ ] Update `pnpm-workspace.yaml` to include `packages/data-map/*`
-- [ ] Create `packages/data-map/core` scaffolding
-- [ ] Implement `detectPathType()` exactly per spec §4.3
-- [ ] Implement JSON Pointer helpers + tests
+- [x] Update `pnpm-workspace.yaml` to include `packages/data-map/*`
+- [x] Create `packages/data-map/core` scaffolding
+- [x] Implement `detectPathType()` exactly per spec §4.3
+- [x] Implement JSON Pointer helpers + tests
 
 Copy and paste into `pnpm-workspace.yaml`:
 
@@ -337,9 +337,9 @@ describe('pointer utils', () => {
 
 ### Step 1 Verification Checklist
 
-- [ ] `pnpm install`
-- [ ] `pnpm turbo -F @data-map/core test`
-- [ ] `pnpm turbo -F @data-map/core build`
+- [x] `pnpm install`
+- [x] `pnpm turbo -F @data-map/core test`
+- [x] `pnpm turbo -F @data-map/core build`
 
 ## Step 1 STOP & COMMIT
 
@@ -358,10 +358,10 @@ completes: step 1 of 12 for DataMap Core
 
 ## Step 2: Core read API with json-p3 integration
 
-- [ ] Add `DataMap` constructor + read APIs: `get`, `getAll`, `resolve`
-- [ ] Enforce strict/non-strict behavior
-- [ ] Return immutable snapshots (structuredClone)
-- [ ] Add unit tests
+- [x] Add `DataMap` constructor + read APIs: `get`, `getAll`, `resolve`
+- [x] Enforce strict/non-strict behavior
+- [x] Return immutable snapshots (structuredClone)
+- [x] Add unit tests
 
 Copy and paste into `packages/data-map/core/src/types.ts` (replace entire file):
 
@@ -573,8 +573,8 @@ describe('DataMap (read API)', () => {
 
 ### Step 2 Verification Checklist
 
-- [ ] `pnpm turbo -F @data-map/core test`
-- [ ] `pnpm turbo -F @data-map/core build`
+- [x] `pnpm turbo -F @data-map/core test`
+- [x] `pnpm turbo -F @data-map/core build`
 
 ## Step 2 STOP & COMMIT
 
@@ -593,11 +593,11 @@ completes: step 2 of 12 for DataMap Core
 
 ## Step 3: Patch building & core write API
 
-- [ ] Implement patch generation and patch application helpers
-- [ ] Extend `DataMap` with write APIs: `set`, `setAll`, `map`, `patch`
-- [ ] Implement `.toPatch()` variants for each write API
-- [ ] Ensure intermediate container creation per spec
-- [ ] Add unit tests for patch generation + application
+- [x] Implement patch generation and patch application helpers
+- [x] Extend `DataMap` with write APIs: `set`, `setAll`, `map`, `patch`
+- [x] Implement `.toPatch()` variants for each write API
+- [x] Ensure intermediate container creation per spec
+- [x] Add unit tests for patch generation + application
 
 ### packages/data-map/core/src/types.ts
 

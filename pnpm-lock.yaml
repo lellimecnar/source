@@ -432,6 +432,46 @@ importers:
         specifier: ^4.0.16
         version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
+  packages/data-map/core:
+    dependencies:
+      json-p3:
+        specifier: ^2.2.2
+        version: 2.2.2
+    devDependencies:
+      '@lellimecnar/eslint-config':
+        specifier: workspace:*
+        version: link:../../config-eslint
+      '@lellimecnar/typescript-config':
+        specifier: workspace:*
+        version: link:../../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:^
+        version: link:../../config-vite
+      '@lellimecnar/vitest-config':
+        specifier: workspace:*
+        version: link:../../config-vitest
+      '@types/node':
+        specifier: ^24
+        version: 24.10.4
+      '@vitest/coverage-v8':
+        specifier: ^4.0.16
+        version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      eslint:
+        specifier: ^8.57.1
+        version: 8.57.1
+      typescript:
+        specifier: ~5.5
+        version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vitest:
+        specifier: ^4.0.16
+        version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+
   packages/expo-with-modify-gradle:
     dependencies:
       '@expo/config-plugins':
@@ -677,330 +717,6 @@ importers:
       typescript:
         specifier: ~5.5
         version: 5.5.4
-
-  packages/ui-spec/cli:
-    dependencies:
-      '@ui-spec/core':
-        specifier: workspace:*
-        version: link:../core
-    devDependencies:
-      '@lellimecnar/eslint-config':
-        specifier: workspace:*
-        version: link:../../config-eslint
-      '@lellimecnar/typescript-config':
-        specifier: workspace:*
-        version: link:../../config-typescript
-      '@lellimecnar/vite-config':
-        specifier: workspace:^
-        version: link:../../config-vite
-      '@lellimecnar/vitest-config':
-        specifier: workspace:*
-        version: link:../../config-vitest
-      '@types/jest':
-        specifier: ^29.5.12
-        version: 29.5.14
-      '@types/node':
-        specifier: ^24
-        version: 24.10.4
-      '@vitest/coverage-v8':
-        specifier: ^4.0.16
-        version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      eslint:
-        specifier: ^8.57.1
-        version: 8.57.1
-      reflect-metadata:
-        specifier: ^0.2.2
-        version: 0.2.2
-      typescript:
-        specifier: ~5.5.0
-        version: 5.5.4
-      vite:
-        specifier: ^7.3.0
-        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-      vite-plugin-dts:
-        specifier: ^4.5.4
-        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vite-tsconfig-paths:
-        specifier: ^6.0.3
-        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vitest:
-        specifier: ^4.0.16
-        version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-
-  packages/ui-spec/core:
-    dependencies:
-      jsonpath-plus:
-        specifier: ^10.3.0
-        version: 10.3.0
-    devDependencies:
-      '@lellimecnar/eslint-config':
-        specifier: workspace:*
-        version: link:../../config-eslint
-      '@lellimecnar/typescript-config':
-        specifier: workspace:*
-        version: link:../../config-typescript
-      '@lellimecnar/vite-config':
-        specifier: workspace:^
-        version: link:../../config-vite
-      '@lellimecnar/vitest-config':
-        specifier: workspace:*
-        version: link:../../config-vitest
-      '@types/jest':
-        specifier: ^29.5.12
-        version: 29.5.14
-      '@vitest/coverage-v8':
-        specifier: ^4.0.16
-        version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      eslint:
-        specifier: ^8.57.1
-        version: 8.57.1
-      reflect-metadata:
-        specifier: ^0.2.2
-        version: 0.2.2
-      typescript:
-        specifier: ~5.5.0
-        version: 5.5.4
-      vite:
-        specifier: ^7.3.0
-        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-      vite-plugin-dts:
-        specifier: ^4.5.4
-        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vite-tsconfig-paths:
-        specifier: ^6.0.3
-        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vitest:
-        specifier: ^4.0.16
-        version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-
-  packages/ui-spec/react:
-    dependencies:
-      '@ui-spec/core':
-        specifier: workspace:*
-        version: link:../core
-    devDependencies:
-      '@lellimecnar/eslint-config':
-        specifier: workspace:*
-        version: link:../../config-eslint
-      '@lellimecnar/typescript-config':
-        specifier: workspace:*
-        version: link:../../config-typescript
-      '@lellimecnar/vite-config':
-        specifier: workspace:^
-        version: link:../../config-vite
-      '@lellimecnar/vitest-config':
-        specifier: workspace:*
-        version: link:../../config-vitest
-      '@types/jest':
-        specifier: ^29.5.12
-        version: 29.5.14
-      '@types/react':
-        specifier: ^18.3.3
-        version: 18.3.27
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.7(@types/react@18.3.27)
-      '@vitejs/plugin-react':
-        specifier: ^5.1.2
-        version: 5.1.2(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      '@vitest/coverage-v8':
-        specifier: ^4.0.16
-        version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      eslint:
-        specifier: ^8.57.1
-        version: 8.57.1
-      happy-dom:
-        specifier: ^20.0.11
-        version: 20.0.11
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-      reflect-metadata:
-        specifier: ^0.2.2
-        version: 0.2.2
-      typescript:
-        specifier: ~5.5.0
-        version: 5.5.4
-      vite:
-        specifier: ^7.3.0
-        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-      vite-plugin-dts:
-        specifier: ^4.5.4
-        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vite-tsconfig-paths:
-        specifier: ^6.0.3
-        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vitest:
-        specifier: ^4.0.16
-        version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-
-  packages/ui-spec/router:
-    dependencies:
-      '@ui-spec/core':
-        specifier: workspace:*
-        version: link:../core
-    devDependencies:
-      '@lellimecnar/eslint-config':
-        specifier: workspace:*
-        version: link:../../config-eslint
-      '@lellimecnar/typescript-config':
-        specifier: workspace:*
-        version: link:../../config-typescript
-      '@lellimecnar/vite-config':
-        specifier: workspace:^
-        version: link:../../config-vite
-      '@lellimecnar/vitest-config':
-        specifier: workspace:*
-        version: link:../../config-vitest
-      '@types/jest':
-        specifier: ^29.5.12
-        version: 29.5.14
-      '@vitest/coverage-v8':
-        specifier: ^4.0.16
-        version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      eslint:
-        specifier: ^8.57.1
-        version: 8.57.1
-      reflect-metadata:
-        specifier: ^0.2.2
-        version: 0.2.2
-      typescript:
-        specifier: ~5.5.0
-        version: 5.5.4
-      vite:
-        specifier: ^7.3.0
-        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-      vite-plugin-dts:
-        specifier: ^4.5.4
-        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vite-tsconfig-paths:
-        specifier: ^6.0.3
-        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vitest:
-        specifier: ^4.0.16
-        version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-
-  packages/ui-spec/router-react:
-    dependencies:
-      '@ui-spec/core':
-        specifier: workspace:*
-        version: link:../core
-      '@ui-spec/react':
-        specifier: workspace:*
-        version: link:../react
-      '@ui-spec/router':
-        specifier: workspace:*
-        version: link:../router
-    devDependencies:
-      '@lellimecnar/eslint-config':
-        specifier: workspace:*
-        version: link:../../config-eslint
-      '@lellimecnar/typescript-config':
-        specifier: workspace:*
-        version: link:../../config-typescript
-      '@lellimecnar/vite-config':
-        specifier: workspace:^
-        version: link:../../config-vite
-      '@lellimecnar/vitest-config':
-        specifier: workspace:*
-        version: link:../../config-vitest
-      '@types/jest':
-        specifier: ^29.5.12
-        version: 29.5.14
-      '@types/react':
-        specifier: ^18.3.3
-        version: 18.3.27
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.7(@types/react@18.3.27)
-      '@vitejs/plugin-react':
-        specifier: ^5.1.2
-        version: 5.1.2(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      '@vitest/coverage-v8':
-        specifier: ^4.0.16
-        version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      eslint:
-        specifier: ^8.57.1
-        version: 8.57.1
-      happy-dom:
-        specifier: ^20.0.11
-        version: 20.0.11
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-      reflect-metadata:
-        specifier: ^0.2.2
-        version: 0.2.2
-      typescript:
-        specifier: ~5.5.0
-        version: 5.5.4
-      vite:
-        specifier: ^7.3.0
-        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-      vite-plugin-dts:
-        specifier: ^4.5.4
-        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vite-tsconfig-paths:
-        specifier: ^6.0.3
-        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vitest:
-        specifier: ^4.0.16
-        version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-
-  packages/ui-spec/validate-jsonschema:
-    dependencies:
-      '@ui-spec/core':
-        specifier: workspace:*
-        version: link:../core
-      ajv:
-        specifier: ^8.17.1
-        version: 8.17.1
-    devDependencies:
-      '@lellimecnar/eslint-config':
-        specifier: workspace:*
-        version: link:../../config-eslint
-      '@lellimecnar/typescript-config':
-        specifier: workspace:*
-        version: link:../../config-typescript
-      '@lellimecnar/vite-config':
-        specifier: workspace:^
-        version: link:../../config-vite
-      '@lellimecnar/vitest-config':
-        specifier: workspace:*
-        version: link:../../config-vitest
-      '@types/jest':
-        specifier: ^29.5.12
-        version: 29.5.14
-      '@vitest/coverage-v8':
-        specifier: ^4.0.16
-        version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      eslint:
-        specifier: ^8.57.1
-        version: 8.57.1
-      reflect-metadata:
-        specifier: ^0.2.2
-        version: 0.2.2
-      typescript:
-        specifier: ~5.5.0
-        version: 5.5.4
-      vite:
-        specifier: ^7.3.0
-        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-      vite-plugin-dts:
-        specifier: ^4.5.4
-        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vite-tsconfig-paths:
-        specifier: ^6.0.3
-        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
-      vitest:
-        specifier: ^4.0.16
-        version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
 
   packages/utils:
     dependencies:
@@ -2833,7 +2549,7 @@ packages:
       {
         integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==,
       }
-    engines: { node: '>=0.10.0' }
+    engines: { '0': node >=0.10.0 }
 
   '@expo/cli@0.22.27':
     resolution:
@@ -3608,24 +3324,6 @@ packages:
       {
         integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==,
       }
-
-  '@jsep-plugin/assignment@1.3.0':
-    resolution:
-      {
-        integrity: sha512-VVgV+CXrhbMI3aSusQyclHkenWSAm95WaiKrMxRFam3JSUiIaQjoMIw2sEs/OX4XifnqeQUN4DYbJjlA8EfktQ==,
-      }
-    engines: { node: '>= 10.16.0' }
-    peerDependencies:
-      jsep: ^0.4.0||^1.0.0
-
-  '@jsep-plugin/regex@1.0.4':
-    resolution:
-      {
-        integrity: sha512-q7qL4Mgjs1vByCaTnDFcBnV9HS7GVPJX5vyVoCgZHNSC9rjwIlmbXG5sUuorR5ndfHAIlJ8pVStxvjXHbNvtUg==,
-      }
-    engines: { node: '>= 10.16.0' }
-    peerDependencies:
-      jsep: ^0.4.0||^1.0.0
 
   '@lhci/cli@0.15.1':
     resolution:
@@ -4681,12 +4379,6 @@ packages:
     resolution:
       {
         integrity: sha512-1tJHg4KKRJuQ1/EvJxatrMef3NZXEPzwUIUZ3n1yJ2t7Q97siwRtbynRpQG9/69ebbtiZ8W3ScOZF/OmhvM4Rg==,
-      }
-
-  '@rolldown/pluginutils@1.0.0-beta.53':
-    resolution:
-      {
-        integrity: sha512-vENRlFU4YbrwVqNDZ7fLvy+JR1CRkyr01jhSiDpE1u6py3OMzQfztQU2jxykW3ALNxO4kSlqIDeYyD0Y9RcQeQ==,
       }
 
   '@rollup/pluginutils@5.3.0':
@@ -5817,15 +5509,6 @@ packages:
         optional: true
       typescript:
         optional: true
-
-  '@vitejs/plugin-react@5.1.2':
-    resolution:
-      {
-        integrity: sha512-EcA07pHJouywpzsoTUqNh5NwGayl2PPVEJKUSinGGSxFGYn+shYbqMGBg6FXDqgXum9Ou/ecb+411ssw8HImJQ==,
-      }
-    engines: { node: ^20.19.0 || >=22.12.0 }
-    peerDependencies:
-      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
   '@vitest/coverage-v8@4.0.16':
     resolution:
@@ -10630,13 +10313,6 @@ packages:
       canvas:
         optional: true
 
-  jsep@1.4.0:
-    resolution:
-      {
-        integrity: sha512-B7qPcEVE3NVkmSJbaYxvv4cHkVW7DQsZz13pUMrfS8z8Q/BuShN+gcTXrUlPiGqM2/t/EEaI030bpxMqY8gMlw==,
-      }
-    engines: { node: '>= 10.16.0' }
-
   jsesc@0.5.0:
     resolution:
       {
@@ -10656,6 +10332,12 @@ packages:
     resolution:
       {
         integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==,
+      }
+
+  json-p3@2.2.2:
+    resolution:
+      {
+        integrity: sha512-TmTgkx+C1ne8Wdm9dFQ4/jCeYYbSoeYJAkRpvTz6O+zWN1Dc3cKW8Mt52sa8mSRXy/+JykA5I6rmM+k8h+JRRg==,
       }
 
   json-parse-better-errors@1.0.2:
@@ -10714,14 +10396,6 @@ packages:
       {
         integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==,
       }
-
-  jsonpath-plus@10.3.0:
-    resolution:
-      {
-        integrity: sha512-8TNmfeTCk2Le33A3vRRwtuworG/L5RrgMvdjhKZxvyShO+mBu2fP50OWUjRLNtvw344DdDarFh9buFAZs5ujeA==,
-      }
-    engines: { node: '>=18.0.0' }
-    hasBin: true
 
   jsx-ast-utils@3.3.5:
     resolution:
@@ -12785,13 +12459,6 @@ packages:
     resolution:
       {
         integrity: sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==,
-      }
-    engines: { node: '>=0.10.0' }
-
-  react-refresh@0.18.0:
-    resolution:
-      {
-        integrity: sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw==,
       }
     engines: { node: '>=0.10.0' }
 
@@ -17497,14 +17164,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@jsep-plugin/assignment@1.3.0(jsep@1.4.0)':
-    dependencies:
-      jsep: 1.4.0
-
-  '@jsep-plugin/regex@1.0.4(jsep@1.4.0)':
-    dependencies:
-      jsep: 1.4.0
-
   '@lhci/cli@0.15.1':
     dependencies:
       '@lhci/utils': 0.15.1
@@ -18553,8 +18212,6 @@ snapshots:
     dependencies:
       nanoid: 3.3.11
 
-  '@rolldown/pluginutils@1.0.0-beta.53': {}
-
   '@rollup/pluginutils@5.3.0(rollup@4.54.0)':
     dependencies:
       '@types/estree': 1.0.8
@@ -19289,18 +18946,6 @@ snapshots:
       - jest
       - supports-color
       - vitest
-
-  '@vitejs/plugin-react@5.1.2(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))':
-    dependencies:
-      '@babel/core': 7.28.5
-      '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.5)
-      '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.28.5)
-      '@rolldown/pluginutils': 1.0.0-beta.53
-      '@types/babel__core': 7.20.5
-      react-refresh: 0.18.0
-      vite: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
-    transitivePeerDependencies:
-      - supports-color
 
   '@vitest/coverage-v8@4.0.16(vitest@4.0.16(@types/node@22.19.3)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))':
     dependencies:
@@ -22961,13 +22606,13 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  jsep@1.4.0: {}
-
   jsesc@0.5.0: {}
 
   jsesc@3.1.0: {}
 
   json-buffer@3.0.1: {}
+
+  json-p3@2.2.2: {}
 
   json-parse-better-errors@1.0.2: {}
 
@@ -22994,12 +22639,6 @@ snapshots:
       universalify: 2.0.1
     optionalDependencies:
       graceful-fs: 4.2.11
-
-  jsonpath-plus@10.3.0:
-    dependencies:
-      '@jsep-plugin/assignment': 1.3.0(jsep@1.4.0)
-      '@jsep-plugin/regex': 1.0.4(jsep@1.4.0)
-      jsep: 1.4.0
 
   jsx-ast-utils@3.3.5:
     dependencies:
@@ -24508,8 +24147,6 @@ snapshots:
       react: 18.3.1
 
   react-refresh@0.14.2: {}
-
-  react-refresh@0.18.0: {}
 
   react-remove-scroll-bar@2.3.8(@types/react@18.3.27)(react@18.3.1):
     dependencies:
