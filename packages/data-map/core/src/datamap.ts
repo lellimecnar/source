@@ -1,6 +1,15 @@
 import { jsonpath, JSONPointer } from 'json-p3';
 
 import { applyOperations } from './patch/apply';
+import {
+	buildPopPatch,
+	buildPushPatch,
+	buildShiftPatch,
+	buildShufflePatch,
+	buildSortPatch,
+	buildSplicePatch,
+	buildUnshiftPatch,
+} from './patch/array';
 import { buildSetPatch } from './patch/builder';
 import { detectPathType } from './path/detect';
 import type {
@@ -244,6 +253,111 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		},
 		{
 			toPatch: (ops: Operation[]) => ops,
+		},
+	);
+
+	readonly push = Object.assign(
+		(pathOrPointer: string, ...items: unknown[]) => {
+			const ops = this.push.toPatch(pathOrPointer, ...items);
+			this.patch(ops);
+			return this;
+		},
+		{
+			toPatch: (pathOrPointer: string, ...items: unknown[]): Operation[] => {
+				const pointer =
+					this.resolve(pathOrPointer)[0]?.pointer ??
+					normalizePointerInput(pathOrPointer);
+				return buildPushPatch(this._data, pointer, items);
+			},
+		},
+	);
+
+	pop(pathOrPointer: string): unknown {
+		const pointer =
+			this.resolve(pathOrPointer)[0]?.pointer ??
+			normalizePointerInput(pathOrPointer);
+		const { ops, value } = buildPopPatch(this._data, pointer);
+		this.patch(ops);
+		return value;
+	}
+
+	shift(pathOrPointer: string): unknown {
+		const pointer =
+			this.resolve(pathOrPointer)[0]?.pointer ??
+			normalizePointerInput(pathOrPointer);
+		const { ops, value } = buildShiftPatch(this._data, pointer);
+		this.patch(ops);
+		return value;
+	}
+
+	readonly unshift = Object.assign(
+		(pathOrPointer: string, ...items: unknown[]) => {
+			const ops = this.unshift.toPatch(pathOrPointer, ...items);
+			this.patch(ops);
+			return this;
+		},
+		{
+			toPatch: (pathOrPointer: string, ...items: unknown[]): Operation[] => {
+				const pointer =
+					this.resolve(pathOrPointer)[0]?.pointer ??
+					normalizePointerInput(pathOrPointer);
+				return buildUnshiftPatch(this._data, pointer, items);
+			},
+		},
+	);
+
+	splice(
+		pathOrPointer: string,
+		start: number,
+		deleteCount = 0,
+		...items: unknown[]
+	): unknown[] {
+		const pointer =
+			this.resolve(pathOrPointer)[0]?.pointer ??
+			normalizePointerInput(pathOrPointer);
+		const { ops, removed } = buildSplicePatch(
+			this._data,
+			pointer,
+			start,
+			deleteCount,
+			items,
+		);
+		this.patch(ops);
+		return removed;
+	}
+
+	readonly sort = Object.assign(
+		(pathOrPointer: string, compareFn?: (a: unknown, b: unknown) => number) => {
+			const ops = this.sort.toPatch(pathOrPointer, compareFn);
+			this.patch(ops);
+			return this;
+		},
+		{
+			toPatch: (
+				pathOrPointer: string,
+				compareFn?: (a: unknown, b: unknown) => number,
+			): Operation[] => {
+				const pointer =
+					this.resolve(pathOrPointer)[0]?.pointer ??
+					normalizePointerInput(pathOrPointer);
+				return buildSortPatch(this._data, pointer, compareFn as any);
+			},
+		},
+	);
+
+	readonly shuffle = Object.assign(
+		(pathOrPointer: string) => {
+			const ops = this.shuffle.toPatch(pathOrPointer);
+			this.patch(ops);
+			return this;
+		},
+		{
+			toPatch: (pathOrPointer: string): Operation[] => {
+				const pointer =
+					this.resolve(pathOrPointer)[0]?.pointer ??
+					normalizePointerInput(pathOrPointer);
+				return buildShufflePatch(this._data, pointer);
+			},
 		},
 	);
 }

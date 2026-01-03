@@ -114,4 +114,60 @@ describe('DataMap', () => {
 			expect(dm.get('/user/name')).toBe('Alice');
 		});
 	});
+
+	describe('Array API', () => {
+		it('push() appends items', () => {
+			const dm = new DataMap({ items: [1, 2] });
+			dm.push('/items', 3, 4);
+			expect(dm.get('/items')).toEqual([1, 2, 3, 4]);
+		});
+
+		it('pop() removes last item and returns it', () => {
+			const dm = new DataMap({ items: [1, 2] });
+			expect(dm.pop('/items')).toBe(2);
+			expect(dm.get('/items')).toEqual([1]);
+		});
+
+		it('shift() removes first item and returns it', () => {
+			const dm = new DataMap({ items: [1, 2] });
+			expect(dm.shift('/items')).toBe(1);
+			expect(dm.get('/items')).toEqual([2]);
+		});
+
+		it('unshift() prepends items', () => {
+			const dm = new DataMap({ items: [1, 2] });
+			dm.unshift('/items', -1, 0);
+			expect(dm.get('/items')).toEqual([-1, 0, 1, 2]);
+		});
+
+		it('splice() removes and inserts items', () => {
+			const dm = new DataMap({ items: [1, 2, 3, 4] });
+			const removed = dm.splice('/items', 1, 2, 99);
+			expect(removed).toEqual([2, 3]);
+			expect(dm.get('/items')).toEqual([1, 99, 4]);
+		});
+
+		it('sort() reorders items', () => {
+			const dm = new DataMap({ items: [3, 1, 2] });
+			dm.sort('/items');
+			expect(dm.get('/items')).toEqual([1, 2, 3]);
+		});
+
+		it('shuffle() randomizes items', () => {
+			const dm = new DataMap({ items: [1, 2, 3, 4, 5] });
+			const original = dm.getSnapshot();
+			dm.shuffle('/items');
+			const shuffled = dm.get('/items');
+			expect(shuffled).toHaveLength(5);
+			expect((shuffled as any[]).sort()).toEqual(
+				(original as any).items.sort(),
+			);
+		});
+
+		it('should generate patches for array methods', () => {
+			const dm = new DataMap({ items: [1] });
+			const ops = dm.push.toPatch('/items', 2);
+			expect(ops).toEqual([{ op: 'add', path: '/items/-', value: 2 }]);
+		});
+	});
 });

@@ -1188,8 +1188,8 @@ describe('DataMap (read + write API)', () => {
 
 ### Step 3 Verification Checklist
 
-- [ ] `pnpm turbo -F @data-map/core test`
-- [ ] `pnpm turbo -F @data-map/core build`
+- [x] `pnpm turbo -F @data-map/core test`
+- [x] `pnpm turbo -F @data-map/core build`
 
 #### Step 3 STOP & COMMIT
 
@@ -1210,9 +1210,9 @@ completes: step 3 of 12 for DataMap Core
 
 ## Step 4: Array mutation API
 
-- [ ] Implement array mutation helpers and DataMap array methods
-- [ ] Ensure `.toPatch()` variants exist for each array method
-- [ ] Add unit tests
+- [x] Implement array mutation helpers and DataMap array methods
+- [x] Ensure `.toPatch()` variants exist for each array method
+- [x] Add unit tests
 
 ### packages/data-map/core/src/patch/array.ts
 
@@ -1521,7 +1521,7 @@ describe('DataMap (array API)', () => {
 
 ### Step 4 Verification Checklist
 
-- [ ] `pnpm turbo -F @data-map/core test`
+- [x] `pnpm turbo -F @data-map/core test`
 
 #### Step 4 STOP & COMMIT
 
