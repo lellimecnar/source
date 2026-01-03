@@ -202,6 +202,143 @@ store.set('/name', 'New Name'); // Works
 store.set('/id', 'new-id'); // throws Error: "Read-only path: /id"
 ```
 
+## Default Values
+
+Set initial values for paths that don't exist in the data:
+
+```typescript
+const store = new DataMap(
+	{ user: { name: 'Alice' } },
+	{
+		context: {},
+		define: [
+			{
+				pointer: '/user/settings',
+				defaultValue: { theme: 'dark', notifications: true },
+			},
+			{
+				pointer: '/user/preferences',
+				defaultValue: [],
+			},
+		],
+	},
+);
+
+// Paths are initialized with defaultValue
+store.get('/user/settings'); // { theme: 'dark', notifications: true }
+store.get('/user/preferences'); // []
+```
+
+### When Default Values Apply
+
+- Default values are applied **at construction time**
+- Only applied if the path **does not already exist**
+- Works with both `pointer` and `path` definitions
+
+```typescript
+// Path exists - defaultValue ignored
+const store = new DataMap(
+	{ count: 5 },
+	{
+		context: {},
+		define: [{ pointer: '/count', defaultValue: 0 }],
+	},
+);
+
+store.get('/count'); // 5 (not 0)
+```
+
+### Pattern-Based Defaults
+
+```typescript
+const store = new DataMap(
+	{ items: [{}, { value: 10 }] },
+	{
+		context: {},
+		define: [
+			{
+				path: '$.items[*].value',
+				defaultValue: 0,
+			},
+		],
+	},
+);
+
+store.get('/items/0/value'); // 0 (defaultValue applied)
+store.get('/items/1/value'); // 10 (already existed)
+```
+
+## Dependency Tracking and Auto-Subscription
+
+Definitions with `deps` automatically re-evaluate when dependencies change:
+
+```typescript
+const store = new DataMap(
+	{ quantity: 2, unitPrice: 10 },
+	{
+		context: {},
+		define: [
+			{
+				pointer: '/total',
+				defaultValue: 0,
+				get: {
+					deps: ['/quantity', '/unitPrice'],
+					fn: (_, [qty, price]) => Number(qty) * Number(price),
+				},
+			},
+		],
+	},
+);
+
+store.get('/total'); // 20
+
+// When dependencies change, the computed value updates
+store.set('/quantity', 5);
+store.get('/total'); // 50 (automatically recalculated)
+```
+
+### How It Works
+
+1. When a definition with `deps` is registered, internal subscriptions are created for each dependency
+2. When any dependency changes, the cached computed value is invalidated
+3. On next read, the getter is re-executed with fresh dependency values
+
+### Getter Caching
+
+Computed values from getters with dependencies are **cached** for performance:
+
+```typescript
+let callCount = 0;
+
+const store = new DataMap(
+	{ a: 1, b: 2 },
+	{
+		context: {},
+		define: [
+			{
+				pointer: '/sum',
+				get: {
+					deps: ['/a', '/b'],
+					fn: (_, [a, b]) => {
+						callCount++;
+						return Number(a) + Number(b);
+					},
+				},
+			},
+		],
+	},
+);
+
+store.get('/sum'); // 3 (getter called: callCount = 1)
+store.get('/sum'); // 3 (cached: callCount still 1)
+store.get('/sum'); // 3 (cached: callCount still 1)
+
+store.set('/a', 10); // Invalidates cache
+store.get('/sum'); // 12 (getter called: callCount = 2)
+```
+
+> **Note:** Getters without `deps` are not cached and run on every read.
+
 ## Pattern Matching with JSONPath
 
 Definitions can match multiple paths using JSONPath:

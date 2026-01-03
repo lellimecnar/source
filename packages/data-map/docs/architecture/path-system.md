@@ -130,6 +130,29 @@ export function compilePathPattern(path: string): CompiledPattern {
 }
 ```
 
+### JSON Serialization
+
+Compiled patterns can be serialized for debugging or persistence:
+
+```typescript
+const pattern = compilePathPattern('$.users[*].name');
+
+JSON.stringify(pattern);
+// Uses toJSON() method internally
+
+// Output includes:
+// - original: the source pattern string
+// - type: 'pointer' | 'jsonpath' | 'relative-pointer'
+// - segments: array of compiled segments
+// - isStatic: whether pattern has no wildcards
+```
+
+This is useful for:
+
+- Debugging subscription patterns
+- Persisting compiled patterns across sessions
+- Inspecting pattern structure in logs
+
 ## Pattern Matching
 
 ### Static Matching

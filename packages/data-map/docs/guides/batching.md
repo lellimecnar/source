@@ -180,21 +180,31 @@ store.transaction((dm) => {
 
 ### Deferred Notifications
 
-During a batch, subscriptions are deferred:
+During a batch, subscriptions are deferred using `queueMicrotask`:
 
-- `before` handlers still run immediately (for validation)
-- `on` handlers are collected
-- `after` handlers fire after the batch completes
+- `before` handlers still run **synchronously** (for validation/cancellation)
+- `on` handlers are batched and scheduled via microtask
+- `after` handlers fire after all `on` handlers complete (also via microtask)
+
+This means reads inside `on` handlers will see the fully committed state.
 
 ```typescript
 store.subscribe({
 	path: '/value',
 	before: 'patch',
-	fn: (v) => console.log('before:', v),
+	fn: (v) => console.log('before:', v), // Sync
+});
+
+store.subscribe({
+	path: '/value',
 	on: 'patch',
-	fn: (v) => console.log('on:', v),
+	fn: (v) => console.log('on:', v), // Async (microtask)
+});
+
+store.subscribe({
+	path: '/value',
 	after: 'patch',
-	fn: (v) => console.log('after:', v),
+	fn: (v) => console.log('after:', v), // Async (after on)
 });
 
 store.batch((dm) => {

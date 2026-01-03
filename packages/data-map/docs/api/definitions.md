@@ -9,24 +9,28 @@ TypeScript types and interfaces for computed properties and definitions.
 Configuration for a computed or transformed property.
 
 ```typescript
-interface Definition<T, Ctx> {
-	/**
-	 * Path pattern where this definition applies.
-	 * Can be JSON Pointer or JSONPath.
-	 */
-	path: string;
+type Definition<T, Ctx> =
+	| DefinitionWithPath<T, Ctx>
+	| DefinitionWithPointer<T, Ctx>;
 
+interface DefinitionBase<T, Ctx> {
 	/**
-	 * Getter function that computes the value.
+	 * Getter function or config that computes the value.
 	 * Called when reading the path.
 	 */
-	get?: GetterFn<T, Ctx>;
+	get?: GetterFn<T, Ctx> | GetterConfig<T, Ctx>;
 
 	/**
-	 * Setter function that transforms incoming values.
+	 * Setter function or config that transforms incoming values.
 	 * Called when writing to the path.
 	 */
-	set?: SetterFn<T, Ctx>;
+	set?: SetterFn<T, Ctx> | SetterConfig<T, Ctx>;
+
+	/**
+	 * Dependency paths. Values from these paths are passed to getter/setter.
+	 * Changes to dependencies invalidate cached getters.
+	 */
+	deps?: string[];
 
 	/**
 	 * When true, prevents writes to this path.
@@ -34,9 +38,21 @@ interface Definition<T, Ctx> {
 	readOnly?: boolean;
 
 	/**
-	 * Optional type identifier for the value.
+	 * Initial value to use if path doesn't exist at construction.
 	 */
-	type?: string;
+	defaultValue?: unknown;
+}
+
+interface DefinitionWithPath<T, Ctx> extends DefinitionBase<T, Ctx> {
+	/** JSONPath pattern where this definition applies */
+	path: string;
+	pointer?: never;
+}
+
+interface DefinitionWithPointer<T, Ctx> extends DefinitionBase<T, Ctx> {
+	/** JSON Pointer where this definition applies */
+	pointer: string;
+	path?: never;
 }
 ```
 
@@ -46,12 +62,16 @@ interface Definition<T, Ctx> {
 const store = new DataMap(
 	{ firstName: 'John', lastName: 'Doe' },
 	{
+		context: {},
 		define: [
 			{
-				path: '/fullName',
-				get: (data) => `${data.firstName} ${data.lastName}`,
+				pointer: '/fullName',
+				defaultValue: '',
+				get: {
+					deps: ['/firstName', '/lastName'],
+					fn: (_, [first, last]) => `${first} ${last}`,
+				},
 				readOnly: true,
-				type: 'computed',
 			},
 		],
 	},
@@ -69,20 +89,25 @@ Factory function that returns definitions dynamically.
 
 ```typescript
 type DefinitionFactory<T, Ctx> = (
-	dataMap: DataMap<T, Ctx>,
+	instance: DataMap<T, Ctx>,
+	ctx: Ctx,
 ) => Definition<T, Ctx> | Definition<T, Ctx>[];
 ```
 
-Factories are invoked at construction time with access to the DataMap instance.
+Factories are invoked at construction time with access to the DataMap instance and context.
 
 ```typescript
-const createTimestampDef: DefinitionFactory<AppData, AppContext> = (dm) => ({
-	path: '/lastModified',
+const createTimestampDef: DefinitionFactory<AppData, AppContext> = (
+	dm,
+	ctx,
+) => ({
+	pointer: '/lastModified',
 	get: () => Date.now(),
 	readOnly: true,
 });
 
 const store = new DataMap(data, {
+	context: {},
 	define: [createTimestampDef],
 });
 ```
@@ -95,34 +120,45 @@ Function that computes a value when reading.
 
 ```typescript
 type GetterFn<T, Ctx> = (
-	data: T,
-	context: Ctx | undefined,
-	pointer: string,
+	currentValue: unknown,
+	depValues: unknown[],
+	instance: DataMap<T, Ctx>,
+	context: Ctx,
 ) => unknown;
 ```
 
 **Parameters:**
 
-| Parameter | Type               | Description                  |
-| --------- | ------------------ | ---------------------------- |
-| `data`    | `T`                | Complete data store snapshot |
-| `context` | `Ctx \| undefined` | Context from construction    |
-| `pointer` | `string`           | JSON Pointer being read      |
+| Parameter      | Type              | Description                         |
+| -------------- | ----------------- | ----------------------------------- |
+| `currentValue` | `unknown`         | Raw value at the path               |
+| `depValues`    | `unknown[]`       | Values from `deps` array (in order) |
+| `instance`     | `DataMap<T, Ctx>` | The DataMap instance                |
+| `context`      | `Ctx`             | Context from construction           |
+
+---
+
+### `GetterConfig<T, Ctx>`
+
+Extended getter configuration with dependencies.
+
+```typescript
+interface GetterConfig<T, Ctx> {
+	fn: GetterFn<T, Ctx>;
+	deps?: string[];
+}
+```
 
 **Example:**
 
 ```typescript
-const totalGetter: GetterFn<CartData, AppContext> = (data, ctx, ptr) => {
-	const items = data.cart.items;
-	const subtotal = items.reduce((sum, item) => sum + item.price, 0);
-	const taxRate = ctx?.taxRate ?? 0;
-	return subtotal * (1 + taxRate);
-};
-
-const store = new DataMap(cartData, {
-	context: { taxRate: 0.08 },
-	define: [{ path: '/cart/total', get: totalGetter, readOnly: true }],
-});
+{
+	pointer: '/total',
+	get: {
+		deps: ['/quantity', '/unitPrice'],
+		fn: (_, [qty, price]) => Number(qty) * Number(price),
+	},
+}
 ```
 
 ---
@@ -133,38 +169,97 @@ Function that transforms values when writing.
 
 ```typescript
 type SetterFn<T, Ctx> = (
-	value: unknown,
-	data: T,
-	context: Ctx | undefined,
-	pointer: string,
+	newValue: unknown,
+	currentValue: unknown,
+	depValues: unknown[],
+	instance: DataMap<T, Ctx>,
+	context: Ctx,
 ) => unknown;
 ```
 
 **Parameters:**
 
-| Parameter | Type               | Description                  |
-| --------- | ------------------ | ---------------------------- |
-| `value`   | `unknown`          | Incoming value to transform  |
-| `data`    | `T`                | Complete data store snapshot |
-| `context` | `Ctx \| undefined` | Context from construction    |
-| `pointer` | `string`           | JSON Pointer being written   |
+| Parameter      | Type              | Description                         |
+| -------------- | ----------------- | ----------------------------------- |
+| `newValue`     | `unknown`         | Incoming value to transform         |
+| `currentValue` | `unknown`         | Current value at the path           |
+| `depValues`    | `unknown[]`       | Values from `deps` array (in order) |
+| `instance`     | `DataMap<T, Ctx>` | The DataMap instance                |
+| `context`      | `Ctx`             | Context from construction           |
+
+---
+
+### `SetterConfig<T, Ctx>`
+
+Extended setter configuration with dependencies.
+
+```typescript
+interface SetterConfig<T, Ctx> {
+	fn: SetterFn<T, Ctx>;
+	deps?: string[];
+}
+```
 
 **Example:**
 
 ```typescript
-const nameSetter: SetterFn<UserData, AppContext> = (value, data, ctx, ptr) => {
-	// Normalize name: trim and capitalize
-	const name = String(value).trim();
-	return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-};
-
-const store = new DataMap(userData, {
-	define: [{ path: '$.users[*].name', set: nameSetter }],
-});
-
-store.set('/users/0/name', '  ALICE  ');
-store.get('/users/0/name'); // 'Alice'
+{
+	pointer: '/email',
+	set: {
+		deps: [],
+		fn: (value) => String(value).toLowerCase().trim(),
+	},
+}
 ```
+
+---
+
+## Default Values
+
+The `defaultValue` property initializes paths at construction time:
+
+```typescript
+const store = new DataMap(
+	{ user: {} },
+	{
+		context: {},
+		define: [
+			{ pointer: '/user/settings', defaultValue: { theme: 'dark' } },
+			{ pointer: '/user/preferences', defaultValue: [] },
+		],
+	},
+);
+
+store.get('/user/settings'); // { theme: 'dark' }
+```
+
+### Behavior
+
+- Applied only at construction time
+- Only if the path does not already exist
+- Works with both `path` (JSONPath) and `pointer` definitions
+
+---
+
+## Dependency Tracking
+
+Definitions with `deps` automatically re-evaluate when dependencies change:
+
+```typescript
+{
+	pointer: '/age',
+	get: {
+		deps: ['/birthYear'],
+		fn: (_, [birthYear], dm, ctx) => ctx.currentYear - birthYear,
+	},
+}
+```
+
+### Caching
+
+- Getter results are **cached** when `deps` is specified
+- Cache is **invalidated** automatically when any dependency changes
+- Getters without `deps` are not cached
 
 ---
 

@@ -139,13 +139,14 @@ store.subscribe({
 
 ### Event Types
 
-| Event     | Description                |
-| --------- | -------------------------- |
-| `get`     | A value was read           |
-| `set`     | A value was written        |
-| `remove`  | A value was removed        |
-| `resolve` | A path was resolved        |
-| `patch`   | A patch operation occurred |
+| Event     | Description                                      |
+| --------- | ------------------------------------------------ |
+| `get`     | A read is starting (before interception stage)   |
+| `resolve` | A value was resolved (after getter/defaultValue) |
+| `patch`   | A general write occurred                         |
+| `add`     | A value was added                                |
+| `replace` | A value was replaced                             |
+| `remove`  | A value was removed                              |
 
 ### Cancellation
 
@@ -306,7 +307,8 @@ store.set('/id', 'new'); // throws Error
 
 ### Dependencies
 
-Getters can depend on other paths:
+Getters can depend on other paths. Dependency values are passed to the getter
+and the result is cached until any dependency changes:
 
 ```typescript
 new DataMap(
@@ -316,16 +318,37 @@ new DataMap(
 		define: [
 			{
 				pointer: '/sum',
-				get: {
-					deps: ['/a', '/b'],
-					fn: (value, [a, b]) => a + b,
-				},
+				deps: ['/a', '/b'], // Dependency pointers
+				get: (_, [a, b]) => a + b, // Deps passed as second argument
 			},
 		],
 	},
 );
 
-store.get('/sum'); // 3
+store.get('/sum'); // 3 (cached)
+store.set('/a', 5);
+store.get('/sum'); // 7 (cache invalidated, recomputed)
+```
+
+### Default Values
+
+Definitions can specify fallback values when the resolved value is `undefined`:
+
+```typescript
+new DataMap(
+	{},
+	{
+		context: {},
+		define: [
+			{
+				pointer: '/user/name',
+				defaultValue: 'Anonymous',
+			},
+		],
+	},
+);
+
+store.get('/user/name'); // 'Anonymous' (path doesn't exist)
 ```
 
 ## Immutability

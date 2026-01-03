@@ -61,11 +61,13 @@ store.get('$.user.name'); // 'Alice'
 // Write with automatic patch generation
 store.set('/user/name', 'Bob');
 
-// Subscribe to changes
+// Subscribe to changes with lifecycle stages
 store.subscribe({
 	path: '/user/name',
-	on: 'patch',
-	fn: (value, event) => {
+	before: 'patch', // Can cancel or transform
+	on: 'patch', // Non-blocking notification
+	after: 'patch', // Side effects
+	fn: (value, event, cancel) => {
 		console.log(`Name changed to: ${value}`);
 	},
 });
@@ -76,6 +78,35 @@ store.batch((dm) => {
 	dm.set('/user/age', 31);
 	// Notifications fire after the batch completes
 });
+
+// Read interception - mask sensitive data
+store.subscribe({
+	path: '/user/ssn',
+	before: 'get',
+	fn: (value) => `***-**-${String(value).slice(-4)}`,
+});
+
+// Computed values with dependency tracking
+const computed = new DataMap(
+	{ quantity: 2, price: 10 },
+	{
+		context: {},
+		define: [
+			{
+				pointer: '/total',
+				defaultValue: 0,
+				get: {
+					deps: ['/quantity', '/price'],
+					fn: (_, [qty, price]) => Number(qty) * Number(price),
+				},
+			},
+		],
+	},
+);
+
+computed.get('/total'); // 20
+computed.set('/quantity', 5);
+computed.get('/total'); // 50 (automatically recalculated)
 ```
 
 ## Key Dependencies

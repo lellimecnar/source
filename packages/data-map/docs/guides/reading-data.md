@@ -62,6 +62,35 @@ const matches = store.resolve('$.users[*].name');
 
 This is useful when you need to know the exact pointers for the matched values.
 
+### `peek(pointer, options?)`
+
+Returns the raw value at a pointer **without triggering any subscriptions**.
+
+```typescript
+const store = new DataMap({ count: 0 });
+
+store.subscribe({
+	path: '/count',
+	on: 'get', // or 'resolve'
+	fn: () => console.log('Read happened!'),
+});
+
+store.get('/count'); // logs "Read happened!"
+store.peek('/count'); // No log! Silent read.
+```
+
+**Use cases:**
+
+- Reading values inside subscription handlers without triggering recursion
+- Debugging without side effects
+- Performance-critical reads where subscriptions aren't needed
+
+**Limitations:**
+
+- Only accepts JSON Pointers (not JSONPath)
+- Does not apply getters or default values from definitions
+- Bypasses all subscription hooks (`get`, `resolve`, `before`, `on`, `after`)
+
 ## Path Syntax Examples
 
 ### JSON Pointer
@@ -253,7 +282,7 @@ const store = new DataMap(
 store.get('/timestamp'); // Date object, not number
 ```
 
-Getters can also have dependencies:
+Getters can also have dependencies which are cached until deps change:
 
 ```typescript
 const store = new DataMap(
@@ -263,16 +292,16 @@ const store = new DataMap(
 		define: [
 			{
 				pointer: '/fullName',
-				get: {
-					deps: ['/firstName', '/lastName'],
-					fn: (value, [first, last]) => `${first} ${last}`,
-				},
+				deps: ['/firstName', '/lastName'],
+				get: (_, [first, last]) => `${first} ${last}`,
 			},
 		],
 	},
 );
 
-store.get('/fullName'); // 'John Doe'
+store.get('/fullName'); // 'John Doe' (cached)
+store.set('/firstName', 'Jane');
+store.get('/fullName'); // 'Jane Doe' (recomputed)
 ```
 
 ## Comparison Methods

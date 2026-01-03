@@ -144,6 +144,45 @@ store.set('/user/name', 'Bob');
 // Console: "Stage: after, Value: Bob"
 ```
 
+### `get` Event
+
+Fires when reading data via `get()`:
+
+```typescript
+store.subscribe({
+	path: '/user/name',
+	before: 'get',
+	on: 'get',
+	after: 'get',
+	fn: (value, event) => {
+		console.log(`Read at ${event.stage}: ${value}`);
+	},
+});
+
+store.get('/user/name');
+// Console: "Read at before: Alice"
+// Console: "Read at on: Alice"
+// Console: "Read at after: Alice"
+```
+
+### `resolve` Event
+
+Fires when resolving paths via `resolve()`:
+
+```typescript
+store.subscribe({
+	path: '$.users[*].name',
+	on: 'resolve',
+	fn: (value, event) => {
+		console.log(`Resolved ${event.pointer}: ${value}`);
+	},
+});
+
+store.resolve('$.users[*].name');
+// Console: "Resolved /users/0/name: Alice"
+// Console: "Resolved /users/1/name: Bob"
+```
+
 ### `set` Event
 
 Convenience alias - `set` subscriptions also catch `patch` events:
@@ -200,6 +239,57 @@ store.subscribe({
 store.set('/user/name', 'alice');
 store.get('/user/name'); // 'ALICE'
 ```
+
+## Read Interception
+
+Transform values at read-time by returning a value from a `before: 'get'` handler:
+
+```typescript
+const store = new DataMap({
+	password: 'secret123',
+	user: { ssn: '123-45-6789' },
+});
+
+// Mask sensitive data on read
+store.subscribe({
+	path: '/password',
+	before: 'get',
+	fn: () => '********',
+});
+
+store.subscribe({
+	path: '/user/ssn',
+	before: 'get',
+	fn: (value) => {
+		const ssn = String(value);
+		return `***-**-${ssn.slice(-4)}`;
+	},
+});
+
+console.log(store.get('/password')); // "********"
+console.log(store.get('/user/ssn')); // "***-**-6789"
+```
+
+### Use Cases for Read Interception
+
+1. **Masking sensitive data** - Hide passwords, SSNs, credit card numbers
+2. **Format transformation** - Convert cents to dollars, timestamps to dates
+3. **Access control** - Return different values based on context
+4. **Lazy computation** - Compute values only when read
+
+```typescript
+// Format currency on read
+store.subscribe({
+	path: '$.items[*].price',
+	before: 'get',
+	fn: (cents) => `$${(Number(cents) / 100).toFixed(2)}`,
+});
+
+store.get('/items/0/price'); // "$19.99" instead of 1999
+```
+
+> **Note:** The raw value is still stored; only the returned value is transformed.
+> To read the raw value without transformation, use `peek()`.
 
 ## Path Patterns
 
@@ -271,6 +361,31 @@ store.subscribe({
 // Add a new user - subscription automatically picks it up
 store.push('/users', { name: 'Bob' });
 // Console: "/users/1/name: Bob"
+```
+
+### Filter Re-expansion
+
+When data changes in a way that could affect filter expressions, dynamic subscriptions automatically re-evaluate their matched paths:
+
+```typescript
+const store = new DataMap({
+	users: [
+		{ name: 'Alice', active: true },
+		{ name: 'Bob', active: false },
+	],
+});
+
+// Subscribe to active users only
+store.subscribe({
+	path: '$.users[?(@.active == true)].name',
+	on: 'patch',
+	fn: (value) => console.log(`Active user name: ${value}`),
+});
+
+// Bob becomes active - subscription now includes him
+store.set('/users/1/active', true);
+store.set('/users/1/name', 'Robert');
+// Console: "Active user name: Robert"
 ```
 
 ### Checking if Subscription is Dynamic
@@ -447,6 +562,36 @@ store.subscribe({
 		}, 300);
 	},
 });
+```
+
+## Notification Timing (queueMicrotask)
+
+Notifications use different timing depending on the stage:
+
+| Stage    | Timing                                          | Purpose                            |
+| -------- | ----------------------------------------------- | ---------------------------------- |
+| `before` | **Synchronous** - runs immediately              | Validation, transformation, cancel |
+| `on`     | **Async (microtask)** - batched after sync code | Non-blocking side effects          |
+| `after`  | **Async (microtask)** - batched after sync code | Non-blocking side effects          |
+
+This means `on` and `after` handlers don't block the mutation and are batched together within a single synchronous execution block using `queueMicrotask`:
+
+```typescript
+store.set('/a', 1);
+console.log('After set');
+
+// Output order:
+// 1. before handlers run (sync)
+// 2. "After set" logs
+// 3. on/after handlers run (microtask)
+```
+
+To wait for all notifications to complete in tests:
+
+```typescript
+store.set('/value', 42);
+await Promise.resolve(); // or await new Promise(queueMicrotask)
+// Now on/after handlers have run
 ```
 
 ## Cleanup

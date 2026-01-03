@@ -162,6 +162,31 @@ JSON.stringify(store); // Works via toJSON()
 
 ---
 
+### `peek(pointer)`
+
+```typescript
+peek(pointer: string): unknown
+```
+
+Internal read without triggering any subscriptions. Bypasses all notification stages and definition getters.
+
+| Parameter | Type     | Description                       |
+| --------- | -------- | --------------------------------- |
+| `pointer` | `string` | JSON Pointer only (not JSONPath). |
+
+**Returns:** The raw value at the pointer, or `undefined` if not found.
+
+**Use case:** When you need to read data inside a subscription handler without triggering infinite loops.
+
+```typescript
+// Inside a subscription handler
+const rawValue = store.peek('/user/name');
+```
+
+> **Note:** `peek()` does not apply definition getters - it returns the raw stored value.
+
+---
+
 ## Write Methods
 
 ### `set(pathOrPointer, value, options?)`
@@ -309,6 +334,14 @@ Removes and returns the last item.
 const last = store.pop('/items');
 ```
 
+#### `pop.toPatch()`
+
+```typescript
+pop.toPatch(pathOrPointer: string): Operation[]
+```
+
+Returns the remove operation without applying.
+
 ---
 
 ### `shift(pathOrPointer)`
@@ -322,6 +355,14 @@ Removes and returns the first item.
 ```typescript
 const first = store.shift('/items');
 ```
+
+#### `shift.toPatch()`
+
+```typescript
+shift.toPatch(pathOrPointer: string): Operation[]
+```
+
+Returns the remove operation without applying.
 
 ---
 
@@ -360,6 +401,17 @@ Removes and/or inserts items. Returns removed items.
 
 ```typescript
 const removed = store.splice('/items', 1, 2, 'a', 'b');
+```
+
+#### `splice.toPatch()`
+
+```typescript
+splice.toPatch(
+  pathOrPointer: string,
+  start: number,
+  deleteCount?: number,
+  ...items: unknown[]
+): Operation[]
 ```
 
 ---

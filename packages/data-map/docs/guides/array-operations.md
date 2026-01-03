@@ -56,6 +56,15 @@ console.log(last); // 3
 store.get('/items'); // [1, 2]
 ```
 
+### pop.toPatch()
+
+Generate the patch without applying:
+
+```typescript
+const ops = store.pop.toPatch('/items');
+// [{ op: 'remove', path: '/items/2' }]
+```
+
 ### Empty Array Behavior
 
 ```typescript
@@ -75,6 +84,15 @@ const store = new DataMap({ items: [1, 2, 3] });
 const first = store.shift('/items');
 console.log(first); // 1
 store.get('/items'); // [2, 3]
+```
+
+### shift.toPatch()
+
+Generate the patch without applying:
+
+```typescript
+const ops = store.shift.toPatch('/items');
+// [{ op: 'remove', path: '/items/0' }]
 ```
 
 ### Index Re-mapping
@@ -149,6 +167,16 @@ store.splice('/arr', 1, 0, 'a', 'b'); // [1, 'a', 'b', 2, 5]
 
 // Replace items
 store.splice('/arr', 0, 1, 'first'); // ['first', 'a', 'b', 2, 5]
+```
+
+### splice.toPatch()
+
+Generate the patches without applying:
+
+```typescript
+const ops = store.splice.toPatch('/items', 1, 2, 'a', 'b');
+// Generates remove operations for deleted items
+// and add operations for inserted items
 ```
 
 ## sort()

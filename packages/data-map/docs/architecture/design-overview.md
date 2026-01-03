@@ -80,10 +80,22 @@ Manages computed properties and value transformations:
 ```typescript
 class DefinitionRegistry<T, Ctx> {
 	private _definitions: Map<string, Definition<T, Ctx>>;
+	private _getterCache: Map<string, unknown>;
+	private _depSubscriptions: Map<string, Subscription[]>;
 
-	applyGetter(pointer: string, value: unknown): unknown;
-	applySetter(pointer: string, value: unknown): unknown;
+	applyGetter(
+		pointer: string,
+		value: unknown,
+		instance: DataMap<T, Ctx>,
+	): unknown;
+	applySetter(
+		pointer: string,
+		value: unknown,
+		instance: DataMap<T, Ctx>,
+	): unknown;
+	applyDefaultValue(pointer: string, value: unknown): unknown;
 	isReadOnly(pointer: string): boolean;
+	invalidateDefinitionForPointer(pointer: string): void;
 }
 ```
 
@@ -93,6 +105,17 @@ class DefinitionRegistry<T, Ctx> {
 2. Expand JSONPath patterns and match
 3. Apply most specific matching definition
 
+**Getter Caching:**
+
+- Results are cached until dependencies change
+- When `deps` is specified, the registry auto-subscribes to each dep pointer
+- Writes to any dep invalidate the getter cache
+
+**Default Value Application:**
+
+- If the resolved value is `undefined` and `defaultValue` is defined, returns the default
+- Useful for fallback values when paths don't exist
+
 ### Subscription Manager
 
 Handles subscription registration and notification dispatch:
@@ -101,9 +124,15 @@ Handles subscription registration and notification dispatch:
 class SubscriptionManagerImpl<T, Ctx> {
 	private _subscriptions: Map<string, Set<SubscriptionEntry>>;
 	private _bloomFilter: BloomFilter;
+	private _scheduler: NotificationScheduler;
 
 	subscribe(config: SubscriptionConfig): Subscription;
 	notify(pointer: string, event: SubscriptionEvent, info: EventInfo): void;
+	scheduleNotify(
+		pointer: string,
+		event: SubscriptionEvent,
+		info: EventInfo,
+	): void;
 }
 ```
 
@@ -112,6 +141,7 @@ class SubscriptionManagerImpl<T, Ctx> {
 - **Bloom Filter**: Fast negative lookup for paths with no subscriptions
 - **Pattern Compilation**: Precompiled patterns for efficient matching
 - **Dynamic Re-expansion**: Updates pattern matches when structure changes
+- **Microtask Batching**: `on`/`after` handlers are batched via `queueMicrotask`
 
 ### Batch Manager
 
@@ -134,6 +164,29 @@ class BatchManager {
 - Nested batch support (reference counting)
 - Operation collection during batch
 - Atomic rollback for transactions
+
+### Notification Scheduler
+
+Batches `on` and `after` callbacks via microtask scheduling:
+
+```typescript
+class NotificationScheduler {
+	private _pendingOn: Set<ScheduledNotification>;
+	private _pendingAfter: Set<ScheduledNotification>;
+	private _isScheduled: boolean;
+
+	schedule(stage: 'on' | 'after', notification: ScheduledNotification): void;
+	flush(): void;
+}
+```
+
+**Execution Order:**
+
+1. All `before` handlers run synchronously (can cancel/intercept)
+2. `on` handlers are batched via `queueMicrotask`
+3. `after` handlers run after all `on` handlers complete
+
+This enables read operations within `on` handlers to see consistent state.
 
 ### Path System
 
@@ -178,18 +231,35 @@ get('/user/name')
 detectPathType() → 'pointer'
     │
     ▼
+SubscriptionManager.notify('get')  ← before-hook for read interception
+    │
+    ├── Handler calls event.setValue()? → Use intercepted value
+    │
+    └── No interception? → Continue normal flow
+    │
+    ▼
 DefinitionRegistry.applyGetter()
     │
-    ├── Has getter? → Execute, return computed value
+    ├── Has getter? → Execute with cached deps, return computed value
     │
     └── No getter? → Return raw value from json-p3
     │
     ▼
-SubscriptionManager.notify('read')
+DefinitionRegistry.applyDefaultValue()
+    │
+    ├── Value undefined & defaultValue? → Return default
+    │
+    └── Otherwise → Return value as-is
+    │
+    ▼
+SubscriptionManager.notify('resolve')  ← after value fully resolved
     │
     ▼
 Return value
 ```
+
+> **Note:** `peek()` method bypasses all subscription notifications, returning the
+> raw value without triggering `get` or `resolve` events.
 
 ### Write Flow
 
@@ -335,7 +405,14 @@ store.set('/a/b/c', 1);
 
 ```typescript
 const store = new DataMap(data, {
-	define: [{ path: '/custom', get: customGetter, set: customSetter }],
+	define: [
+		{
+			path: '/fullName',
+			deps: ['/firstName', '/lastName'],
+			get: (_, [first, last]) => `${first} ${last}`,
+			defaultValue: 'Unknown',
+		},
+	],
 });
 ```
 
@@ -344,8 +421,8 @@ const store = new DataMap(data, {
 ```typescript
 store.subscribe({
 	path: '$.items[*]',
-	on: 'patch',
-	priority: -100, // Run early
+	on: 'patch', // get | resolve | patch | add | remove | replace
+	priority: -100, // Lower runs earlier
 	filter: (e) => e.previousValue !== e.value,
 	fn: handler,
 });

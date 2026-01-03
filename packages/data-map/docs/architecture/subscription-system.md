@@ -136,6 +136,12 @@ dynamicRegistry.set('$.users[*].name', {
 set('/users/0/name', 'Alice')
     │
     ▼
+Before stage handlers (synchronous)
+    │
+    ├── Can cancel mutation
+    ├── Can transform value
+    │
+    ▼
 applyOperations() → data updated
     │
     ▼
@@ -143,7 +149,10 @@ BatchManager.isActive()?
     │
     ├── Yes → Queue notification, defer
     │
-    └── No → Continue
+    └── No → Schedule microtask
+    │
+    ▼
+queueMicrotask (async batching)
     │
     ▼
 BloomFilter.mightContain('/users/0/name')?
@@ -170,6 +179,48 @@ Execute handlers in order
     └── Call handler(value, eventInfo)
 ```
 
+## Notification Scheduler (queueMicrotask)
+
+The `NotificationScheduler` batches `on` and `after` stage notifications using `queueMicrotask`:
+
+```typescript
+class NotificationScheduler {
+	private _queue: (() => void)[] = [];
+	private _scheduled = false;
+
+	schedule(fn: () => void): void {
+		this._queue.push(fn);
+		if (!this._scheduled) {
+			this._scheduled = true;
+			queueMicrotask(() => this.flush());
+		}
+	}
+
+	private flush(): void {
+		const queue = this._queue;
+		this._queue = [];
+		this._scheduled = false;
+		for (const fn of queue) fn();
+	}
+}
+```
+
+### Stage Timing
+
+| Stage    | Execution Timing                          |
+| -------- | ----------------------------------------- |
+| `before` | **Synchronous** - immediate, can cancel   |
+| `on`     | **Microtask** - batched, non-blocking     |
+| `after`  | **Microtask** - batched, after `on` stage |
+
+### Benefits
+
+1. **Non-blocking**: Mutations return immediately
+2. **Batching**: Multiple notifications coalesce in one microtask
+3. **Consistency**: All synchronous mutations complete before handlers run
+
+````
+
 ## Bloom Filter Optimization
 
 ### Purpose
@@ -181,7 +232,7 @@ if (!bloomFilter.mightContain(pointer)) {
 	return; // Definitely no subscribers
 }
 // Might have subscribers, do full check
-```
+````
 
 ### Implementation
 

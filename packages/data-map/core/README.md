@@ -47,11 +47,12 @@ sub.unsubscribe();
 ## Batch
 
 ```ts
-// Fluent Batch API
-store.batch
-	.set('/user/name', 'Dana')
-	.set('/user/email', 'dana@example.com')
-	.apply();
+// Callback-based batch API
+store.batch((dm) => {
+	dm.set('/user/name', 'Dana');
+	dm.set('/user/email', 'dana@example.com');
+});
+// Notifications fire after batch completes
 ```
 
 ## Computed Properties & Definitions

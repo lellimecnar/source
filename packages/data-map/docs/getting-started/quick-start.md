@@ -165,9 +165,9 @@ const store = new DataMap(initialData, {
 	define: [
 		{
 			pointer: '/user/fullName',
-			get: (value, deps, instance, ctx) => {
-				return `${instance.get('/user/firstName')} ${instance.get('/user/lastName')}`;
-			},
+			deps: ['/user/firstName', '/user/lastName'], // Dependencies for caching
+			get: (_, [firstName, lastName]) => `${firstName} ${lastName}`,
+			defaultValue: 'Unknown User', // Fallback if computed is undefined
 		},
 	],
 

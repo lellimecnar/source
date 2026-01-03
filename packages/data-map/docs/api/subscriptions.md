@@ -17,26 +17,25 @@ interface SubscriptionConfig<T, Ctx> {
 	path: string;
 
 	/**
-	 * Event type that triggers the callback.
+	 * Event(s) to trigger before mutation (synchronous).
+	 * Can cancel or transform values.
 	 */
-	on: SubscriptionEvent;
+	before?: SubscriptionEvent | SubscriptionEvent[];
 
 	/**
-	 * Callback function invoked on matching events.
+	 * Event(s) to trigger during mutation (async via microtask).
+	 */
+	on?: SubscriptionEvent | SubscriptionEvent[];
+
+	/**
+	 * Event(s) to trigger after mutation (async via microtask).
+	 */
+	after?: SubscriptionEvent | SubscriptionEvent[];
+
+	/**
+	 * Handler function invoked on matching events.
 	 */
 	fn: SubscriptionHandler<T, Ctx>;
-
-	/**
-	 * Optional priority for execution order.
-	 * Lower numbers run first.
-	 * @default 0
-	 */
-	priority?: number;
-
-	/**
-	 * Optional filter to conditionally skip execution.
-	 */
-	filter?: (event: SubscriptionEventInfo<T, Ctx>) => boolean;
 }
 ```
 
@@ -45,11 +44,13 @@ interface SubscriptionConfig<T, Ctx> {
 ```typescript
 store.subscribe({
 	path: '$.users[*].status',
+	before: 'patch',
 	on: 'patch',
-	priority: 10,
-	filter: (event) => event.previousValue !== event.value,
-	fn: (value, event) => {
-		console.log(`User status changed to: ${value}`);
+	after: 'patch',
+	fn: (value, event, cancel) => {
+		if (event.stage === 'before' && !isValid(value)) {
+			cancel();
+		}
 	},
 });
 ```
@@ -61,23 +62,16 @@ store.subscribe({
 Type of event that triggers a subscription.
 
 ```typescript
-type SubscriptionEvent = 'patch' | 'read' | 'get' | 'set';
+type SubscriptionEvent = 'get' | 'set' | 'remove' | 'resolve' | 'patch';
 ```
 
-| Event   | Triggers When                              | Use Case              |
-| ------- | ------------------------------------------ | --------------------- |
-| `patch` | Any write operation completes              | React to data changes |
-| `read`  | `get()`, `getAll()`, or `resolve()` called | Audit, logging        |
-| `get`   | Alias for `read`                           | Compatibility         |
-| `set`   | `set()` or `setAll()` called               | Intercept writes      |
-
-**Lifecycle:**
-
-```
-set('/path', value)
-  ├── 'set' event fires (before apply)
-  └── 'patch' event fires (after apply)
-```
+| Event     | Triggers When                   | Use Case                   |
+| --------- | ------------------------------- | -------------------------- |
+| `get`     | `get()` is called               | Read interception, masking |
+| `set`     | Alias for `patch` (convenience) | React to writes            |
+| `remove`  | Remove operations in patches    | Cleanup, logging           |
+| `resolve` | `resolve()` is called           | Query monitoring           |
+| `patch`   | Any write operation completes   | React to data changes      |
 
 ---
 
@@ -88,102 +82,83 @@ Callback function signature.
 ```typescript
 type SubscriptionHandler<T, Ctx> = (
 	value: unknown,
-	event: SubscriptionEventInfo<T, Ctx>,
-) => void | Promise<void>;
+	event: SubscriptionEventInfo,
+	cancel: () => void,
+	instance: DataMap<T, Ctx>,
+	context: Ctx,
+) => unknown | void;
 ```
 
 **Parameters:**
 
-| Parameter | Type                            | Description                       |
-| --------- | ------------------------------- | --------------------------------- |
-| `value`   | `unknown`                       | Current value at the matched path |
-| `event`   | `SubscriptionEventInfo<T, Ctx>` | Detailed event information        |
+| Parameter  | Type                    | Description                                   |
+| ---------- | ----------------------- | --------------------------------------------- |
+| `value`    | `unknown`               | Current or new value at the matched path      |
+| `event`    | `SubscriptionEventInfo` | Detailed event information                    |
+| `cancel`   | `() => void`            | Call to cancel the operation (before/on only) |
+| `instance` | `DataMap<T, Ctx>`       | The DataMap instance                          |
+| `context`  | `Ctx`                   | Context from construction                     |
+
+**Returns:** In `before` stage, return a value to transform it. Otherwise ignored.
 
 **Example:**
 
 ```typescript
-const handler: SubscriptionHandler<AppData, AppContext> = (value, event) => {
+const handler: SubscriptionHandler<AppData, AppContext> = (
+	value,
+	event,
+	cancel,
+	instance,
+	context,
+) => {
 	console.log('Path:', event.pointer);
-	console.log('New value:', value);
-	console.log('Old value:', event.previousValue);
-	console.log('Context:', event.context);
+	console.log('Stage:', event.stage);
+	console.log('Event:', event.type);
+
+	if (event.stage === 'before' && !isValid(value)) {
+		cancel(); // Abort the mutation
+	}
 };
 ```
 
 ---
 
-### `SubscriptionEventInfo<T, Ctx>`
+### `SubscriptionEventInfo`
 
 Detailed information about a subscription event.
 
 ```typescript
-interface SubscriptionEventInfo<T, Ctx> {
+interface SubscriptionEventInfo {
 	/**
 	 * The event type that triggered this callback.
 	 */
-	readonly type: SubscriptionEvent;
+	type: SubscriptionEvent;
+
+	/**
+	 * The lifecycle stage: 'before', 'on', or 'after'.
+	 */
+	stage: 'before' | 'on' | 'after';
 
 	/**
 	 * JSON Pointer to the affected path.
 	 */
-	readonly pointer: string;
+	pointer: string;
 
 	/**
-	 * Current value at the path.
+	 * Original path from the subscription or operation.
 	 */
-	readonly value: unknown;
+	originalPath: string;
+
+	/**
+	 * The patch operation (for patch events).
+	 */
+	operation?: Operation;
 
 	/**
 	 * Previous value before the change.
-	 * Only present for 'patch' events.
 	 */
-	readonly previousValue?: unknown;
-
-	/**
-	 * The patch operations that caused this event.
-	 * Only present for 'patch' events.
-	 */
-	readonly operations?: Operation[];
-
-	/**
-	 * Context object from DataMap construction.
-	 */
-	readonly context?: Ctx;
-
-	/**
-	 * Reference to the DataMap instance.
-	 */
-	readonly dataMap: DataMap<T, Ctx>;
-
-	/**
-	 * Timestamp when the event occurred.
-	 */
-	readonly timestamp: number;
-
-	/**
-	 * True if this event is part of a batch.
-	 */
-	readonly batched?: boolean;
+	previousValue?: unknown;
 }
-```
-
-**Example:**
-
-```typescript
-store.subscribe({
-	path: '/count',
-	on: 'patch',
-	fn: (value, event) => {
-		if (event.previousValue !== undefined) {
-			const delta = (value as number) - (event.previousValue as number);
-			console.log(`Count changed by ${delta}`);
-		}
-
-		if (event.batched) {
-			console.log('Part of a batch operation');
-		}
-	},
-});
 ```
 
 ---
@@ -195,19 +170,34 @@ Handle returned from `subscribe()`.
 ```typescript
 interface Subscription {
 	/**
+	 * Unique identifier for this subscription.
+	 */
+	readonly id: string;
+
+	/**
+	 * The original query path.
+	 */
+	readonly query: string;
+
+	/**
+	 * Compiled path pattern (null for static pointers).
+	 */
+	readonly compiledPattern: CompiledPathPattern | null;
+
+	/**
+	 * Currently matched concrete paths.
+	 */
+	readonly expandedPaths: ReadonlySet<string>;
+
+	/**
+	 * True if the subscription uses wildcards or filters.
+	 */
+	readonly isDynamic: boolean;
+
+	/**
 	 * Removes the subscription.
 	 */
 	unsubscribe(): void;
-
-	/**
-	 * The path pattern this subscription watches.
-	 */
-	readonly path: string;
-
-	/**
-	 * The event type this subscription responds to.
-	 */
-	readonly event: SubscriptionEvent;
 }
 ```
 
@@ -215,17 +205,48 @@ interface Subscription {
 
 ```typescript
 const sub = store.subscribe({
-	path: '/user',
+	path: '$.users[*].name',
 	on: 'patch',
 	fn: (value) => console.log(value),
 });
 
-console.log(`Watching: ${sub.path}`); // '/user'
-console.log(`Event: ${sub.event}`); // 'patch'
+console.log(`ID: ${sub.id}`);
+console.log(`Query: ${sub.query}`); // '$.users[*].name'
+console.log(`Dynamic: ${sub.isDynamic}`); // true
+console.log(`Expanded:`, [...sub.expandedPaths]);
 
 // Later, cleanup
 sub.unsubscribe();
 ```
+
+---
+
+## Lifecycle Stages
+
+### Stage Timing
+
+| Stage    | Execution              | Can Cancel | Can Transform |
+| -------- | ---------------------- | ---------- | ------------- |
+| `before` | Synchronous, immediate | ✅         | ✅            |
+| `on`     | Async (queueMicrotask) | ❌         | ❌            |
+| `after`  | Async (queueMicrotask) | ❌         | ❌            |
+
+### Execution Order
+
+```
+store.set('/path', value)
+  │
+  ├── before handlers (sync) ─┐
+  │                           ├─ Can cancel, can transform
+  │                           │
+  ├── Mutation applied ───────┘
+  │
+  └── queueMicrotask ──────────┐
+                               ├─ on handlers
+                               └─ after handlers
+```
+
+---
 
 ---
 
@@ -266,83 +287,35 @@ store.subscribe({
 
 // Filter - active users only
 store.subscribe({
-	path: '$.users[?@.active == true]',
+	path: '$.users[?(@.active == true)]',
 	on: 'patch',
 	fn: (value) => console.log(value),
 });
 ```
 
----
+### Filter Re-expansion
 
-## Priority System
-
-Subscriptions with lower priority numbers execute first:
+Dynamic subscriptions with filter expressions automatically re-evaluate when relevant data changes:
 
 ```typescript
-// Runs third (default priority = 0)
-store.subscribe({
-	path: '/data',
-	on: 'patch',
-	fn: () => console.log('Third'),
+const store = new DataMap({
+	users: [
+		{ name: 'Alice', active: true },
+		{ name: 'Bob', active: false },
+	],
 });
 
-// Runs first
 store.subscribe({
-	path: '/data',
+	path: '$.users[?(@.active == true)].name',
 	on: 'patch',
-	priority: -10,
-	fn: () => console.log('First'),
+	fn: (value) => console.log(`Active: ${value}`),
 });
 
-// Runs second
-store.subscribe({
-	path: '/data',
-	on: 'patch',
-	priority: -5,
-	fn: () => console.log('Second'),
-});
+// Bob becomes active - subscription now includes him
+store.set('/users/1/active', true);
+store.set('/users/1/name', 'Robert');
+// Console: "Active: Robert"
 ```
-
----
-
-## Filter Function
-
-Skip execution based on conditions:
-
-```typescript
-store.subscribe({
-	path: '/value',
-	on: 'patch',
-	filter: (event) => {
-		// Only trigger for significant changes
-		const oldVal = event.previousValue as number;
-		const newVal = event.value as number;
-		return Math.abs(newVal - oldVal) > 10;
-	},
-	fn: (value) => {
-		console.log('Significant change:', value);
-	},
-});
-```
-
----
-
-## Async Handlers
-
-Handlers can be async:
-
-```typescript
-store.subscribe({
-	path: '/user',
-	on: 'patch',
-	fn: async (value, event) => {
-		await saveToServer(value);
-		await logAnalytics(event);
-	},
-});
-```
-
-> **Note:** Async handlers don't block subsequent handlers. DataMap does not await them.
 
 ---
 
