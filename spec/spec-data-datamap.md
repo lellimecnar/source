@@ -213,13 +213,10 @@ type DefinitionFactory<T, Ctx> = (
 ### 4.2 Definition Interface
 
 ```typescript
-interface Definition<T, Ctx = unknown> {
-	/**
-	 * The path this definition applies to.
-	 * Can be JSON Pointer or JSONPath.
-	 */
-	path: string;
-
+/**
+ * Base properties shared by all Definition variants.
+ */
+interface DefinitionBase<T, Ctx = unknown> {
 	/**
 	 * Getter function or configuration.
 	 * Transforms stored value to public value on read.
@@ -235,6 +232,7 @@ interface Definition<T, Ctx = unknown> {
 	/**
 	 * Paths this definition depends on.
 	 * Used for cache invalidation and initialization ordering.
+	 * Accepts both JSON Pointer and JSONPath strings.
 	 */
 	deps?: string[];
 
@@ -250,6 +248,54 @@ interface Definition<T, Ctx = unknown> {
 	 */
 	defaultValue?: unknown;
 }
+
+/**
+ * Definition using a JSONPath expression.
+ * Use this when the definition applies to multiple matching paths
+ * or when using dynamic path expressions with wildcards/filters.
+ */
+interface DefinitionWithPath<T, Ctx = unknown> extends DefinitionBase<T, Ctx> {
+	/**
+	 * JSONPath expression (RFC 9535) this definition applies to.
+	 * Examples: "$.users[*].name", "$..active", "$.config.settings"
+	 *
+	 * Use `path` for dynamic expressions that may match multiple locations.
+	 * Mutually exclusive with `pointer`.
+	 */
+	path: string;
+	pointer?: never;
+}
+
+/**
+ * Definition using a JSON Pointer.
+ * Use this when the definition applies to a single, specific location.
+ */
+interface DefinitionWithPointer<T, Ctx = unknown> extends DefinitionBase<
+	T,
+	Ctx
+> {
+	/**
+	 * JSON Pointer (RFC 6901) this definition applies to.
+	 * Examples: "/users/0/name", "/config/settings", ""
+	 *
+	 * Use `pointer` for direct, single-value access patterns.
+	 * Mutually exclusive with `path`.
+	 */
+	pointer: string;
+	path?: never;
+}
+
+/**
+ * A Definition specifies a computed property or transformation
+ * at a specific location in the DataMap.
+ *
+ * Definitions must specify either `path` (JSONPath) or `pointer` (JSON Pointer),
+ * but not both. Use `path` for dynamic/multi-match expressions and `pointer`
+ * for direct single-value access.
+ */
+type Definition<T, Ctx = unknown> =
+	| DefinitionWithPath<T, Ctx>
+	| DefinitionWithPointer<T, Ctx>;
 
 type GetterFn<T, Ctx> = (
 	currentValue: unknown,
