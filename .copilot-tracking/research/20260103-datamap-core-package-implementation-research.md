@@ -1,76 +1,165 @@
 <!-- markdownlint-disable-file -->
 
-# Task Research Notes: DataMap Core Package (packages/data-map/core)
+# Task Research Notes: @data-map/core Spec-Compliance Planning Inputs (packages/data-map/core)
 
 ## Research Executed
 
 ### File Analysis
 
-- plans/data-map/plan.md
-  - Defines the intended new workspace `packages/data-map/core` and its files, including `detectPathType` + JSON Pointer utilities, and mandates `json-p3` as the only JSONPath/Pointer/Patch engine.
-  - Calls out package registration change required: add `packages/data-map/*` to pnpm workspace patterns.
-- spec/spec-data-datamap.md
-  - Normative DataMap specification: JSONPath + JSON Pointer reads, RFC 6902 patch semantics, subscription system (static + dynamic), strict vs non-strict behavior, and performance targets.
 - package.json (repo root)
-  - Monorepo: pnpm workspaces + Turborepo.
-  - Toolchain versions:
-    - Node engine: `^24.12.0`
-    - pnpm: `9.12.2`
-    - TypeScript: `~5.5`
-    - Vite: `^7.3.0`
-    - Vitest: `^4.0.16`
-    - Turbo: `^2.3.3`
-    - tsgo: via `@typescript/native-preview` (`7.0.0-dev.20251228.1`)
-- pnpm-workspace.yaml
-  - Current workspace globs do not include `packages/data-map/*`; required to add it for `@data-map/*` packages.
-- turbo.json
-  - Task graph expectations:
-    - `build` depends on `^build` and outputs `dist/**`.
-    - `test` has no upstream dependencies and outputs `coverage/**`.
-    - `lint` and `type-check` depend on `^build`.
-- packages/\* templates (library patterns)
-  - packages/utils (minimal library package)
-  - packages/polymix and packages/card-stack/core (library + vitest scripts)
-  - packages/config-vite, packages/config-vitest, packages/config-typescript, packages/config-eslint (shared configs)
+  - Defines monorepo scripts: `pnpm test` runs `turbo test -- --passWithNoTests`; `pnpm type-check` runs `turbo type-check`.
+- vitest.config.ts (repo root)
+  - Root Vitest “projects” points at per-workspace `vitest.config.ts` files.
+- packages/config-vitest/base.ts
+  - Shared Vitest defaults for packages (globals, coverage defaults, and `setupFiles`).
+- packages/config-typescript/base.json
+  - Shared TS compiler defaults; most workspaces extend this via `@lellimecnar/typescript-config`.
+- packages/data-map/core/package.json
+  - Confirms this package is ESM (`type: "module"`) and uses Vitest (`test: vitest run`).
+- packages/data-map/core/tsconfig.json
+  - Confirms this package compiles as `module: ESNext` with `moduleResolution: Bundler` and excludes tests from builds.
+- packages/data-map/core/src/datamap.ts
+  - Primary implementation for Read API + Write API + patch + array helpers + batch + transaction.
+- packages/data-map/core/src/subscription/manager.ts
+  - Subscription manager: static + dynamic matching, bloom filter optimization, structural watcher re-expansion.
+- packages/data-map/core/src/definitions/registry.ts and packages/data-map/core/src/definitions/types.ts
+  - Definition registration (pointer + JSONPath), getter/setter transforms, deps handling, `defaultValue` type presence.
+- packages/data-map/core/src/path/compile.ts and packages/data-map/core/src/path/predicate.ts
+  - JSONPath subset compiler with caching, match + expand, filter predicate compilation and hashing.
+- packages/data-map/core/src/patch/array.ts and packages/data-map/core/src/patch/apply.ts
+  - Patch builders for array operations and RFC6902 application + affected/structural pointer tracking.
 
 ### Code Search Results
 
-- json-p3
-  - No direct code usage found in `packages/**` (as of current workspace state). Usage exists in specs/plans.
-- vite.config.ts pattern
-  - Found in: `packages/utils`, `packages/polymix`, `packages/card-stack/core`, `packages/card-stack/deck-standard`.
-- vitest.config.ts pattern
-  - Found in: `packages/utils`, `packages/polymix`, `packages/card-stack/*`, `packages/ui`.
+- `queueMicrotask`
+  - Found in packages/data-map/core/src/**fixtures**/helpers.ts (test utility `flushMicrotasks`).
+- `transformedValue`
+  - Found in packages/data-map/core/src/subscription/manager.ts (`NotificationResult` and handler return chaining).
+- `defaultValue`
+  - Only present in packages/data-map/core/src/definitions/types.ts (not used in registry implementation).
 
 ### External Research
 
-- #fetch:https://github.com/jg-rp/json-p3
-  - Confirms package scope: JSONPath + JSON Pointer + JSON Patch, zero runtime deps, docs at `https://jg-rp.github.io/json-p3/`.
-- #fetch:https://jg-rp.github.io/json-p3/quick-start
-  - Confirms import patterns and common APIs: `import { jsonpath, jsonpointer, jsonpatch, JSONPointer, JSONPatch } from "json-p3"` and top-level re-exports like `query`, `compile`, `apply`.
-  - Confirms pointer resolution semantics and error/fallback behavior.
-  - Confirms patch application is sequential and generally mutates in place unless root replaced.
-- #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpath/functions/query
-  - Confirms `jsonpath.query(path, value)` returns `JSONPathNodeList`.
-- #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpath/functions/compile
-- #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpath/classes/JSONPathNodeList
-- #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpath/classes/JSONPathNode
-- #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpointer/classes/JSONPointer
-  - Confirms `resolve`, `resolveWithParent`, `exists`, `join`, `parent`, and error semantics.
-- #fetch:https://jg-rp.github.io/json-p3/api/namespaces/jsonpatch/functions/apply
-  - Confirms `jsonpatch.apply(ops, value)` signature.
+- (Not needed for this pass)
 
 ### Project Conventions
 
-- Standards referenced:
-  - packages/config-vitest/base.ts (Vitest defaults)
-  - packages/config-typescript/\*.json (tsconfig baselines)
-  - Root AGENTS.md (monorepo structure, commands, testing)
-  - .github/copilot-instructions.md (workspace:\* usage; UI package has granular exports)
+- Standards referenced: packages/config-vitest/base.ts, packages/config-typescript/base.json
+- Instructions followed: root AGENTS.md workspace commands, `.github/copilot-instructions.md` monorepo conventions
 
 ## Key Discoveries
 
-### Project Structure
+### A) Project-wide: tests, organization, TS/module system
+
+#### Commands to run tests for @data-map/core
+
+- Workspace-local scripts are defined in packages/data-map/core/package.json:
+
+```json
+{
+	"name": "@data-map/core",
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage"
+	}
+}
+```
+
+- Recommended from repo root (no `cd`):
+  - `pnpm --filter @data-map/core test`
+  - `pnpm --filter @data-map/core test:watch`
+  - `pnpm --filter @data-map/core test:coverage`
+  - Or run through Turbo (repo root script): `pnpm test` (runs tests across workspaces).
+
+#### How tests are organized (and setup files)
+
+- Tests are co-located with source under packages/data-map/core/src/\*\*:
+  - Top-level spec: packages/data-map/core/src/datamap.spec.ts
+  - Feature-area specs: packages/data-map/core/src/subscription/_.spec.ts, packages/data-map/core/src/path/_.spec.ts, packages/data-map/core/src/patch/\*.spec.ts, etc.
+  - Additional tests under packages/data-map/core/src/**tests**/\*\*.
+
+- Vitest setup is inherited from @lellimecnar/vitest-config:
+
+```ts
+// packages/config-vitest/base.ts
+export function vitestBaseConfig(): ViteUserConfig {
+	return {
+		test: {
+			globals: true,
+			passWithNoTests: true,
+			setupFiles: [resolveLocalFile('./setup/reflect-metadata.ts')],
+		},
+	};
+}
+```
+
+- @data-map/core extends base config and adds coverage thresholds:
+
+```ts
+// packages/data-map/core/vitest.config.ts
+const base = vitestBaseConfig();
+export default defineConfig({
+	...base,
+	test: {
+		...(base.test ?? {}),
+		coverage: {
+			...((base.test as any)?.coverage ?? {}),
+			thresholds: {
+				statements: 90,
+				lines: 90,
+				branches: 85,
+				functions: 95,
+			},
+		},
+	},
+});
+```
+
+#### TypeScript config patterns and module system
+
+- Root TS config is minimal and extends the shared baseline:
+
+```json
+// tsconfig.json (repo root)
+{ "extends": "@lellimecnar/typescript-config" }
+```
+
+- Shared baseline (`@lellimecnar/typescript-config`) is based on Vercel’s style guide and targets modern JS:
+
+```json
+// packages/config-typescript/base.json
+{
+	"extends": ["@vercel/style-guide/typescript/node20"],
+	"compilerOptions": {
+		"strict": true,
+		"target": "ESNext",
+		"lib": ["ESNext", "DOM", "Decorators"],
+		"noEmit": true
+	}
+}
+```
+
+- @data-map/core overrides to match Vite/ESM library builds:
+
+```jsonc
+// packages/data-map/core/tsconfig.json
+{
+	"extends": "@lellimecnar/typescript-config",
+	"compilerOptions": {
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+	},
+	"exclude": ["src/**/*.spec.ts", "src/**/__tests__/**"],
+}
+```
+
+- @data-map/core is ESM at runtime:
+
+```json
+// packages/data-map/core/package.json
+{ "type": "module" }
+```
 
 - Monorepo: pnpm workspaces + Turborepo.
   - Apps: `web/*` (Next.js 14+), `mobile/*` (Expo)
@@ -80,7 +169,278 @@
 - Workspace dependency policy:
   - Never use file-path dependencies.
 
-### Implementation Patterns (Library Packages)
+### B) Package @data-map/core deep dive (actual behavior today)
+
+#### 1) DataMap.patch(): before-hook notifications and transformed values
+
+- Files: packages/data-map/core/src/datamap.ts, packages/data-map/core/src/subscription/manager.ts
+- Key symbols: `DataMap.patch`, `SubscriptionManagerImpl.notify`, `SubscriptionManagerImpl.invokeHandlers`
+
+`DataMap.patch()` runs `before` notifications synchronously for each op, and only checks cancel; it does not apply returned (transformed) values:
+
+```ts
+// packages/data-map/core/src/datamap.ts
+for (const op of ops) {
+	const before = this._subs.notify(
+		op.path,
+		'patch',
+		'before',
+		this.get(op.path),
+		undefined,
+		op,
+		op.path,
+	);
+	if (before.cancelled) throw new Error('Patch cancelled by subscription');
+}
+```
+
+The subscription manager _can_ accept transformed values via handler return, but `DataMap.patch()` currently ignores them:
+
+```ts
+// packages/data-map/core/src/subscription/manager.ts
+const ret = sub.config.fn(
+	currentValue,
+	info,
+	cancel,
+	this.dataMap,
+	this.dataMap.context as any,
+);
+if (ret !== undefined) {
+	transformedValue = ret;
+	currentValue = ret;
+}
+```
+
+Gotcha: “set subscriptions catch patch events” is implemented as a stage-selection alias, not as changing `event.type`:
+
+```ts
+// packages/data-map/core/src/subscription/manager.ts
+if (event === 'patch' && list.includes('set')) return true;
+```
+
+So handlers configured for `after: 'set'` will run on patch events, but receive `event.type === 'patch'` (see tests).
+
+#### 2) Subscription manager: notify pipeline, cancel behavior, expandedPaths, filters, structural tracking
+
+- Files: packages/data-map/core/src/subscription/manager.ts, packages/data-map/core/src/subscription/types.ts
+- Key symbols: `SubscriptionManagerImpl.register`, `notify`, `invokeHandlers`, `handleStructuralChange`
+
+**Notify pipeline:** DataMap calls `notify(..., 'before'|'on'|'after', ...)`. Manager selects subscriptions via bloom/reverse index + dynamic matching, then invokes handlers.
+
+```ts
+// packages/data-map/core/src/subscription/manager.ts
+const staticIds = this.reverseIndex.get(pointer) ?? new Set<string>();
+const dynamicIds = this.findDynamicMatches(pointer);
+const all = new Set<string>([...staticIds, ...dynamicIds]);
+return this.invokeHandlers(
+	all,
+	pointer,
+	event,
+	stage,
+	value,
+	previousValue,
+	operation,
+	originalPath,
+);
+```
+
+**Cancel behavior:** `cancel()` only stops further handlers for the current notify call; only `before` stage cancels a patch end-to-end (because DataMap throws).
+
+```ts
+// packages/data-map/core/src/subscription/manager.ts
+const cancel = () => { cancelled = true; };
+...
+if (cancelled) break;
+```
+
+**expandedPaths behavior:**
+
+- Pointer subscription: `expandedPaths = new Set([config.path])`.
+- JSONPath subscription: compiled pattern is expanded against current snapshot (`dataMap.toJSON()`), and those pointers are inserted into reverse index.
+
+```ts
+// packages/data-map/core/src/subscription/manager.ts
+const pointers = compiledPattern.expand(data);
+expandedPaths = new Set(pointers);
+for (const p of pointers) this.addToReverseIndex(p, id);
+```
+
+**Filter subscriptions:** `compilePathPattern()` supports filter segments only for arrays in `expandSegments` and uses `compilePredicate()` (dynamic `Function`) for predicates.
+
+```ts
+// packages/data-map/core/src/path/compile.ts
+if (head.type === 'filter') {
+  const arr = Array.isArray(data) ? data : [];
+  for (let idx = 0; idx < arr.length; idx++) {
+    const v = arr[idx];
+    if (head.predicate(v, idx, arr)) { ... }
+  }
+}
+```
+
+**Structural change tracking and re-expansion:**
+
+- Patch application computes `structuralPointers` as parent pointers for `add/remove/move/copy` operations.
+- DataMap calls `SubscriptionManagerImpl.handleStructuralChange(pointer)` for each structural pointer.
+
+```ts
+// packages/data-map/core/src/patch/apply.ts
+if (isStructuralOp(op)) {
+	structuralPointers.add(parentPointer(op.path));
+}
+```
+
+`handleStructuralChange` recomputes `expandedPaths` for watchers, updates reverse index, and **only notifies newly-added matches** (no “removed match” notifications):
+
+```ts
+// packages/data-map/core/src/subscription/manager.ts
+for (const p of removed) this.removeFromReverseIndex(p, id);
+for (const p of added) {
+	this.addToReverseIndex(p, id);
+	this.bloomFilter.add(p);
+	const v = this.dataMap.get(p);
+	this.invokeHandlers(
+		new Set([id]),
+		p,
+		'set',
+		'after',
+		v,
+		undefined,
+		{ op: 'add', path: p, value: v } as any,
+		sub.config.path,
+	);
+}
+```
+
+Gotchas to reuse/consider:
+
+- `structuralDependencies` for a pattern is currently computed as only the concrete prefix pointer (see path compiler), so re-expansion triggers are coarse.
+- `replace` operations are _not_ treated as structural, so array `sort()` / `shuffle()` (which emit `replace`) won’t trigger `handleStructuralChange` even though indices conceptually shift.
+
+#### 3) Definitions registry: registration, applyGetter/applySetter, deps/defaultValue usage
+
+- Files: packages/data-map/core/src/definitions/registry.ts, packages/data-map/core/src/definitions/types.ts
+- Key symbols: `DefinitionRegistry.registerAll`, `register`, `applyGetter`, `applySetter`
+
+Registration supports:
+
+- Pointer-targeted definitions: `{ pointer: '/x', ... }`
+- JSONPath-targeted definitions: `{ path: '$.users[*].name', ... }` (compiled via `compilePathPattern`).
+
+```ts
+// packages/data-map/core/src/definitions/registry.ts
+if ('path' in def && typeof def.path === 'string') {
+	this.defs.push({ def, pattern: compilePathPattern(def.path) });
+	return;
+}
+this.defs.push({ def, pattern: null });
+```
+
+Getter application is chained (multiple defs can target same pointer):
+
+```ts
+// packages/data-map/core/src/definitions/registry.ts
+for (const def of defs) {
+	if (!def.get) continue;
+	const cfg = typeof def.get === 'function' ? { fn: def.get } : def.get;
+	const depValues = (cfg.deps ?? def.deps ?? []).map((d) =>
+		this.dataMap.get(d, { strict: false }),
+	);
+	v = cfg.fn(v, depValues, this.dataMap, ctx);
+}
+```
+
+Setter behavior:
+
+- Enforces `readOnly`.
+- If multiple setters exist, the **first matching setter wins** (returns early).
+
+```ts
+// packages/data-map/core/src/definitions/registry.ts
+for (const def of defs) {
+  if (def.readOnly) throw new Error(`Read-only path: ${pointer}`);
+  if (!def.set) continue;
+  ...
+  return cfg.fn(newValue, currentValue, depValues, this.dataMap, ctx);
+}
+return newValue;
+```
+
+Deps representation exists in two places:
+
+- On the definition: `deps?: string[]`
+- Per-get/per-set config: `{ deps?: string[]; fn: ... }`
+
+`defaultValue?: unknown` is defined in the type but is not referenced in registry logic.
+
+#### 4) Path compile: CompiledPathPattern + match result + concretePrefix + segment types + serialization helpers
+
+- Files: packages/data-map/core/src/path/compile.ts, packages/data-map/core/src/path/segments.ts, packages/data-map/core/src/path/predicate.ts
+- Key symbols: `CompiledPathPattern`, `compilePathPattern`, `compilePredicate`
+
+`CompiledPathPattern` shape (highlights):
+
+```ts
+export interface CompiledPathPattern {
+  readonly source: string;
+  readonly segments: readonly PathSegment[];
+  readonly isSingular: boolean;
+  readonly hasRecursiveDescent: boolean;
+  readonly hasFilters: boolean;
+  readonly concretePrefix: readonly (StaticSegment | IndexSegment)[];
+  readonly concretePrefixPointer: string;
+  readonly structuralDependencies: readonly string[];
+  match: (...) => {
+    matches: boolean;
+    reason?: string;
+    matchDepth?: number;
+    failedAtDepth?: number;
+  };
+  expand: (data: unknown) => string[];
+}
+```
+
+Segment types are in packages/data-map/core/src/path/segments.ts:
+
+- `static`, `index`, `wildcard`, `slice`, `filter` (with `predicate`, `expression`, `hash`), `recursive`.
+
+Predicate compilation caches by filter expression:
+
+```ts
+// packages/data-map/core/src/path/predicate.ts
+const cached = predicateCache.get(expression);
+...
+const fn = new Function('value','key','parent', `... return Boolean(${body}); ...`) as PredicateFn;
+```
+
+There is currently **no** `CompiledPathPattern.toJSON()` and no `SerializedPattern` type in the codebase.
+
+#### 5) Array operations: which have .toPatch variants today
+
+- Files: packages/data-map/core/src/datamap.ts, packages/data-map/core/src/patch/array.ts
+
+In `DataMap`:
+
+- Has `.toPatch`: `set.toPatch`, `setAll.toPatch`, `map.toPatch`, `patch.toPatch`, `push.toPatch`, `unshift.toPatch`, `sort.toPatch`, `shuffle.toPatch`.
+- No `.toPatch`: `pop()`, `shift()`, `splice()` (these return removed values and apply immediately).
+
+Patch builders exist for all of these in packages/data-map/core/src/patch/array.ts:
+
+- `buildPopPatch`, `buildShiftPatch`, `buildSplicePatch` already return `{ ops, value/removed }`.
+
+#### 6) get()/resolve(): whether subscription events fire and where
+
+- File: packages/data-map/core/src/datamap.ts
+
+`SubscriptionEvent` includes `'get'` and `'resolve'`:
+
+```ts
+// packages/data-map/core/src/subscription/types.ts
+export type SubscriptionEvent = 'get' | 'set' | 'remove' | 'resolve' | 'patch';
+```
+
+But `DataMap.get()` and `DataMap.resolve()` currently do **not** call `this._subs.notify(...)`.
+Only `patch()` (and batch flush) calls notify, always with `event: 'patch'`.
 
 #### package.json patterns (libraries)
 
@@ -138,108 +498,157 @@ Observed in packages/utils/vite.config.ts (also polymix, card-stack/core):
 - Turbo execution model:
   - Filter a single workspace with `turbo run -F <workspace>` (also used in root scripts like `pnpm ui`).
 
-### External Docs: json-p3 APIs needed for DataMap core
-
-#### JSONPath
-
-- Imports and entry points:
-  - `import { jsonpath } from 'json-p3'`
-  - `jsonpath.compile(path)` returns `JSONPathQuery` (compiled query object).
-  - Top-level re-exports exist (per quick start): `import { query, compile } from 'json-p3'`.
-
-  - `JSONPathNodeList.values()` returns an array of matched values.
-  - `JSONPathNodeList.pointers()` returns `JSONPointer[]` for each match.
-  - `JSONPathNodeList.paths()` returns normalized JSONPath strings.
-  - `JSONPathNodeList.locations()` returns location arrays (`(string|number)[][]`).
-  - `JSONPathNodeList.valuesOrSingular()` returns a single value if only one node.
-
-#### JSON Pointer
-
-- Resolve:
-  - `jsonpointer.resolve(pointerString, value)` (convenience) or `new JSONPointer(pointerString).resolve(value)`.
-  - Errors: throws `JSONPointerResolutionError` subclasses when missing/invalid.
-  - Fallback: `pointer.resolve(value, fallback)` returns fallback instead of throwing.
-  - `resolveWithParent(value)` returns `[parent, target]`, using a sentinel `UNDEFINED` when parent/target missing.
-
-#### JSON Patch
-
-- Imports:
-  - `import { jsonpatch, JSONPatch } from 'json-p3'`
-- Apply operations:
-  - `jsonpatch.apply(ops, value)` applies RFC 6902 operations sequentially.
-  - Behavior note (guide): modifies the target document in place unless the root is replaced.
-- Patch builder:
-  - `new JSONPatch().add(pointer, value).remove(pointer)...` and `.toArray()` to get op objects.
-
-#### Gotchas relevant to DataMap
-
-- JSONPath results are node lists, not raw values. DataMap should usually convert results to:
-  - values via `values()` / `valuesOrSingular()`
-  - pointers via `pointers()` or per-node `toPointer()` so internal reverse indexes can remain JSON Pointer keyed.
-- JSONPointer resolution can throw by default; DataMap strict/non-strict needs to control whether to catch errors or supply fallback.
-- JSON Patch application mutates in place by default; DataMap spec’s “immutable snapshot returns” should be implemented by returning cloned/structurally-shared snapshots rather than relying on json-p3 to be immutable.
-
 ## Complete Examples
 
 ```ts
-import {
-	jsonpath,
-	jsonpointer,
-	jsonpatch,
-	JSONPointer,
-	JSONPatch,
-} from 'json-p3';
+// Minimal excerpts showing current behavior patterns
 
-const nodes = jsonpath.query('$.users[*].name', { users: [{ name: 'A' }] });
-const values = nodes.values();
-const pointers = nodes.pointers().map((p) => p.toString());
+// 1) Test helper: flush microtasks
+export async function flushMicrotasks(): Promise<void> {
+  await new Promise<void>((resolve) => {
+    queueMicrotask(resolve);
+  });
+}
 
-const v = jsonpointer.resolve('/users/0/name', { users: [{ name: 'A' }] });
-jsonpatch.apply([{ op: 'replace', path: '/users/0/name', value: 'B' }], {
-	users: [{ name: 'A' }],
-});
-
-const patch = new JSONPatch().replace('/users/0/name', 'C');
-const ops = patch.toArray();
+// 2) Patch application returns (nextData, affectedPointers, structuralPointers)
+export function applyOperations(currentData: unknown, ops: Operation[]): ApplyResult {
+  const working = structuredClone(currentData);
+  jsonpatch.apply(ops as any, working as any);
+  ...
+  return { nextData: working, affectedPointers, structuralPointers };
+}
 ```
-
-### API and Schema Documentation
-
-- DataMap must treat JSON Pointer as canonical internal key format for indexing, metadata map keys, and reverse subscription lookup.
-- DataMap must accept both JSONPath and JSON Pointer strings for public APIs and detect type (plan Step 1).
-
-### Configuration Examples
 
 ## Recommended Approach
 
-- Use `@lellimecnar/eslint-config` with a package-local `.eslintrc.cjs` that re-includes `src/**/*` and sets `parserOptions.project` to the package tsconfig.
-- Depend on `json-p3` directly (externalized in Vite rollup external function) and use its:
-  - `jsonpath.query` / `jsonpath.compile`
-  - `JSONPathNodeList.pointers()` and/or `JSONPathNode.toPointer()` to get JSON Pointers
-  - `jsonpointer.resolve` (or `JSONPointer.resolve`) for pointer reads
-  - `jsonpatch.apply` (or `JSONPatch.apply`) for RFC 6902 patch application
+Focus implementation work for spec-compliance in a way that reuses existing, already-central abstractions:
 
-This aligns with repo constraints:
-
-- “Single JSONPath engine” rule is satisfied.
-- Workspace dependency patterns are respected.
-- Turbo task graph stays consistent.
+- Write/patch entrypoint: `DataMap.patch()` (packages/data-map/core/src/datamap.ts)
+- Notification router: `SubscriptionManagerImpl` (packages/data-map/core/src/subscription/manager.ts)
+- Definition transforms: `DefinitionRegistry` (packages/data-map/core/src/definitions/registry.ts)
+- Path engine: `compilePathPattern()` (packages/data-map/core/src/path/compile.ts)
+- Patch builder helpers: packages/data-map/core/src/patch/\*
 
 ## Implementation Guidance
 
-- **Objectives**:
-  - Produce a Vite-built ESM library package with types to `dist/`.
-  - Implement DataMap core per plan/spec using json-p3 for all path/query/patch operations.
-  - Ensure strict/non-strict behavior is test-covered.
-- **Key Tasks**:
-  - Add `packages/data-map/*` to pnpm-workspace.yaml.
-  - Scaffold `packages/data-map/core` copying library package config templates.
-  - Add initial utilities: `detectPathType`, JSON Pointer helpers.
-  - Integrate json-p3 read APIs (`jsonpath`, `jsonpointer`) and patch application (`jsonpatch`).
-- **Dependencies**:
-  - Internal: `@lellimecnar/*-config` workspace packages.
-  - External: `json-p3` (pin exact version if required by surrounding specs/plans).
-- **Success Criteria**:
-  - `pnpm exec turbo -F @data-map/core build` produces `dist/**` with `.d.ts`.
-  - `pnpm exec turbo -F @data-map/core test` runs `vitest run` and passes.
-  - `pnpm exec turbo -F @data-map/core lint` and `type-check` align with repo defaults.
+### C) Testing patterns (exact files + helpers)
+
+Requested test file paths (exact matches in repo):
+
+- datamap.spec.ts
+  - packages/data-map/core/src/datamap.spec.ts
+- manager.spec.ts
+  - packages/data-map/core/src/subscription/manager.spec.ts
+- compile.spec.ts
+  - packages/data-map/core/src/path/compile.spec.ts
+- array.spec.ts
+  - packages/data-map/core/src/patch/array.spec.ts
+
+Requested but not present under that exact name:
+
+- registry.spec.ts
+  - No `*registry*.spec.ts` exists in packages/data-map/core/src.
+  - Closest coverage is packages/data-map/core/src/definitions/definitions.spec.ts (exercises `DefinitionRegistry`).
+
+Test helpers/utilities in package:
+
+- packages/data-map/core/src/**fixtures**/data.ts
+  - Provides `complexData` used by tests.
+- packages/data-map/core/src/**fixtures**/helpers.ts
+  - `createDataMap()` factory
+  - `createEventSpy()`
+  - `flushMicrotasks()` (uses `queueMicrotask`)
+
+```ts
+// packages/data-map/core/src/__fixtures__/helpers.ts
+export async function flushMicrotasks(): Promise<void> {
+	await new Promise<void>((resolve) => {
+		queueMicrotask(resolve);
+	});
+}
+```
+
+### D) Implementation guidance inputs (repo-consistent, minimal hooks)
+
+Below are planning inputs (not code) for the changes you listed.
+
+#### before-hook transformedValue application
+
+- Where it must hook: packages/data-map/core/src/datamap.ts `DataMap.patch()`.
+- Existing building block: `SubscriptionManagerImpl.notify()` returns `{ transformedValue }`.
+- Current gotcha: patch ignores `before.transformedValue`.
+
+Plan input: if a `before` handler returns a value, only operations with a `value` field can be transformed (`add`, `replace`, maybe `test`). `remove/move/copy` do not have a `value` to rewrite. For multi-op patches, decide whether transformations are per-op only or can cascade.
+
+#### defaultValue handling
+
+- Where definition type exists: packages/data-map/core/src/definitions/types.ts (`defaultValue?: unknown`).
+- Where values are produced: packages/data-map/core/src/datamap.ts `resolve()` calls `applyGetter(pointer, rawValue, ctx)`.
+- Current gotcha: missing pointers in non-strict mode often return `[]` from `resolve()` and never reach `applyGetter()`.
+
+Plan input: enable `defaultValue` by ensuring the “missing pointer” path still runs getter evaluation (or by teaching registry to substitute `defaultValue` when rawValue is `undefined`).
+
+#### CompiledPathPattern.toJSON and SerializedPattern type
+
+- Where to attach: packages/data-map/core/src/path/compile.ts (pattern object literal).
+- Current gotcha: `segments` include `predicate` functions (not serializable), but also store `expression` and `hash` which are serializable.
+- Existing abstraction to reuse: `compilePredicate(expression)` rebuilds predicate and caches by expression.
+
+Plan input: `toJSON()` should likely serialize:
+
+- `source`
+- `segments` in a function-free representation (e.g., filter segments store `expression`/`hash` only)
+- Derived fields (`concretePrefixPointer`, etc.) can be recomputed on deserialize or recompile.
+
+#### computed caching + invalidation (where to store, keying)
+
+- Where getter transforms currently run: packages/data-map/core/src/definitions/registry.ts `applyGetter()`.
+- Where patch impacts can be observed: packages/data-map/core/src/patch/apply.ts returns `affectedPointers` and `structuralPointers`.
+
+Plan input: store cache in `DefinitionRegistry` (per DataMap instance) keyed by pointer string; invalidate on `patch()` using `affectedPointers` and also dep pointers (see next item).
+
+#### deps auto-subscription (avoid circular deps), where to hook
+
+- Where deps are declared and read: packages/data-map/core/src/definitions/registry.ts reads deps via `this.dataMap.get(d, { strict: false })`.
+- Current gotcha: deps are read synchronously during getter application; there is no subscription linkage.
+
+Plan input: add a registry-level dependency graph at `register(def)` time and subscribe to dep pointers via `DataMap.subscribe` to invalidate cached computed pointers. To avoid circular deps, detect cycles when registering or when connecting dep edges (at minimum, ignore dep edges that point to self, and guard recursion in getter evaluation).
+
+#### queueMicrotask batching (where to introduce scheduler)
+
+- Existing batching today: packages/data-map/core/src/batch/manager.ts is explicit and synchronous.
+- Test helper indicates microtask usage pattern but implementation does not schedule notifications.
+
+Plan input: introduce a scheduler either:
+
+- In `DataMap.patch()` to defer notification dispatch (collect affected pointers and flush in `queueMicrotask`), or
+- In `SubscriptionManagerImpl` to queue invokes and coalesce per-pointer.
+
+Keep it consistent with existing `BatchManager` API: collect operations/pointers during the tick and flush once.
+
+#### filter re-expansion on criteria change
+
+- Where filters exist: packages/data-map/core/src/path/compile.ts (`hasFilters`, filter segments) and match uses `getValue(fullPtr)`.
+- Current gotcha: structural re-expansion is only triggered by add/remove/move/copy parent pointers; changes to fields that affect a filter predicate do not cause re-expansion.
+
+Plan input: for patterns with `hasFilters`, treat certain non-structural updates as “re-expansion triggers” (e.g., any `affectedPointer` under `concretePrefixPointer`). This likely belongs where `structuralPointers` are currently handled (packages/data-map/core/src/datamap.ts) so it can call `handleStructuralChange` with the correct watched pointer.
+
+#### add toPatch variants for pop/shift/splice
+
+- Existing builders already return ops:
+  - packages/data-map/core/src/patch/array.ts: `buildPopPatch`, `buildShiftPatch`, `buildSplicePatch`.
+- Current DataMap API missing `.toPatch` on: `pop`, `shift`, `splice`.
+
+Plan input: add `pop.toPatch`, `shift.toPatch`, `splice.toPatch` that return only `Operation[]` (consistent with existing `.toPatch` API), while the non-toPatch methods can continue returning removed values.
+
+#### fire get/resolve subscription events
+
+- Events exist in types: packages/data-map/core/src/subscription/types.ts includes `'get'` and `'resolve'`.
+- Current gotcha: no notify calls exist in `get()` or `resolve()`.
+
+Plan input: the most localized hook is inside:
+
+- `DataMap.resolve()` for each matched pointer (event: `'resolve'`), and
+- `DataMap.get()` as a wrapper around `resolve()` (event: `'get'`).
+
+Decide whether these should support `before`/`after` semantics (including cancellation and transformed return values) the same way `patch()` does, and how to handle multi-match JSONPath resolve.

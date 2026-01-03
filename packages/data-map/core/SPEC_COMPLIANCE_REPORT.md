@@ -1,0 +1,622 @@
+# @data-map/core Specification Compliance Report
+
+**Generated:** 2026-01-03
+**Spec Version:** 1.0 (spec/spec-data-datamap.md)
+**Package:** @data-map/core
+
+---
+
+## Executive Summary
+
+The `@data-map/core` package demonstrates **significant progress** toward full specification compliance. Core functionality for read/write operations, JSON Patch support, subscription management, and compiled path patterns is implemented. However, several **critical gaps** remain in API surface, feature completeness, and behavioral requirements.
+
+### Compliance Score: ~65%
+
+| Category                 | Status        | Notes                                                   |
+| ------------------------ | ------------- | ------------------------------------------------------- |
+| Core DataMap API         | ⚠️ Partial    | Missing some API shape requirements                     |
+| Read API                 | ✅ Compliant  | `get`, `getAll`, `resolve` working                      |
+| Write API                | ⚠️ Partial    | Missing spec-defined API shape for `batch`              |
+| Patch Generation API     | ✅ Compliant  | `.toPatch()` methods implemented                        |
+| Array Mutation API       | ✅ Compliant  | All array methods present                               |
+| Subscription API         | ⚠️ Partial    | Missing `queueMicrotask` batching                       |
+| Compiled Patterns        | ⚠️ Partial    | Core works, missing `toJSON()` and full `MatchResult`   |
+| Definitions              | ❌ Incomplete | Missing `defaultValue`, deps auto-subscription, caching |
+| Performance Requirements | ⚠️ Unknown    | No benchmarks to verify O(m) claims                     |
+
+---
+
+## 🔴 CRITICAL: Missing Requirements (Priority 1)
+
+### 1. **REQ-016 / REQ-017: queueMicrotask Notification Batching** ❌ NOT IMPLEMENTED
+
+**Spec Requirement (§3):**
+
+> "Subscription notifications SHALL be batched within a single synchronous execution block. Notification delivery SHALL use `queueMicrotask` for non-blocking updates."
+
+**Current Implementation:**
+Notifications are delivered synchronously and immediately during the `patch()` method execution. No microtask batching exists.
+
+**Impact:** High - Violates async non-blocking update semantics. May cause excessive re-renders in framework adapters.
+
+**Location:** [manager.ts](src/subscription/manager.ts#L117-L150)
+
+```typescript
+// Current: Synchronous notification
+for (const op of ops) {
+  this._subs.notify(op.path, 'patch', 'on', ...);
+  this._subs.notify(op.path, 'patch', 'after', ...);
+}
+
+// Required: Microtask batching
+queueMicrotask(() => {
+  for (const op of ops) { ... }
+});
+```
+
+---
+
+### 2. **Batch API Shape Mismatch** ❌ INCORRECT IMPLEMENTATION
+
+**Spec Requirement (§4.9):**
+
+```typescript
+interface DataMapBatchAPI<T> {
+  readonly batch: Batch<DataMap<T>>;
+}
+
+interface Batch<Target> {
+  set(...): this;
+  setAll(...): this;
+  map(...): this;
+  patch(...): this;
+  apply(): Target;
+  toPatch(): Operation[];
+}
+```
+
+**Current Implementation:**
+
+```typescript
+// datamap.ts line 472
+batch<R>(fn: (dm: this) => R): R { ... }
+```
+
+The current `batch()` is a **function** accepting a callback, not a **chainable property** with fluent methods.
+
+**Impact:** Critical - API surface mismatch breaks consumer code patterns.
+
+**Required Change:** Implement a `Batch` class with chainable methods that accumulates operations.
+
+---
+
+### 3. **REQ-019: Predicate Function Caching Across Subscriptions** ⚠️ PARTIAL
+
+**Spec Requirement:**
+
+> "Compiled predicate functions SHALL be cached and reused across subscriptions."
+
+**Current Implementation:** Predicate caching exists in [predicate.ts](src/path/predicate.ts#L4-L6) using a `Map<string, {predicate, hash}>`.
+
+**Gap:** The cache key is the raw expression string, but the spec implies caching by **hash** for deduplication:
+
+```typescript
+// Current: Cache by expression
+predicateCache.get(expression);
+
+// Spec (§4.4.3): Cache by hash
+predicateCache.get(hash);
+```
+
+**Impact:** Medium - Functionally correct but slight semantic deviation.
+
+---
+
+### 4. **CompiledPathPattern.toJSON() Missing** ❌ NOT IMPLEMENTED
+
+**Spec Requirement (§4.4.2):**
+
+```typescript
+interface CompiledPathPattern {
+	toJSON(): SerializedPattern;
+}
+
+interface SerializedPattern {
+	source: string;
+	segments: SerializedSegment[];
+	isSingular: boolean;
+	concretePrefix: string;
+}
+```
+
+**Current Implementation:** The `CompiledPathPattern` interface in [compile.ts](src/path/compile.ts#L4-L25) does not include a `toJSON()` method.
+
+**Impact:** Medium - Breaks debugging/persistence capabilities.
+
+---
+
+### 5. **MatchResult Interface Incomplete** ⚠️ PARTIAL
+
+**Spec Requirement (§4.4.2):**
+
+```typescript
+interface MatchResult {
+	readonly matches: boolean;
+	readonly reason?:
+		| 'segment-count'
+		| 'static-mismatch'
+		| 'index-mismatch'
+		| 'filter-rejected'
+		| 'slice-out-of-range'
+		| 'recursive-no-match';
+	readonly failedAtDepth?: number;
+	readonly matchDepth?: number;
+}
+```
+
+**Current Implementation:** The return type is inline and mostly complete but uses `'slice-non-index'` instead of the spec's reason values:
+
+```typescript
+// compile.ts line 271
+return { matches: false, reason: 'slice-non-index', ... }
+```
+
+**Impact:** Low - Minor naming deviation.
+
+---
+
+### 6. **Definition `defaultValue` Not Used** ❌ NOT IMPLEMENTED
+
+**Spec Requirement (§4.2):**
+
+```typescript
+interface DefinitionBase<T, Ctx = unknown> {
+	defaultValue?: unknown; // Initial value to use instead of executing getter during construction
+}
+```
+
+**AC-003:** Given a definition with `defaultValue`, When constructing, Then the defaultValue is used instead of executing the getter.
+
+**Current Implementation:** The `DefinitionBase` interface includes `defaultValue` in [types.ts](src/definitions/types.ts#L32), but [registry.ts](src/definitions/registry.ts) never reads or applies it during initialization.
+
+**Impact:** Medium - Definitions with side-effect-free initialization cannot use defaultValue.
+
+---
+
+### 7. **AC-031: Definition `deps` Auto-Subscription** ❌ NOT IMPLEMENTED
+
+**Spec Requirement (AC-031):**
+
+> Given a definition with dependencies, When a dependency changes, Then the computed value is invalidated.
+
+**Spec Example (§10 Computed Properties):**
+
+```typescript
+const store = new DataMap(
+	{ birthYear: 1990 },
+	{
+		define: [
+			{
+				path: '$.age',
+				get: (_, __, ___, ctx) => ctx.currentYear - store.get('/birthYear'),
+				deps: ['$.birthYear'], // Should auto-update when birthYear changes
+				readOnly: true,
+			},
+		],
+		context: { currentYear: 2026 },
+	},
+);
+
+store.get('$.age'); // 36
+store.set('$.birthYear', 2000);
+store.get('$.age'); // 26  <-- This only works if deps trigger re-computation
+```
+
+**Current Implementation:** The `deps` array in definitions is only used to pass dependency values to getter/setter functions. There is **no internal subscription** set up for dependency paths, meaning:
+
+1. No subscription is created when a definition with `deps` is registered
+2. No cache invalidation occurs when a dependency path changes
+3. Computed values are re-calculated on every `.get()` call (no memoization)
+
+**Location:** [registry.ts](src/definitions/registry.ts#L30-L36) - `register()` does not set up subscriptions for deps
+
+```typescript
+// Current: Just stores the definition
+register(def: Definition<T, Ctx>): void {
+  if ('path' in def && typeof def.path === 'string') {
+    this.defs.push({ def, pattern: compilePathPattern(def.path) });
+    return;
+  }
+  this.defs.push({ def, pattern: null });
+}
+
+// Required: Set up internal subscriptions for each dep
+register(def: Definition<T, Ctx>): void {
+  // ... existing code ...
+  if (def.deps?.length) {
+    for (const depPath of def.deps) {
+      this.dataMap.subscribe({
+        path: depPath,
+        on: ['set', 'remove'],
+        fn: () => this.invalidateCache(def.path ?? def.pointer),
+      });
+    }
+  }
+}
+```
+
+**Impact:** High - Computed/derived values do not automatically update when their dependencies change. Users must manually track dependencies and invalidate.
+
+---
+
+### 8. **Computed Value Caching System Missing** ❌ NOT IMPLEMENTED
+
+**Related to AC-031** - For dependency invalidation to be meaningful, there must be a cache of computed values.
+
+**Spec Implication:** When a definition has `deps`, the getter result should be cached and only re-computed when:
+
+1. A dependency changes (triggering invalidation)
+2. The cached value is requested after invalidation
+
+**Current Implementation:** Every call to `applyGetter()` executes the getter function. No caching exists.
+
+**Location:** [registry.ts](src/definitions/registry.ts#L57-L69)
+
+```typescript
+// Current: Always executes getter
+applyGetter(pointer: string, rawValue: unknown, ctx: Ctx): unknown {
+  const defs = this.findForPointer(pointer);
+  let v = rawValue;
+  for (const def of defs) {
+    if (!def.get) continue;
+    const cfg = typeof def.get === 'function' ? { fn: def.get } : def.get;
+    const depValues = (cfg.deps ?? def.deps ?? []).map((d) =>
+      this.dataMap.get(d, { strict: false }),
+    );
+    v = cfg.fn(v, depValues, this.dataMap, ctx);  // Always called
+  }
+  return v;
+}
+```
+
+**Impact:** Medium - Performance degradation for expensive computed properties. Related to AC-031 implementation.
+
+---
+
+## 🟡 MODERATE: Behavioral Discrepancies (Priority 2)
+
+### 9. **SubscriptionConfig vs Definition Pattern Inconsistency** ⚠️ DESIGN CONSIDERATION
+
+**User Feedback:**
+
+> "The `define` and `subscribe` configs should take a `path` (JSONPath) **OR** `pointer` (JSON Pointer)."
+
+**Spec Definition Pattern (§4.2):**
+
+```typescript
+type Definition<T, Ctx> =
+	| DefinitionWithPath<T, Ctx> // { path: string; pointer?: never; }
+	| DefinitionWithPointer<T, Ctx>; // { pointer: string; path?: never; }
+```
+
+**Spec SubscriptionConfig (§4.10):**
+
+```typescript
+interface SubscriptionConfig<T, Ctx = unknown> {
+	/** Path to subscribe to (JSON Pointer or JSONPath) */
+	path: string; // Single field, detected at runtime
+	// ...
+}
+```
+
+**Current Implementation:**
+
+- **Definition:** ✅ Correctly uses discriminated union with `path | pointer`
+- **SubscriptionConfig:** Uses single `path: string` field (matches spec, but inconsistent with Definition pattern)
+
+**Analysis:** The spec intentionally uses two different patterns:
+
+1. **Definition** uses discriminated union for compile-time type safety
+2. **SubscriptionConfig** uses runtime detection via `detectPathType()`
+
+**Recommendation:** For API consistency, consider updating SubscriptionConfig to match Definition's discriminated union pattern, even though the spec doesn't require it. This would provide:
+
+- Compile-time type safety
+- Consistent API surface
+- Explicit intent declaration
+
+**Impact:** Low - Current implementation matches spec, but API could be more consistent.
+
+---
+
+### 10. **DataMapOptions Missing `schema` Property**
+
+**Spec Requirement (§4.1):**
+
+```typescript
+interface DataMapOptions<T, Ctx = unknown> {
+	schema?: unknown; // JSON Schema for validation (future enhancement)
+}
+```
+
+**Current Implementation:** [types.ts](src/types.ts#L22-L28) does not include `schema`.
+
+**Impact:** Low - Documented as "future enhancement" in spec, but interface should still include it for forward compatibility.
+
+---
+
+### 11. **Subscription `get`/`resolve` Events Not Triggered**
+
+**Spec Requirement (§4.10):**
+
+```typescript
+type SubscriptionEvent = 'get' | 'set' | 'remove' | 'resolve' | 'patch';
+```
+
+**Current Implementation:** Only `patch` and `set` events are triggered. The `get` and `resolve` events are never fired by `datamap.get()` or `datamap.resolve()`.
+
+**Locations:**
+
+- [datamap.ts#L69-L112](src/datamap.ts#L69-L112) - `resolve()` does not notify
+- [datamap.ts#L114-L116](src/datamap.ts#L114-L116) - `get()` does not notify
+
+**Impact:** Medium - Subscriptions for read interception cannot function.
+
+---
+
+### 12. **AC-023/AC-024: Subscription Value Transformation Not Applied**
+
+**Spec Requirement (AC-024):**
+
+> Given a `before: 'set'` subscription that returns a transformed value, When a set occurs, Then the transformed value is stored.
+
+**Current Implementation:** The `patch()` method collects transformed values but does not apply them back to the operation:
+
+```typescript
+// manager.ts lines 250-300
+const ret = sub.config.fn(currentValue, info, cancel, ...);
+if (ret !== undefined) {
+  transformedValue = ret;
+  currentValue = ret;
+}
+```
+
+The `transformedValue` is returned in `NotificationResult` but is **never used by the caller** to modify the patch.
+
+**Location:** [datamap.ts#L300-L318](src/datamap.ts#L300-L318) - Ignores `before.transformedValue`
+
+**Impact:** High - Before-hooks cannot transform values.
+
+---
+
+### 13. **AC-027: Filter Re-expansion on Criteria Change**
+
+**Spec Requirement (AC-027):**
+
+> Given subscription `$.users[?(@.active)].name`, When `/users/0/active` changes from true to false, Then `/users/0/name` is removed from expandedPaths.
+
+**Current Implementation:** Re-expansion only occurs when `handleStructuralChange(pointer)` is called, and structural pointers are only tracked for array length/object key changes, not for filter criteria changes within items.
+
+**Impact:** Medium - Filter subscriptions may retain stale matches when filter criteria change.
+
+---
+
+### 14. **Transaction Rollback on Subscription Cancel**
+
+**Spec Requirement (AC-014):**
+
+> Given a batch operation that fails, When applying, Then no partial changes are made.
+
+**Current Implementation:** If a `before` subscription calls `cancel()`, the patch throws an error **after** some operations may have been applied:
+
+```typescript
+// datamap.ts lines 300-318
+for (const op of ops) {
+  const before = this._subs.notify(...);
+  if (before.cancelled) throw new Error('Patch cancelled by subscription');
+}
+// Operations already applied before notification!
+const { nextData, ... } = applyOperations(this._data, ops);
+```
+
+Wait, looking more carefully at lines 300-320, the check happens **before** `applyOperations`, so this is actually correct. ✅
+
+---
+
+## 🟢 MINOR: API/Type Discrepancies (Priority 3)
+
+### 15. **PathSegment `readonly` Modifiers**
+
+**Spec Requirement (§4.4.1):** All segment interfaces use `readonly` properties.
+
+**Current Implementation:** [segments.ts](src/path/segments.ts) uses `readonly` correctly. ✅
+
+---
+
+### 16. **SubscriptionManager Interface Not Exported**
+
+**Spec Requirement (§4.11):** Defines a public `SubscriptionManager` interface.
+
+**Current Implementation:** `SubscriptionManagerImpl` is internal; no public interface is exported.
+
+**Impact:** Low - Internal implementation detail.
+
+---
+
+### 17. **Missing `pop.toPatch()` and `shift.toPatch()` Methods**
+
+**Spec Requirement (§4.8):**
+
+> Each array method also has a `.toPatch()` variant.
+
+**Current Implementation:**
+
+- `push.toPatch()` ✅
+- `unshift.toPatch()` ✅
+- `sort.toPatch()` ✅
+- `shuffle.toPatch()` ✅
+- `pop.toPatch()` ❌ - Method is plain function, not object with `toPatch`
+- `shift.toPatch()` ❌ - Method is plain function, not object with `toPatch`
+- `splice.toPatch()` ❌ - Method is plain function, not object with `toPatch`
+
+**Location:** [datamap.ts#L370-L410](src/datamap.ts#L370-L410)
+
+**Impact:** Low - Minor API surface gap.
+
+---
+
+### 18. **Clone Method Returns New Instance**
+
+**Spec Requirement (§4.12):**
+
+```typescript
+clone(): DataMap<T>;
+```
+
+**Current Implementation:** [datamap.ts#L508](src/datamap.ts#L508) returns `DataMap<T, Ctx>` including the context type. ✅ Acceptable.
+
+---
+
+## 📋 Requirement Compliance Matrix
+
+| Requirement ID | Description                            | Status | Notes                               |
+| -------------- | -------------------------------------- | ------ | ----------------------------------- |
+| REQ-001        | json-p3 for all JSONPath/Pointer/Patch | ✅     | Verified                            |
+| REQ-002        | Mutations as RFC 6902 patches          | ✅     | All ops supported                   |
+| REQ-003        | Plain JS object as store               | ✅     | Uses structuredClone                |
+| REQ-004        | Path type interchangeability           | ✅     | detectPathType works                |
+| REQ-005        | Path type detection algorithm          | ✅     | Matches spec exactly                |
+| REQ-006        | Primary store is plain object          | ✅     | Verified                            |
+| REQ-007        | Sparse metadata Map                    | ⚠️     | Not implemented (no metadata store) |
+| REQ-008        | Metadata only for nodes with meta      | N/A    | No metadata system                  |
+| REQ-009        | resolve() returns immutable snapshots  | ✅     | Uses structuredClone                |
+| REQ-010        | Minimal RFC 6902 patches               | ✅     | Builder generates minimal           |
+| REQ-011        | Deterministic patch output             | ✅     | Stable order                        |
+| REQ-012        | Create intermediate containers         | ✅     | ensureParentContainers              |
+| REQ-013        | Container type inference               | ✅     | isIndexSegment check                |
+| REQ-014        | Static + dynamic subscriptions         | ✅     | Both work                           |
+| REQ-015        | Compile JSONPath at registration       | ✅     | compilePathPattern                  |
+| REQ-016        | Batch notifications in sync block      | ❌     | Not implemented                     |
+| REQ-017        | queueMicrotask delivery                | ❌     | Not implemented                     |
+| REQ-018        | Structural dependency tracking         | ✅     | structuralWatchers                  |
+| REQ-019        | Predicate caching                      | ⚠️     | Cached by expr, not hash            |
+| REQ-020        | Compile at registration                | ✅     | Works                               |
+| REQ-021        | Static segments as literals            | ✅     | Correct                             |
+| REQ-022        | JIT filter predicates                  | ✅     | Uses Function()                     |
+| REQ-023        | Wildcard as typed segment              | ✅     | type: 'wildcard'                    |
+| REQ-024        | O(m) pattern matching                  | ⚠️     | Implemented, not benchmarked        |
+| REQ-025        | Predicate (value, key, parent)         | ✅     | Correct signature                   |
+| REQ-026        | Serializable patterns                  | ❌     | Missing toJSON()                    |
+| REQ-027        | O(m) path lookup                       | ⚠️     | Implemented, not benchmarked        |
+| REQ-028        | O(1) subscription lookup               | ✅     | Reverse index + bloom               |
+| REQ-029        | O(m) pattern matching                  | ⚠️     | Implemented, not benchmarked        |
+| REQ-030        | Structural sharing in batch            | ⚠️     | Uses structuredClone instead        |
+| REQ-031        | Predicate compiled once                | ✅     | Cached                              |
+
+---
+
+## 📋 Acceptance Criteria Compliance Matrix
+
+| AC ID  | Description                                 | Status | Notes                                |
+| ------ | ------------------------------------------- | ------ | ------------------------------------ |
+| AC-001 | Initial data accessible via get('')         | ✅     | Works                                |
+| AC-002 | Definitions initialized in topo order       | ⚠️     | No ordering logic                    |
+| AC-003 | defaultValue used during construction       | ❌     | Not implemented                      |
+| AC-004 | JSON Pointer get() returns exact value      | ✅     | Works                                |
+| AC-005 | JSONPath getAll() returns all matches       | ✅     | Works                                |
+| AC-006 | Invalid path + strict throws                | ✅     | Works                                |
+| AC-007 | Invalid path + non-strict returns undefined | ✅     | Works                                |
+| AC-008 | set() on existing generates replace         | ✅     | Works                                |
+| AC-009 | set() on non-existent creates containers    | ✅     | Works                                |
+| AC-010 | setAll() updates all matches                | ✅     | Works                                |
+| AC-011 | Function as value receives current          | ✅     | Works                                |
+| AC-012 | Batch atomic application                    | ✅     | Works                                |
+| AC-013 | batch.toPatch() returns without applying    | ❌     | Wrong API shape                      |
+| AC-014 | Failed batch = no partial changes           | ✅     | Works                                |
+| AC-015 | Static-only path = singular                 | ✅     | Works                                |
+| AC-016 | Wildcard path = non-singular                | ✅     | Works                                |
+| AC-017 | Filter JIT-compiled                         | ✅     | Works                                |
+| AC-018 | Predicate sharing across subs               | ✅     | Cache works                          |
+| AC-019 | match() returns true for match              | ✅     | Works                                |
+| AC-020 | match() returns reason for no-match         | ✅     | Works                                |
+| AC-021 | Static pointer sub fires on change          | ✅     | Works                                |
+| AC-022 | JSONPath sub fires on any match change      | ✅     | Works                                |
+| AC-023 | before cancel() aborts mutation             | ✅     | Works                                |
+| AC-024 | before transform stored                     | ❌     | Ignored                              |
+| AC-025 | Wildcard re-expansion on new item           | ✅     | Works                                |
+| AC-026 | push triggers path addition                 | ✅     | Works                                |
+| AC-027 | Filter criteria change re-expands           | ❌     | Not tracked                          |
+| AC-028 | Structural change triggers re-expand        | ✅     | Works                                |
+| AC-029 | Getter transforms read value                | ✅     | Works                                |
+| AC-030 | Setter transforms write value               | ✅     | Works                                |
+| AC-031 | Dep change invalidates computed             | ❌     | No deps auto-subscription or caching |
+| AC-032 | readOnly + strict throws                    | ✅     | Works                                |
+| AC-033 | push appends and maintains indexes          | ✅     | Works                                |
+| AC-034 | splice shifts indexes                       | ✅     | Works                                |
+| AC-035 | Subs bound to pointers not values           | ✅     | Works                                |
+| AC-036 | Move triggers remove at source              | ✅     | Works                                |
+| AC-037 | Sub doesn't follow moved value              | ✅     | Works                                |
+| AC-038 | Move triggers set at destination            | ✅     | Works                                |
+
+---
+
+## 🎯 Remediation Priority
+
+### Immediate (Must Fix)
+
+1. **Implement queueMicrotask batching** (REQ-016, REQ-017)
+2. **Implement fluent Batch API** (§4.9)
+3. **Apply before-hook transformedValue** (AC-024)
+4. **Implement CompiledPathPattern.toJSON()** (REQ-026)
+5. **Implement deps auto-subscription for definitions** (AC-031) - High priority user-reported gap
+
+### Short-Term (Should Fix)
+
+6. Implement computed value caching system (required for AC-031)
+7. Add `get`/`resolve` subscription events
+8. Implement Definition `defaultValue` handling (AC-003)
+9. Add missing `.toPatch()` methods to `pop`, `shift`, `splice`
+10. Track filter criteria changes for re-expansion (AC-027)
+11. Add `schema` property to DataMapOptions
+
+### Long-Term (Nice to Have)
+
+12. Performance benchmarks for O(m) verification
+13. Structural sharing optimization (REQ-030)
+14. Definition initialization ordering (AC-002)
+15. Metadata storage system (REQ-007, REQ-008)
+16. Consider SubscriptionConfig path/pointer discriminated union (API consistency)
+
+---
+
+## Appendix: Test Coverage Analysis
+
+Based on existing test files:
+
+| File                    | Coverage Status            |
+| ----------------------- | -------------------------- |
+| datamap.spec.ts         | ✅ Core functionality      |
+| spec-compliance.spec.ts | ✅ REQ-001 to REQ-006      |
+| integration.spec.ts     | ✅ Multi-feature scenarios |
+| errors.spec.ts          | ✅ Error handling          |
+| compile.spec.ts         | ✅ Pattern compilation     |
+| predicate.spec.ts       | ✅ Filter predicates       |
+| manager.spec.ts         | ✅ Subscription manager    |
+| apply.spec.ts           | ✅ Patch application       |
+| builder.spec.ts         | ✅ Patch building          |
+| array.spec.ts           | ✅ Array operations        |
+
+**Missing Test Coverage:**
+
+- queueMicrotask batching behavior
+- Before-hook value transformation
+- Definition defaultValue initialization
+- Fluent batch API
+- CompiledPathPattern.toJSON()
+- Definition deps auto-subscription and cache invalidation
+- Computed value caching
+
+---
+
+_Report generated by spec compliance audit_
+_Last updated: 2026-01-03 (Second pass with deps/caching gaps)_
