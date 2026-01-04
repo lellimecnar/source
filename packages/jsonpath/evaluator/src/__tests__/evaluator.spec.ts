@@ -111,9 +111,9 @@ describe('Evaluator', () => {
 		]);
 	});
 
-	it('should throw on slice step=0', () => {
+	it('should return empty array on slice step=0 (RFC 9535 §2.3.4.2.2)', () => {
 		const list = [0, 1, 2];
-		expect(() => evaluate(list, parse('$[::0]'))).toThrow();
+		expect(evaluate(list, parse('$[::0]')).values()).toEqual([]);
 	});
 
 	it('should handle RFC 9535 slice edge cases', () => {
