@@ -36,7 +36,7 @@ This implementation consists of 11 major steps:
 2. **Implement @jsonpath/core** - Foundation types, errors, utilities
 3. **Implement @jsonpath/lexer** - Tokenization with ASCII lookup tables
 4. **Implement @jsonpath/parser** - Pratt parser for AST generation [DONE]
-5. **Implement @jsonpath/functions** - RFC 9535 built-in functions
+5. **Implement @jsonpath/functions** - RFC 9535 built-in functions [DONE]
 6. **Implement @jsonpath/evaluator** - Interpreter with RFC compliance tests
 7. **Implement @jsonpath/pointer** - RFC 6901 JSON Pointer
 8. **Implement @jsonpath/patch** - RFC 6902 JSON Patch
@@ -643,12 +643,12 @@ completes: step 4 of 11 for jsonpath-library-suite
 
 **Complete implementation details in research document. Key functions:**
 
-- [ ] `length()` - Returns string/array/object length
-- [ ] `count()` - Returns node count
-- [ ] `match()` - Regex full match
-- [ ] `search()` - Regex partial match
-- [ ] `value()` - Extracts single value from nodes
-- [ ] Registration utilities
+- [x] `length()` - Returns string/array/object length
+- [x] `count()` - Returns node count
+- [x] `match()` - Regex full match
+- [x] `search()` - Regex partial match
+- [x] `value()` - Extracts single value from nodes
+- [x] Registration utilities
 
 ### Step 5 STOP & COMMIT
 
