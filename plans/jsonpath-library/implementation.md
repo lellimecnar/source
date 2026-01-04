@@ -370,14 +370,14 @@ completes: step 1 of 11 for jsonpath-library-suite
 
 ### 2.1: File Structure Overview
 
-```types.spec.ts # Type tests (co-located)
-│   ├── errors.ts          # Error hierarchy
-│   ├── errors.spec.ts     # Error tests (co-located)
-│   ├── registry.ts        # Function/selector/operator registries
-│   ├── utils.ts           # Utility functions
-│   ├── utils.spec.ts      # Utility tests (co-located)
-│   └── index.ts           # Package exports
-```
+- [x] `src/types.ts` # Foundation types
+- [x] `src/types.spec.ts` # Type tests (co-located)
+- [x] `src/errors.ts` # Error hierarchy
+- [x] `src/errors.spec.ts` # Error tests (co-located)
+- [x] `src/registry.ts` # Function/selector/operator registries
+- [x] `src/utils.ts` # Utility functions
+- [x] `src/utils.spec.ts` # Utility tests (co-located)
+- [x] `src/index.ts` # Package exports
 
 **Note:** Tests are co-located with source files following monorepo conventions, NOT in a separate `__tests__/` directory. └── **tests**/
 │ ├── types.spec.ts
@@ -398,70 +398,70 @@ completes: step 1 of 11 for jsonpath-library-suite
 **Key Implementations Required:**
 
 #### `src/types.ts`
-- [ ] Define `JSONValue`, `JSONObject`, `JSONArray`, `JSONPrimitive` types
-- [ ] Define `PathSegment` and `Path` types
-- [ ] Define `QueryNode<T>` interface with value, path, parent, root
-- [ ] Define `QueryResult<T>` interface with methods: values(), paths(), nodes(), first(), isEmpty(), count(), map(), filter(), forEach(), parents()
-- [ ] Define `FunctionDefinition`, `SelectorDefinition`, `OperatorDefinition` interfaces
-- [ ] Define `ParameterType` and `ReturnType` enums
+- [x] Define `JSONValue`, `JSONObject`, `JSONArray`, `JSONPrimitive` types
+- [x] Define `PathSegment` and `Path` types
+- [x] Define `QueryNode<T>` interface with value, path, parent, root
+- [x] Define `QueryResult<T>` interface with methods: values(), paths(), nodes(), first(), isEmpty(), count(), map(), filter(), forEach(), parents()
+- [x] Define `FunctionDefinition`, `SelectorDefinition`, `OperatorDefinition` interfaces
+- [x] Define `ParameterType` and `ReturnType` enums
 
 #### `src/errors.ts`
-- [ ] Implement `JSONPathError` base class with code, position, context, cause
-- [ ] Implement `JSONPathSyntaxError extends JSONPathError`
-- [ ] Implement `JSONPathTypeError extends JSONPathError`
-- [ ] Implement `JSONPathReferenceError extends JSONPathError`
-- [ ] Implement `JSONPointerError extends JSONPathError`
-- [ ] Implement `JSONPatchError extends JSONPathError`
-- [ ] Define `ErrorCode` type union
+- [x] Implement `JSONPathError` base class with code, position, context, cause
+- [x] Implement `JSONPathSyntaxError extends JSONPathError`
+- [x] Implement `JSONPathTypeError extends JSONPathError`
+- [x] Implement `JSONPathReferenceError extends JSONPathError`
+- [x] Implement `JSONPointerError extends JSONPathError`
+- [x] Implement `JSONPatchError extends JSONPathError`
+- [x] Define `ErrorCode` type union
 
 #### `src/registry.ts`
-- [ ] Export `functionRegistry: Map<string, FunctionDefinition>`
-- [ ] Export `selectorRegistry: Map<string, SelectorDefinition>`
-- [ ] Export `operatorRegistry: Map<string, OperatorDefinition>`
-- [ ] Implement registration helper functions
+- [x] Export `functionRegistry: Map<string, FunctionDefinition>`
+- [x] Export `selectorRegistry: Map<string, SelectorDefinition>`
+- [x] Export `operatorRegistry: Map<string, OperatorDefinition>`
+- [x] Implement registration helper functions
 
 #### `src/utils.ts`
-- [ ] Implement `isObject(value: unknown): value is JSONObject`
-- [ ] Implement `isArray(value: unknown): value is JSONArray`
-- [ ] Implement `isPrimitive(value: unknown): value is JSONPrimitive`
-- [ ] Implement `deepEqual(a: unknown, b: unknown): boolean` with circular reference handling
-- [ ] Implement `deepClone<T>(value: T): T` using structured clone or recursive fallback
-- [ ] Implement `freeze<T>(value: T): Readonly<T>` with recursive freezing
+- [x] Implement `isObject(value: unknown): value is JSONObject`
+- [x] Implement `isArray(value: unknown): value is JSONArray`
+- [x] Implement `isPrimitive(value: unknown): value is JSONPrimitive`
+- [x] Implement `deepEqual(a: unknown, b: unknown): boolean` with circular reference handling
+- [x] Implement `deepClone<T>(value: T): T` using structured clone or recursive fallback
+- [x] Implement `freeze<T>(value: T): Readonly<T>` with recursive freezing
 
 #### `src/index.ts`
-- [ ] Export all types from `./types.js`
-- [ ] Export all errors from `./errors.js`
-- [ ] Export all registries from `./registry.js`
-- [ ] Export all utilities from `./utils.js`
+- [x] Export all types from `./types.js`
+- [x] Export all errors from `./errors.js`
+- [x] Export all registries from `./registry.js`
+- [x] Export all utilities from `./utils.js`
 
 ### 2.3: Test Suite
 **Test files are co-located with source files:**
 
 #### `src/types.spec.ts`
-- [ ] Test type guards with valid/invalid inputs
-- [ ] Test QueryNode interface requirements
-- [ ] Test QueryResult methods (mock implementation)
+- [x] Test type guards with valid/invalid inputs
+- [x] Test QueryNode interface requirements
+- [x] Test QueryResult methods (mock implementation)
 
 #### `src/errors.spec.ts`
-- [ ] Test error class hierarchy
-- [ ] Test error properties (code, message, position, context, cause)
-- [ ] Test error serialization
+- [x] Test error class hierarchy
+- [x] Test error properties (code, message, position, context, cause)
+- [x] Test error serialization
 
 #### `src
 #### `src/__tests__/utils.spec.ts`
-- [ ] Test `isObject`, `isArray`, `isPrimitive` with edge cases
-- [ ] Test `deepEqual` with primitives, objects, arrays, circular references
-- [ ] Test `deepClone` with nested structures, ensure independence
-- [ ] Test `freeze` recursively freezes objects
+- [x] Test `isObject`, `isArray`, `isPrimitive` with edge cases
+- [x] Test `deepEqual` with primitives, objects, arrays, circular references
+- [x] Test `deepClone` with nested structures, ensure independence
+- [x] Test `freeze` recursively freezes objects
 
 ### Step 2 Verification Checklist
 
-- [ ] All exports defined in `src/index.ts`
-- [ ] All types compile with TypeScript strict mode
-- [ ] All tests pass: `pnpm --filter @jsonpath/core test`
-- [ ] Test coverage >90%: `pnpm --filter @jsonpath/core test:coverage`
-- [ ] Build succeeds: `pnpm --filter @jsonpath/core build`
-- [ ] Type declarations generated in `dist/`
+- [x] All exports defined in `src/index.ts`
+- [x] All types compile with TypeScript strict mode
+- [x] All tests pass: `pnpm --filter @jsonpath/core test`
+- [x] Test coverage >90%: `pnpm --filter @jsonpath/core test:coverage`
+- [x] Build succeeds: `pnpm --filter @jsonpath/core build`
+- [x] Type declarations generated in `dist/`
 
 ### Step 2 STOP & COMMIT
 
