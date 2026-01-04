@@ -1,6 +1,7 @@
 import { parse, type QueryNode } from '@jsonpath/parser';
 import { evaluate, type QueryResult } from '@jsonpath/evaluator';
 import { compile, type CompiledQuery } from '@jsonpath/compiler';
+import { type EvaluatorOptions } from '@jsonpath/core';
 
 /**
  * Cache for parsed queries.
@@ -22,23 +23,35 @@ export function parseQuery(query: string): QueryNode {
 /**
  * Executes a JSONPath query against a root object.
  */
-export function query(root: any, path: string): QueryResult {
+export function query(
+	root: any,
+	path: string,
+	options?: EvaluatorOptions,
+): QueryResult {
 	const ast = parseQuery(path);
-	return evaluate(root, ast);
+	return evaluate(root, ast, options);
 }
 
 /**
  * Executes a JSONPath query and returns only the values.
  */
-export function queryValues(root: any, path: string): any[] {
-	return query(root, path).values();
+export function queryValues(
+	root: any,
+	path: string,
+	options?: EvaluatorOptions,
+): any[] {
+	return query(root, path, options).values();
 }
 
 /**
  * Executes a JSONPath query and returns only the paths.
  */
-export function queryPaths(root: any, path: string): any[] {
-	return query(root, path).paths();
+export function queryPaths(
+	root: any,
+	path: string,
+	options?: EvaluatorOptions,
+): any[] {
+	return query(root, path, options).paths();
 }
 
 /**
