@@ -139,7 +139,7 @@ completes: step 2 of 5 for jsonpath-patch-rfc-compliance
 
 #### Step 3: Create Test Loader Utility
 
-- [ ] Create `packages/jsonpath/patch/src/__tests__/__fixtures__/load-rfc-tests.ts` with:
+- [x] Create `packages/jsonpath/patch/src/__tests__/__fixtures__/load-rfc-tests.ts` with:
 
 ```typescript
 import * as fs from 'node:fs';
@@ -189,8 +189,8 @@ export function loadRFC6902TestCases(
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/patch test` can run (it may still fail overall until Step 4 exists)
-- [ ] In a Node REPL, `require.resolve('json-patch-test-suite/tests.json')` works
+- [x] `pnpm --filter @jsonpath/patch test` can run (it may still fail overall until Step 4 exists)
+- [x] In a Node REPL, `require.resolve('json-patch-test-suite/tests.json')` works
 
 #### Step 3 STOP & COMMIT
 
