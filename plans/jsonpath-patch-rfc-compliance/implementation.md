@@ -211,7 +211,7 @@ completes: step 3 of 5 for jsonpath-patch-rfc-compliance
 
 #### Step 4: Implement RFC 6902 Compliance Test Runner
 
-- [ ] Create `packages/jsonpath/patch/src/__tests__/rfc6902-compliance.spec.ts` with:
+- [x] Create `packages/jsonpath/patch/src/__tests__/rfc6902-compliance.spec.ts` with:
 
 ```typescript
 import { describe, it, expect } from 'vitest';
@@ -286,7 +286,7 @@ if (!specTests && !tests) {
 }
 ```
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 pnpm --filter @jsonpath/patch test
@@ -294,9 +294,9 @@ pnpm --filter @jsonpath/patch test
 
 ##### Step 4 Verification Checklist
 
-- [ ] Tests execute (pass or fail) without crashing
-- [ ] Suite missing case prints a skip warning instead of crashing
-- [ ] `spec_tests.json` and `tests.json` are both executed when installed
+- [x] Tests execute (pass or fail) without crashing
+- [x] Suite missing case prints a skip warning instead of crashing
+- [x] `spec_tests.json` and `tests.json` are both executed when installed
 
 #### Step 4 STOP & COMMIT
 
