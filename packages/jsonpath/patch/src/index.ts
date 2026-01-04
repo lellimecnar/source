@@ -6,4 +6,4 @@
  * @packageDocumentation
  */
 
-// Exports will be added in subsequent steps
+export * from './patch.js';
