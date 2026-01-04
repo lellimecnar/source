@@ -35,7 +35,7 @@ This implementation consists of 11 major steps:
 1. **Initialize Package Structure** - Scaffold all 10 packages with configuration
 2. **Implement @jsonpath/core** - Foundation types, errors, utilities
 3. **Implement @jsonpath/lexer** - Tokenization with ASCII lookup tables
-4. **Implement @jsonpath/parser** - Pratt parser for AST generation
+4. **Implement @jsonpath/parser** - Pratt parser for AST generation [DONE]
 5. **Implement @jsonpath/functions** - RFC 9535 built-in functions
 6. **Implement @jsonpath/evaluator** - Interpreter with RFC compliance tests
 7. **Implement @jsonpath/pointer** - RFC 6901 JSON Pointer
@@ -516,36 +516,36 @@ packages/jsonpath/lexer/
 
 #### `src/tokens.ts`
 
-- [ ] Define `TokenType` enum with all token types (STRUCTURAL, OPERATORS, LITERALS, IDENTIFIERS, ERROR)
-- [ ] Define `Token` interface with type, value, position (line, column)
+- [x] Define `TokenType` enum with all token types (STRUCTURAL, OPERATORS, LITERALS, IDENTIFIERS, ERROR)
+- [x] Define `Token` interface with type, value, position (line, column)
 
 #### `src/char-tables.ts`
 
-- [ ] Implement ASCII lookup tables for fast character classification
-- [ ] Tables for: whitespace, digits, identifier start/continue, operators
+- [x] Implement ASCII lookup tables for fast character classification
+- [x] Tables for: whitespace, digits, identifier start/continue, operators
 
 #### `src/lexer.ts`
 
-- [ ] Implement `Lexer` class with tokenization logic
-- [ ] Handle all escape sequences: `\\`, `\'`, `\"`, `\n`, `\r`, `\t`, `\b`, `\f`, `\uXXXX`
-- [ ] Support integer, decimal, scientific notation numbers
-- [ ] Implement error recovery (emit ERROR token, advance position)
-- [ ] Track line and column for all tokens
+- [x] Implement `Lexer` class with tokenization logic
+- [x] Handle all escape sequences: `\\`, `\'`, `\"`, `\n`, `\r`, `\t`, `\b`, `\f`, `\uXXXX`
+- [x] Support integer, decimal, scientific notation numbers
+- [x] Implement error recovery (emit ERROR token, advance position)
+- [x] Track line and column for all tokens
 
 #### Test Requirements
 
-- [ ] Test all token types
-- [ ] Test escape sequences
-- [ ] Test malformed input (unterminated strings, invalid escapes)
-- [ ] Performance benchmark: tokenize 10K queries in <100ms
+- [x] Test all token types
+- [x] Test escape sequences
+- [x] Test malformed input (unterminated strings, invalid escapes)
+- [x] Performance benchmark: tokenize 10K queries in <100ms
 
 ### Step 3 Verification Checklist
 
-- [ ] All token types tested
-- [ ] Edge cases covered (empty input, malformed strings, unusual numbers)
-- [ ] Performance benchmark passes
-- [ ] Build succeeds: `pnpm --filter @jsonpath/lexer build`
-- [ ] Tests pass: `pnpm --filter @jsonpath/lexer test`
+- [x] All token types tested
+- [x] Edge cases covered (empty input, malformed strings, unusual numbers)
+- [x] Performance benchmark passes
+- [x] Build succeeds: `pnpm --filter @jsonpath/lexer build`
+- [x] Tests pass: `pnpm --filter @jsonpath/lexer test`
 
 ### Step 3 STOP & COMMIT
 
@@ -597,20 +597,20 @@ packages/jsonpath/parser/
 
 **Complete code in research document.** Key points:
 
-- [ ] Implement all AST node types (RootNode, ChildNode, FilterNode, etc.)
-- [ ] Pratt parser with correct precedence: `||`: 10, `&&`: 20, `==`: 30, `<`: 40, `!`: 50 prefix
-- [ ] Parse all RFC 9535 selectors: name, index, wildcard, slice, filter
-- [ ] Implement `walk()` for AST traversal
-- [ ] Implement `transform()` for AST transformation
-- [ ] Error recovery and reporting
+- [x] Implement all AST node types (RootNode, ChildNode, FilterNode, etc.)
+- [x] Pratt parser with correct precedence: `||`: 10, `&&`: 20, `==`: 30, `<`: 40, `!`: 50 prefix
+- [x] Parse all RFC 9535 selectors: name, index, wildcard, slice, filter
+- [x] Implement `walk()` for AST traversal
+- [x] Implement `transform()` for AST transformation
+- [x] Error recovery and reporting
 
 ### Step 4 Verification Checklist
 
-- [ ] All RFC 9535 examples parse correctly
-- [ ] Operator precedence correct
-- [ ] Error messages clear and actionable
-- [ ] AST traversal/transformation tested
-- [ ] Tests pass: `pnpm --filter @jsonpath/parser test`
+- [x] All RFC 9535 examples parse correctly
+- [x] Operator precedence correct
+- [x] Error messages clear and actionable
+- [x] AST traversal/transformation tested
+- [x] Tests pass: `pnpm --filter @jsonpath/parser test`
 
 ### Step 4 STOP & COMMIT
 

@@ -6,4 +6,7 @@
  * @packageDocumentation
  */
 
-// Exports will be added in subsequent steps
+export * from './nodes.js';
+export * from './parser.js';
+export * from './walk.js';
+export * from './transform.js';

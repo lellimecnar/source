@@ -1,9 +1,11 @@
 /**
  * @jsonpath/lexer
  *
- * JSONPath lexer implementation
+ * High-performance tokenizer for JSONPath query strings.
  *
  * @packageDocumentation
  */
 
-// Exports will be added in subsequent steps
+export * from './tokens.js';
+export * from './lexer.js';
+export { CHAR_FLAGS } from './char-tables.js';
