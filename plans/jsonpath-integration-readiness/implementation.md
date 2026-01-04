@@ -23,8 +23,8 @@ Run commands from repo root.
 
 ## Prerequisites (run once)
 
-- [ ] `pnpm install`
-- [ ] Ensure the RFC 9535 compliance suite exists (postinstall clones it):
+- [x] `pnpm install`
+- [x] Ensure the RFC 9535 compliance suite exists (postinstall clones it):
   - Confirm `node_modules/jsonpath-compliance-test-suite/cts.json` is present.
 
 ---
@@ -37,17 +37,17 @@ Add JSONPointer instance methods required by `@data-map/core` and split pointer 
 
 ### Checklist
 
-- [ ] Add `PointerSyntaxError` and `PointerResolutionError`
-- [ ] Add instance methods:
-  - [ ] `resolve(root)` (alias of `evaluate(root)`)
-  - [ ] `exists(root)` (distinguish “missing” vs “present undefined”)
-  - [ ] `parent()`
-  - [ ] `concat(other)`
-- [ ] Add factories and helpers:
-  - [ ] `static fromTokens(tokens)`
-  - [ ] `normalize(pointer)`
-  - [ ] `isValid(pointer)` (standalone)
-- [ ] Add tests for the above
+- [x] Add `PointerSyntaxError` and `PointerResolutionError`
+- [x] Add instance methods:
+  - [x] `resolve(root)` (alias of `evaluate(root)`)
+  - [x] `exists(root)` (distinguish “missing” vs “present undefined”)
+  - [x] `parent()`
+  - [x] `concat(other)`
+- [x] Add factories and helpers:
+  - [x] `static fromTokens(tokens)`
+  - [x] `normalize(pointer)`
+  - [x] `isValid(pointer)` (standalone)
+- [x] Add tests for the above
 
 ### Files
 
@@ -355,10 +355,10 @@ Add optional relative pointer support without affecting core RFC 6901 behavior.
 
 ### Checklist
 
-- [ ] Implement parsing + validation
-- [ ] Implement `RelativeJSONPointer#toAbsolute(current)` and `#resolve(root, current)`
-- [ ] Export from pointer index
-- [ ] Add tests for draft examples + bounds
+- [x] Implement parsing + validation
+- [x] Implement `RelativeJSONPointer#toAbsolute(current)` and `#resolve(root, current)`
+- [x] Export from pointer index
+- [x] Add tests for draft examples + bounds
 
 ### Files
 

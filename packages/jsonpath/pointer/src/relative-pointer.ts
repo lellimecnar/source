@@ -19,9 +19,9 @@ export function parseRelativePointer(pointer: string): ParsedRelativePointer {
 	let rest = match.groups.rest ?? '';
 
 	let indexReference = false;
-	if (rest.endsWith('#')) {
+	if (rest.startsWith('#')) {
 		indexReference = true;
-		rest = rest.slice(0, -1);
+		rest = rest.slice(1);
 	}
 
 	if (rest !== '' && !rest.startsWith('/')) {

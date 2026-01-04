@@ -1,0 +1,139 @@
+{
+	"numTotalTestSuites": 2,
+	"numPassedTestSuites": 2,
+	"numFailedTestSuites": 0,
+	"numPendingTestSuites": 0,
+	"numTotalTests": 11,
+	"numPassedTests": 11,
+	"numFailedTests": 0,
+	"numPendingTests": 0,
+	"numTodoTests": 0,
+	"snapshot": {
+		"added": 0,
+		"failure": false,
+		"filesAdded": 0,
+		"filesRemoved": 0,
+		"filesRemovedList": [],
+		"filesUnmatched": 0,
+		"filesUpdated": 0,
+		"matched": 0,
+		"total": 0,
+		"unchecked": 0,
+		"uncheckedKeysByFile": [],
+		"unmatched": 0,
+		"updated": 0,
+		"didUpdate": false
+	},
+	"startTime": 1767570729682,
+	"success": true,
+	"testResults": [
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should tokenize basic structural elements",
+					"status": "passed",
+					"title": "should tokenize basic structural elements",
+					"duration": 1.0014170000000036,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should tokenize recursive descent",
+					"status": "passed",
+					"title": "should tokenize recursive descent",
+					"duration": 0.11729099999999448,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should tokenize strings with single quotes",
+					"status": "passed",
+					"title": "should tokenize strings with single quotes",
+					"duration": 0.20779100000000028,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should tokenize strings with double quotes",
+					"status": "passed",
+					"title": "should tokenize strings with double quotes",
+					"duration": 0.09995800000000088,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should tokenize numbers",
+					"status": "passed",
+					"title": "should tokenize numbers",
+					"duration": 0.16216599999999914,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should tokenize boolean and null literals",
+					"status": "passed",
+					"title": "should tokenize boolean and null literals",
+					"duration": 0.09525000000000716,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should tokenize comparison operators",
+					"status": "passed",
+					"title": "should tokenize comparison operators",
+					"duration": 0.1384999999999934,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should track line and column correctly",
+					"status": "passed",
+					"title": "should track line and column correctly",
+					"duration": 0.12787500000000307,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should handle unicode escape sequences",
+					"status": "passed",
+					"title": "should handle unicode escape sequences",
+					"duration": 0.07195799999999508,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should emit ERROR for invalid characters",
+					"status": "passed",
+					"title": "should emit ERROR for invalid characters",
+					"duration": 0.07683400000000518,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["Lexer"],
+					"fullName": "Lexer should perform well (benchmark)",
+					"status": "passed",
+					"title": "should perform well (benchmark)",
+					"duration": 59.181499999999986,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570729823,
+			"endTime": 1767570729884.1814,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/lexer/src/__tests__/lexer.spec.ts"
+		}
+	]
+}

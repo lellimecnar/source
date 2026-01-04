@@ -1,14 +1,28 @@
 import { compile, type CompiledQuery } from '@jsonpath/compiler';
-import { type EvaluatorOptions } from '@jsonpath/core';
+import { type EvaluatorOptions, JSONPathSecurityError } from '@jsonpath/core';
 import { evaluate, type QueryResult } from '@jsonpath/evaluator';
 import { parse, type QueryNode } from '@jsonpath/parser';
+import { evaluatePointer } from '@jsonpath/pointer';
+import { applyPatch } from '@jsonpath/patch';
+import { applyMergePatch } from '@jsonpath/merge-patch';
 
 import { getCachedQuery, setCachedQuery } from './cache.js';
 
 /**
  * Parses a JSONPath query string, with caching.
  */
-export function parseQuery(query: string): QueryNode {
+export function parseQuery(
+	query: string,
+	options?: EvaluatorOptions,
+): QueryNode {
+	if (
+		options?.secure?.maxQueryLength &&
+		query.length > options.secure.maxQueryLength
+	) {
+		throw new JSONPathSecurityError(
+			`Query length exceeds maximum: ${options.secure.maxQueryLength}`,
+		);
+	}
 	let ast = getCachedQuery(query);
 	if (!ast) {
 		ast = parse(query);
@@ -25,7 +39,7 @@ export function query(
 	path: string,
 	options?: EvaluatorOptions,
 ): QueryResult {
-	const ast = parseQuery(path);
+	const ast = parseQuery(path, options);
 	return evaluate(root, ast, options);
 }
 
@@ -54,8 +68,11 @@ export function queryPaths(
 /**
  * Compiles a JSONPath query string into an executable function.
  */
-export function compileQuery(path: string): CompiledQuery {
-	const ast = parseQuery(path);
+export function compileQuery(
+	path: string,
+	options?: EvaluatorOptions,
+): CompiledQuery {
+	const ast = parseQuery(path, options);
 	return compile(ast);
 }
 
@@ -69,6 +86,11 @@ export function value(
 ): any | undefined {
 	return query(root, path, options).values()[0];
 }
+
+/**
+ * Alias for value().
+ */
+export const first = value;
 
 /**
  * Executes a JSONPath query and returns true if any matches exist.
@@ -90,6 +112,28 @@ export function count(
 	options?: EvaluatorOptions,
 ): number {
 	return query(root, path, options).length;
+}
+
+/**
+ * Executes a JSONPath query and returns the first match as a JSON Pointer string.
+ */
+export function toPointer(
+	root: any,
+	path: string,
+	options?: EvaluatorOptions,
+): string | undefined {
+	return query(root, path, options).pointerStrings()[0];
+}
+
+/**
+ * Executes a JSONPath query and returns all matches as JSON Pointer strings.
+ */
+export function toPointers(
+	root: any,
+	path: string,
+	options?: EvaluatorOptions,
+): string[] {
+	return query(root, path, options).pointerStrings();
 }
 
 /**
@@ -129,6 +173,27 @@ export function validateQuery(path: string): {
 	}
 }
 
+/**
+ * Evaluates a JSON Pointer against a root object.
+ */
+export function pointer(root: any, ptr: string): any {
+	return evaluatePointer(root, ptr);
+}
+
+/**
+ * Applies a JSON Patch to a target object.
+ */
+export function patch(target: any, operations: any[]): any {
+	return applyPatch(target, operations);
+}
+
+/**
+ * Applies a JSON Merge Patch to a target object.
+ */
+export function mergePatch(target: any, patchDoc: any): any {
+	return applyMergePatch(target, patchDoc);
+}
+
 // Re-export core types and functions
 export { parse } from '@jsonpath/parser';
 export { evaluate } from '@jsonpath/evaluator';
@@ -138,7 +203,7 @@ export {
 	RelativeJSONPointer,
 	evaluatePointer,
 } from '@jsonpath/pointer';
-export { applyPatch, applyPatchImmutable, JSONPatch } from '@jsonpath/patch';
+export { applyPatch, applyPatchImmutable } from '@jsonpath/patch';
 export { applyMergePatch, createMergePatch } from '@jsonpath/merge-patch';
 export {
 	JSONPathError,

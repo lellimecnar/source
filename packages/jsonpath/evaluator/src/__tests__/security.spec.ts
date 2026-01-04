@@ -62,4 +62,55 @@ describe('Evaluator Security', () => {
 		);
 		vi.restoreAllMocks();
 	});
+
+	it('should enforce maxNodes', () => {
+		const data = { a: { b: { c: 1 } } };
+		// Root + a + b + c = 4 nodes
+		expect(() => evaluate(data, parse('$..*'), { maxNodes: 2 })).toThrow(
+			/Maximum nodes visited exceeded/,
+		);
+	});
+
+	it('should enforce maxFilterDepth', () => {
+		const data = { a: 1, b: 2, c: 3 };
+		// Deeply nested binary expressions
+		const query = '$[?(@.a == 1 && (@.b == 2 && @.c == 3))]';
+		// Depth 1: outer &&
+		// Depth 2: inner &&
+		// Depth 3: @.b == 2
+		expect(() => evaluate(data, parse(query), { maxFilterDepth: 2 })).toThrow(
+			/Maximum filter depth exceeded/,
+		);
+	});
+
+	it('should enforce blockPaths', () => {
+		const data = { public: 1, private: 2, nested: { secret: 3 } };
+		const options = {
+			secure: {
+				blockPaths: ['/private', '/nested/secret'],
+			},
+		};
+
+		const results = evaluate(data, parse('$..*'), options).pointerStrings();
+		expect(results).toContain('/public');
+		expect(results).toContain('/nested');
+		expect(results).not.toContain('/private');
+		expect(results).not.toContain('/nested/secret');
+	});
+
+	it('should enforce allowPaths', () => {
+		const data = { public: 1, private: 2, nested: { allowed: 3, blocked: 4 } };
+		const options = {
+			secure: {
+				allowPaths: ['/public', '/nested/allowed'],
+			},
+		};
+
+		const results = evaluate(data, parse('$..*'), options).pointerStrings();
+		expect(results).toContain('/public');
+		expect(results).toContain('/nested');
+		expect(results).toContain('/nested/allowed');
+		expect(results).not.toContain('/private');
+		expect(results).not.toContain('/nested/blocked');
+	});
 });

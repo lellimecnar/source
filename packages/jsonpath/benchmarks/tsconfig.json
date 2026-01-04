@@ -1,0 +1,10 @@
+{
+	"extends": "@lellimecnar/typescript-config/base.json",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"paths": {
+			"*": ["./*"]
+		}
+	},
+	"include": ["src/**/*.ts"]
+}

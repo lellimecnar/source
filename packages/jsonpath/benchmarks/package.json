@@ -1,0 +1,21 @@
+{
+	"name": "@jsonpath/benchmarks",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Benchmarks for JSONPath",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"bench": "vitest bench",
+		"type-check": "tsgo --noEmit"
+	},
+	"dependencies": {
+		"@jsonpath/jsonpath": "workspace:*"
+	},
+	"devDependencies": {
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@lellimecnar/vitest-config": "workspace:*",
+		"typescript": "~5.5",
+		"vitest": "^4.0.16"
+	}
+}

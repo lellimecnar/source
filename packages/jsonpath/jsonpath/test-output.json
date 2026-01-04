@@ -1,0 +1,238 @@
+{
+	"numTotalTestSuites": 6,
+	"numPassedTestSuites": 6,
+	"numFailedTestSuites": 0,
+	"numPendingTestSuites": 0,
+	"numTotalTests": 20,
+	"numPassedTests": 20,
+	"numFailedTests": 0,
+	"numPendingTests": 0,
+	"numTodoTests": 0,
+	"snapshot": {
+		"added": 0,
+		"failure": false,
+		"filesAdded": 0,
+		"filesRemoved": 0,
+		"filesRemovedList": [],
+		"filesUnmatched": 0,
+		"filesUpdated": 0,
+		"matched": 0,
+		"total": 0,
+		"unchecked": 0,
+		"uncheckedKeysByFile": [],
+		"unmatched": 0,
+		"updated": 0,
+		"didUpdate": false
+	},
+	"startTime": 1767570732355,
+	"success": true,
+	"testResults": [
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute query()",
+					"status": "passed",
+					"title": "should execute query()",
+					"duration": 1.516208000000006,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute queryValues()",
+					"status": "passed",
+					"title": "should execute queryValues()",
+					"duration": 0.17579200000000128,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute queryPaths()",
+					"status": "passed",
+					"title": "should execute queryPaths()",
+					"duration": 0.10600000000002296,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute compileQuery()",
+					"status": "passed",
+					"title": "should execute compileQuery()",
+					"duration": 0.25241600000001085,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute value()",
+					"status": "passed",
+					"title": "should execute value()",
+					"duration": 0.11712500000001569,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute first()",
+					"status": "passed",
+					"title": "should execute first()",
+					"duration": 0.06587500000000546,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute exists()",
+					"status": "passed",
+					"title": "should execute exists()",
+					"duration": 0.12583300000000008,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute count()",
+					"status": "passed",
+					"title": "should execute count()",
+					"duration": 0.08699999999998909,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should use cache for repeated queries",
+					"status": "passed",
+					"title": "should use cache for repeated queries",
+					"duration": 0.09229100000001722,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute pointer()",
+					"status": "passed",
+					"title": "should execute pointer()",
+					"duration": 0.25312499999998295,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute patch()",
+					"status": "passed",
+					"title": "should execute patch()",
+					"duration": 0.25387499999999363,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute mergePatch()",
+					"status": "passed",
+					"title": "should execute mergePatch()",
+					"duration": 0.09158300000001418,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute toPointer()",
+					"status": "passed",
+					"title": "should execute toPointer()",
+					"duration": 0.08979199999998855,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should execute toPointers()",
+					"status": "passed",
+					"title": "should execute toPointers()",
+					"duration": 0.06787499999998658,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should transform values",
+					"status": "passed",
+					"title": "should transform values",
+					"duration": 0.1750419999999906,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Facade"],
+					"fullName": "JSONPath Facade should omit paths",
+					"status": "passed",
+					"title": "should omit paths",
+					"duration": 0.135832999999991,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570732594,
+			"endTime": 1767570732597.175,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/jsonpath/src/__tests__/facade.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["JSONPath Integration Readiness"],
+					"fullName": "JSONPath Integration Readiness should support a complex integration workflow",
+					"status": "passed",
+					"title": "should support a complex integration workflow",
+					"duration": 2.9005829999999833,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570732593,
+			"endTime": 1767570732595.9006,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/jsonpath/src/__tests__/integration-readiness.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["JSONPath Integration"],
+					"fullName": "JSONPath Integration should support basic queries via facade",
+					"status": "passed",
+					"title": "should support basic queries via facade",
+					"duration": 1.5072920000000067,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Integration"],
+					"fullName": "JSONPath Integration should propagate EvaluatorOptions via facade",
+					"status": "passed",
+					"title": "should propagate EvaluatorOptions via facade",
+					"duration": 0.8274579999999787,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSONPath Integration"],
+					"fullName": "JSONPath Integration should support RFC 9535 slices and normalized paths",
+					"status": "passed",
+					"title": "should support RFC 9535 slices and normalized paths",
+					"duration": 0.36079200000000355,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570732591,
+			"endTime": 1767570732594.3608,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/jsonpath/src/__tests__/integration.spec.ts"
+		}
+	]
+}

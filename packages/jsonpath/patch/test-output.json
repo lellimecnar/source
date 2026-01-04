@@ -1,0 +1,1428 @@
+{
+	"numTotalTestSuites": 11,
+	"numPassedTestSuites": 11,
+	"numFailedTestSuites": 0,
+	"numPendingTestSuites": 0,
+	"numTotalTests": 120,
+	"numPassedTests": 116,
+	"numFailedTests": 0,
+	"numPendingTests": 4,
+	"numTodoTests": 0,
+	"snapshot": {
+		"added": 0,
+		"failure": false,
+		"filesAdded": 0,
+		"filesRemoved": 0,
+		"filesRemovedList": [],
+		"filesUnmatched": 0,
+		"filesUpdated": 0,
+		"matched": 0,
+		"total": 0,
+		"unchecked": 0,
+		"uncheckedKeysByFile": [],
+		"unmatched": 0,
+		"updated": 0,
+		"didUpdate": false
+	},
+	"startTime": 1767570730302,
+	"success": true,
+	"testResults": [
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["PatchBuilder"],
+					"fullName": "PatchBuilder should build a patch with multiple operations",
+					"status": "passed",
+					"title": "should build a patch with multiple operations",
+					"duration": 0.8164170000000013,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["PatchBuilder"],
+					"fullName": "PatchBuilder should apply the built patch",
+					"status": "passed",
+					"title": "should apply the built patch",
+					"duration": 0.3623750000000143,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570730475,
+			"endTime": 1767570730476.3623,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/patch/src/__tests__/builder.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["diff"],
+					"fullName": "diff should generate empty patch for equal objects",
+					"status": "passed",
+					"title": "should generate empty patch for equal objects",
+					"duration": 0.8060419999999908,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["diff"],
+					"fullName": "diff should generate replace for primitive changes",
+					"status": "passed",
+					"title": "should generate replace for primitive changes",
+					"duration": 0.13425000000000864,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["diff"],
+					"fullName": "diff should generate add for new keys",
+					"status": "passed",
+					"title": "should generate add for new keys",
+					"duration": 0.09283299999998462,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["diff"],
+					"fullName": "diff should generate remove for missing keys",
+					"status": "passed",
+					"title": "should generate remove for missing keys",
+					"duration": 0.07891700000001833,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["diff"],
+					"fullName": "diff should handle nested objects",
+					"status": "passed",
+					"title": "should handle nested objects",
+					"duration": 0.09770900000000893,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["diff"],
+					"fullName": "diff should handle arrays (simple replace)",
+					"status": "passed",
+					"title": "should handle arrays (simple replace)",
+					"duration": 0.07045799999997371,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["diff"],
+					"fullName": "diff should handle arrays (element diff)",
+					"status": "passed",
+					"title": "should handle arrays (element diff)",
+					"duration": 0.06424999999998704,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["diff"],
+					"fullName": "diff should satisfy roundtrip property",
+					"status": "passed",
+					"title": "should satisfy roundtrip property",
+					"duration": 0.4407500000000084,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570730475,
+			"endTime": 1767570730477.4407,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/patch/src/__tests__/diff.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch should apply add operation",
+					"status": "passed",
+					"title": "should apply add operation",
+					"duration": 1.0642090000000053,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch should apply remove operation",
+					"status": "passed",
+					"title": "should apply remove operation",
+					"duration": 0.18412499999999454,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch should apply replace operation",
+					"status": "passed",
+					"title": "should apply replace operation",
+					"duration": 0.11866699999998787,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch should apply move operation",
+					"status": "passed",
+					"title": "should apply move operation",
+					"duration": 0.115791999999999,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch should apply copy operation",
+					"status": "passed",
+					"title": "should apply copy operation",
+					"duration": 0.08904100000000881,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch should apply test operation",
+					"status": "passed",
+					"title": "should apply test operation",
+					"duration": 0.5512090000000001,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch should throw JSONPatchError with metadata on failure",
+					"status": "passed",
+					"title": "should throw JSONPatchError with metadata on failure",
+					"duration": 0.15841699999998582,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch", "applyWithInverse"],
+					"fullName": "JSON Patch applyWithInverse should generate inverse for add",
+					"status": "passed",
+					"title": "should generate inverse for add",
+					"duration": 0.19874999999998977,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch", "applyWithInverse"],
+					"fullName": "JSON Patch applyWithInverse should generate inverse for remove",
+					"status": "passed",
+					"title": "should generate inverse for remove",
+					"duration": 0.12012500000000159,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch", "applyWithInverse"],
+					"fullName": "JSON Patch applyWithInverse should generate inverse for replace",
+					"status": "passed",
+					"title": "should generate inverse for replace",
+					"duration": 0.33533400000001734,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch", "applyWithInverse"],
+					"fullName": "JSON Patch applyWithInverse should generate inverse for multiple operations in reverse order",
+					"status": "passed",
+					"title": "should generate inverse for multiple operations in reverse order",
+					"duration": 0.09270799999998758,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch applyPatch mutates target by default",
+					"status": "passed",
+					"title": "applyPatch mutates target by default",
+					"duration": 0.06666600000002632,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch applyPatchImmutable does not mutate original",
+					"status": "passed",
+					"title": "applyPatchImmutable does not mutate original",
+					"duration": 0.07408399999999915,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch testPatch validates without mutating",
+					"status": "passed",
+					"title": "testPatch validates without mutating",
+					"duration": 0.10545799999999872,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["JSON Patch"],
+					"fullName": "JSON Patch atomic=true applies all-or-nothing",
+					"status": "passed",
+					"title": "atomic=true applies all-or-nothing",
+					"duration": 0.09662500000001728,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570730476,
+			"endTime": 1767570730479.1055,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/patch/src/__tests__/patch.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 0: 4.1. add with missing object",
+					"status": "passed",
+					"title": "0: 4.1. add with missing object",
+					"duration": 1.1024579999999844,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 1: A.1.  Adding an Object Member",
+					"status": "passed",
+					"title": "1: A.1.  Adding an Object Member",
+					"duration": 0.33558300000001395,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 2: A.2.  Adding an Array Element",
+					"status": "passed",
+					"title": "2: A.2.  Adding an Array Element",
+					"duration": 0.10683400000002052,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 3: A.3.  Removing an Object Member",
+					"status": "passed",
+					"title": "3: A.3.  Removing an Object Member",
+					"duration": 0.12658400000000825,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 4: A.4.  Removing an Array Element",
+					"status": "passed",
+					"title": "4: A.4.  Removing an Array Element",
+					"duration": 0.09920799999997598,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 5: A.5.  Replacing a Value",
+					"status": "passed",
+					"title": "5: A.5.  Replacing a Value",
+					"duration": 0.09779200000002675,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 6: A.6.  Moving a Value",
+					"status": "passed",
+					"title": "6: A.6.  Moving a Value",
+					"duration": 0.11154099999998834,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 7: A.7.  Moving an Array Element",
+					"status": "passed",
+					"title": "7: A.7.  Moving an Array Element",
+					"duration": 0.07412500000000932,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 8: A.8.  Testing a Value: Success",
+					"status": "passed",
+					"title": "8: A.8.  Testing a Value: Success",
+					"duration": 0.1444580000000144,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 9: A.9.  Testing a Value: Error",
+					"status": "passed",
+					"title": "9: A.9.  Testing a Value: Error",
+					"duration": 0.12112500000000637,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 10: A.10.  Adding a nested Member Object",
+					"status": "passed",
+					"title": "10: A.10.  Adding a nested Member Object",
+					"duration": 0.06379200000000651,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 11: A.11.  Ignoring Unrecognized Elements",
+					"status": "passed",
+					"title": "11: A.11.  Ignoring Unrecognized Elements",
+					"duration": 0.04520800000000236,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 12: A.12.  Adding to a Non-existent Target",
+					"status": "passed",
+					"title": "12: A.12.  Adding to a Non-existent Target",
+					"duration": 0.0750420000000247,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 13: A.13 Invalid JSON Patch Document",
+					"status": "skipped",
+					"title": "13: A.13 Invalid JSON Patch Document",
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 14: A.14. ~ Escape Ordering",
+					"status": "passed",
+					"title": "14: A.14. ~ Escape Ordering",
+					"duration": 0.039791000000008125,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 15: A.15. Comparing Strings and Numbers",
+					"status": "passed",
+					"title": "15: A.15. Comparing Strings and Numbers",
+					"duration": 0.06350000000000477,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"spec_tests.json (RFC Appendix examples)"
+					],
+					"fullName": "RFC 6902 Compliance Suite spec_tests.json (RFC Appendix examples) 16: A.16. Adding an Array Value",
+					"status": "passed",
+					"title": "16: A.16. Adding an Array Value",
+					"duration": 0.05350000000001387,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 0: empty list, empty docs",
+					"status": "passed",
+					"title": "0: empty list, empty docs",
+					"duration": 0.04016599999999926,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 1: empty patch list",
+					"status": "passed",
+					"title": "1: empty patch list",
+					"duration": 0.02933300000000827,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 2: rearrangements OK?",
+					"status": "passed",
+					"title": "2: rearrangements OK?",
+					"duration": 0.026999999999986812,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 3: rearrangements OK?  How about one level down ... array",
+					"status": "passed",
+					"title": "3: rearrangements OK?  How about one level down ... array",
+					"duration": 0.026666999999974905,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 4: rearrangements OK?  How about one level down...",
+					"status": "passed",
+					"title": "4: rearrangements OK?  How about one level down...",
+					"duration": 0.025666000000001077,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 5: add replaces any existing field",
+					"status": "passed",
+					"title": "5: add replaces any existing field",
+					"duration": 0.027625000000000455,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 6: toplevel array",
+					"status": "passed",
+					"title": "6: toplevel array",
+					"duration": 0.030083000000018956,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 7: toplevel array, no change",
+					"status": "passed",
+					"title": "7: toplevel array, no change",
+					"duration": 0.022792000000009693,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 8: toplevel object, numeric string",
+					"status": "passed",
+					"title": "8: toplevel object, numeric string",
+					"duration": 0.03108299999999531,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 9: toplevel object, integer",
+					"status": "passed",
+					"title": "9: toplevel object, integer",
+					"duration": 0.02750000000000341,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 10: Toplevel scalar values OK?",
+					"status": "skipped",
+					"title": "10: Toplevel scalar values OK?",
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 11: Add, / target",
+					"status": "passed",
+					"title": "11: Add, / target",
+					"duration": 0.028750000000002274,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 12: Add, /foo/ deep target (trailing slash)",
+					"status": "passed",
+					"title": "12: Add, /foo/ deep target (trailing slash)",
+					"duration": 0.027708000000018274,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 13: Add composite value at top level",
+					"status": "passed",
+					"title": "13: Add composite value at top level",
+					"duration": 0.028958000000017137,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 14: Add into composite value",
+					"status": "passed",
+					"title": "14: Add into composite value",
+					"duration": 0.038833000000011,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 15",
+					"status": "passed",
+					"title": "15",
+					"duration": 0.06620800000001736,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 16",
+					"status": "passed",
+					"title": "16",
+					"duration": 0.06499999999999773,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 17",
+					"status": "passed",
+					"title": "17",
+					"duration": 0.031916000000023814,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 18",
+					"status": "passed",
+					"title": "18",
+					"duration": 0.02729200000001697,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 19",
+					"status": "passed",
+					"title": "19",
+					"duration": 0.026707999999985077,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 20: 0 can be an array index or object element name",
+					"status": "passed",
+					"title": "20: 0 can be an array index or object element name",
+					"duration": 0.031207999999992353,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 21",
+					"status": "passed",
+					"title": "21",
+					"duration": 0.03258400000001416,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 22",
+					"status": "passed",
+					"title": "22",
+					"duration": 0.030584000000004608,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 23",
+					"status": "passed",
+					"title": "23",
+					"duration": 0.03391700000000242,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 24: push item to array via last index + 1",
+					"status": "passed",
+					"title": "24: push item to array via last index + 1",
+					"duration": 0.030208000000016,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 25: add item to array at index > length should fail",
+					"status": "passed",
+					"title": "25: add item to array at index > length should fail",
+					"duration": 0.057165999999995165,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 26: test against implementation-specific numeric parsing",
+					"status": "passed",
+					"title": "26: test against implementation-specific numeric parsing",
+					"duration": 0.03529100000000085,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 27: test with bad number should fail",
+					"status": "passed",
+					"title": "27: test with bad number should fail",
+					"duration": 0.05329199999999901,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 28",
+					"status": "passed",
+					"title": "28",
+					"duration": 0.21066700000000083,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 29: value in array add not flattened",
+					"status": "passed",
+					"title": "29: value in array add not flattened",
+					"duration": 0.06874999999999432,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 30",
+					"status": "passed",
+					"title": "30",
+					"duration": 0.04683399999998983,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 31",
+					"status": "passed",
+					"title": "31",
+					"duration": 0.0448329999999828,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 32",
+					"status": "passed",
+					"title": "32",
+					"duration": 0.0428749999999809,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 33",
+					"status": "passed",
+					"title": "33",
+					"duration": 0.04104100000000699,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 34",
+					"status": "passed",
+					"title": "34",
+					"duration": 0.030957999999998265,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 35",
+					"status": "passed",
+					"title": "35",
+					"duration": 0.027959000000009837,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 36",
+					"status": "passed",
+					"title": "36",
+					"duration": 0.02750000000000341,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 37",
+					"status": "passed",
+					"title": "37",
+					"duration": 0.02862500000000523,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 38",
+					"status": "passed",
+					"title": "38",
+					"duration": 0.027833000000015318,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 39: value in array replace not flattened",
+					"status": "passed",
+					"title": "39: value in array replace not flattened",
+					"duration": 0.035042000000004236,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 40: replace whole document",
+					"status": "passed",
+					"title": "40: replace whole document",
+					"duration": 0.03262499999999591,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 41: spurious patch properties",
+					"status": "passed",
+					"title": "41: spurious patch properties",
+					"duration": 0.03100000000000591,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 42: null value should be valid obj property",
+					"status": "passed",
+					"title": "42: null value should be valid obj property",
+					"duration": 0.10200000000000387,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 43: null value should be valid obj property to be replaced with something truthy",
+					"status": "passed",
+					"title": "43: null value should be valid obj property to be replaced with something truthy",
+					"duration": 0.035499999999984766,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 44: null value should be valid obj property to be moved",
+					"status": "passed",
+					"title": "44: null value should be valid obj property to be moved",
+					"duration": 0.03658300000000736,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 45: null value should be valid obj property to be copied",
+					"status": "passed",
+					"title": "45: null value should be valid obj property to be copied",
+					"duration": 0.0469579999999894,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 46: null value should be valid obj property to be removed",
+					"status": "passed",
+					"title": "46: null value should be valid obj property to be removed",
+					"duration": 0.026292000000012195,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 47: null value should still be valid obj property replace other value",
+					"status": "passed",
+					"title": "47: null value should still be valid obj property replace other value",
+					"duration": 0.029291000000000622,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 48: test should pass despite rearrangement",
+					"status": "passed",
+					"title": "48: test should pass despite rearrangement",
+					"duration": 0.06512499999999477,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 49: test should pass despite (nested) rearrangement",
+					"status": "passed",
+					"title": "49: test should pass despite (nested) rearrangement",
+					"duration": 0.04620900000000461,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 50: test should pass - no error",
+					"status": "passed",
+					"title": "50: test should pass - no error",
+					"duration": 0.05287500000000023,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 51",
+					"status": "passed",
+					"title": "51",
+					"duration": 0.07845800000001191,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 52: Whole document",
+					"status": "skipped",
+					"title": "52: Whole document",
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 53: Empty-string element",
+					"status": "passed",
+					"title": "53: Empty-string element",
+					"duration": 0.04529200000001765,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 54",
+					"status": "passed",
+					"title": "54",
+					"duration": 0.06683400000000006,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 55: Move to same location has no effect",
+					"status": "passed",
+					"title": "55: Move to same location has no effect",
+					"duration": 0.027584000000018705,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 56",
+					"status": "passed",
+					"title": "56",
+					"duration": 0.03816699999998718,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 57",
+					"status": "passed",
+					"title": "57",
+					"duration": 0.05158300000002214,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 58",
+					"status": "passed",
+					"title": "58",
+					"duration": 0.041416999999995596,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 59: replacing the root of the document is possible with add",
+					"status": "passed",
+					"title": "59: replacing the root of the document is possible with add",
+					"duration": 0.038000000000010914,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 60: Adding to \"/-\" adds to the end of the array",
+					"status": "passed",
+					"title": "60: Adding to \"/-\" adds to the end of the array",
+					"duration": 0.03324999999998113,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 61: Adding to \"/-\" adds to the end of the array, even n levels down",
+					"status": "passed",
+					"title": "61: Adding to \"/-\" adds to the end of the array, even n levels down",
+					"duration": 0.047667000000018334,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 62: test remove with bad number should fail",
+					"status": "passed",
+					"title": "62: test remove with bad number should fail",
+					"duration": 0.05829199999999446,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 63: test remove on array",
+					"status": "passed",
+					"title": "63: test remove on array",
+					"duration": 0.03045899999997914,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 64: test repeated removes",
+					"status": "passed",
+					"title": "64: test repeated removes",
+					"duration": 0.028874999999999318,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 65: test remove with bad index should fail",
+					"status": "passed",
+					"title": "65: test remove with bad index should fail",
+					"duration": 0.047708000000000084,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 66: test replace with bad number should fail",
+					"status": "passed",
+					"title": "66: test replace with bad number should fail",
+					"duration": 0.04870800000000486,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 67: test copy with bad number should fail",
+					"status": "passed",
+					"title": "67: test copy with bad number should fail",
+					"duration": 0.04754199999999287,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 68: test move with bad number should fail",
+					"status": "passed",
+					"title": "68: test move with bad number should fail",
+					"duration": 0.046875,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 69: test add with bad number should fail",
+					"status": "passed",
+					"title": "69: test add with bad number should fail",
+					"duration": 0.04758300000000304,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 70: missing 'value' parameter to add",
+					"status": "passed",
+					"title": "70: missing 'value' parameter to add",
+					"duration": 0.06533300000000963,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 71: missing 'value' parameter to replace",
+					"status": "passed",
+					"title": "71: missing 'value' parameter to replace",
+					"duration": 0.07341700000000628,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 72: missing 'value' parameter to test",
+					"status": "passed",
+					"title": "72: missing 'value' parameter to test",
+					"duration": 0.05662500000002524,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 73: missing value parameter to test - where undef is falsy",
+					"status": "passed",
+					"title": "73: missing value parameter to test - where undef is falsy",
+					"duration": 0.04608400000000756,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 74: missing from parameter to copy",
+					"status": "passed",
+					"title": "74: missing from parameter to copy",
+					"duration": 0.04837499999999295,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 75: missing from parameter to move",
+					"status": "passed",
+					"title": "75: missing from parameter to move",
+					"duration": 0.04970800000000963,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 76: duplicate ops",
+					"status": "skipped",
+					"title": "76: duplicate ops",
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": [
+						"RFC 6902 Compliance Suite",
+						"tests.json (extended suite)"
+					],
+					"fullName": "RFC 6902 Compliance Suite tests.json (extended suite) 77: unrecognized op should fail",
+					"status": "passed",
+					"title": "77: unrecognized op should fail",
+					"duration": 0.7834590000000219,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570730484,
+			"endTime": 1767570730491.7834,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/patch/src/__tests__/rfc6902-compliance.spec.ts"
+		}
+	]
+}

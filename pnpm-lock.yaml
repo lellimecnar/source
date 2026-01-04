@@ -485,6 +485,77 @@ importers:
         specifier: workspace:*
         version: link:../config-typescript
 
+  packages/jsonpath/benchmarks:
+    dependencies:
+      '@jsonpath/jsonpath':
+        specifier: workspace:*
+        version: link:../jsonpath
+    devDependencies:
+      '@lellimecnar/typescript-config':
+        specifier: workspace:*
+        version: link:../../config-typescript
+      '@lellimecnar/vitest-config':
+        specifier: workspace:*
+        version: link:../../config-vitest
+      typescript:
+        specifier: ~5.5
+        version: 5.5.4
+      vitest:
+        specifier: ^4.0.16
+        version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+
+  packages/jsonpath/compat-json-p3:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:*
+        version: link:../core
+      '@jsonpath/jsonpath':
+        specifier: workspace:*
+        version: link:../jsonpath
+      '@jsonpath/patch':
+        specifier: workspace:*
+        version: link:../patch
+      '@jsonpath/pointer':
+        specifier: workspace:*
+        version: link:../pointer
+    devDependencies:
+      '@lellimecnar/eslint-config':
+        specifier: workspace:*
+        version: link:../../config-eslint
+      '@lellimecnar/typescript-config':
+        specifier: workspace:*
+        version: link:../../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:*
+        version: link:../../config-vite
+      '@lellimecnar/vitest-config':
+        specifier: workspace:*
+        version: link:../../config-vitest
+      '@types/node':
+        specifier: ^24
+        version: 24.10.4
+      '@vitest/coverage-v8':
+        specifier: ^4.0.16
+        version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      eslint:
+        specifier: ^8.57.1
+        version: 8.57.1
+      typescript:
+        specifier: ~5.5
+        version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vitest:
+        specifier: ^4.0.16
+        version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+
   packages/jsonpath/compiler:
     dependencies:
       '@jsonpath/core':
@@ -921,6 +992,55 @@ importers:
       '@jsonpath/core':
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      '@lellimecnar/eslint-config':
+        specifier: workspace:*
+        version: link:../../config-eslint
+      '@lellimecnar/typescript-config':
+        specifier: workspace:*
+        version: link:../../config-typescript
+      '@lellimecnar/vite-config':
+        specifier: workspace:*
+        version: link:../../config-vite
+      '@lellimecnar/vitest-config':
+        specifier: workspace:*
+        version: link:../../config-vitest
+      '@types/node':
+        specifier: ^24
+        version: 24.10.4
+      '@vitest/coverage-v8':
+        specifier: ^4.0.16
+        version: 4.0.16(vitest@4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      eslint:
+        specifier: ^8.57.1
+        version: 8.57.1
+      typescript:
+        specifier: ~5.5
+        version: 5.5.4
+      vite:
+        specifier: ^7.3.0
+        version: 7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@24.10.4)(rollup@4.54.0)(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vite-tsconfig-paths:
+        specifier: ^6.0.3
+        version: 6.0.3(typescript@5.5.4)(vite@7.3.0(@types/node@24.10.4)(jiti@1.21.7)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2))
+      vitest:
+        specifier: ^4.0.16
+        version: 4.0.16(@types/node@24.10.4)(happy-dom@20.0.11)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.27.0)(terser@5.44.1)(yaml@2.8.2)
+
+  packages/jsonpath/schema:
+    dependencies:
+      '@jsonpath/core':
+        specifier: workspace:*
+        version: link:../core
+      '@jsonpath/patch':
+        specifier: workspace:*
+        version: link:../patch
+      '@jsonpath/pointer':
+        specifier: workspace:*
+        version: link:../pointer
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*

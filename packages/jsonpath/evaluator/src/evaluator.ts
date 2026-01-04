@@ -16,6 +16,7 @@ import {
 	JSONPathFunctionError,
 	type EvaluatorOptions,
 	PathSegment,
+	PluginManager,
 } from '@jsonpath/core';
 import { getFunction } from '@jsonpath/functions';
 import {
@@ -45,6 +46,8 @@ class Evaluator {
 	private root: any;
 	private options: Required<EvaluatorOptions>;
 	private startTime = 0;
+	private nodesVisited = 0;
+	private currentFilterDepth = 0;
 
 	constructor(root: any, options?: EvaluatorOptions) {
 		this.root = root;
@@ -85,6 +88,18 @@ class Evaluator {
 	}
 
 	private checkLimits(depth: number, resultCount: number): void {
+		this.nodesVisited++;
+
+		if (
+			this.options.maxNodes > 0 &&
+			this.nodesVisited > this.options.maxNodes
+		) {
+			throw new JSONPathLimitError(
+				`Maximum nodes visited exceeded: ${this.options.maxNodes}`,
+				{ code: 'MAX_NODES_EXCEEDED' },
+			);
+		}
+
 		if (this.options.maxDepth > 0 && depth > this.options.maxDepth) {
 			throw new JSONPathLimitError(
 				`Maximum depth exceeded: ${this.options.maxDepth}`,
@@ -109,7 +124,51 @@ class Evaluator {
 		}
 	}
 
+	private isPathAllowed(path: PathSegment[]): boolean {
+		if (
+			this.options.secure.blockPaths.length === 0 &&
+			this.options.secure.allowPaths.length === 0
+		) {
+			return true;
+		}
+
+		const pointer =
+			path.length === 0
+				? '/'
+				: '/' +
+					path
+						.map((s) => String(s).replace(/~/g, '~0').replace(/\//g, '~1'))
+						.join('/');
+
+		if (this.options.secure.blockPaths.length > 0) {
+			for (const blocked of this.options.secure.blockPaths) {
+				if (pointer === blocked || pointer.startsWith(blocked + '/')) {
+					return false;
+				}
+			}
+		}
+
+		if (this.options.secure.allowPaths.length > 0) {
+			for (const allowed of this.options.secure.allowPaths) {
+				if (
+					pointer === allowed ||
+					pointer.startsWith(allowed + '/') ||
+					(allowed.startsWith(pointer) &&
+						(pointer === '/' || allowed[pointer.length] === '/'))
+				) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		return true;
+	}
+
 	private addResult(results: QueryResultNode[], node: QueryResultNode): void {
+		if (!this.isPathAllowed(node.path)) {
+			return;
+		}
 		this.checkLimits(node.path.length, results.length);
 		results.push(node);
 	}
@@ -139,6 +198,9 @@ class Evaluator {
 		callback: (n: QueryResultNode) => void,
 		visited = new Set<any>(),
 	): void {
+		if (!this.isPathAllowed(node.path)) {
+			return;
+		}
 		this.checkLimits(node.path.length, 0); // resultCount check is handled in evaluateSegment
 
 		if (this.options.detectCircular) {
@@ -359,132 +421,148 @@ class Evaluator {
 		expr: ExpressionNode,
 		current: QueryResultNode,
 	): any {
-		switch (expr.type) {
-			case NodeType.Literal:
-				return expr.value;
-			case NodeType.BinaryExpr: {
-				const left = this.evaluateExpression(expr.left, current);
-				const right = this.evaluateExpression(expr.right, current);
-				switch (expr.operator) {
-					case '==':
-						return {
-							value: this.compare(left, right, '=='),
-							__isLogicalType: true,
-						};
-					case '!=':
-						return {
-							value: !this.compare(left, right, '=='),
-							__isLogicalType: true,
-						};
-					case '<':
-						return {
-							value: this.compare(left, right, '<'),
-							__isLogicalType: true,
-						};
-					case '<=':
-						return {
-							value: this.compare(left, right, '<='),
-							__isLogicalType: true,
-						};
-					case '>':
-						return {
-							value: this.compare(left, right, '>'),
-							__isLogicalType: true,
-						};
-					case '>=':
-						return {
-							value: this.compare(left, right, '>='),
-							__isLogicalType: true,
-						};
-					case '&&':
-						return {
-							value: this.isTruthy(left) && this.isTruthy(right),
-							__isLogicalType: true,
-						};
-					case '||':
-						return {
-							value: this.isTruthy(left) || this.isTruthy(right),
-							__isLogicalType: true,
-						};
-					default:
-						return false;
-				}
-			}
-			case NodeType.UnaryExpr: {
-				const operand = this.evaluateExpression(expr.operand, current);
-				if (expr.operator === '!') {
-					return {
-						value: !this.isTruthy(operand),
-						__isLogicalType: true,
-					};
-				}
-				return false;
-			}
-			case NodeType.Query: {
-				return this.evaluateEmbeddedQuery(expr, current);
-			}
-			case NodeType.FunctionCall: {
-				const fn = getFunction(expr.name);
-				if (!fn || expr.args.length !== fn.signature.length) {
-					// RFC 9535: Unknown function or wrong arg count results in "Nothing"
-					return undefined;
-				}
-				const args = expr.args.map((a) => this.evaluateExpression(a, current));
+		this.currentFilterDepth++;
+		if (
+			this.options.maxFilterDepth > 0 &&
+			this.currentFilterDepth > this.options.maxFilterDepth
+		) {
+			throw new JSONPathLimitError(
+				`Maximum filter depth exceeded: ${this.options.maxFilterDepth}`,
+			);
+		}
 
-				// RFC 9535: If any argument is "Nothing", the result is "Nothing"
-				if (args.some((arg) => arg === undefined)) {
-					return undefined;
+		try {
+			switch (expr.type) {
+				case NodeType.Literal:
+					return expr.value;
+				case NodeType.BinaryExpr: {
+					const left = this.evaluateExpression(expr.left, current);
+					const right = this.evaluateExpression(expr.right, current);
+					switch (expr.operator) {
+						case '==':
+							return {
+								value: this.compare(left, right, '=='),
+								__isLogicalType: true,
+							};
+						case '!=':
+							return {
+								value: !this.compare(left, right, '=='),
+								__isLogicalType: true,
+							};
+						case '<':
+							return {
+								value: this.compare(left, right, '<'),
+								__isLogicalType: true,
+							};
+						case '<=':
+							return {
+								value: this.compare(left, right, '<='),
+								__isLogicalType: true,
+							};
+						case '>':
+							return {
+								value: this.compare(left, right, '>'),
+								__isLogicalType: true,
+							};
+						case '>=':
+							return {
+								value: this.compare(left, right, '>='),
+								__isLogicalType: true,
+							};
+						case '&&':
+							return {
+								value: this.isTruthy(left) && this.isTruthy(right),
+								__isLogicalType: true,
+							};
+						case '||':
+							return {
+								value: this.isTruthy(left) || this.isTruthy(right),
+								__isLogicalType: true,
+							};
+						default:
+							return false;
+					}
 				}
+				case NodeType.UnaryExpr: {
+					const operand = this.evaluateExpression(expr.operand, current);
+					if (expr.operator === '!') {
+						return {
+							value: !this.isTruthy(operand),
+							__isLogicalType: true,
+						};
+					}
+					return false;
+				}
+				case NodeType.Query: {
+					return this.evaluateEmbeddedQuery(expr, current);
+				}
+				case NodeType.FunctionCall: {
+					const fn = getFunction(expr.name);
+					if (!fn || expr.args.length !== fn.signature.length) {
+						// RFC 9535: Unknown function or wrong arg count results in "Nothing"
+						return undefined;
+					}
+					const args = expr.args.map((a) =>
+						this.evaluateExpression(a, current),
+					);
 
-				try {
-					// RFC 9535: Functions receive result sets for NodesType arguments.
-					// For ValueType arguments, they receive the single value or "Nothing".
-					const processedArgs: any[] = [];
-					for (let i = 0; i < args.length; i++) {
-						const arg = args[i];
-						const paramType = fn.signature[i];
-						const isNodeList =
-							arg && typeof arg === 'object' && arg.__isNodeList === true;
+					// RFC 9535: If any argument is "Nothing", the result is "Nothing"
+					if (args.some((arg) => arg === undefined)) {
+						return undefined;
+					}
 
-						if (paramType === 'NodesType') {
-							if (!isNodeList) return undefined; // Type mismatch
-							processedArgs.push(arg.nodes);
-						} else if (paramType === 'LogicalType') {
-							processedArgs.push(this.isTruthy(arg));
-						} else {
-							// ValueType
-							if (isNodeList) {
-								if (arg.nodes.length === 1) {
-									processedArgs.push(arg.nodes[0].value);
-								} else {
-									return undefined; // Non-singular query for ValueType
-								}
-							} else if (
-								arg &&
-								typeof arg === 'object' &&
-								(arg.__isFunctionResult || arg.__isLogicalType)
-							) {
-								processedArgs.push(arg.value);
+					try {
+						// RFC 9535: Functions receive result sets for NodesType arguments.
+						// For ValueType arguments, they receive the single value or "Nothing".
+						const processedArgs: any[] = [];
+						for (let i = 0; i < args.length; i++) {
+							const arg = args[i];
+							const paramType = fn.signature[i];
+							const isNodeList =
+								arg && typeof arg === 'object' && arg.__isNodeList === true;
+
+							if (paramType === 'NodesType') {
+								if (!isNodeList) return undefined; // Type mismatch
+								processedArgs.push(arg.nodes);
+							} else if (paramType === 'LogicalType') {
+								processedArgs.push(this.isTruthy(arg));
 							} else {
-								processedArgs.push(arg);
+								// ValueType
+								if (isNodeList) {
+									if (arg.nodes.length === 1) {
+										processedArgs.push(arg.nodes[0].value);
+									} else {
+										return undefined; // Non-singular query for ValueType
+									}
+								} else if (
+									arg &&
+									typeof arg === 'object' &&
+									(arg.__isFunctionResult || arg.__isLogicalType)
+								) {
+									processedArgs.push(arg.value);
+								} else {
+									processedArgs.push(arg);
+								}
 							}
 						}
-					}
 
-					const result = fn.evaluate(...processedArgs);
-					if (result === undefined) return undefined;
+						const result = fn.evaluate(...processedArgs);
+						if (result === undefined) return undefined;
 
-					if (fn.returns === 'LogicalType') {
-						return { value: result, __isLogicalType: true };
+						if (fn.returns === 'LogicalType') {
+							return { value: result, __isLogicalType: true };
+						}
+						return { value: result, __isFunctionResult: true };
+					} catch (err) {
+						// RFC 9535: Errors in function evaluation result in "Nothing"
+						return undefined;
 					}
-					return { value: result, __isFunctionResult: true };
-				} catch (err) {
-					// RFC 9535: Errors in function evaluation result in "Nothing"
-					return undefined;
 				}
+				default:
+					return undefined;
 			}
-			default:
-				return undefined;
+		} finally {
+			this.currentFilterDepth--;
 		}
 	}
 
@@ -661,5 +739,14 @@ export function evaluate(
 	ast: QueryNode,
 	options?: EvaluatorOptions,
 ): QueryResult {
-	return new Evaluator(root, options).evaluate(ast);
+	const plugins = PluginManager.from(options);
+	plugins.beforeEvaluate({ root, query: ast, options });
+	try {
+		const result = new Evaluator(root, options).evaluate(ast);
+		plugins.afterEvaluate({ result });
+		return result;
+	} catch (error) {
+		plugins.onError({ error });
+		throw error;
+	}
 }

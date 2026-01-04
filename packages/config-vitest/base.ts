@@ -12,6 +12,8 @@ export function vitestBaseConfig(): ViteUserConfig {
 		test: {
 			globals: true,
 			passWithNoTests: true,
+			reporters: ['json', 'default'],
+			outputFile: 'test-output.json',
 			coverage: {
 				provider: 'v8',
 				reportsDirectory: 'coverage',

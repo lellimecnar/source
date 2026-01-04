@@ -1,0 +1,229 @@
+{
+	"numTotalTestSuites": 12,
+	"numPassedTestSuites": 12,
+	"numFailedTestSuites": 0,
+	"numPendingTestSuites": 0,
+	"numTotalTests": 18,
+	"numPassedTests": 18,
+	"numFailedTests": 0,
+	"numPendingTests": 0,
+	"numTodoTests": 0,
+	"snapshot": {
+		"added": 0,
+		"failure": false,
+		"filesAdded": 0,
+		"filesRemoved": 0,
+		"filesRemovedList": [],
+		"filesUnmatched": 0,
+		"filesUpdated": 0,
+		"matched": 0,
+		"total": 0,
+		"unchecked": 0,
+		"uncheckedKeysByFile": [],
+		"unmatched": 0,
+		"updated": 0,
+		"didUpdate": false
+	},
+	"startTime": 1767570727861,
+	"success": true,
+	"testResults": [
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["errors"],
+					"fullName": "errors should create a base JSONPathError",
+					"status": "passed",
+					"title": "should create a base JSONPathError",
+					"duration": 5.118458999999973,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["errors"],
+					"fullName": "errors should create specific error types",
+					"status": "passed",
+					"title": "should create specific error types",
+					"duration": 0.4293749999999932,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["errors"],
+					"fullName": "errors should serialize to JSON",
+					"status": "passed",
+					"title": "should serialize to JSON",
+					"duration": 0.12991599999998016,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570728360,
+			"endTime": 1767570728366.13,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/core/src/__tests__/errors.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["registry"],
+					"fullName": "registry should register a selector",
+					"status": "passed",
+					"title": "should register a selector",
+					"duration": 5.5005840000000035,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["registry"],
+					"fullName": "registry should register an operator",
+					"status": "passed",
+					"title": "should register an operator",
+					"duration": 0.10141700000002629,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570728366,
+			"endTime": 1767570728372.1013,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/core/src/__tests__/registry.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["types"],
+					"fullName": "types should allow creating a QueryNode",
+					"status": "passed",
+					"title": "should allow creating a QueryNode",
+					"duration": 4.019791999999995,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["types"],
+					"fullName": "types should define QueryResult interface structure",
+					"status": "passed",
+					"title": "should define QueryResult interface structure",
+					"duration": 0.24216599999999744,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570728286,
+			"endTime": 1767570728290.2422,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/core/src/__tests__/types.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["utils", "type guards"],
+					"fullName": "utils type guards isObject",
+					"status": "passed",
+					"title": "isObject",
+					"duration": 0.6245419999999626,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utils", "type guards"],
+					"fullName": "utils type guards isArray",
+					"status": "passed",
+					"title": "isArray",
+					"duration": 0.12424999999996089,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utils", "type guards"],
+					"fullName": "utils type guards isPrimitive",
+					"status": "passed",
+					"title": "isPrimitive",
+					"duration": 3.379624999999976,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utils", "deepEqual"],
+					"fullName": "utils deepEqual should compare primitives",
+					"status": "passed",
+					"title": "should compare primitives",
+					"duration": 0.191833000000031,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utils", "deepEqual"],
+					"fullName": "utils deepEqual should compare objects",
+					"status": "passed",
+					"title": "should compare objects",
+					"duration": 0.14041700000001356,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utils", "deepEqual"],
+					"fullName": "utils deepEqual should compare arrays",
+					"status": "passed",
+					"title": "should compare arrays",
+					"duration": 5.267332999999951,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utils", "deepEqual"],
+					"fullName": "utils deepEqual should handle circular references",
+					"status": "passed",
+					"title": "should handle circular references",
+					"duration": 0.26720799999998235,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utils", "deepClone"],
+					"fullName": "utils deepClone should clone primitives",
+					"status": "passed",
+					"title": "should clone primitives",
+					"duration": 0.14433400000001484,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utils", "deepClone"],
+					"fullName": "utils deepClone should clone objects and arrays",
+					"status": "passed",
+					"title": "should clone objects and arrays",
+					"duration": 7.701208000000008,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utils", "deepClone"],
+					"fullName": "utils deepClone should clone using fallback if structuredClone is not available",
+					"status": "passed",
+					"title": "should clone using fallback if structuredClone is not available",
+					"duration": 0.16520900000000438,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utils", "freeze"],
+					"fullName": "utils freeze should recursively freeze",
+					"status": "passed",
+					"title": "should recursively freeze",
+					"duration": 5.519667000000027,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767570728355,
+			"endTime": 1767570728384.5198,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/core/src/__tests__/utils.spec.ts"
+		}
+	]
+}

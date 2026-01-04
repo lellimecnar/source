@@ -1,5 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { query, queryValues, queryPaths, compileQuery } from '../facade.js';
+import {
+	query,
+	queryValues,
+	queryPaths,
+	compileQuery,
+	value,
+	first,
+	exists,
+	count,
+	pointer,
+	patch,
+	mergePatch,
+	toPointer,
+	toPointers,
+} from '../facade.js';
 import { transform, omit } from '../transform.js';
 
 describe('JSONPath Facade', () => {
@@ -39,11 +53,55 @@ describe('JSONPath Facade', () => {
 		expect(q(data).values()).toEqual([10]);
 	});
 
+	it('should execute value()', () => {
+		expect(value(data, '$.store.book[0].price')).toBe(10);
+	});
+
+	it('should execute first()', () => {
+		expect(first(data, '$.store.book[0].price')).toBe(10);
+	});
+
+	it('should execute exists()', () => {
+		expect(exists(data, '$.store.book[0].price')).toBe(true);
+		expect(exists(data, '$.store.book[99].price')).toBe(false);
+	});
+
+	it('should execute count()', () => {
+		expect(count(data, '$.store.book[*].price')).toBe(2);
+	});
+
 	it('should use cache for repeated queries', () => {
 		const path = '$.store.book[*].price';
 		const result1 = query(data, path);
 		const result2 = query(data, path);
 		expect(result1.values()).toEqual(result2.values());
+	});
+
+	it('should execute pointer()', () => {
+		expect(pointer(data, '/store/book/0/price')).toBe(10);
+	});
+
+	it('should execute patch()', () => {
+		const result = patch({ a: 1 }, [{ op: 'add', path: '/b', value: 2 }]);
+		expect(result).toEqual({ a: 1, b: 2 });
+	});
+
+	it('should execute mergePatch()', () => {
+		const result = mergePatch({ a: 1 }, { b: 2, a: null });
+		expect(result).toEqual({ b: 2 });
+	});
+
+	it('should execute toPointer()', () => {
+		expect(toPointer(data, '$.store.book[0].price')).toBe(
+			'/store/book/0/price',
+		);
+	});
+
+	it('should execute toPointers()', () => {
+		expect(toPointers(data, '$.store.book[*].price')).toEqual([
+			'/store/book/0/price',
+			'/store/book/1/price',
+		]);
 	});
 
 	it('should transform values', () => {

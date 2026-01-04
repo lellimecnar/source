@@ -25,8 +25,8 @@ describe('Relative JSON Pointer', () => {
 	it('resolves key reference via #', () => {
 		const root = { a: { b: { c: 1 } } };
 		const current = new JSONPointer('/a/b');
-		const rel = new RelativeJSONPointer('0/c#');
-		expect(rel.resolve(root, current)).toBe('c');
+		expect(resolveRelative(root, current, '0#')).toBe('b');
+		expect(resolveRelative(root, current, '1#')).toBe('a');
 	});
 
 	it('validates with isRelativePointer()', () => {

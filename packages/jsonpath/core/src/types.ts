@@ -6,6 +6,8 @@
  * @packageDocumentation
  */
 
+import type { JSONPathPlugin } from './plugins.js';
+
 /**
  * Represents any valid JSON value.
  */
@@ -164,4 +166,5 @@ export interface EvaluatorOptions {
 	readonly detectCircular?: boolean;
 	readonly secure?: SecureQueryOptions;
 	readonly signal?: AbortSignal;
+	readonly plugins?: readonly JSONPathPlugin[];
 }
