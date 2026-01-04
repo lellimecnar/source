@@ -1,0 +1,51 @@
+{
+	"name": "@jsonpath/lexer",
+	"version": "0.1.0",
+	"description": "JSONPath lexer implementation",
+	"keywords": [
+		"jsonpath",
+		"json",
+		"lexer"
+	],
+	"license": "MIT",
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"scripts": {
+		"build": "vite build",
+		"dev": "vite build --watch",
+		"lint": "eslint .",
+		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"test:watch": "vitest",
+		"type-check": "tsgo --noEmit"
+	},
+	"dependencies": {
+		"@jsonpath/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@lellimecnar/eslint-config": "workspace:*",
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@lellimecnar/vite-config": "workspace:*",
+		"@lellimecnar/vitest-config": "workspace:*",
+		"@types/node": "^24",
+		"@vitest/coverage-v8": "^4.0.16",
+		"eslint": "^8.57.1",
+		"typescript": "~5.5",
+		"vite": "^7.3.0",
+		"vite-plugin-dts": "^4.5.4",
+		"vite-tsconfig-paths": "^6.0.3",
+		"vitest": "^4.0.16"
+	}
+}
