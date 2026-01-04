@@ -9,14 +9,14 @@ describe('Compiler', () => {
 		const query = compile(ast);
 
 		const result = query(data);
-		expect(result.values).toEqual([1]);
+		expect(result.values()).toEqual([1]);
 	});
 
 	it('should be reusable', () => {
 		const ast = parse('$.val');
 		const query = compile(ast);
 
-		expect(query({ val: 1 }).values).toEqual([1]);
-		expect(query({ val: 2 }).values).toEqual([2]);
+		expect(query({ val: 1 }).values()).toEqual([1]);
+		expect(query({ val: 2 }).values()).toEqual([2]);
 	});
 });

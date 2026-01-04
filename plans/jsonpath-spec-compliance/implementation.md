@@ -391,11 +391,11 @@ Objective: rewrite QueryResult to match the method-based interface already defin
 
 Important: This step will require updating any callers/tests currently using `.values` / `.paths` getters.
 
-- [ ] Replace packages/jsonpath/evaluator/src/query-result.ts with a method-based implementation
-- [ ] Update evaluator to emit `QueryNode` with `root`, `parent`, `parentKey`
-- [ ] Update call sites that use `.values` or `.paths` getters (tests + facade/compiler)
+- [x] Replace packages/jsonpath/evaluator/src/query-result.ts with a method-based implementation
+- [x] Update evaluator to emit `QueryNode` with `root`, `parent`, `parentKey`
+- [x] Update call sites that use `.values` or `.paths` getters (tests + facade/compiler)
 
-#### 1.2.a Replace evaluator QueryResult
+#### 1.2.a Replace evaluator QueryResult [DONE]
 
 Copy/paste the full file below into packages/jsonpath/evaluator/src/query-result.ts, replacing the file contents entirely:
 
@@ -531,7 +531,7 @@ export class QueryResult<T = unknown> implements CoreQueryResult<T> {
 }
 ```
 
-#### 1.2.b Update evaluator to emit richer nodes + method-based results
+#### 1.2.b Update evaluator to emit richer nodes + method-based results [DONE]
 
 In packages/jsonpath/evaluator/src/evaluator.ts:
 
@@ -610,7 +610,7 @@ to:
 const key = n.path.map(String).join('\0');
 ```
 
-#### 1.2.c Update call sites (tests + facade/compiler)
+#### 1.2.c Update call sites (tests + facade/compiler) [DONE]
 
 Update any use of `.values` and `.paths` getters to the method forms:
 

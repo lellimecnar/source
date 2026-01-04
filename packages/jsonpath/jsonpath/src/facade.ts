@@ -31,14 +31,14 @@ export function query(root: any, path: string): QueryResult {
  * Executes a JSONPath query and returns only the values.
  */
 export function queryValues(root: any, path: string): any[] {
-	return query(root, path).values;
+	return query(root, path).values();
 }
 
 /**
  * Executes a JSONPath query and returns only the paths.
  */
-export function queryPaths(root: any, path: string): string[] {
-	return query(root, path).paths;
+export function queryPaths(root: any, path: string): any[] {
+	return query(root, path).paths();
 }
 
 /**

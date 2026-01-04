@@ -22,6 +22,7 @@ import {
 import '@jsonpath/functions';
 import { getFunction } from '@jsonpath/core';
 import { QueryResult, type QueryResultNode } from './query-result.js';
+import type { PathSegment } from '@jsonpath/core';
 
 export class Evaluator {
 	private root: any;
@@ -31,7 +32,9 @@ export class Evaluator {
 	}
 
 	public evaluate(ast: QueryNode): QueryResult {
-		let currentNodes: QueryResultNode[] = [{ value: this.root, path: [] }];
+		let currentNodes: QueryResultNode[] = [
+			{ value: this.root, path: [], root: this.root },
+		];
 
 		for (const segment of ast.segments) {
 			currentNodes = this.evaluateSegment(segment, currentNodes);
@@ -60,7 +63,7 @@ export class Evaluator {
 		// Deduplicate nodes by path
 		const seen = new Set<string>();
 		return nextNodes.filter((n) => {
-			const key = n.path.join('\0');
+			const key = n.path.map(String).join('\0');
 			if (seen.has(key)) return false;
 			seen.add(key);
 			return true;
@@ -77,13 +80,28 @@ export class Evaluator {
 			if (Array.isArray(val)) {
 				val.forEach((v, i) => {
 					this.walkDescendants(
-						{ value: v, path: [...node.path, String(i)] },
+						{
+							value: v,
+							path: [...node.path, i],
+							root: node.root,
+							parent: val,
+							parentKey: i,
+						},
 						callback,
 					);
 				});
 			} else {
 				Object.entries(val).forEach(([k, v]) => {
-					this.walkDescendants({ value: v, path: [...node.path, k] }, callback);
+					this.walkDescendants(
+						{
+							value: v,
+							path: [...node.path, k],
+							root: node.root,
+							parent: val,
+							parentKey: k,
+						},
+						callback,
+					);
 				});
 			}
 		}
@@ -104,7 +122,7 @@ export class Evaluator {
 		node: QueryResultNode,
 		results: QueryResultNode[],
 	): void {
-		const val = node.value;
+		const val = node.value as any;
 		if (val === null || typeof val !== 'object') return;
 
 		switch (selector.type) {
@@ -116,6 +134,9 @@ export class Evaluator {
 					results.push({
 						value: val[selector.name],
 						path: [...node.path, selector.name],
+						root: node.root,
+						parent: val,
+						parentKey: selector.name,
 					});
 				}
 				break;
@@ -126,7 +147,10 @@ export class Evaluator {
 					if (idx >= 0 && idx < val.length) {
 						results.push({
 							value: val[idx],
-							path: [...node.path, String(idx)],
+							path: [...node.path, idx],
+							root: node.root,
+							parent: val,
+							parentKey: idx,
 						});
 					}
 				}
@@ -134,11 +158,23 @@ export class Evaluator {
 			case NodeType.WildcardSelector:
 				if (Array.isArray(val)) {
 					val.forEach((v, i) =>
-						results.push({ value: v, path: [...node.path, String(i)] }),
+						results.push({
+							value: v,
+							path: [...node.path, i],
+							root: node.root,
+							parent: val,
+							parentKey: i,
+						}),
 					);
 				} else {
 					Object.entries(val).forEach(([k, v]) =>
-						results.push({ value: v, path: [...node.path, k] }),
+						results.push({
+							value: v,
+							path: [...node.path, k],
+							root: node.root,
+							parent: val,
+							parentKey: k,
+						}),
 					);
 				}
 				break;
@@ -157,11 +193,23 @@ export class Evaluator {
 
 					if (step > 0) {
 						for (let i = start; i < end; i += step) {
-							results.push({ value: val[i], path: [...node.path, String(i)] });
+							results.push({
+								value: val[i],
+								path: [...node.path, i],
+								root: node.root,
+								parent: val,
+								parentKey: i,
+							});
 						}
 					} else {
 						for (let i = start; i > end; i += step) {
-							results.push({ value: val[i], path: [...node.path, String(i)] });
+							results.push({
+								value: val[i],
+								path: [...node.path, i],
+								root: node.root,
+								parent: val,
+								parentKey: i,
+							});
 						}
 					}
 				}
@@ -172,10 +220,19 @@ export class Evaluator {
 						if (
 							this.evaluateExpression(selector.expression, {
 								value: v,
-								path: [...node.path, String(i)],
+								path: [...node.path, i],
+								root: node.root,
+								parent: val,
+								parentKey: i,
 							})
 						) {
-							results.push({ value: v, path: [...node.path, String(i)] });
+							results.push({
+								value: v,
+								path: [...node.path, i],
+								root: node.root,
+								parent: val,
+								parentKey: i,
+							});
 						}
 					});
 				} else {
@@ -186,9 +243,18 @@ export class Evaluator {
 							this.evaluateExpression(selector.expression, {
 								value: v,
 								path: [...node.path, k],
+								root: node.root,
+								parent: val,
+								parentKey: k,
 							})
 						) {
-							results.push({ value: v, path: [...node.path, k] });
+							results.push({
+								value: v,
+								path: [...node.path, k],
+								root: node.root,
+								parent: val,
+								parentKey: k,
+							});
 						}
 					});
 				}
@@ -254,7 +320,7 @@ export class Evaluator {
 		current: QueryResultNode,
 	): QueryResultNode[] {
 		let nodes: QueryResultNode[] = query.root
-			? [{ value: this.root, path: [] }]
+			? [{ value: this.root, path: [], root: this.root }]
 			: [current];
 		for (const segment of query.segments) {
 			nodes = this.evaluateSegment(segment, nodes);
