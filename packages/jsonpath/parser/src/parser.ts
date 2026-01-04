@@ -8,6 +8,7 @@
 
 import { JSONPathSyntaxError } from '@jsonpath/core';
 import { Lexer, TokenType, type Token } from '@jsonpath/lexer';
+
 import {
 	NodeType,
 	type QueryNode,
@@ -95,7 +96,12 @@ export class Parser {
 			});
 			this.lexer.next();
 		} else {
-			throw new JSONPathSyntaxError(`Unexpected token: ${next.type}`, { position: next.start });
+			throw new JSONPathSyntaxError(
+				`Unexpected token: ${next.type}` /** gitleaks:allow */,
+				{
+					position: next.start,
+				},
+			);
 		}
 
 		return {
@@ -160,7 +166,12 @@ export class Parser {
 			};
 		}
 
-		throw new JSONPathSyntaxError(`Unexpected selector token: ${token.type}`, { position: token.start });
+		throw new JSONPathSyntaxError(
+			`Unexpected selector token: ${token.type}` /** gitleaks:allow */,
+			{
+				position: token.start,
+			},
+		);
 	}
 
 	private parseSlice(): SelectorNode {
@@ -244,8 +255,13 @@ export class Parser {
 			return expr;
 		}
 
-		if (token.type === TokenType.STRING || token.type === TokenType.NUMBER ||
-			token.type === TokenType.TRUE || token.type === TokenType.FALSE || token.type === TokenType.NULL) {
+		if (
+			token.type === TokenType.STRING ||
+			token.type === TokenType.NUMBER ||
+			token.type === TokenType.TRUE ||
+			token.type === TokenType.FALSE ||
+			token.type === TokenType.NULL
+		) {
 			this.lexer.next();
 			return {
 				type: NodeType.Literal,
@@ -287,7 +303,10 @@ export class Parser {
 			}
 		}
 
-		throw new JSONPathSyntaxError(`Unexpected expression token: ${token.type}`, { position: token.start });
+		throw new JSONPathSyntaxError(
+			`Unexpected expression token: ${token.type}`, // gitleaks:allow
+			{ position: token.start },
+		);
 	}
 
 	private parseSingularQuery(): SingularQueryNode {
@@ -299,7 +318,11 @@ export class Parser {
 		const segments: SegmentNode[] = [];
 		while (true) {
 			const next = this.lexer.peek();
-			if (next.type === TokenType.DOT || next.type === TokenType.DOT_DOT || next.type === TokenType.LBRACKET) {
+			if (
+				next.type === TokenType.DOT ||
+				next.type === TokenType.DOT_DOT ||
+				next.type === TokenType.LBRACKET
+			) {
 				segments.push(this.parseSegment());
 			} else {
 				break;
@@ -318,7 +341,9 @@ export class Parser {
 	private expect(type: TokenType): Token {
 		const token = this.lexer.next();
 		if (token.type !== type) {
-			throw new JSONPathSyntaxError(`Expected ${type}, got ${token.type}`, { position: token.start });
+			throw new JSONPathSyntaxError(`Expected ${type}, got ${token.type}`, {
+				position: token.start,
+			});
 		}
 		return token;
 	}

@@ -25,6 +25,7 @@ This is a **pnpm + Turborepo** monorepo containing web applications, mobile appl
 
 - **[UI Components](./docs/api/ui-components.md):** Props and usage for `@lellimecnar/ui`.
 - **[Card Stack](./docs/api/card-stack.md):** Core classes and mixins for the game engine.
+- **[JSONPath Suite](./docs/api/jsonpath.md):** RFC-compliant JSONPath, Pointer, and Patch API.
 - **[Utilities](./docs/api/utils.md):** Shared utility functions.
 
 ### Architecture Decision Records (ADRs)
@@ -49,6 +50,17 @@ The repository is organized into the following workspaces:
 - **`packages/card-stack/*`**: Domain logic packages.
   - `core`: Core card game engine using TypeScript mixins.
   - `deck-standard`: Standard 52-card deck implementation.
+- **`packages/jsonpath/*`**: RFC-compliant JSONPath, Pointer, and Patch suite.
+  - `jsonpath`: Unified facade for the entire suite.
+  - `evaluator`: RFC 9535 JSONPath interpreter.
+  - `parser`: Pratt parser for JSONPath expressions.
+  - `lexer`: Tokenizer for JSONPath.
+  - `pointer`: RFC 6901 JSON Pointer implementation.
+  - `patch`: RFC 6902 JSON Patch implementation.
+  - `merge-patch`: RFC 7386 JSON Merge Patch implementation.
+  - `compiler`: Functional wrapper for reusable queries.
+  - `functions`: Built-in functions for JSONPath filters.
+  - `core`: Shared types and AST definitions.
 
 ### Documentation Map
 

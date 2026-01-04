@@ -23,7 +23,10 @@ export type Transformer = {
 	[K in NodeType]?: (node: any) => ASTNode | null;
 };
 
-export function transform(node: ASTNode, transformer: Transformer): ASTNode | null {
+export function transform(
+	node: ASTNode,
+	transformer: Transformer,
+): ASTNode | null {
 	const transformNode = transformer[node.type];
 	let newNode: any = transformNode ? transformNode(node) : { ...node };
 

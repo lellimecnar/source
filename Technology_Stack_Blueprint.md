@@ -13,7 +13,7 @@ This project is a **TypeScript Monorepo** utilizing a modern full-stack JavaScri
 - **Web Framework**: Next.js (^15.2.3)
 - **Mobile Framework**: Expo (~52.0.14) / React Native (0.76.3)
 - **UI Styling**: Tailwind CSS (^3.4.17) / NativeWind (^4.2.1)
-- **Testing**: Jest (^29)
+- **Testing**: Jest (^29) / Vitest (^3.0.0)
 - **Linting/Formatting**: ESLint (^8), Prettier (^3.6.2)
 
 ## 2. Core Technologies Analysis
@@ -42,6 +42,11 @@ This project is a **TypeScript Monorepo** utilizing a modern full-stack JavaScri
 
 - **ts-mixer**: Version ^6.0.4 is used in `@card-stack/core` to implement mixin patterns for complex game entity behaviors (e.g., `Mix(Card, Flippable)`).
 - **Jest**: Version ^29 is the test runner for unit and integration tests, configured via `packages/config-jest`.
+
+### Data Manipulation Stack
+
+- **JSONPath Suite**: A custom, zero-dependency implementation of RFC 9535 (JSONPath), RFC 6901 (Pointer), and RFC 6902 (Patch).
+- **Vitest**: Version ^3.0.0 is used for testing the JSONPath suite, providing fast, ESM-native testing with built-in coverage.
 
 ## 3. Implementation Patterns & Conventions
 

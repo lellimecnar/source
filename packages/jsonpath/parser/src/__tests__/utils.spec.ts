@@ -26,6 +26,8 @@ describe('AST Utilities', () => {
 				name: 'transformed_' + node.name,
 			}),
 		});
-		expect((transformed as any).segments[0].selectors[0].name).toBe('transformed_a');
+		expect((transformed as any).segments[0].selectors[0].name).toBe(
+			'transformed_a',
+		);
 	});
 });

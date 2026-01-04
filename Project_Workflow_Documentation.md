@@ -7,6 +7,7 @@ This document outlines three representative workflows within the **TypeScript Mo
 1.  **Frontend Page Rendering**: How a Next.js page is requested and rendered.
 2.  **Domain Logic Execution**: How the card game engine composes entities using mixins.
 3.  **UI Component Usage**: How shared UI components are styled and rendered.
+4.  **Data Querying and Patching**: How the JSONPath suite is used to manipulate data.
 
 These workflows serve as templates for implementing new features across the Web, Mobile, and Domain layers.
 
@@ -163,6 +164,55 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
+```
+
+---
+
+## Workflow 4: Data Querying and Patching (JSONPath)
+
+**Description**: Querying and updating a complex JSON document using RFC-compliant tools.
+**Business Purpose**: Provides a standardized way to interact with dynamic data structures.
+**Trigger**: A request to filter or modify a data set.
+**Files Involved**:
+
+- `packages/jsonpath/jsonpath/src/facade.ts`
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/patch/src/patch.ts`
+
+### 1. Querying Data
+
+The `query` function parses the expression (if not cached), evaluates it against the data, and returns the results.
+
+```typescript
+import { query } from '@jsonpath/jsonpath';
+
+const data = { store: { book: [{ title: 'Sayings of the Century' }] } };
+const result = query(data, '$.store.book[*].title');
+// result: ["Sayings of the Century"]
+```
+
+### 2. Patching Data
+
+The `applyPatch` function takes a sequence of RFC 6902 operations and applies them to a deep clone of the data.
+
+```typescript
+import { applyPatch } from '@jsonpath/patch';
+
+const patch = [
+	{ op: 'replace', path: '/store/book/0/title', value: 'New Title' },
+];
+const updatedData = applyPatch(data, patch);
+```
+
+### 3. Performance Optimization (Compilation)
+
+For hot paths, expressions are compiled into reusable functions to skip the parsing and AST walking overhead.
+
+```typescript
+import { compileQuery } from '@jsonpath/jsonpath';
+
+const myQuery = compileQuery('$.store.book[*].title');
+const result = myQuery(data);
 ```
 
 ---

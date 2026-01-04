@@ -7,14 +7,23 @@
  */
 
 import { JSONPathSyntaxError } from '@jsonpath/core';
+
+import {
+	CHAR_FLAGS,
+	IS_WHITESPACE,
+	IS_DIGIT,
+	IS_IDENT_START,
+	IS_IDENT_CONT,
+	IS_OPERATOR,
+	CharCode,
+} from './char-tables.js';
 import { TokenType, type Token } from './tokens.js';
-import { CHAR_FLAGS, IS_WHITESPACE, IS_DIGIT, IS_IDENT_START, IS_IDENT_CONT, IS_OPERATOR, CharCode } from './char-tables.js';
 
 export interface LexerInterface {
-	next(): Token;
-	peek(): Token;
-	peekAhead(n: number): Token;
-	isAtEnd(): boolean;
+	next: () => Token;
+	peek: () => Token;
+	peekAhead: (n: number) => Token;
+	isAtEnd: () => boolean;
 	readonly position: number;
 	readonly input: string;
 }
@@ -31,7 +40,9 @@ export class Lexer implements LexerInterface {
 	}
 
 	public next(): Token {
-		return this.tokens[this.tokenIndex++] ?? this.tokens[this.tokens.length - 1]!;
+		return (
+			this.tokens[this.tokenIndex++] ?? this.tokens[this.tokens.length - 1]!
+		);
 	}
 
 	public peek(): Token {
@@ -39,7 +50,9 @@ export class Lexer implements LexerInterface {
 	}
 
 	public peekAhead(n: number): Token {
-		return this.tokens[this.tokenIndex + n] ?? this.tokens[this.tokens.length - 1]!;
+		return (
+			this.tokens[this.tokenIndex + n] ?? this.tokens[this.tokens.length - 1]!
+		);
 	}
 
 	public isAtEnd(): boolean {
@@ -64,76 +77,109 @@ export class Lexer implements LexerInterface {
 			switch (charCode) {
 				case CharCode.DOLLAR:
 					this.advance();
-					this.tokens.push(this.createToken(TokenType.ROOT, '$', start, line, col));
+					this.tokens.push(
+						this.createToken(TokenType.ROOT, '$', start, line, col),
+					);
 					continue;
 				case CharCode.AT:
 					this.advance();
-					this.tokens.push(this.createToken(TokenType.CURRENT, '@', start, line, col));
+					this.tokens.push(
+						this.createToken(TokenType.CURRENT, '@', start, line, col),
+					);
 					continue;
 				case CharCode.DOT:
 					if (this.input.charCodeAt(this.pos + 1) === CharCode.DOT) {
 						this.advance();
 						this.advance();
-						this.tokens.push(this.createToken(TokenType.DOT_DOT, '..', start, line, col));
+						this.tokens.push(
+							this.createToken(TokenType.DOT_DOT, '..', start, line, col),
+						);
 					} else {
 						this.advance();
-						this.tokens.push(this.createToken(TokenType.DOT, '.', start, line, col));
+						this.tokens.push(
+							this.createToken(TokenType.DOT, '.', start, line, col),
+						);
 					}
 					continue;
 				case CharCode.LBRACKET:
 					this.advance();
-					this.tokens.push(this.createToken(TokenType.LBRACKET, '[', start, line, col));
+					this.tokens.push(
+						this.createToken(TokenType.LBRACKET, '[', start, line, col),
+					);
 					continue;
 				case CharCode.RBRACKET:
 					this.advance();
-					this.tokens.push(this.createToken(TokenType.RBRACKET, ']', start, line, col));
+					this.tokens.push(
+						this.createToken(TokenType.RBRACKET, ']', start, line, col),
+					);
 					continue;
 				case CharCode.LPAREN:
 					this.advance();
-					this.tokens.push(this.createToken(TokenType.LPAREN, '(', start, line, col));
+					this.tokens.push(
+						this.createToken(TokenType.LPAREN, '(', start, line, col),
+					);
 					continue;
 				case CharCode.RPAREN:
 					this.advance();
-					this.tokens.push(this.createToken(TokenType.RPAREN, ')', start, line, col));
+					this.tokens.push(
+						this.createToken(TokenType.RPAREN, ')', start, line, col),
+					);
 					continue;
 				case CharCode.COMMA:
 					this.advance();
-					this.tokens.push(this.createToken(TokenType.COMMA, ',', start, line, col));
+					this.tokens.push(
+						this.createToken(TokenType.COMMA, ',', start, line, col),
+					);
 					continue;
 				case CharCode.COLON:
 					this.advance();
-					this.tokens.push(this.createToken(TokenType.COLON, ':', start, line, col));
+					this.tokens.push(
+						this.createToken(TokenType.COLON, ':', start, line, col),
+					);
 					continue;
 				case CharCode.ASTERISK:
 					this.advance();
-					this.tokens.push(this.createToken(TokenType.WILDCARD, '*', start, line, col));
+					this.tokens.push(
+						this.createToken(TokenType.WILDCARD, '*', start, line, col),
+					);
 					continue;
 				case CharCode.QUESTION:
 					this.advance();
-					this.tokens.push(this.createToken(TokenType.FILTER, '?', start, line, col));
+					this.tokens.push(
+						this.createToken(TokenType.FILTER, '?', start, line, col),
+					);
 					continue;
 			}
 
 			// Strings
-			if (charCode === CharCode.SINGLE_QUOTE || charCode === CharCode.DOUBLE_QUOTE) {
+			if (
+				charCode === CharCode.SINGLE_QUOTE ||
+				charCode === CharCode.DOUBLE_QUOTE
+			) {
 				this.tokens.push(this.readString(charCode));
 				continue;
 			}
 
 			// Numbers
-			if ((charCode < 128 && (CHAR_FLAGS[charCode]! & IS_DIGIT)) || charCode === CharCode.MINUS) {
+			if (
+				(charCode < 128 && CHAR_FLAGS[charCode]! & IS_DIGIT) ||
+				charCode === CharCode.MINUS
+			) {
 				this.tokens.push(this.readNumber());
 				continue;
 			}
 
 			// Identifiers and Keywords
-			if ((charCode < 128 && (CHAR_FLAGS[charCode]! & IS_IDENT_START)) || charCode > 127) {
+			if (
+				(charCode < 128 && CHAR_FLAGS[charCode]! & IS_IDENT_START) ||
+				charCode > 127
+			) {
 				this.tokens.push(this.readIdentOrKeyword());
 				continue;
 			}
 
 			// Operators
-			if (charCode < 128 && (CHAR_FLAGS[charCode]! & IS_OPERATOR)) {
+			if (charCode < 128 && CHAR_FLAGS[charCode]! & IS_OPERATOR) {
 				this.tokens.push(this.readOperator());
 				continue;
 			}
@@ -141,16 +187,20 @@ export class Lexer implements LexerInterface {
 			// Error
 			const errorChar = this.input[this.pos];
 			this.advance();
-			this.tokens.push(this.createToken(TokenType.ERROR, errorChar, start, line, col));
+			this.tokens.push(
+				this.createToken(TokenType.ERROR, errorChar, start, line, col),
+			);
 		}
 
-		this.tokens.push(this.createToken(TokenType.EOF, '', this.pos, this.line, this.column));
+		this.tokens.push(
+			this.createToken(TokenType.EOF, '', this.pos, this.line, this.column),
+		);
 	}
 
 	private skipWhitespace(): void {
 		while (this.pos < this.input.length) {
 			const charCode = this.input.charCodeAt(this.pos);
-			if (charCode < 128 && (CHAR_FLAGS[charCode]! & IS_WHITESPACE)) {
+			if (charCode < 128 && CHAR_FLAGS[charCode]! & IS_WHITESPACE) {
 				this.advance();
 			} else {
 				break;
@@ -177,11 +227,21 @@ export class Lexer implements LexerInterface {
 				if (this.pos >= this.input.length) break;
 				const escaped = this.input.charCodeAt(this.pos);
 				switch (escaped) {
-					case 110: value += '\n'; break; // n
-					case 114: value += '\r'; break; // r
-					case 116: value += '\t'; break; // t
-					case 98: value += '\b'; break; // b
-					case 102: value += '\f'; break; // f
+					case 110:
+						value += '\n';
+						break; // n
+					case 114:
+						value += '\r';
+						break; // r
+					case 116:
+						value += '\t';
+						break; // t
+					case 98:
+						value += '\b';
+						break; // b
+					case 102:
+						value += '\f';
+						break; // f
 					case 117: // uXXXX
 						this.advance();
 						const hex = this.input.slice(this.pos, this.pos + 4);
@@ -190,7 +250,7 @@ export class Lexer implements LexerInterface {
 							this.pos += 3; // advance will do the 4th
 							this.column += 3;
 						} else {
-							value += 'u' + hex;
+							value += `u${hex}`;
 						}
 						break;
 					default:
@@ -218,7 +278,7 @@ export class Lexer implements LexerInterface {
 
 		while (this.pos < this.input.length) {
 			const code = this.input.charCodeAt(this.pos);
-			if (code < 128 && (CHAR_FLAGS[code]! & IS_DIGIT)) {
+			if (code < 128 && CHAR_FLAGS[code]! & IS_DIGIT) {
 				raw += this.input[this.pos];
 				this.advance();
 			} else {
@@ -226,12 +286,15 @@ export class Lexer implements LexerInterface {
 			}
 		}
 
-		if (this.pos < this.input.length && this.input.charCodeAt(this.pos) === CharCode.DOT) {
+		if (
+			this.pos < this.input.length &&
+			this.input.charCodeAt(this.pos) === CharCode.DOT
+		) {
 			raw += '.';
 			this.advance();
 			while (this.pos < this.input.length) {
 				const code = this.input.charCodeAt(this.pos);
-				if (code < 128 && (CHAR_FLAGS[code]! & IS_DIGIT)) {
+				if (code < 128 && CHAR_FLAGS[code]! & IS_DIGIT) {
 					raw += this.input[this.pos];
 					this.advance();
 				} else {
@@ -240,16 +303,22 @@ export class Lexer implements LexerInterface {
 			}
 		}
 
-		if (this.pos < this.input.length && (this.input[this.pos] === 'e' || this.input[this.pos] === 'E')) {
+		if (
+			this.pos < this.input.length &&
+			(this.input[this.pos] === 'e' || this.input[this.pos] === 'E')
+		) {
 			raw += this.input[this.pos];
 			this.advance();
-			if (this.pos < this.input.length && (this.input[this.pos] === '+' || this.input[this.pos] === '-')) {
+			if (
+				this.pos < this.input.length &&
+				(this.input[this.pos] === '+' || this.input[this.pos] === '-')
+			) {
 				raw += this.input[this.pos];
 				this.advance();
 			}
 			while (this.pos < this.input.length) {
 				const code = this.input.charCodeAt(this.pos);
-				if (code < 128 && (CHAR_FLAGS[code]! & IS_DIGIT)) {
+				if (code < 128 && CHAR_FLAGS[code]! & IS_DIGIT) {
 					raw += this.input[this.pos];
 					this.advance();
 				} else {
@@ -258,7 +327,13 @@ export class Lexer implements LexerInterface {
 			}
 		}
 
-		return this.createToken(TokenType.NUMBER, parseFloat(raw), start, line, col);
+		return this.createToken(
+			TokenType.NUMBER,
+			parseFloat(raw),
+			start,
+			line,
+			col,
+		);
 	}
 
 	private readIdentOrKeyword(): Token {
@@ -269,7 +344,10 @@ export class Lexer implements LexerInterface {
 
 		while (this.pos < this.input.length) {
 			const charCode = this.input.charCodeAt(this.pos);
-			if (charCode > 127 || (charCode < 128 && (CHAR_FLAGS[charCode]! & IS_IDENT_CONT))) {
+			if (
+				charCode > 127 ||
+				(charCode < 128 && CHAR_FLAGS[charCode]! & IS_IDENT_CONT)
+			) {
 				value += this.input[this.pos];
 				this.advance();
 			} else {
@@ -278,9 +356,12 @@ export class Lexer implements LexerInterface {
 		}
 
 		switch (value) {
-			case 'true': return this.createToken(TokenType.TRUE, true, start, line, col);
-			case 'false': return this.createToken(TokenType.FALSE, false, start, line, col);
-			case 'null': return this.createToken(TokenType.NULL, null, start, line, col);
+			case 'true':
+				return this.createToken(TokenType.TRUE, true, start, line, col);
+			case 'false':
+				return this.createToken(TokenType.FALSE, false, start, line, col);
+			case 'null':
+				return this.createToken(TokenType.NULL, null, start, line, col);
 		}
 
 		return this.createToken(TokenType.IDENT, value, start, line, col);
@@ -319,9 +400,12 @@ export class Lexer implements LexerInterface {
 			return this.createToken(TokenType.OR, '||', start, line, col);
 		}
 
-		if (char === '<') return this.createToken(TokenType.LT, '<', start, line, col);
-		if (char === '>') return this.createToken(TokenType.GT, '>', start, line, col);
-		if (char === '!') return this.createToken(TokenType.NOT, '!', start, line, col);
+		if (char === '<')
+			return this.createToken(TokenType.LT, '<', start, line, col);
+		if (char === '>')
+			return this.createToken(TokenType.GT, '>', start, line, col);
+		if (char === '!')
+			return this.createToken(TokenType.NOT, '!', start, line, col);
 
 		return this.createToken(TokenType.ERROR, char, start, line, col);
 	}
@@ -341,7 +425,13 @@ export class Lexer implements LexerInterface {
 		return this.input.charCodeAt(this.pos);
 	}
 
-	private createToken(type: TokenType, value: any, start: number, line: number, col: number): Token {
+	private createToken(
+		type: TokenType,
+		value: any,
+		start: number,
+		line: number,
+		col: number,
+	): Token {
 		return {
 			type,
 			value,

@@ -43,6 +43,12 @@ graph TD
         DeckStd[@card-stack/deck-standard]
     end
 
+    subgraph "Data Layer (Query & Patch)"
+        JSONPath[@jsonpath/jsonpath]
+        Pointer[@jsonpath/pointer]
+        Patch[@jsonpath/patch]
+    end
+
     subgraph "Infrastructure Layer (Shared)"
         Utils[@lellimecnar/utils]
         Configs[Config Packages]
@@ -52,17 +58,23 @@ graph TD
     WebApp --> Utils
     WebApp --> CardCore
     WebApp --> DeckStd
+    WebApp --> JSONPath
 
     MobileApp --> MobileUI
     MobileApp --> Utils
     MobileApp --> CardCore
     MobileApp --> DeckStd
+    MobileApp --> JSONPath
 
     WebUI --> Utils
     MobileUI --> Utils
 
     CardCore --> Utils
     DeckStd --> CardCore
+
+    JSONPath --> Pointer
+    JSONPath --> Patch
+    Patch --> Pointer
 
     %% Configuration Dependencies
     WebApp -.-> Configs
@@ -99,6 +111,16 @@ graph TD
   - `packages/card-stack/deck-standard`: Implements specific deck types.
 - **Pattern**: **Mixin Composition**. Entities are composed of behaviors.
   - _Example_: `class StandardCard extends Mix(Card, Flippable, Rankable)`
+
+### Data Layer (JSONPath Suite)
+
+- **Purpose**: Provides high-performance, RFC-compliant data querying and manipulation.
+- **Components**:
+  - `packages/jsonpath/jsonpath`: Unified facade and AST caching.
+  - `packages/jsonpath/pointer`: RFC 6901 JSON Pointer.
+  - `packages/jsonpath/patch`: RFC 6902 JSON Patch.
+  - `packages/jsonpath/merge-patch`: RFC 7386 JSON Merge Patch.
+- **Pattern**: **Functional Querying**. Implements RFC 9535 (JSONPath) with a Pratt parser and functional compiler for reusable queries.
 
 ### Infrastructure Layer
 

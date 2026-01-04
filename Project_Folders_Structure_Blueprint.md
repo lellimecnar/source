@@ -33,6 +33,17 @@ This project is a **TypeScript Monorepo** managed with **pnpm** and **Turborepo*
 │   │   ├── jest.config.js      # Package-specific test config
 │   │   └── package.json        # Package manifest
 │   └── deck-standard/          # Standard 52-card deck implementation
+├── packages/jsonpath/          # RFC-compliant JSONPath suite
+│   ├── jsonpath/               # Unified facade
+│   ├── evaluator/              # RFC 9535 interpreter
+│   ├── parser/                 # Pratt parser
+│   ├── lexer/                  # Tokenizer
+│   ├── pointer/                # RFC 6901 Pointer
+│   ├── patch/                  # RFC 6902 Patch
+│   ├── merge-patch/            # RFC 7386 Merge Patch
+│   ├── compiler/               # Functional wrapper
+│   ├── functions/              # Filter functions
+│   └── core/                   # Shared types and AST
 ├── mobile/                     # Mobile applications
 │   └── readon/                 # Expo/React Native app
 │       ├── app/                # Expo Router pages
@@ -103,6 +114,15 @@ Pure TypeScript packages for business logic.
 - **`src/index.ts`**: Public API export.
 - **`src/**/\*.spec.ts`\*\*: Co-located unit tests.
 
+### JSONPath Suite (`packages/jsonpath/*`)
+
+RFC-compliant data manipulation libraries.
+
+- **`jsonpath/`**: The main entry point providing a unified API for querying and patching.
+- **`evaluator/`, `parser/`, `lexer/`**: Core components of the JSONPath engine.
+- **`pointer/`, `patch/`, `merge-patch/`**: Implementations of related RFCs for data addressing and modification.
+- **`compiler/`**: Provides JIT-like compilation of JSONPath expressions into reusable functions.
+
 ### Configuration Packages (`packages/config-*`)
 
 - **`config-eslint/`**: Exports ESLint configurations (base, next, react).
@@ -145,6 +165,7 @@ Pure TypeScript packages for business logic.
 - **Imports**:
   - **Internal Packages**: `@lellimecnar/<package-name>` (e.g., `@lellimecnar/ui`).
   - **Card Stack**: `@card-stack/<package-name>` (e.g., `@card-stack/core`).
+  - **JSONPath**: `@jsonpath/<package-name>` (e.g., `@jsonpath/jsonpath`).
   - **Granular Imports**: Prefer importing specific components/files from packages (e.g., `@lellimecnar/ui/button`) to support tree-shaking.
 
 ## 6. Navigation and Development Workflow

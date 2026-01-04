@@ -23,7 +23,11 @@ export type Visitor = {
 	[K in NodeType]?: (node: any, parent: ASTNode | null) => void;
 };
 
-export function walk(node: ASTNode, visitor: Visitor, parent: ASTNode | null = null): void {
+export function walk(
+	node: ASTNode,
+	visitor: Visitor,
+	parent: ASTNode | null = null,
+): void {
 	const visit = visitor[node.type];
 	if (visit) {
 		visit(node, parent);
@@ -51,7 +55,9 @@ export function walk(node: ASTNode, visitor: Visitor, parent: ASTNode | null = n
 			(node as FunctionCallNode).args.forEach((a) => walk(a, visitor, node));
 			break;
 		case NodeType.SingularQuery:
-			(node as SingularQueryNode).segments.forEach((s) => walk(s, visitor, node));
+			(node as SingularQueryNode).segments.forEach((s) =>
+				walk(s, visitor, node),
+			);
 			break;
 	}
 }

@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Monorepo](https://img.shields.io/badge/monorepo-turborepo-ef4444)
 
-> A pnpm + Turborepo monorepo containing web applications (Next.js), mobile applications (Expo), shared UI libraries, and a card game engine.
+> A pnpm + Turborepo monorepo containing web applications (Next.js), mobile applications (Expo), shared UI libraries, a card game engine, and an RFC-compliant JSONPath suite.
 
 ## 🚀 Quick Start
 
@@ -41,6 +41,7 @@ This will start all applications and packages in development mode:
 │   ├── ui               # Web UI components (shadcn/ui)
 │   ├── ui-nativewind    # Mobile UI components (NativeWind)
 │   ├── utils            # Shared utilities
+│   ├── jsonpath         # RFC-compliant JSONPath suite
 │   └── config-*         # Shared configurations (eslint, ts, etc.)
 └── packages/card-stack/ # Domain logic
     ├── core             # Card game engine
