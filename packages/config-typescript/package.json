@@ -16,10 +16,10 @@
 	"devDependencies": {
 		"@vercel/style-guide": "^6",
 		"eslint": "^8",
-		"typescript": "~5.5"
+		"typescript": "~5.9"
 	},
 	"peerDependencies": {
-		"typescript": "~5.5"
+		"typescript": "~5.9"
 	},
 	"publishConfig": {
 		"access": "public"
