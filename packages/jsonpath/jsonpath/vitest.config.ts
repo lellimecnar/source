@@ -19,6 +19,11 @@ export default defineConfig({
 				__dirname,
 				'../functions/src/index.ts',
 			),
+			'@jsonpath/patch': path.resolve(__dirname, '../patch/src/index.ts'),
+			'@jsonpath/merge-patch': path.resolve(
+				__dirname,
+				'../merge-patch/src/index.ts',
+			),
 		},
 	},
 });

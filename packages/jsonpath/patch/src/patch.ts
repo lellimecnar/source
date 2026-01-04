@@ -10,8 +10,8 @@ export type PatchOperation =
 	| { op: 'test'; path: string; value: any };
 
 export interface ApplyOptions {
-	readonly strict?: boolean;
-	readonly clone?: boolean;
+	readonly strictMode?: boolean;
+	readonly atomic?: boolean;
 }
 
 /**
@@ -47,12 +47,13 @@ export function applyPatch(
 	patch: PatchOperation[],
 	options: ApplyOptions = {},
 ): any {
-	const { clone = true } = options;
-	let result = clone ? JSON.parse(JSON.stringify(target)) : target;
+	const { strictMode = true, atomic = false } = options;
+
+	const working = atomic ? structuredClone(target) : target;
+	let result = working;
 
 	patch.forEach((operation, index) => {
 		try {
-			// RFC 6902: Validate required parameters before executing
 			validateOperation(operation);
 
 			switch (operation.op) {
@@ -60,10 +61,27 @@ export function applyPatch(
 					result = applyAdd(result, operation.path, operation.value);
 					break;
 				case 'remove':
-					result = applyRemove(result, operation.path);
+					if (strictMode) {
+						result = applyRemove(result, operation.path);
+						break;
+					}
+					try {
+						result = applyRemove(result, operation.path);
+					} catch (err: any) {
+						if (err?.code !== 'PATH_NOT_FOUND') throw err;
+					}
 					break;
 				case 'replace':
-					result = applyReplace(result, operation.path, operation.value);
+					if (strictMode) {
+						result = applyReplace(result, operation.path, operation.value);
+						break;
+					}
+					try {
+						result = applyReplace(result, operation.path, operation.value);
+					} catch (err: any) {
+						if (err?.code !== 'PATH_NOT_FOUND') throw err;
+						result = applyAdd(result, operation.path, operation.value);
+					}
 					break;
 				case 'move':
 					result = applyMove(result, operation.from, operation.path);
@@ -96,7 +114,44 @@ export function applyPatch(
 		}
 	});
 
+	if (atomic) {
+		if (
+			target &&
+			typeof target === 'object' &&
+			result &&
+			typeof result === 'object'
+		) {
+			if (Array.isArray(target) && Array.isArray(result)) {
+				target.length = 0;
+				target.push(...result);
+				return target;
+			}
+
+			for (const key of Object.keys(target)) delete target[key];
+			Object.assign(target, result);
+			return target;
+		}
+		return result;
+	}
+
 	return result;
+}
+
+export function applyPatchImmutable(
+	target: any,
+	patch: PatchOperation[],
+	options: ApplyOptions = {},
+): any {
+	const clone = structuredClone(target);
+	return applyPatch(clone, patch, { ...options, atomic: false });
+}
+
+export function testPatch(
+	target: any,
+	patch: PatchOperation[],
+	options: ApplyOptions = {},
+): void {
+	applyPatchImmutable(target, patch, options);
 }
 
 /**
@@ -105,11 +160,11 @@ export function applyPatch(
 export function applyWithInverse(
 	target: any,
 	patch: PatchOperation[],
-	options: ApplyOptions = {},
+	options: ApplyOptions & { clone?: boolean } = {},
 ): { result: any; inverse: PatchOperation[] } {
 	const inverse: PatchOperation[] = [];
 	const { clone = true } = options;
-	let result = clone ? JSON.parse(JSON.stringify(target)) : target;
+	let result = clone ? structuredClone(target) : target;
 
 	// To generate an inverse patch, we need to record the state before each operation
 	patch.forEach((operation) => {

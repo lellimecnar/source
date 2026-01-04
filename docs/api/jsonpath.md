@@ -16,39 +16,66 @@ The `@jsonpath` suite provides a comprehensive, RFC-compliant set of libraries f
 
 The main entry point for most use cases. Includes internal AST caching for performance.
 
-### `query(data: any, expression: string): any[]`
+### `query(data: any, expression: string, options?: EvaluatorOptions): QueryResult`
 
-Evaluates a JSONPath expression and returns an array of matching values.
+Evaluates a JSONPath expression and returns a `QueryResult` object.
 
 ### `queryValues(data: any, expression: string): any[]`
 
-Alias for `query`.
+Returns an array of matching values.
 
 ### `queryPaths(data: any, expression: string): string[]`
 
-Evaluates a JSONPath expression and returns an array of normalized JSONPath strings representing the locations of the matches.
+Returns an array of normalized JSONPath strings.
+
+### `transform(data: any, expression: string, fn: (val: any) => any): any`
+
+Transforms a JSON object by applying a function to all matches of a JSONPath. Uses JSON Patch internally for atomic updates.
+
+### `omit(data: any, paths: string[]): any`
+
+Removes the specified paths from the JSON object.
 
 ### `compileQuery(expression: string): CompiledQuery`
 
-Compiles a JSONPath expression into a reusable function for better performance in hot paths.
+Compiles a JSONPath expression into a reusable function.
+
+### Built-in Functions (RFC 9535 + Extensions)
+
+- `length(val)`: Returns the length of a string, array, or object.
+- `count(nodes)`: Returns the number of nodes in a node list.
+- `match(val, regex)`: Full regex match.
+- `search(val, regex)`: Partial regex match.
+- `value(nodes)`: Returns the single value from a node list.
+- `min(nodes)`: Returns the minimum numeric value.
+- `max(nodes)`: Returns the maximum numeric value.
+- `sum(nodes)`: Returns the sum of numeric values.
+- `avg(nodes)`: Returns the average of numeric values.
+- `keys(val)`: Returns the keys of an object.
+- `type(val)`: Returns the type of a value ('string', 'number', 'boolean', 'null', 'object', 'array').
 
 ---
 
-## `@jsonpath/pointer` (RFC 6901)
+## `@jsonpath/pointer` (RFC 6901 & Relative)
 
 Used for addressing specific locations within a JSON document.
 
-### `evaluate(data: any, pointer: string): any`
+### `JSONPointer`
 
-Returns the value at the specified pointer. Throws if the pointer is invalid or the path does not exist.
+Class representing an RFC 6901 JSON Pointer.
 
-### `parse(pointer: string): string[]`
+- `new JSONPointer(ptr: string | string[])`: Creates a new pointer.
+- `resolve(data: any): any`: Returns the value at the pointer.
+- `exists(data: any): boolean`: Returns true if the path exists.
+- `parent(): JSONPointer | undefined`: Returns the parent pointer.
+- `concat(other: string | string[] | JSONPointer): JSONPointer`: Returns a new concatenated pointer.
 
-Parses a JSON Pointer string into an array of unescaped tokens.
+### `RelativeJSONPointer`
 
-### `format(tokens: string[]): string`
+Class representing a Relative JSON Pointer (draft-bhutton).
 
-Formats an array of tokens into a JSON Pointer string with proper escaping (`~0`, `~1`).
+- `new RelativeJSONPointer(ptr: string)`: Creates a new relative pointer.
+- `evaluate(data: any, basePointer: JSONPointer): any`: Evaluates the relative pointer against a base.
 
 ---
 
@@ -56,18 +83,13 @@ Formats an array of tokens into a JSON Pointer string with proper escaping (`~0`
 
 Used for applying a sequence of operations to a JSON document.
 
-### `applyPatch(data: any, patch: PatchOperation[]): any`
+### `applyPatch(data: any, patch: PatchOperation[], options?: PatchOptions): any`
 
-Applies a JSON Patch to the data and returns the modified document. Performs a deep clone internally to ensure immutability.
+Applies a JSON Patch. **Mutates the input data by default** for performance. Set `atomic: true` in options to ensure the patch is applied fully or not at all.
 
-### Operations
+### `applyPatchImmutable(data: any, patch: PatchOperation[]): any`
 
-- `add`: Adds a value at the specified path.
-- `remove`: Removes the value at the specified path.
-- `replace`: Replaces the value at the specified path.
-- `move`: Moves a value from one path to another.
-- `copy`: Copies a value from one path to another.
-- `test`: Tests that the value at the path matches the expected value.
+Applies a JSON Patch to a deep clone of the data, ensuring the original is not modified.
 
 ---
 
@@ -75,9 +97,13 @@ Applies a JSON Patch to the data and returns the modified document. Performs a d
 
 A simpler patching mechanism for merging objects.
 
-### `applyMergePatch(target: any, patch: any): any`
+### `applyMergePatch(target: any, patch: any, options?: MergePatchOptions): any`
 
-Applies a JSON Merge Patch to the target and returns the result.
+Applies a JSON Merge Patch.
+
+### `createMergePatch(source: any, target: any): any`
+
+Generates a JSON Merge Patch that transforms `source` into `target`.
 
 ---
 

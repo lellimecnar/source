@@ -92,3 +92,11 @@ function generateDiff(
 function escape(token: string /*8 gitleaks:allow*/): string {
 	return token.replace(/~/g, '~0').replace(/\//g, '~1');
 }
+
+export function createPatch(
+	source: any,
+	target: any,
+	options?: { invertible?: boolean },
+): PatchOperation[] {
+	return diff(source, target, options);
+}

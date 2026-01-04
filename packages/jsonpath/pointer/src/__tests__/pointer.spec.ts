@@ -203,4 +203,31 @@ describe('JSONPointer', () => {
 			expect(result.key).toBe('b');
 		});
 	});
+
+	it('JSONPointer.resolve() is an alias of evaluate()', () => {
+		const data = { a: { b: 1 } };
+		const ptr = new JSONPointer('/a/b');
+		expect(ptr.resolve(data)).toBe(1);
+		expect(ptr.evaluate(data)).toBe(1);
+	});
+
+	it('JSONPointer.exists() distinguishes missing vs present undefined', () => {
+		const data: any = { a: { b: undefined } };
+		const ptr = new JSONPointer('/a/b');
+		expect(ptr.resolve(data)).toBeUndefined();
+		expect(ptr.exists(data)).toBe(true);
+		expect(new JSONPointer('/a/missing').exists(data)).toBe(false);
+	});
+
+	it('JSONPointer.parent() returns parent pointer', () => {
+		const ptr = new JSONPointer('/a/b/c');
+		expect(ptr.parent().toString()).toBe('/a/b');
+		expect(new JSONPointer('').parent().toString()).toBe('');
+	});
+
+	it('JSONPointer.concat() joins token paths', () => {
+		const a = new JSONPointer('/a/b');
+		const c = new JSONPointer('/c');
+		expect(a.concat(c).toString()).toBe('/a/b/c');
+	});
 });

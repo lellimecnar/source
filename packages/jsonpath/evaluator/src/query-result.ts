@@ -11,6 +11,7 @@ import type {
 	QueryNode as CoreQueryNode,
 	QueryResult as CoreQueryResult,
 } from '@jsonpath/core';
+import { JSONPointer } from '@jsonpath/pointer';
 
 export type QueryResultNode<T = unknown> = CoreQueryNode<T>;
 
@@ -67,7 +68,11 @@ export class QueryResult<T = unknown> implements CoreQueryResult<T> {
 		return this.results.map((r) => [...r.path]);
 	}
 
-	pointers(): string[] {
+	pointers(): JSONPointer[] {
+		return this.results.map((r) => new JSONPointer(pathToPointer(r.path)));
+	}
+
+	pointerStrings(): string[] {
 		return this.results.map((r) => pathToPointer(r.path));
 	}
 

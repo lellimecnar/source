@@ -1,4 +1,4 @@
-import { JSONPointerError } from '@jsonpath/core';
+import { PointerSyntaxError } from './errors.js';
 
 /**
  * JSON Pointer (RFC 6901) implementation.
@@ -14,6 +14,10 @@ export class JSONPointer {
 		}
 	}
 
+	static fromTokens(tokens: string[]): JSONPointer {
+		return new JSONPointer(tokens);
+	}
+
 	/**
 	 * Parses a JSON Pointer string into tokens.
 	 */
@@ -23,17 +27,19 @@ export class JSONPointer {
 		}
 
 		if (!pointer.startsWith('/')) {
-			throw new JSONPointerError(
+			throw new PointerSyntaxError(
 				'Invalid JSON Pointer: must start with "/" or be empty',
+				{ path: pointer },
 			);
 		}
 
 		const parts = pointer.split('/').slice(1);
 		return parts.map((part) => {
-			// RFC 6901 Section 3: A tilde '~' character MUST be followed by either '0' or '1'.
+			// RFC 6901 §3: '~' MUST be followed by '0' or '1'.
 			if (/~[^01]/.test(part) || part.endsWith('~')) {
-				throw new JSONPointerError(
+				throw new PointerSyntaxError(
 					`Invalid tilde sequence in JSON Pointer: ${part}`,
+					{ path: pointer },
 				);
 			}
 			return part.replace(/~1/g, '/').replace(/~0/g, '~');
@@ -65,11 +71,11 @@ export class JSONPointer {
 			}
 
 			if (Array.isArray(current)) {
-				// RFC 6901 Section 4: Array indices must not have leading zeros
+				// RFC 6901 §4: array indices must not have leading zeros
 				if (!/^(0|[1-9][0-9]*)$/.test(token)) {
 					return undefined;
 				}
-				const index = parseInt(token, 10);
+				const index = Number.parseInt(token, 10);
 				if (index < 0 || index >= current.length) {
 					return undefined;
 				}
@@ -85,24 +91,61 @@ export class JSONPointer {
 		return current;
 	}
 
+	/** DataMap compatibility alias for evaluate(). */
+	resolve<T = any>(root: unknown): T | undefined {
+		return this.evaluate(root) as T | undefined;
+	}
+
 	/**
-	 * Returns the tokens of this pointer.
+	 * DataMap compatibility: distinguish missing vs present undefined.
 	 */
+	exists(root: unknown): boolean {
+		let current: any = root;
+
+		for (const token of this.tokens) {
+			if (current === null || typeof current !== 'object') {
+				return false;
+			}
+
+			if (Array.isArray(current)) {
+				if (!/^(0|[1-9][0-9]*)$/.test(token)) {
+					return false;
+				}
+				const index = Number.parseInt(token, 10);
+				if (index < 0 || index >= current.length) {
+					return false;
+				}
+				current = current[index];
+			} else {
+				if (!(token in current)) {
+					return false;
+				}
+				current = current[token];
+			}
+		}
+
+		return true;
+	}
+
+	parent(): JSONPointer {
+		if (this.tokens.length === 0) return new JSONPointer([]);
+		return new JSONPointer(this.tokens.slice(0, -1));
+	}
+
+	concat(other: JSONPointer): JSONPointer {
+		return new JSONPointer([...this.tokens, ...other.getTokens()]);
+	}
+
 	getTokens(): string[] {
 		return [...this.tokens];
 	}
 
-	/**
-	 * Returns the string representation of this pointer.
-	 */
 	toString(): string {
 		return JSONPointer.format(this.tokens);
 	}
 }
 
-/**
- * Helper to evaluate a JSON Pointer string against a root object.
- */
+/** Helper to evaluate a JSON Pointer string against a root object. */
 export function evaluatePointer(root: any, pointer: string): any {
 	return new JSONPointer(pointer).evaluate(root);
 }

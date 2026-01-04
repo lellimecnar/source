@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getFunction } from '@jsonpath/core';
+import { getFunction } from '../index.js';
 import '../registry.js'; // Ensure built-ins are registered
 
 describe('Functions', () => {
@@ -39,5 +39,27 @@ describe('Functions', () => {
 		expect(value.evaluate(nodes)).toBe(42);
 		expect(value.evaluate([...nodes, ...nodes])).toBe(undefined);
 		expect(value.evaluate([])).toBe(undefined);
+	});
+
+	it('registers min/max/sum/avg', () => {
+		const min = getFunction('min')!;
+		const max = getFunction('max')!;
+		const sum = getFunction('sum')!;
+		const avg = getFunction('avg')!;
+
+		const nodes = [{ value: 1 }, { value: 3 }, { value: 2 }] as any;
+		expect(min.evaluate(nodes)).toBe(1);
+		expect(max.evaluate(nodes)).toBe(3);
+		expect(sum.evaluate(nodes)).toBe(6);
+		expect(avg.evaluate(nodes)).toBe(2);
+	});
+
+	it('registers keys/type', () => {
+		const keys = getFunction('keys')!;
+		const type = getFunction('type')!;
+		expect(keys.evaluate({ a: 1, b: 2 } as any)).toEqual(['a', 'b']);
+		expect(type.evaluate(null as any)).toBe('null');
+		expect(type.evaluate([1] as any)).toBe('array');
+		expect(type.evaluate(1 as any)).toBe('number');
 	});
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { query, queryValues, queryPaths, compileQuery } from '../facade.js';
+import { transform, omit } from '../transform.js';
 
 describe('JSONPath Facade', () => {
 	const data = {
@@ -43,5 +44,17 @@ describe('JSONPath Facade', () => {
 		const result1 = query(data, path);
 		const result2 = query(data, path);
 		expect(result1.values()).toEqual(result2.values());
+	});
+
+	it('should transform values', () => {
+		const root = { a: 1, b: 2 };
+		const result = transform(root, '$.*', (v) => v * 10);
+		expect(result).toEqual({ a: 10, b: 20 });
+	});
+
+	it('should omit paths', () => {
+		const root = { a: 1, b: 2, c: 3 };
+		const result = omit(root, ['$.a', '$.c']);
+		expect(result).toEqual({ b: 2 });
 	});
 });

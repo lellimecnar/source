@@ -7,11 +7,43 @@
  */
 
 import {
-	registerFunction,
 	type FunctionDefinition,
 	// ParameterType,
 	// ReturnType,
 } from '@jsonpath/core';
+
+/**
+ * Registry for JSONPath functions (RFC 9535).
+ */
+export const functionRegistry = new Map<string, FunctionDefinition>();
+
+/**
+ * Registers a function in the global registry.
+ */
+export function registerFunction(definition: FunctionDefinition): void {
+	functionRegistry.set(definition.name, definition);
+}
+
+/**
+ * Returns a function definition by name.
+ */
+export function getFunction(name: string): FunctionDefinition | undefined {
+	return functionRegistry.get(name);
+}
+
+/**
+ * Returns true if a function exists.
+ */
+export function hasFunction(name: string): boolean {
+	return functionRegistry.has(name);
+}
+
+/**
+ * Unregisters a function by name.
+ */
+export function unregisterFunction(name: string): boolean {
+	return functionRegistry.delete(name);
+}
 
 /**
  * length(value) -> number
@@ -123,12 +155,104 @@ export const valueFn: FunctionDefinition<[any[]], any | undefined> = {
 	},
 };
 
+function numeric(values: unknown[]): number[] {
+	return values.filter(
+		(v): v is number => typeof v === 'number' && Number.isFinite(v),
+	);
+}
+
+export const minFn: FunctionDefinition<[unknown[]], number | undefined> = {
+	name: 'min',
+	signature: ['NodesType'],
+	returns: 'ValueType',
+	evaluate: (nodes: unknown[]) => {
+		const nums = numeric(
+			nodes.map((n: any) =>
+				n && typeof n === 'object' && 'value' in n ? n.value : n,
+			),
+		);
+		return nums.length ? Math.min(...nums) : undefined;
+	},
+};
+
+export const maxFn: FunctionDefinition<[unknown[]], number | undefined> = {
+	name: 'max',
+	signature: ['NodesType'],
+	returns: 'ValueType',
+	evaluate: (nodes: unknown[]) => {
+		const nums = numeric(
+			nodes.map((n: any) =>
+				n && typeof n === 'object' && 'value' in n ? n.value : n,
+			),
+		);
+		return nums.length ? Math.max(...nums) : undefined;
+	},
+};
+
+export const sumFn: FunctionDefinition<[unknown[]], number> = {
+	name: 'sum',
+	signature: ['NodesType'],
+	returns: 'ValueType',
+	evaluate: (nodes: unknown[]) => {
+		const nums = numeric(
+			nodes.map((n: any) =>
+				n && typeof n === 'object' && 'value' in n ? n.value : n,
+			),
+		);
+		return nums.reduce((a, b) => a + b, 0);
+	},
+};
+
+export const avgFn: FunctionDefinition<[unknown[]], number | undefined> = {
+	name: 'avg',
+	signature: ['NodesType'],
+	returns: 'ValueType',
+	evaluate: (nodes: unknown[]) => {
+		const nums = numeric(
+			nodes.map((n: any) =>
+				n && typeof n === 'object' && 'value' in n ? n.value : n,
+			),
+		);
+		if (!nums.length) return undefined;
+		return nums.reduce((a, b) => a + b, 0) / nums.length;
+	},
+};
+
+export const keysFn: FunctionDefinition<[unknown], string[] | undefined> = {
+	name: 'keys',
+	signature: ['ValueType'],
+	returns: 'ValueType',
+	evaluate: (val: unknown) => {
+		if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
+			return Object.keys(val as any);
+		}
+		return undefined;
+	},
+};
+
+export const typeFn: FunctionDefinition<[unknown], string> = {
+	name: 'type',
+	signature: ['ValueType'],
+	returns: 'ValueType',
+	evaluate: (val: unknown) => {
+		if (val === null) return 'null';
+		if (Array.isArray(val)) return 'array';
+		return typeof val;
+	},
+};
+
 export const builtins = [
 	lengthFn,
 	countFn,
 	matchFn,
 	searchFn,
 	valueFn,
+	minFn,
+	maxFn,
+	sumFn,
+	avgFn,
+	keysFn,
+	typeFn,
 ] as const;
 
 export function registerBuiltins(): void {

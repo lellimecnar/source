@@ -34,7 +34,8 @@
 	"dependencies": {
 		"@jsonpath/core": "workspace:*",
 		"@jsonpath/functions": "workspace:*",
-		"@jsonpath/parser": "workspace:*"
+		"@jsonpath/parser": "workspace:*",
+		"@jsonpath/pointer": "workspace:*"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

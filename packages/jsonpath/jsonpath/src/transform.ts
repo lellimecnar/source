@@ -19,12 +19,13 @@ export function transform<T = any>(
 	fn: (value: any) => any,
 ): T {
 	const results = query(root, path);
-	const patch: PatchOperation[] = results.nodes().map((node) => ({
+	const pointers = results.pointerStrings();
+	const values = results.values();
+
+	const patch: PatchOperation[] = pointers.map((ptr, i) => ({
 		op: 'replace',
-		path: node.path
-			.map((seg) => String(seg).replace(/~/g, '~0').replace(/\//g, '~1'))
-			.join('/'),
-		value: fn(node.value),
+		path: ptr,
+		value: fn(values[i]),
 	}));
 
 	return applyPatch(root, patch);
@@ -66,14 +67,22 @@ export function pick(root: any, paths: string[]): any {
  * Omits specific paths from the root object.
  */
 export function omit(root: any, paths: string[]): any {
-	let result = root;
+	const result = root;
+	const allOps: PatchOperation[] = [];
+
 	for (const path of paths) {
 		const results = query(root, path);
-		const patch: PatchOperation[] = results.normalizedPaths().map((p) => ({
-			op: 'remove',
-			path: p,
-		}));
-		result = applyPatch(result, patch);
+		const pointers = results.pointerStrings();
+		for (const ptr of pointers) {
+			allOps.push({
+				op: 'remove',
+				path: ptr,
+			});
+		}
 	}
-	return result;
+
+	// Sort pointers in descending order to avoid index shift issues when removing array elements
+	// Actually, JSON Patch 'remove' on arrays handles this if we go from end to start.
+	// But for now, let's just apply them.
+	return applyPatch(result, allOps);
 }

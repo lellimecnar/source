@@ -7,3 +7,11 @@
  */
 
 export * from './registry.js';
+
+export {
+	getFunction,
+	hasFunction,
+	registerFunction,
+	unregisterFunction,
+	functionRegistry,
+} from './registry.js';

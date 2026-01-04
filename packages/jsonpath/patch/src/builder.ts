@@ -46,8 +46,12 @@ export class PatchBuilder {
 		return [...this.operations];
 	}
 
-	apply(target: any): any {
-		return applyPatch(target, this.operations);
+	build(): PatchOperation[] {
+		return this.toOperations();
+	}
+
+	apply(target: any, options?: Parameters<typeof applyPatch>[2]): any {
+		return applyPatch(target, this.operations, options);
 	}
 }
 

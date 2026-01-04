@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { applyPatch, applyWithInverse } from '../patch.js';
+import {
+	applyPatch,
+	applyWithInverse,
+	applyPatchImmutable,
+	testPatch,
+} from '../patch.js';
 
 describe('JSON Patch', () => {
 	it('should apply add operation', () => {
@@ -115,5 +120,46 @@ describe('JSON Patch', () => {
 			]);
 			expect(applyPatch(result, inverse)).toEqual(data);
 		});
+	});
+
+	it('applyPatch mutates target by default', () => {
+		const data: any = { foo: 'bar' };
+		const result = applyPatch(data, [
+			{ op: 'add', path: '/baz', value: 'qux' },
+		]);
+		expect(result).toBe(data);
+		expect(data).toEqual({ foo: 'bar', baz: 'qux' });
+	});
+
+	it('applyPatchImmutable does not mutate original', () => {
+		const data: any = { foo: 'bar' };
+		const result = applyPatchImmutable(data, [
+			{ op: 'add', path: '/baz', value: 'qux' },
+		]);
+		expect(result).toEqual({ foo: 'bar', baz: 'qux' });
+		expect(data).toEqual({ foo: 'bar' });
+	});
+
+	it('testPatch validates without mutating', () => {
+		const data: any = { a: 1 };
+		expect(() =>
+			testPatch(data, [{ op: 'test', path: '/a', value: 1 }]),
+		).not.toThrow();
+		expect(data).toEqual({ a: 1 });
+	});
+
+	it('atomic=true applies all-or-nothing', () => {
+		const data: any = { a: 1 };
+		expect(() =>
+			applyPatch(
+				data,
+				[
+					{ op: 'add', path: '/b', value: 2 },
+					{ op: 'remove', path: '/does-not-exist' },
+				],
+				{ atomic: true },
+			),
+		).toThrow();
+		expect(data).toEqual({ a: 1 });
 	});
 });

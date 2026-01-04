@@ -133,7 +133,13 @@ export function validateQuery(path: string): {
 export { parse } from '@jsonpath/parser';
 export { evaluate } from '@jsonpath/evaluator';
 export { compile } from '@jsonpath/compiler';
-export { JSONPointer, evaluatePointer } from '@jsonpath/pointer';
+export {
+	JSONPointer,
+	RelativeJSONPointer,
+	evaluatePointer,
+} from '@jsonpath/pointer';
+export { applyPatch, applyPatchImmutable, JSONPatch } from '@jsonpath/patch';
+export { applyMergePatch, createMergePatch } from '@jsonpath/merge-patch';
 export {
 	JSONPathError,
 	JSONPathSyntaxError,

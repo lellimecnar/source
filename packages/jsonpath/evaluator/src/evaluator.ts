@@ -17,6 +17,7 @@ import {
 	type EvaluatorOptions,
 	PathSegment,
 } from '@jsonpath/core';
+import { getFunction } from '@jsonpath/functions';
 import {
 	NodeType,
 	type QueryNode,
@@ -30,8 +31,6 @@ import {
 	type LiteralNode,
 	isSingularQuery,
 } from '@jsonpath/parser';
-import '@jsonpath/functions';
-import { getFunction } from '@jsonpath/core';
 
 import { withDefaults } from './options.js';
 import { QueryResult, type QueryResultNode } from './query-result.js';

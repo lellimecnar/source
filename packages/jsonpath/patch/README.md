@@ -11,11 +11,25 @@ pnpm add @jsonpath/patch
 ## Usage
 
 ```ts
-import { applyPatch } from '@jsonpath/patch';
+import { applyPatch, applyPatchImmutable } from '@jsonpath/patch';
 
 const doc = { foo: 'bar' };
-const next = applyPatch(doc, [{ op: 'add', path: '/baz', value: 'qux' }]);
-// => { foo: 'bar', baz: 'qux' }
+
+// Mutates doc by default for performance
+applyPatch(doc, [{ op: 'add', path: '/baz', value: 'qux' }]);
+// doc is now { foo: 'bar', baz: 'qux' }
+
+// Use applyPatchImmutable for a non-mutating version
+const next = applyPatchImmutable(doc, [{ op: 'remove', path: '/foo' }]);
+// next is { baz: 'qux' }, doc remains unchanged
+```
+
+## Atomic Operations
+
+You can ensure a patch is applied atomically (all or nothing) by passing `atomic: true` in options:
+
+```ts
+applyPatch(doc, patch, { atomic: true });
 ```
 
 ## RFC 6902 Compliance Testing
