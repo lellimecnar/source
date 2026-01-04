@@ -111,6 +111,11 @@ describe('Evaluator', () => {
 		]);
 	});
 
+	it('should throw on slice step=0', () => {
+		const list = [0, 1, 2];
+		expect(() => evaluate(list, parse('$[::0]'))).toThrow();
+	});
+
 	it('should handle RFC 9535 slice edge cases', () => {
 		const list = ['a', 'b', 'c'];
 		// start > end with positive step -> empty
@@ -140,12 +145,16 @@ describe('Evaluator', () => {
 		]);
 	});
 
-	it('should handle count() and value() functions', () => {
+	it('should handle length() and count() functions', () => {
 		const data = [{ items: [1, 2, 3] }, { items: [1] }];
-		// Select objects where items count > 2
-		expect(evaluate(data, parse('$[?(count(@.items) > 2)]')).values()).toEqual([
-			{ items: [1, 2, 3] },
-		]);
+		// length() counts elements in the array
+		expect(evaluate(data, parse('$[?(length(@.items) > 2)]')).values()).toEqual(
+			[{ items: [1, 2, 3] }],
+		);
+		// count() counts nodes in the result set
+		expect(
+			evaluate(data, parse('$[?(count(@.items[*]) > 2)]')).values(),
+		).toEqual([{ items: [1, 2, 3] }]);
 	});
 
 	it('should return RFC 9535 compliant normalized paths', () => {

@@ -51,15 +51,15 @@ These are required to avoid “follow the plan but edit non-existent files” fa
 Useful package-level commands:
 
 ```bash
-pnpm --filter @jsonpath/core test
-pnpm --filter @jsonpath/parser test
-pnpm --filter @jsonpath/evaluator test
-pnpm --filter @jsonpath/pointer test
-pnpm --filter @jsonpath/patch test
-pnpm --filter @jsonpath/compiler test
-pnpm --filter @jsonpath/jsonpath test
-pnpm --filter @jsonpath/core type-check
-pnpm --filter @jsonpath/evaluator type-check
+pnpm exec turbo -F @jsonpath/core test
+pnpm exec turbo -F @jsonpath/parser test
+pnpm exec turbo -F @jsonpath/evaluator test
+pnpm exec turbo -F @jsonpath/pointer test
+pnpm exec turbo -F @jsonpath/patch test
+pnpm exec turbo -F @jsonpath/compiler test
+pnpm exec turbo -F @jsonpath/jsonpath test
+pnpm exec turbo -F @jsonpath/core type-check
+pnpm exec turbo -F @jsonpath/evaluator type-check
 ```
 
 ## Step-by-Step Instructions
@@ -369,10 +369,10 @@ unregisterFunction,
 #### 1.1 Verification
 
 ```bash
-pnpm --filter @jsonpath/core test
-pnpm --filter @jsonpath/evaluator test
-pnpm --filter @jsonpath/core type-check
-pnpm --filter @jsonpath/evaluator type-check
+pnpm exec turbo -F @jsonpath/core test
+pnpm exec turbo -F @jsonpath/evaluator test
+pnpm exec turbo -F @jsonpath/core type-check
+pnpm exec turbo -F @jsonpath/evaluator type-check
 ```
 
 #### Step 1.1 STOP & COMMIT
@@ -650,10 +650,10 @@ expect(result.values()).toEqual([1]);
 #### 1.2 Verification
 
 ```bash
-pnpm --filter @jsonpath/evaluator test
-pnpm --filter @jsonpath/compiler test
-pnpm --filter @jsonpath/jsonpath test
-pnpm --filter @jsonpath/evaluator type-check
+pnpm exec turbo -F @jsonpath/evaluator test
+pnpm exec turbo -F @jsonpath/compiler test
+pnpm exec turbo -F @jsonpath/jsonpath test
+pnpm exec turbo -F @jsonpath/evaluator type-check
 ```
 
 #### Step 1.2 STOP & COMMIT
@@ -672,14 +672,14 @@ Objective: add evaluation-time resource limits and security controls.
 
 Note: This step introduces types in @jsonpath/core, and an implementation layer in @jsonpath/evaluator. Keep the first pass minimal and enforcement-oriented.
 
-- [ ] Add EvaluatorOptions and SecureQueryOptions types to packages/jsonpath/core/src/types.ts
-- [ ] Add packages/jsonpath/evaluator/src/options.ts (new)
-- [ ] Update evaluator to accept an options argument and enforce:
-  - [ ] maxDepth
-  - [ ] maxResults
-  - [ ] timeout
-  - [ ] detectCircular (best-effort)
-  - [ ] noRecursive/noFilters
+- [x] Add EvaluatorOptions and SecureQueryOptions types to packages/jsonpath/core/src/types.ts
+- [x] Add packages/jsonpath/evaluator/src/options.ts (new)
+- [x] Update evaluator to accept an options argument and enforce:
+  - [x] maxDepth
+  - [x] maxResults
+  - [x] timeout
+  - [x] detectCircular (best-effort)
+  - [x] noRecursive/noFilters
 
 #### 1.3.a Add types to @jsonpath/core
 
@@ -769,9 +769,9 @@ Add a new test file packages/jsonpath/evaluator/src/**tests**/options.spec.ts wi
 #### 1.3 Verification
 
 ```bash
-pnpm --filter @jsonpath/core type-check
-pnpm --filter @jsonpath/evaluator test
-pnpm --filter @jsonpath/evaluator type-check
+pnpm exec turbo -F @jsonpath/core type-check
+pnpm exec turbo -F @jsonpath/evaluator test
+pnpm exec turbo -F @jsonpath/evaluator type-check
 ```
 
 #### Step 1.3 STOP & COMMIT
@@ -788,10 +788,10 @@ feat(jsonpath): add evaluator options and security gates
 
 Objective: make slice semantics RFC-aligned, throw on step=0, and rename slice properties from startValue/endValue/stepValue to start/end/step.
 
-- [ ] Rename slice properties in packages/jsonpath/parser/src/nodes.ts
-- [ ] Update slice parsing in packages/jsonpath/parser/src/parser.ts
-- [ ] Update slice evaluation and normalization logic in packages/jsonpath/evaluator/src/evaluator.ts
-- [ ] Update parser + evaluator tests for renamed fields and new step=0 error
+- [x] Rename slice properties in packages/jsonpath/parser/src/nodes.ts
+- [x] Update slice parsing in packages/jsonpath/parser/src/parser.ts
+- [x] Update slice evaluation and normalization logic in packages/jsonpath/evaluator/src/evaluator.ts
+- [x] Update parser + evaluator tests for renamed fields and new step=0 error
 
 #### 1.4.a Rename slice properties in AST
 
@@ -954,10 +954,10 @@ it('should throw on slice step=0', () => {
 #### 1.4 Verification
 
 ```bash
-pnpm --filter @jsonpath/parser test
-pnpm --filter @jsonpath/evaluator test
-pnpm --filter @jsonpath/parser type-check
-pnpm --filter @jsonpath/evaluator type-check
+pnpm exec turbo -F @jsonpath/parser test
+pnpm exec turbo -F @jsonpath/evaluator test
+pnpm exec turbo -F @jsonpath/parser type-check
+pnpm exec turbo -F @jsonpath/evaluator type-check
 ```
 
 #### Step 1.4 STOP & COMMIT
@@ -976,15 +976,15 @@ Objective: expand error codes and enrich error types with structured metadata.
 
 Important: Some packages currently throw `JSONPathError` without a `code`. Once you make error codes strict, update those throw sites.
 
-- [ ] Extend ErrorCode union in packages/jsonpath/core/src/errors.ts
-- [ ] Enrich error classes with additional fields:
-  - [ ] JSONPathSyntaxError: `expected`, `found`, `path`
-  - [ ] JSONPathTypeError: `expectedType`, `actualType`
-  - [ ] JSONPatchError: `operationIndex`, `operation`
-- [ ] Update throw sites to use new codes where appropriate
-  - [ ] evaluator: unknown function -> `UNKNOWN_FUNCTION`
-  - [ ] evaluator: limits/timeout -> `MAX_DEPTH_EXCEEDED` / `TIMEOUT`
-  - [ ] pointer/patch: throw with explicit codes
+- [x] Extend ErrorCode union in packages/jsonpath/core/src/errors.ts
+- [x] Enrich error classes with additional fields:
+  - [x] JSONPathSyntaxError: `expected`, `found`, `path`
+  - [x] JSONPathTypeError: `expectedType`, `actualType`
+  - [x] JSONPatchError: `operationIndex`, `operation`
+- [x] Update throw sites to use new codes where appropriate
+  - [x] evaluator: unknown function -> `UNKNOWN_FUNCTION` (Note: RFC says return Nothing, so we return undefined but have the code available)
+  - [x] evaluator: limits/timeout -> `MAX_DEPTH_EXCEEDED` / `TIMEOUT`
+  - [x] pointer/patch: throw with explicit codes
 
 #### 1.5.a Update core error codes and types
 
@@ -1027,11 +1027,11 @@ In packages/jsonpath/evaluator/src/evaluator.ts, change the unknown function thr
 #### 1.5 Verification
 
 ```bash
-pnpm --filter @jsonpath/core test
-pnpm --filter @jsonpath/pointer test
-pnpm --filter @jsonpath/patch test
-pnpm --filter @jsonpath/evaluator test
-pnpm --filter @jsonpath/core type-check
+pnpm exec turbo -F @jsonpath/core test
+pnpm exec turbo -F @jsonpath/pointer test
+pnpm exec turbo -F @jsonpath/patch test
+pnpm exec turbo -F @jsonpath/evaluator test
+pnpm exec turbo -F @jsonpath/core type-check
 ```
 
 #### Step 1.5 STOP & COMMIT
@@ -1044,7 +1044,7 @@ feat(jsonpath): extend error codes and structured error metadata
 
 ---
 
-## Phase 2: Pointer & Patch Completion (P0/P1)
+## Phase 2: Pointer & Patch Completion (P0/P1) [DONE]
 
 The following steps are large. The recommended approach is strict Red → Green → Refactor:
 
@@ -1052,7 +1052,7 @@ The following steps are large. The recommended approach is strict Red → Green 
 - Green: implement minimal behavior to pass tests
 - Refactor: improve structure and add edge-case coverage
 
-### Step 2.1: Implement Pointer Mutation Functions
+### Step 2.1: Implement Pointer Mutation Functions [DONE]
 
 Files to create/update:
 
@@ -1078,7 +1078,7 @@ STOP & COMMIT message:
 feat(pointer): add immutable pointer mutations
 ```
 
-### Step 2.2: Add Pointer Utilities & Validation
+### Step 2.2: Add Pointer Utilities & Validation [DONE]
 
 Files to create/update:
 
@@ -1107,7 +1107,7 @@ STOP & COMMIT message:
 feat(pointer): add utils + pointer validation
 ```
 
-### Step 2.3: Add Pointer Resolution Variants
+### Step 2.3: Add Pointer Resolution Variants [DONE]
 
 Files:
 
@@ -1127,7 +1127,7 @@ STOP & COMMIT message:
 feat(pointer): add resolve helpers
 ```
 
-### Step 2.4: Implement JSON Patch diff()
+### Step 2.4: Implement JSON Patch diff() [DONE]
 
 Files:
 
@@ -1150,7 +1150,7 @@ STOP & COMMIT message:
 feat(patch): add diff() generator
 ```
 
-### Step 2.5: Implement PatchBuilder Fluent API
+### Step 2.5: Implement PatchBuilder Fluent API [DONE]
 
 Files:
 
@@ -1169,7 +1169,7 @@ STOP & COMMIT message:
 feat(patch): add PatchBuilder fluent API
 ```
 
-### Step 2.6: Add ApplyOptions & applyWithInverse
+### Step 2.6: Add ApplyOptions & applyWithInverse [DONE]
 
 Files:
 
@@ -1189,11 +1189,11 @@ feat(patch): apply options + inverse patch
 
 ---
 
-## Phase 3: Facade & Configuration (P1)
+## Phase 3: Facade & Configuration (P1) [DONE]
 
 These steps apply to packages/jsonpath/jsonpath/src/facade.ts and new supporting modules.
 
-### Step 3.1: Implement Configuration System
+### Step 3.1: Implement Configuration System [DONE]
 
 Files:
 
@@ -1212,7 +1212,7 @@ STOP & COMMIT message:
 feat(jsonpath): add global configuration
 ```
 
-### Step 3.2: Add Query Convenience Functions
+### Step 3.2: Add Query Convenience Functions [DONE]
 
 Update packages/jsonpath/jsonpath/src/facade.ts to add:
 
@@ -1229,7 +1229,7 @@ STOP & COMMIT message:
 feat(jsonpath): add convenience query APIs
 ```
 
-### Step 3.3: Implement Cache Management
+### Step 3.3: Implement Cache Management [DONE]
 
 Files:
 
@@ -1247,7 +1247,7 @@ STOP & COMMIT message:
 feat(jsonpath): add cache management and stats
 ```
 
-### Step 3.4: Implement Transformation API
+### Step 3.4: Implement Transformation API [DONE]
 
 Files:
 

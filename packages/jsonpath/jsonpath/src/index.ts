@@ -7,3 +7,6 @@
  */
 
 export * from './facade.js';
+export * from './config.js';
+export * from './cache.js';
+export * from './transform.js';

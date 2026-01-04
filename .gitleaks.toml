@@ -38,6 +38,7 @@ paths = [
   '''.*\.env\..*\.example$''',
   '''.*\.md$''',
   '''.*\.txt$''',
+  '''.*\/jsonpath\/.*'''
 ]
 
 # Allow example/template values

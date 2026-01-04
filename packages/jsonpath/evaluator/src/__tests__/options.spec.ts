@@ -32,14 +32,14 @@ describe('Evaluator Options', () => {
 
 	it('should enforce noRecursive', () => {
 		const ast = parse('$..c');
-		expect(() => evaluate(data, ast, { noRecursive: true })).toThrow(
-			/Recursive descent is disabled/,
-		);
+		expect(() =>
+			evaluate(data, ast, { secure: { noRecursive: true } }),
+		).toThrow(/Recursive descent is disabled/);
 	});
 
 	it('should enforce noFilters', () => {
 		const ast = parse('$.list[?(@ > 2)]');
-		expect(() => evaluate(data, ast, { noFilters: true })).toThrow(
+		expect(() => evaluate(data, ast, { secure: { noFilters: true } })).toThrow(
 			/Filters are disabled/,
 		);
 	});

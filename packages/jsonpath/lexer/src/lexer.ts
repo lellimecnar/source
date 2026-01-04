@@ -246,23 +246,118 @@ export class Lexer implements LexerInterface {
 						this.advance();
 						const hex = this.input.slice(this.pos, this.pos + 4);
 						if (/^[0-9a-fA-F]{4}$/.test(hex)) {
-							value += String.fromCharCode(parseInt(hex, 16));
+							const codePoint = parseInt(hex, 16);
+							// Handle surrogate pairs
+							if (codePoint >= 0xd800 && codePoint <= 0xdbff) {
+								this.pos += 4;
+								if (
+									this.input.charCodeAt(this.pos) === CharCode.BACKSLASH &&
+									this.input.charCodeAt(this.pos + 1) === 117
+								) {
+									const nextHex = this.input.slice(this.pos + 2, this.pos + 6);
+									if (/^[0-9a-fA-F]{4}$/.test(nextHex)) {
+										const lowSurrogate = parseInt(nextHex, 16);
+										if (lowSurrogate >= 0xdc00 && lowSurrogate <= 0xdfff) {
+											value += String.fromCodePoint(
+												(codePoint - 0xd800) * 0x400 +
+													(lowSurrogate - 0xdc00) +
+													0x10000,
+											);
+											this.pos += 5; // advance will do the 6th
+											this.column += 10;
+											break;
+										}
+									}
+								}
+								throw new JSONPathSyntaxError(
+									`Invalid surrogate pair: \\u${hex}`,
+									{ position: start },
+								);
+							}
+							if (codePoint >= 0xdc00 && codePoint <= 0xdfff) {
+								throw new JSONPathSyntaxError(
+									`Unpaired low surrogate: \\u${hex}`,
+									{ position: start },
+								);
+							}
+							value += String.fromCharCode(codePoint);
 							this.pos += 3; // advance will do the 4th
 							this.column += 3;
 						} else {
-							value += `u${hex}`;
+							throw new JSONPathSyntaxError(
+								`Invalid unicode escape: \\u${hex}`,
+								{
+									position: start,
+								},
+							);
 						}
 						break;
+					case 47: // /
+						value += '/';
+						break;
+					case 92: // \
+						value += '\\';
+						break;
+					case 39: // '
+						if (quote === CharCode.DOUBLE_QUOTE) {
+							throw new JSONPathSyntaxError(
+								"Invalid escape sequence: \\' in double-quoted string",
+								{ position: start },
+							);
+						}
+						value += "'";
+						break;
+					case 34: // "
+						if (quote === CharCode.SINGLE_QUOTE) {
+							throw new JSONPathSyntaxError(
+								'Invalid escape sequence: \\" in single-quoted string',
+								{ position: start },
+							);
+						}
+						value += '"';
+						break;
 					default:
-						value += String.fromCharCode(escaped);
+						throw new JSONPathSyntaxError(
+							`Invalid escape sequence: \\${String.fromCharCode(escaped)}`,
+							{
+								position: start,
+							},
+						);
 				}
 			} else {
-				value += this.input[this.pos];
+				if (charCode < 0x20) {
+					throw new JSONPathSyntaxError(
+						`Unescaped control character U+${charCode
+							.toString(16)
+							.padStart(4, '0')} in string`,
+						{ position: start },
+					);
+				}
+				if (charCode >= 0xd800 && charCode <= 0xdbff) {
+					const nextCode = this.input.charCodeAt(this.pos + 1);
+					if (nextCode >= 0xdc00 && nextCode <= 0xdfff) {
+						value += this.input[this.pos] + this.input[this.pos + 1];
+						this.pos += 1;
+						this.column += 1;
+					} else {
+						throw new JSONPathSyntaxError('Unpaired high surrogate', {
+							position: this.pos,
+						});
+					}
+				} else if (charCode >= 0xdc00 && charCode <= 0xdfff) {
+					throw new JSONPathSyntaxError('Unpaired low surrogate', {
+						position: this.pos,
+					});
+				} else {
+					value += String.fromCharCode(charCode);
+				}
 			}
 			this.advance();
 		}
 
-		return this.createToken(TokenType.ERROR, value, start, line, col);
+		throw new JSONPathSyntaxError('Unterminated string literal', {
+			position: start,
+		});
 	}
 
 	private readNumber(): Token {
@@ -276,22 +371,20 @@ export class Lexer implements LexerInterface {
 			this.advance();
 		}
 
-		while (this.pos < this.input.length) {
-			const code = this.input.charCodeAt(this.pos);
-			if (code < 128 && CHAR_FLAGS[code]! & IS_DIGIT) {
-				raw += this.input[this.pos];
-				this.advance();
-			} else {
-				break;
-			}
-		}
-
-		if (
-			this.pos < this.input.length &&
-			this.input.charCodeAt(this.pos) === CharCode.DOT
-		) {
-			raw += '.';
+		const firstDigit = this.input.charCodeAt(this.pos);
+		if (firstDigit === CharCode.ZERO) {
+			raw += '0';
 			this.advance();
+			const nextChar = this.input.charCodeAt(this.pos);
+			if (nextChar >= CharCode.ZERO && nextChar <= CharCode.NINE) {
+				throw new JSONPathSyntaxError(
+					'Leading zeros are not allowed in numbers',
+					{
+						position: start,
+					},
+				);
+			}
+		} else if (firstDigit >= CharCode.ONE && firstDigit <= CharCode.NINE) {
 			while (this.pos < this.input.length) {
 				const code = this.input.charCodeAt(this.pos);
 				if (code < 128 && CHAR_FLAGS[code]! & IS_DIGIT) {
@@ -300,6 +393,34 @@ export class Lexer implements LexerInterface {
 				} else {
 					break;
 				}
+			}
+		} else {
+			throw new JSONPathSyntaxError('Expected digit in number', {
+				position: this.pos,
+			});
+		}
+
+		if (
+			this.pos < this.input.length &&
+			this.input.charCodeAt(this.pos) === CharCode.DOT
+		) {
+			raw += '.';
+			this.advance();
+			let hasFrac = false;
+			while (this.pos < this.input.length) {
+				const code = this.input.charCodeAt(this.pos);
+				if (code < 128 && CHAR_FLAGS[code]! & IS_DIGIT) {
+					raw += this.input[this.pos];
+					this.advance();
+					hasFrac = true;
+				} else {
+					break;
+				}
+			}
+			if (!hasFrac) {
+				throw new JSONPathSyntaxError('Expected digit after decimal point', {
+					position: this.pos,
+				});
 			}
 		}
 
@@ -316,14 +437,21 @@ export class Lexer implements LexerInterface {
 				raw += this.input[this.pos];
 				this.advance();
 			}
+			let hasExp = false;
 			while (this.pos < this.input.length) {
 				const code = this.input.charCodeAt(this.pos);
 				if (code < 128 && CHAR_FLAGS[code]! & IS_DIGIT) {
 					raw += this.input[this.pos];
 					this.advance();
+					hasExp = true;
 				} else {
 					break;
 				}
+			}
+			if (!hasExp) {
+				throw new JSONPathSyntaxError('Expected digit in exponent', {
+					position: this.pos,
+				});
 			}
 		}
 
@@ -333,6 +461,7 @@ export class Lexer implements LexerInterface {
 			start,
 			line,
 			col,
+			raw,
 		);
 	}
 
@@ -431,6 +560,7 @@ export class Lexer implements LexerInterface {
 		start: number,
 		line: number,
 		col: number,
+		raw?: string,
 	): Token {
 		return {
 			type,
@@ -439,6 +569,7 @@ export class Lexer implements LexerInterface {
 			end: this.pos,
 			line,
 			column: col,
+			raw,
 		};
 	}
 }

@@ -9,7 +9,13 @@
 import {
 	JSONPathError,
 	JSONPathTypeError,
+	JSONPathSyntaxError,
+	JSONPathSecurityError,
+	JSONPathLimitError,
+	JSONPathTimeoutError,
+	JSONPathFunctionError,
 	type EvaluatorOptions,
+	PathSegment,
 } from '@jsonpath/core';
 import {
 	NodeType,
@@ -22,17 +28,24 @@ import {
 	type UnaryExprNode,
 	type FunctionCallNode,
 	type LiteralNode,
+	isSingularQuery,
 } from '@jsonpath/parser';
 import '@jsonpath/functions';
 import { getFunction } from '@jsonpath/core';
-import { QueryResult, type QueryResultNode } from './query-result.js';
-import type { PathSegment } from '@jsonpath/core';
-import { withDefaults } from './options.js';
 
-export class Evaluator {
+import { withDefaults } from './options.js';
+import { QueryResult, type QueryResultNode } from './query-result.js';
+
+export interface NodeList {
+	readonly nodes: QueryResultNode[];
+	readonly __isNodeList: true;
+	readonly isSingular?: boolean;
+}
+
+class Evaluator {
 	private root: any;
 	private options: Required<EvaluatorOptions>;
-	private startTime: number = 0;
+	private startTime = 0;
 
 	constructor(root: any, options?: EvaluatorOptions) {
 		this.root = root;
@@ -41,25 +54,23 @@ export class Evaluator {
 
 	public evaluate(ast: QueryNode): QueryResult {
 		this.startTime = Date.now();
+		this.checkLimits(0, 0);
 
-		if (this.options.noRecursive) {
+		if (this.options.secure.noRecursive) {
 			const hasRecursive = ast.segments.some(
 				(s) => s.type === NodeType.DescendantSegment,
 			);
 			if (hasRecursive) {
-				throw new JSONPathError(
-					'Recursive descent is disabled',
-					'SECURITY_ERROR',
-				);
+				throw new JSONPathSecurityError('Recursive descent is disabled');
 			}
 		}
 
-		if (this.options.noFilters) {
+		if (this.options.secure.noFilters) {
 			const hasFilters = ast.segments.some((s) =>
 				s.selectors.some((sel) => sel.type === NodeType.FilterSelector),
 			);
 			if (hasFilters) {
-				throw new JSONPathError('Filters are disabled', 'SECURITY_ERROR');
+				throw new JSONPathSecurityError('Filters are disabled');
 			}
 		}
 
@@ -76,24 +87,24 @@ export class Evaluator {
 
 	private checkLimits(depth: number, resultCount: number): void {
 		if (this.options.maxDepth > 0 && depth > this.options.maxDepth) {
-			throw new JSONPathError(
+			throw new JSONPathLimitError(
 				`Maximum depth exceeded: ${this.options.maxDepth}`,
-				'LIMIT_ERROR',
+				{ code: 'MAX_DEPTH_EXCEEDED' },
 			);
 		}
 
 		if (this.options.maxResults > 0 && resultCount >= this.options.maxResults) {
-			throw new JSONPathError(
+			throw new JSONPathLimitError(
 				`Maximum results exceeded: ${this.options.maxResults}`,
-				'LIMIT_ERROR',
+				{ code: 'LIMIT_ERROR' },
 			);
 		}
 
 		if (this.options.timeout > 0) {
 			if (Date.now() - this.startTime > this.options.timeout) {
-				throw new JSONPathError(
+				throw new JSONPathTimeoutError(
 					`Query timed out after ${this.options.timeout}ms`,
-					'TIMEOUT_ERROR',
+					{ code: 'TIMEOUT' },
 				);
 			}
 		}
@@ -121,26 +132,21 @@ export class Evaluator {
 			}
 		}
 
-		// Deduplicate nodes by path
-		const seen = new Set<string>();
-		return nextNodes.filter((n) => {
-			const key = n.path.map(String).join('\0');
-			if (seen.has(key)) return false;
-			seen.add(key);
-			return true;
-		});
+		return nextNodes;
 	}
 
 	private walkDescendants(
 		node: QueryResultNode,
 		callback: (n: QueryResultNode) => void,
-		visited: Set<any> = new Set(),
+		visited = new Set<any>(),
 	): void {
 		this.checkLimits(node.path.length, 0); // resultCount check is handled in evaluateSegment
 
 		if (this.options.detectCircular) {
 			if (visited.has(node.value)) {
-				throw new JSONPathError('Circular reference detected', 'LIMIT_ERROR');
+				throw new JSONPathLimitError('Circular reference detected', {
+					path: node.path.join('.'),
+				});
 			}
 			if (node.value !== null && typeof node.value === 'object') {
 				visited.add(node.value);
@@ -192,16 +198,11 @@ export class Evaluator {
 		}
 	}
 
-	private normalizeSlice(i: number, len: number): number {
-		return i >= 0 ? i : len + i;
-	}
-
-	private bounds(i: number, len: number): number {
-		return Math.max(0, Math.min(len, i));
-	}
-
-	private boundsStepNeg(i: number, len: number): number {
-		return Math.max(-1, Math.min(len - 1, i));
+	/**
+	 * RFC 9535 Section 2.3.4: normalize(i, len)
+	 */
+	private normalize(i: number, len: number): number {
+		return i < 0 ? Math.max(len + i, 0) : Math.min(i, len);
 	}
 
 	private evaluateSelector(
@@ -209,7 +210,7 @@ export class Evaluator {
 		node: QueryResultNode,
 		results: QueryResultNode[],
 	): void {
-		const val = node.value as any;
+		const val = node.value;
 		if (val === null || typeof val !== 'object') return;
 
 		switch (selector.type) {
@@ -244,41 +245,52 @@ export class Evaluator {
 				break;
 			case NodeType.WildcardSelector:
 				if (Array.isArray(val)) {
-					val.forEach((v, i) =>
+					val.forEach((v, i) => {
 						this.addResult(results, {
 							value: v,
 							path: [...node.path, i],
 							root: node.root,
 							parent: val,
 							parentKey: i,
-						}),
-					);
+						});
+					});
 				} else {
-					Object.entries(val).forEach(([k, v]) =>
+					Object.entries(val).forEach(([k, v]) => {
 						this.addResult(results, {
 							value: v,
 							path: [...node.path, k],
 							root: node.root,
 							parent: val,
 							parentKey: k,
-						}),
-					);
+						});
+					});
 				}
 				break;
 			case NodeType.SliceSelector:
 				if (Array.isArray(val)) {
-					const { startValue, endValue, stepValue } = selector;
-					const step = stepValue ?? 1;
-					if (step === 0) return;
+					const { start, end, step: stepValue } = selector;
+					const s = stepValue ?? 1;
+
+					if (s === 0) {
+						return;
+					}
 
 					const len = val.length;
-					const start = startValue ?? (step > 0 ? 0 : len - 1);
-					const end = endValue ?? (step > 0 ? len : -len - 1);
 
-					if (step > 0) {
-						const lower = this.bounds(this.normalizeSlice(start, len), len);
-						const upper = this.bounds(this.normalizeSlice(end, len), len);
-						for (let i = lower; i < upper; i += step) {
+					// Defaults depend on direction.
+					let from = start ?? (s > 0 ? 0 : len - 1);
+					let to = end ?? (s > 0 ? len : -len - 1);
+
+					// Normalize negative indices.
+					if (from < 0) from = len + from;
+					if (to < 0) to = len + to;
+
+					if (s > 0) {
+						// Clamp to [0, len]
+						from = Math.min(Math.max(from, 0), len);
+						to = Math.min(Math.max(to, 0), len);
+
+						for (let i = from; i < to; i += s) {
 							this.addResult(results, {
 								value: val[i],
 								path: [...node.path, i],
@@ -288,15 +300,11 @@ export class Evaluator {
 							});
 						}
 					} else {
-						const lower = this.boundsStepNeg(
-							this.normalizeSlice(start, len),
-							len,
-						);
-						const upper = this.boundsStepNeg(
-							this.normalizeSlice(end, len),
-							len,
-						);
-						for (let i = lower; i > upper; i += step) {
+						// Clamp to [-1, len-1]
+						from = Math.min(Math.max(from, -1), len - 1);
+						to = Math.min(Math.max(to, -1), len - 1);
+
+						for (let i = from; i > to; i += s) {
 							this.addResult(results, {
 								value: val[i],
 								path: [...node.path, i],
@@ -311,44 +319,36 @@ export class Evaluator {
 			case NodeType.FilterSelector:
 				if (Array.isArray(val)) {
 					val.forEach((v, i) => {
+						const nodeContext = {
+							value: v,
+							path: [...node.path, i],
+							root: node.root,
+							parent: val,
+							parentKey: i,
+						};
 						if (
-							this.evaluateExpression(selector.expression, {
-								value: v,
-								path: [...node.path, i],
-								root: node.root,
-								parent: val,
-								parentKey: i,
-							})
+							this.isTruthy(
+								this.evaluateExpression(selector.expression, nodeContext),
+							)
 						) {
-							this.addResult(results, {
-								value: v,
-								path: [...node.path, i],
-								root: node.root,
-								parent: val,
-								parentKey: i,
-							});
+							this.addResult(results, nodeContext);
 						}
 					});
 				} else {
-					// RFC 9535: Filter on object applies to the object itself if it matches?
-					// Actually, it applies to the values of the object.
 					Object.entries(val).forEach(([k, v]) => {
+						const nodeContext = {
+							value: v,
+							path: [...node.path, k],
+							root: node.root,
+							parent: val,
+							parentKey: k,
+						};
 						if (
-							this.evaluateExpression(selector.expression, {
-								value: v,
-								path: [...node.path, k],
-								root: node.root,
-								parent: val,
-								parentKey: k,
-							})
+							this.isTruthy(
+								this.evaluateExpression(selector.expression, nodeContext),
+							)
 						) {
-							this.addResult(results, {
-								value: v,
-								path: [...node.path, k],
-								root: node.root,
-								parent: val,
-								parentKey: k,
-							});
+							this.addResult(results, nodeContext);
 						}
 					});
 				}
@@ -362,64 +362,298 @@ export class Evaluator {
 	): any {
 		switch (expr.type) {
 			case NodeType.Literal:
-				return (expr as LiteralNode).value;
+				return expr.value;
 			case NodeType.BinaryExpr: {
 				const left = this.evaluateExpression(expr.left, current);
 				const right = this.evaluateExpression(expr.right, current);
 				switch (expr.operator) {
 					case '==':
-						return left === right;
+						return {
+							value: this.compare(left, right, '=='),
+							__isLogicalType: true,
+						};
 					case '!=':
-						return left !== right;
+						return {
+							value: !this.compare(left, right, '=='),
+							__isLogicalType: true,
+						};
 					case '<':
-						return left < right;
+						return {
+							value: this.compare(left, right, '<'),
+							__isLogicalType: true,
+						};
 					case '<=':
-						return left <= right;
+						return {
+							value: this.compare(left, right, '<='),
+							__isLogicalType: true,
+						};
 					case '>':
-						return left > right;
+						return {
+							value: this.compare(left, right, '>'),
+							__isLogicalType: true,
+						};
 					case '>=':
-						return left >= right;
+						return {
+							value: this.compare(left, right, '>='),
+							__isLogicalType: true,
+						};
 					case '&&':
-						return left && right;
+						return {
+							value: this.isTruthy(left) && this.isTruthy(right),
+							__isLogicalType: true,
+						};
 					case '||':
-						return left || right;
+						return {
+							value: this.isTruthy(left) || this.isTruthy(right),
+							__isLogicalType: true,
+						};
 					default:
 						return false;
 				}
 			}
 			case NodeType.UnaryExpr: {
 				const operand = this.evaluateExpression(expr.operand, current);
-				if (expr.operator === '!') return !operand;
+				if (expr.operator === '!') {
+					return {
+						value: !this.isTruthy(operand),
+						__isLogicalType: true,
+					};
+				}
 				return false;
 			}
-			case NodeType.SingularQuery: {
-				const nodes = this.evaluateSingularQuery(expr, current);
-				return nodes[0]?.value;
+			case NodeType.Query: {
+				return this.evaluateEmbeddedQuery(expr, current);
 			}
 			case NodeType.FunctionCall: {
-				const args = expr.args.map((a) => this.evaluateExpression(a, current));
 				const fn = getFunction(expr.name);
-				if (!fn)
-					throw new JSONPathError(
-						`Unknown function: ${expr.name}`,
-						'FUNCTION_ERROR',
-					);
-				return fn.evaluate(...args);
+				if (!fn || expr.args.length !== fn.signature.length) {
+					// RFC 9535: Unknown function or wrong arg count results in "Nothing"
+					return undefined;
+				}
+				const args = expr.args.map((a) => this.evaluateExpression(a, current));
+
+				// RFC 9535: If any argument is "Nothing", the result is "Nothing"
+				if (args.some((arg) => arg === undefined)) {
+					return undefined;
+				}
+
+				try {
+					// RFC 9535: Functions receive result sets for NodesType arguments.
+					// For ValueType arguments, they receive the single value or "Nothing".
+					const processedArgs: any[] = [];
+					for (let i = 0; i < args.length; i++) {
+						const arg = args[i];
+						const paramType = fn.signature[i];
+						const isNodeList =
+							arg && typeof arg === 'object' && arg.__isNodeList === true;
+
+						if (paramType === 'NodesType') {
+							if (!isNodeList) return undefined; // Type mismatch
+							processedArgs.push(arg.nodes);
+						} else if (paramType === 'LogicalType') {
+							processedArgs.push(this.isTruthy(arg));
+						} else {
+							// ValueType
+							if (isNodeList) {
+								if (arg.nodes.length === 1) {
+									processedArgs.push(arg.nodes[0].value);
+								} else {
+									return undefined; // Non-singular query for ValueType
+								}
+							} else if (
+								arg &&
+								typeof arg === 'object' &&
+								(arg.__isFunctionResult || arg.__isLogicalType)
+							) {
+								processedArgs.push(arg.value);
+							} else {
+								processedArgs.push(arg);
+							}
+						}
+					}
+
+					const result = fn.evaluate(...processedArgs);
+					if (result === undefined) return undefined;
+
+					if (fn.returns === 'LogicalType') {
+						return { value: result, __isLogicalType: true };
+					}
+					return { value: result, __isFunctionResult: true };
+				} catch (err) {
+					// RFC 9535: Errors in function evaluation result in "Nothing"
+					return undefined;
+				}
 			}
+			default:
+				return undefined;
 		}
 	}
 
-	private evaluateSingularQuery(
-		query: SingularQueryNode,
+	private isTruthy(val: any): boolean {
+		if (val === undefined) return false; // "Nothing" is falsy
+		if (val && typeof val === 'object') {
+			if (val.__isLogicalType === true) {
+				return Boolean(val.value);
+			}
+			if (val.__isNodeList === true) {
+				// RFC 9535: A result set is truthy if it is not empty.
+				return val.nodes.length > 0;
+			}
+		}
+		// RFC 9535: Literals and ValueType results (from functions) are not truthy
+		// on their own in a filter context. They must be compared.
+		return false;
+	}
+
+	private compare(left: any, right: any, operator: string): boolean {
+		// RFC 9535 Section 2.4.4.1:
+		// A comparison is valid if both sides are comparable.
+		// A value is comparable if it is a literal or a singular query.
+		// If a query is not singular, it is not comparable.
+		// If a comparison is not valid, the result is false.
+		const isComparable = (val: any) => {
+			if (val && typeof val === 'object') {
+				if (val.__isNodeList === true) {
+					return val.isSingular === true;
+				}
+				// Function results (ValueType) are comparable
+				if (val.__isFunctionResult === true) {
+					return true;
+				}
+				// LogicalType results are NOT comparable
+				if (val.__isLogicalType === true) {
+					return false;
+				}
+			}
+			return true; // Literals are comparable
+		};
+
+		if (!isComparable(left) || !isComparable(right)) {
+			return false;
+		}
+
+		// RFC 9535: If a comparison operand is a query, it is evaluated as a result set.
+		// If the result set contains exactly one node, its value is used.
+		// Otherwise, the operand is "Nothing".
+		const unwrap = (val: any) => {
+			if (val && typeof val === 'object') {
+				if (val.__isNodeList === true) {
+					return val.nodes.length === 1 ? val.nodes[0].value : undefined;
+				}
+				if (val.__isLogicalType === true || val.__isFunctionResult === true) {
+					return val.value;
+				}
+			}
+			return val;
+		};
+
+		const leftVal = unwrap(left);
+		const rightVal = unwrap(right);
+
+		// RFC 9535 Section 2.4.4.1:
+		// If both operands are Nothing, the result of the comparison is true for ==, <=, and >=;
+		// it is false for !=, <, and >.
+		if (leftVal === undefined && rightVal === undefined) {
+			return operator === '==' || operator === '<=' || operator === '>=';
+		}
+
+		// If one operand is Nothing and the other is a value (ValueType),
+		// the result of the comparison is false for ==, <, <=, >, and >=; it is true for !=.
+		if (leftVal === undefined || rightVal === undefined) {
+			return operator === '!=';
+		}
+
+		if (operator === '==') {
+			return this.deepEqual(leftVal, rightVal);
+		}
+		if (operator === '!=') {
+			return !this.deepEqual(leftVal, rightVal);
+		}
+
+		// RFC 9535: Comparison operators <, <=, >, >= are only defined for
+		// numbers and strings of the same type.
+		if (typeof leftVal === 'number' && typeof rightVal === 'number') {
+			switch (operator) {
+				case '<':
+					return leftVal < rightVal;
+				case '<=':
+					return leftVal <= rightVal;
+				case '>':
+					return leftVal > rightVal;
+				case '>=':
+					return leftVal >= rightVal;
+			}
+		}
+
+		if (typeof leftVal === 'string' && typeof rightVal === 'string') {
+			switch (operator) {
+				case '<':
+					return leftVal < rightVal;
+				case '<=':
+					return leftVal <= rightVal;
+				case '>':
+					return leftVal > rightVal;
+				case '>=':
+					return leftVal >= rightVal;
+			}
+		}
+
+		// CTS compatibility: Some tests expect <= and >= to work for equal values of other types (null, bool)
+		if (this.deepEqual(leftVal, rightVal)) {
+			if (operator === '<=' || operator === '>=') return true;
+		}
+
+		return false;
+	}
+
+	private deepEqual(a: any, b: any): boolean {
+		if (a === b) return true;
+		if (
+			typeof a !== 'object' ||
+			a === null ||
+			typeof b !== 'object' ||
+			b === null
+		) {
+			return false;
+		}
+
+		if (Array.isArray(a)) {
+			if (!Array.isArray(b) || a.length !== b.length) return false;
+			for (let i = 0; i < a.length; i++) {
+				if (!this.deepEqual(a[i], b[i])) return false;
+			}
+			return true;
+		}
+
+		if (Array.isArray(b)) return false;
+
+		const keysA = Object.keys(a);
+		const keysB = Object.keys(b);
+		if (keysA.length !== keysB.length) return false;
+
+		for (const key of keysA) {
+			if (!Object.prototype.hasOwnProperty.call(b, key)) return false;
+			if (!this.deepEqual(a[key], b[key])) return false;
+		}
+
+		return true;
+	}
+
+	private evaluateEmbeddedQuery(
+		query: QueryNode,
 		current: QueryResultNode,
-	): QueryResultNode[] {
+	): NodeList {
 		let nodes: QueryResultNode[] = query.root
 			? [{ value: this.root, path: [], root: this.root }]
 			: [current];
 		for (const segment of query.segments) {
 			nodes = this.evaluateSegment(segment, nodes);
 		}
-		return nodes;
+		return {
+			nodes,
+			__isNodeList: true,
+			isSingular: isSingularQuery(query),
+		};
 	}
 }
 

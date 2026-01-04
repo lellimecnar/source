@@ -41,9 +41,9 @@ describe('Parser', () => {
 		const ast = parse('$[1:5:2]');
 		const selector = ast.segments[0].selectors[0] as any;
 		expect(selector.type).toBe(NodeType.SliceSelector);
-		expect(selector.startValue).toBe(1);
-		expect(selector.endValue).toBe(5);
-		expect(selector.stepValue).toBe(2);
+		expect(selector.start).toBe(1);
+		expect(selector.end).toBe(5);
+		expect(selector.step).toBe(2);
 	});
 
 	it('should parse filter expressions', () => {
@@ -68,5 +68,13 @@ describe('Parser', () => {
 		const expr = filter.expression;
 		expect(expr.left.type).toBe(NodeType.FunctionCall);
 		expect(expr.left.name).toBe('length');
+	});
+
+	it('should throw on invalid index selector $[+1]', () => {
+		expect(() => parse('$[+1]')).toThrow();
+	});
+
+	it('should throw on invalid index selector $[1.0]', () => {
+		expect(() => parse('$[1.0]')).toThrow();
 	});
 });

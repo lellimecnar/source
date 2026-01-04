@@ -13,7 +13,6 @@ import {
 	type SegmentNode,
 	type SelectorNode,
 	type ExpressionNode,
-	type SingularQueryNode,
 	type BinaryExprNode,
 	type UnaryExprNode,
 	type FunctionCallNode,
@@ -28,7 +27,7 @@ export function transform(
 	transformer: Transformer,
 ): ASTNode | null {
 	const transformNode = transformer[node.type];
-	let newNode: any = transformNode ? transformNode(node) : { ...node };
+	const newNode: any = transformNode ? transformNode(node) : { ...node };
 
 	if (!newNode) return null;
 
@@ -57,11 +56,6 @@ export function transform(
 		case NodeType.FunctionCall:
 			newNode.args = newNode.args
 				.map((a: any) => transform(a, transformer))
-				.filter(Boolean);
-			break;
-		case NodeType.SingularQuery:
-			newNode.segments = newNode.segments
-				.map((s: any) => transform(s, transformer))
 				.filter(Boolean);
 			break;
 	}

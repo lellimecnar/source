@@ -16,47 +16,64 @@ import {
 /**
  * length(value) -> number
  */
-export const lengthFn: FunctionDefinition<[unknown], number> = {
+export const lengthFn: FunctionDefinition<[unknown], number | undefined> = {
 	name: 'length',
 	signature: ['ValueType'],
 	returns: 'ValueType',
 	evaluate: (val: unknown) => {
-		if (typeof val === 'string' || Array.isArray(val)) {
+		if (typeof val === 'string') {
+			// RFC 9535: length of string is number of Unicode code points
+			// In JS, string.length is UTF-16 code units.
+			// Array.from(string).length gives code points.
+			return Array.from(val).length;
+		}
+		if (Array.isArray(val)) {
 			return val.length;
 		}
 		if (val !== null && typeof val === 'object') {
-			return Object.keys(val as object).length;
+			return Object.keys(val).length;
 		}
-		return 0;
+		return undefined;
 	},
 };
 
 /**
  * count(nodes) -> number
  */
-export const countFn: FunctionDefinition<[unknown], number> = {
+export const countFn: FunctionDefinition<[unknown[]], number> = {
 	name: 'count',
 	signature: ['NodesType'],
 	returns: 'ValueType',
-	evaluate: (nodes: unknown) => {
-		return Array.isArray(nodes) ? nodes.length : 0;
+	evaluate: (nodes: unknown[]) => {
+		return nodes.length;
 	},
 };
 
 /**
  * match(value, pattern) -> boolean (regex full match)
  */
-export const matchFn: FunctionDefinition<[unknown, unknown], boolean> = {
+export const matchFn: FunctionDefinition<
+	[unknown, unknown],
+	boolean | undefined
+> = {
 	name: 'match',
 	signature: ['ValueType', 'ValueType'],
 	returns: 'LogicalType',
 	evaluate: (val: unknown, pattern: unknown) => {
-		if (typeof val !== 'string' || typeof pattern !== 'string') return false;
+		if (typeof pattern !== 'string') return undefined;
+		if (typeof val !== 'string') return false;
 		try {
-			const regex = new RegExp(`^${pattern}$`);
+			// RFC 9535: . matches any character except LF, CR, CRLF.
+			// In JS, . without 's' flag matches any character except LF, CR, U+2028, U+2029.
+			// We need to make it match U+2028 and U+2029.
+			const processedPattern = pattern.replace(
+				/\\.|\[(?:\\.|[^\]])*\]|(\.)/g,
+				(m, dot) => (dot ? '[^\\n\\r]' : m),
+			);
+			const regex = new RegExp(`^${processedPattern}$`, 'u');
 			return regex.test(val);
 		} catch {
-			return false;
+			return undefined;
 		}
 	},
 };
@@ -64,35 +81,45 @@ export const matchFn: FunctionDefinition<[unknown, unknown], boolean> = {
 /**
  * search(value, pattern) -> boolean (regex partial match)
  */
-export const searchFn: FunctionDefinition<[unknown, unknown], boolean> = {
+export const searchFn: FunctionDefinition<
+	[unknown, unknown],
+	boolean | undefined
+> = {
 	name: 'search',
 	signature: ['ValueType', 'ValueType'],
 	returns: 'LogicalType',
 	evaluate: (val: unknown, pattern: unknown) => {
-		if (typeof val !== 'string' || typeof pattern !== 'string') return false;
+		if (typeof pattern !== 'string') return undefined;
+		if (typeof val !== 'string') return false;
 		try {
-			const regex = new RegExp(pattern);
+			const processedPattern = pattern.replace(
+				/\\.|\[(?:\\.|[^\]])*\]|(\.)/g,
+				(m, dot) => (dot ? '[^\\n\\r]' : m),
+			);
+			const regex = new RegExp(processedPattern, 'u');
 			return regex.test(val);
 		} catch {
-			return false;
+			return undefined;
 		}
 	},
 };
 
 /**
- * value(nodes) -> any | null
+ * value(nodes) -> any | undefined
  *
  * Returns the single value if the node list contains exactly one node.
  */
-export const valueFn: FunctionDefinition<[unknown], unknown> = {
+export const valueFn: FunctionDefinition<[any[]], any | undefined> = {
 	name: 'value',
 	signature: ['NodesType'],
 	returns: 'ValueType',
-	evaluate: (nodes: unknown) => {
-		if (Array.isArray(nodes) && nodes.length === 1) {
-			return nodes[0];
+	evaluate: (nodes: any[]) => {
+		if (nodes.length === 1) {
+			// nodes is an array of QueryResultNode-like objects or just values?
+			// In evaluator.ts, processedArgs for NodesType returns arg.nodes (QueryResultNode[])
+			return nodes[0].value;
 		}
-		return null;
+		return undefined;
 	},
 };
 

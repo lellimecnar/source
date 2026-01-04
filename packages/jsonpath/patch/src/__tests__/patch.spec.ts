@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyPatch } from '../patch.js';
+import { applyPatch, applyWithInverse } from '../patch.js';
 
 describe('JSON Patch', () => {
 	it('should apply add operation', () => {
@@ -54,5 +54,66 @@ describe('JSON Patch', () => {
 		expect(() =>
 			applyPatch(data, [{ op: 'test', path: '/foo', value: 'baz' }]),
 		).toThrow();
+	});
+
+	it('should throw JSONPatchError with metadata on failure', () => {
+		const data = { foo: 'bar' };
+		try {
+			applyPatch(data, [
+				{ op: 'test', path: '/foo', value: 'bar' },
+				{ op: 'remove', path: '/nonexistent' },
+			]);
+		} catch (err: any) {
+			expect(err.name).toBe('JSONPatchError');
+			expect(err.operationIndex).toBe(1);
+			expect(err.operation).toBe('remove');
+			expect(err.path).toBe('/nonexistent');
+		}
+	});
+
+	describe('applyWithInverse', () => {
+		it('should generate inverse for add', () => {
+			const data = { a: 1 };
+			const { result, inverse } = applyWithInverse(data, [
+				{ op: 'add', path: '/b', value: 2 },
+			]);
+			expect(result).toEqual({ a: 1, b: 2 });
+			expect(inverse).toEqual([{ op: 'remove', path: '/b' }]);
+			expect(applyPatch(result, inverse)).toEqual(data);
+		});
+
+		it('should generate inverse for remove', () => {
+			const data = { a: 1, b: 2 };
+			const { result, inverse } = applyWithInverse(data, [
+				{ op: 'remove', path: '/b' },
+			]);
+			expect(result).toEqual({ a: 1 });
+			expect(inverse).toEqual([{ op: 'add', path: '/b', value: 2 }]);
+			expect(applyPatch(result, inverse)).toEqual(data);
+		});
+
+		it('should generate inverse for replace', () => {
+			const data = { a: 1 };
+			const { result, inverse } = applyWithInverse(data, [
+				{ op: 'replace', path: '/a', value: 2 },
+			]);
+			expect(result).toEqual({ a: 2 });
+			expect(inverse).toEqual([{ op: 'replace', path: '/a', value: 1 }]);
+			expect(applyPatch(result, inverse)).toEqual(data);
+		});
+
+		it('should generate inverse for multiple operations in reverse order', () => {
+			const data = { a: 1 };
+			const { result, inverse } = applyWithInverse(data, [
+				{ op: 'add', path: '/b', value: 2 },
+				{ op: 'replace', path: '/a', value: 3 },
+			]);
+			expect(result).toEqual({ a: 3, b: 2 });
+			expect(inverse).toEqual([
+				{ op: 'replace', path: '/a', value: 1 },
+				{ op: 'remove', path: '/b' },
+			]);
+			expect(applyPatch(result, inverse)).toEqual(data);
+		});
 	});
 });

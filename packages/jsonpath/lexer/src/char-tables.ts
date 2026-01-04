@@ -79,6 +79,16 @@ export const enum CharCode {
 	MINUS = 45, // -
 	DOT = 46, // .
 	SLASH = 47, // /
+	ZERO = 48,
+	ONE = 49,
+	TWO = 50,
+	THREE = 51,
+	FOUR = 52,
+	FIVE = 53,
+	SIX = 54,
+	SEVEN = 55,
+	EIGHT = 56,
+	NINE = 57,
 	COLON = 58, // :
 	LT = 60, // <
 	EQ = 61, // =

@@ -1,5 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { JSONPointer, evaluatePointer } from '../pointer.js';
+import {
+	JSONPointer,
+	evaluatePointer,
+	set,
+	remove,
+	append,
+	parent,
+	join,
+	split,
+	escape,
+	unescape,
+	isValid,
+	validate,
+	resolve,
+	resolveOrThrow,
+	exists,
+	resolveWithParent,
+} from '../index.js';
 
 describe('JSONPointer', () => {
 	describe('parse', () => {
@@ -80,6 +97,110 @@ describe('JSONPointer', () => {
 		it('should return undefined for non-existent paths', () => {
 			expect(evaluatePointer(data, '/nonexistent')).toBeUndefined();
 			expect(evaluatePointer(data, '/foo/10')).toBeUndefined();
+		});
+	});
+
+	describe('mutations', () => {
+		it('should set values immutably', () => {
+			const data = { a: { b: 1 } };
+			const result = set(data, '/a/c', 2);
+			expect(result).toEqual({ a: { b: 1, c: 2 } });
+			expect(data).toEqual({ a: { b: 1 } });
+			expect(result.a).not.toBe(data.a);
+		});
+
+		it('should set array elements', () => {
+			const data = { a: [1, 2] };
+			const result = set(data, '/a/1', 3);
+			expect(result).toEqual({ a: [1, 3] });
+			expect(Array.isArray(result.a)).toBe(true);
+		});
+
+		it('should remove values immutably', () => {
+			const data = { a: { b: 1, c: 2 } };
+			const result = remove(data, '/a/b');
+			expect(result).toEqual({ a: { c: 2 } });
+			expect(data).toEqual({ a: { b: 1, c: 2 } });
+		});
+
+		it('should append to arrays', () => {
+			const data = { a: [1, 2] };
+			const result = append(data, '/a', 3);
+			expect(result).toEqual({ a: [1, 2, 3] });
+		});
+
+		it('should append using "-" token', () => {
+			const data = { a: [1, 2] };
+			const result = set(data, '/a/-', 3);
+			// Note: RFC 6902 says "-" means "after the last element"
+			// Our set implementation should handle "-" if it wants to be RFC 6902 compliant
+			// Let's check if it does.
+			expect(result).toEqual({ a: [1, 2, 3] });
+		});
+	});
+
+	describe('utilities', () => {
+		it('should get parent pointer', () => {
+			expect(parent('/foo/bar')).toBe('/foo');
+			expect(parent('/foo')).toBe('');
+			expect(parent('')).toBe('');
+		});
+
+		it('should join pointers', () => {
+			expect(join('/foo', 'bar')).toBe('/foo/bar');
+			expect(join('/foo', '/bar')).toBe('/foo/bar');
+			expect(join('', 'foo')).toBe('/foo');
+		});
+
+		it('should split pointers', () => {
+			expect(split('/foo/bar')).toEqual(['foo', 'bar']);
+		});
+
+		it('should escape/unescape tokens', () => {
+			expect(escape('foo/bar~baz')).toBe('foo~1bar~0baz');
+			expect(unescape('foo~1bar~0baz')).toBe('foo/bar~baz');
+		});
+	});
+
+	describe('validation', () => {
+		it('should validate pointers', () => {
+			expect(isValid('')).toBe(true);
+			expect(isValid('/foo')).toBe(true);
+			expect(isValid('foo')).toBe(false);
+		});
+
+		it('should provide validation errors', () => {
+			expect(validate('/foo').valid).toBe(true);
+			expect(validate('foo').valid).toBe(false);
+			expect(validate('foo').errors).toContain(
+				'JSON Pointer must start with "/" or be empty',
+			);
+		});
+	});
+
+	describe('resolution', () => {
+		const data = { a: { b: 1 }, c: [2, 3] };
+
+		it('should resolve pointers', () => {
+			expect(resolve(data, '/a/b')).toBe(1);
+			expect(resolve(data, '/a/x')).toBeUndefined();
+		});
+
+		it('should resolve or throw', () => {
+			expect(resolveOrThrow(data, '/a/b')).toBe(1);
+			expect(() => resolveOrThrow(data, '/a/x')).toThrow();
+		});
+
+		it('should check existence', () => {
+			expect(exists(data, '/a/b')).toBe(true);
+			expect(exists(data, '/a/x')).toBe(false);
+		});
+
+		it('should resolve with parent', () => {
+			const result = resolveWithParent(data, '/a/b');
+			expect(result.value).toBe(1);
+			expect(result.parent).toBe(data.a);
+			expect(result.key).toBe('b');
 		});
 	});
 });

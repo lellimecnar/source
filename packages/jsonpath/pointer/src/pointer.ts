@@ -1,4 +1,4 @@
-import { JSONPathError } from '@jsonpath/core';
+import { JSONPointerError } from '@jsonpath/core';
 
 /**
  * JSON Pointer (RFC 6901) implementation.
@@ -23,15 +23,21 @@ export class JSONPointer {
 		}
 
 		if (!pointer.startsWith('/')) {
-			throw new JSONPathError(
+			throw new JSONPointerError(
 				'Invalid JSON Pointer: must start with "/" or be empty',
 			);
 		}
 
-		return pointer
-			.split('/')
-			.slice(1)
-			.map((token) => token.replace(/~1/g, '/').replace(/~0/g, '~'));
+		const parts = pointer.split('/').slice(1);
+		return parts.map((part) => {
+			// RFC 6901 Section 3: A tilde '~' character MUST be followed by either '0' or '1'.
+			if (/~[^01]/.test(part) || part.endsWith('~')) {
+				throw new JSONPointerError(
+					`Invalid tilde sequence in JSON Pointer: ${part}`,
+				);
+			}
+			return part.replace(/~1/g, '/').replace(/~0/g, '~');
+		});
 	}
 
 	/**
@@ -42,14 +48,9 @@ export class JSONPointer {
 			return '';
 		}
 
-		return (
-			'/' +
-			tokens
-				.map((token) =>
-					token.toString().replace(/~/g, '~0').replace(/\//g, '~1'),
-				)
-				.join('/')
-		);
+		return `/${tokens
+			.map((token) => token.toString().replace(/~/g, '~0').replace(/\//g, '~1'))
+			.join('/')}`;
 	}
 
 	/**
@@ -64,8 +65,12 @@ export class JSONPointer {
 			}
 
 			if (Array.isArray(current)) {
+				// RFC 6901 Section 4: Array indices must not have leading zeros
+				if (!/^(0|[1-9][0-9]*)$/.test(token)) {
+					return undefined;
+				}
 				const index = parseInt(token, 10);
-				if (isNaN(index) || index < 0 || index >= current.length) {
+				if (index < 0 || index >= current.length) {
 					return undefined;
 				}
 				current = current[index];

@@ -15,8 +15,8 @@ describe('JSONPath Facade', () => {
 		const result = query(data, '$.store.book[*].price');
 		expect(result.values()).toEqual([10, 20]);
 		expect(result.normalizedPaths()).toEqual([
-			'$.store.book[0].price',
-			'$.store.book[1].price',
+			"$['store']['book'][0]['price']",
+			"$['store']['book'][1]['price']",
 		]);
 	});
 
@@ -28,8 +28,8 @@ describe('JSONPath Facade', () => {
 	it('should execute queryPaths()', () => {
 		const result = query(data, '$.store.book[*].title');
 		expect(result.normalizedPaths()).toEqual([
-			'$.store.book[0].title',
-			'$.store.book[1].title',
+			"$['store']['book'][0]['title']",
+			"$['store']['book'][1]['title']",
 		]);
 	});
 

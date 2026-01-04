@@ -1,21 +1,18 @@
-import { parse, type QueryNode } from '@jsonpath/parser';
-import { evaluate, type QueryResult } from '@jsonpath/evaluator';
 import { compile, type CompiledQuery } from '@jsonpath/compiler';
 import { type EvaluatorOptions } from '@jsonpath/core';
+import { evaluate, type QueryResult } from '@jsonpath/evaluator';
+import { parse, type QueryNode } from '@jsonpath/parser';
 
-/**
- * Cache for parsed queries.
- */
-const queryCache = new Map<string, QueryNode>();
+import { getCachedQuery, setCachedQuery } from './cache.js';
 
 /**
  * Parses a JSONPath query string, with caching.
  */
 export function parseQuery(query: string): QueryNode {
-	let ast = queryCache.get(query);
+	let ast = getCachedQuery(query);
 	if (!ast) {
 		ast = parse(query);
-		queryCache.set(query, ast);
+		setCachedQuery(query, ast);
 	}
 	return ast;
 }
@@ -44,14 +41,14 @@ export function queryValues(
 }
 
 /**
- * Executes a JSONPath query and returns only the paths.
+ * Executes a JSONPath query and returns only the normalized paths (strings).
  */
 export function queryPaths(
 	root: any,
 	path: string,
 	options?: EvaluatorOptions,
-): any[] {
-	return query(root, path, options).paths();
+): string[] {
+	return query(root, path, options).normalizedPaths();
 }
 
 /**
@@ -60,6 +57,76 @@ export function queryPaths(
 export function compileQuery(path: string): CompiledQuery {
 	const ast = parseQuery(path);
 	return compile(ast);
+}
+
+/**
+ * Executes a JSONPath query and returns the first match value.
+ */
+export function value(
+	root: any,
+	path: string,
+	options?: EvaluatorOptions,
+): any | undefined {
+	return query(root, path, options).values()[0];
+}
+
+/**
+ * Executes a JSONPath query and returns true if any matches exist.
+ */
+export function exists(
+	root: any,
+	path: string,
+	options?: EvaluatorOptions,
+): boolean {
+	return !query(root, path, options).isEmpty();
+}
+
+/**
+ * Executes a JSONPath query and returns the number of matches.
+ */
+export function count(
+	root: any,
+	path: string,
+	options?: EvaluatorOptions,
+): number {
+	return query(root, path, options).length;
+}
+
+/**
+ * Executes a JSONPath query and returns an iterator of results.
+ */
+export function* stream(
+	root: any,
+	path: string,
+	options?: EvaluatorOptions,
+): IterableIterator<{ value: any; path: string }> {
+	const results = query(root, path, options);
+	for (let i = 0; i < results.length; i++) {
+		yield {
+			value: results.values()[i],
+			path: results.normalizedPaths()[i]!,
+		};
+	}
+}
+
+/**
+ * Alias for query().
+ */
+export const match = query;
+
+/**
+ * Validates a JSONPath query string.
+ */
+export function validateQuery(path: string): {
+	valid: boolean;
+	error?: string;
+} {
+	try {
+		parse(path);
+		return { valid: true };
+	} catch (err: any) {
+		return { valid: false, error: err.message };
+	}
 }
 
 // Re-export core types and functions

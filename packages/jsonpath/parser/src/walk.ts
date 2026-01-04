@@ -13,7 +13,6 @@ import {
 	type SegmentNode,
 	type SelectorNode,
 	type ExpressionNode,
-	type SingularQueryNode,
 	type BinaryExprNode,
 	type UnaryExprNode,
 	type FunctionCallNode,
@@ -35,11 +34,15 @@ export function walk(
 
 	switch (node.type) {
 		case NodeType.Query:
-			(node as QueryNode).segments.forEach((s) => walk(s, visitor, node));
+			(node as QueryNode).segments.forEach((s) => {
+				walk(s, visitor, node);
+			});
 			break;
 		case NodeType.ChildSegment:
 		case NodeType.DescendantSegment:
-			(node as SegmentNode).selectors.forEach((s) => walk(s, visitor, node));
+			(node as SegmentNode).selectors.forEach((s) => {
+				walk(s, visitor, node);
+			});
 			break;
 		case NodeType.FilterSelector:
 			walk((node as any).expression, visitor, node);
@@ -52,12 +55,9 @@ export function walk(
 			walk((node as UnaryExprNode).operand, visitor, node);
 			break;
 		case NodeType.FunctionCall:
-			(node as FunctionCallNode).args.forEach((a) => walk(a, visitor, node));
-			break;
-		case NodeType.SingularQuery:
-			(node as SingularQueryNode).segments.forEach((s) =>
-				walk(s, visitor, node),
-			);
+			(node as FunctionCallNode).args.forEach((a) => {
+				walk(a, visitor, node);
+			});
 			break;
 	}
 }

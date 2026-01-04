@@ -60,6 +60,8 @@ export interface Token {
 	readonly type: TokenType;
 	/** The value of the token (parsed for literals) */
 	readonly value: string | number | boolean | null;
+	/** The raw string value of the token */
+	readonly raw?: string;
 	/** Start position in the input string (0-indexed) */
 	readonly start: number;
 	/** End position in the input string (0-indexed) */

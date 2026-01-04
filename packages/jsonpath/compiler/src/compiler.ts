@@ -1,6 +1,6 @@
-import { type QueryNode } from '@jsonpath/parser';
-import { evaluate, type QueryResult } from '@jsonpath/evaluator';
 import { type EvaluatorOptions } from '@jsonpath/core';
+import { evaluate, type QueryResult } from '@jsonpath/evaluator';
+import { type QueryNode } from '@jsonpath/parser';
 
 /**
  * A compiled JSONPath query.
@@ -10,13 +10,18 @@ export type CompiledQuery = (
 	options?: EvaluatorOptions,
 ) => QueryResult;
 
+export interface CompilerOptions {
+	readonly useCache?: boolean;
+	readonly optimize?: boolean;
+}
+
 /**
  * Compiles a JSONPath AST into an executable function.
  */
-export function compile(ast: QueryNode): CompiledQuery {
-	// For now, we just return a function that calls the evaluator.
-	// In a more advanced implementation, we could generate a specialized
-	// execution plan or even dynamic code.
-	return (root: any, options?: EvaluatorOptions) =>
-		evaluate(root, ast, options);
+export function compile(
+	ast: QueryNode,
+	options: CompilerOptions = {},
+): CompiledQuery {
+	return (root: any, evalOptions?: EvaluatorOptions) =>
+		evaluate(root, ast, evalOptions);
 }

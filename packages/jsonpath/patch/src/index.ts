@@ -7,3 +7,5 @@
  */
 
 export * from './patch.js';
+export * from './diff.js';
+export * from './builder.js';

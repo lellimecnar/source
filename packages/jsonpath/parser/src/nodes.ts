@@ -26,17 +26,17 @@ export enum NodeType {
 	UnaryExpr = 'UnaryExpr',
 	FunctionCall = 'FunctionCall',
 	Literal = 'Literal',
-	SingularQuery = 'SingularQuery',
 }
 
 export interface ASTNode {
 	readonly type: NodeType;
-	readonly start: number;
-	readonly end: number;
+	readonly startPos: number;
+	readonly endPos: number;
 }
 
 export interface QueryNode extends ASTNode {
 	readonly type: NodeType.Query;
+	readonly root: boolean; // true = $, false = @
 	readonly segments: SegmentNode[];
 }
 
@@ -61,9 +61,9 @@ export interface WildcardSelectorNode extends ASTNode {
 
 export interface SliceSelectorNode extends ASTNode {
 	readonly type: NodeType.SliceSelector;
-	readonly startValue: number | null;
-	readonly endValue: number | null;
-	readonly stepValue: number | null;
+	readonly start: number | null;
+	readonly end: number | null;
+	readonly step: number | null;
 }
 
 export interface FilterSelectorNode extends ASTNode {
@@ -102,15 +102,32 @@ export interface LiteralNode extends ASTNode {
 	readonly value: string | number | boolean | null;
 }
 
-export interface SingularQueryNode extends ASTNode {
-	readonly type: NodeType.SingularQuery;
-	readonly root: boolean; // true = $, false = @
-	readonly segments: SegmentNode[];
-}
-
 export type ExpressionNode =
 	| BinaryExprNode
 	| UnaryExprNode
 	| FunctionCallNode
 	| LiteralNode
-	| SingularQueryNode;
+	| QueryNode;
+
+/**
+ * Checks if a query is singular according to RFC 9535.
+ * A singular query is a query that can only produce a result set with at most one node.
+ * A query is singular if it is:
+ * - the absolute query $
+ * - the relative query @
+ * - a singular query followed by a child segment with a single name or index selector.
+ */
+export function isSingularQuery(query: QueryNode): boolean {
+	for (const segment of query.segments) {
+		if (segment.type !== NodeType.ChildSegment) return false;
+		if (segment.selectors.length !== 1) return false;
+		const selector = segment.selectors[0]!;
+		if (
+			selector.type !== NodeType.NameSelector &&
+			selector.type !== NodeType.IndexSelector
+		) {
+			return false;
+		}
+	}
+	return true;
+}

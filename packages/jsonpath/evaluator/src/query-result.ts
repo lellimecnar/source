@@ -20,28 +20,24 @@ function escapeJsonPointerSegment(segment: string): string {
 
 function pathToPointer(path: readonly PathSegment[]): string {
 	if (path.length === 0) return '';
-	return (
-		'/' +
-		path
-			.map((seg) =>
-				escapeJsonPointerSegment(typeof seg === 'number' ? String(seg) : seg),
-			)
-			.join('/')
-	);
+	return `/${path
+		.map((seg) =>
+			escapeJsonPointerSegment(typeof seg === 'number' ? String(seg) : seg),
+		)
+		.join('/')}`;
 }
 
 function escapeNormalizedPathName(name: string): string {
 	return name
 		.replace(/\\/g, '\\\\')
 		.replace(/'/g, "\\'")
-		.replace(/\//g, '\\/')
 		.replace(/\x08/g, '\\b')
 		.replace(/\x0c/g, '\\f')
 		.replace(/\n/g, '\\n')
 		.replace(/\r/g, '\\r')
 		.replace(/\t/g, '\\t')
 		.replace(/[\u0000-\u001f]/g, (c) => {
-			return '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0');
+			return `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`;
 		});
 }
 
