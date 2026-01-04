@@ -317,7 +317,7 @@ completes: step 4 of 5 for jsonpath-patch-rfc-compliance
 
 #### Step 5: Document Compliance Status
 
-- [ ] Create `packages/jsonpath/patch/RFC_COMPLIANCE.md` with:
+- [x] Create `packages/jsonpath/patch/RFC_COMPLIANCE.md` with:
 
 ````markdown
 # RFC 6902 Compliance (JSON Patch)
@@ -365,7 +365,7 @@ Suggested areas to watch (common RFC 6902 pitfalls):
 
 ````
 
-- [ ] Create `packages/jsonpath/patch/README.md` with:
+- [x] Create `packages/jsonpath/patch/README.md` with:
 
 ```markdown
 # @jsonpath/patch
@@ -396,7 +396,7 @@ See `RFC_COMPLIANCE.md` for how to run the suite and track deviations.
 
 ````
 
-- [ ] Run:
+- [x] Run:
 
 ```bash
 pnpm --filter @jsonpath/patch test
@@ -404,8 +404,8 @@ pnpm --filter @jsonpath/patch test
 
 ##### Step 5 Verification Checklist
 
-- [ ] `packages/jsonpath/patch/RFC_COMPLIANCE.md` explains how to run + count tests
-- [ ] `packages/jsonpath/patch/README.md` references compliance testing
+- [x] `packages/jsonpath/patch/RFC_COMPLIANCE.md` explains how to run + count tests
+- [x] `packages/jsonpath/patch/README.md` references compliance testing
 
 #### Step 5 STOP & COMMIT
 
