@@ -33,6 +33,7 @@
 	},
 	"dependencies": {
 		"@jsonpath/core": "workspace:*",
+		"@jsonpath/evaluator": "workspace:*",
 		"@jsonpath/parser": "workspace:*"
 	},
 	"devDependencies": {
