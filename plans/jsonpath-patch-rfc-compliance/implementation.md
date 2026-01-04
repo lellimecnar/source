@@ -102,7 +102,7 @@ completes: step 1 of 5 for jsonpath-patch-rfc-compliance
 
 #### Step 2: Create Type Definitions for RFC 6902 Test Cases
 
-- [ ] Create `packages/jsonpath/patch/src/__tests__/__fixtures__/rfc6902-types.ts` with:
+- [x] Create `packages/jsonpath/patch/src/__tests__/__fixtures__/rfc6902-types.ts` with:
 
 ```typescript
 import type { PatchOperation } from '../../patch.js';
@@ -119,7 +119,7 @@ export interface RFC6902TestCase {
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/patch type-check` passes
+- [x] `pnpm --filter @jsonpath/patch type-check` passes
 
 #### Step 2 STOP & COMMIT
 
