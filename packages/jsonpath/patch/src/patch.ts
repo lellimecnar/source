@@ -15,6 +15,31 @@ export interface ApplyOptions {
 }
 
 /**
+ * Validates that a patch operation has all required parameters per RFC 6902.
+ * @throws {JSONPatchError} if a required parameter is missing
+ */
+function validateOperation(operation: Record<string, unknown>): void {
+	const op = operation.op as string;
+
+	// RFC 6902 §4.1, §4.3, §4.6: add, replace, test require 'value'
+	if (
+		(op === 'add' || op === 'replace' || op === 'test') &&
+		!('value' in operation)
+	) {
+		throw new JSONPatchError(
+			`Missing required 'value' parameter for '${op}' operation`,
+		);
+	}
+
+	// RFC 6902 §4.4, §4.5: move, copy require 'from'
+	if ((op === 'move' || op === 'copy') && !('from' in operation)) {
+		throw new JSONPatchError(
+			`Missing required 'from' parameter for '${op}' operation`,
+		);
+	}
+}
+
+/**
  * JSON Patch (RFC 6902) implementation.
  */
 export function applyPatch(
@@ -27,6 +52,9 @@ export function applyPatch(
 
 	patch.forEach((operation, index) => {
 		try {
+			// RFC 6902: Validate required parameters before executing
+			validateOperation(operation);
+
 			switch (operation.op) {
 				case 'add':
 					result = applyAdd(result, operation.path, operation.value);

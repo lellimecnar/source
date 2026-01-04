@@ -26,6 +26,7 @@ function runSuite(label: string, cases: RFC6902TestCase[]): void {
 			}
 
 			if (typeof testCase.error === 'string') {
+				// Case 1: error field present → expect the patch to throw
 				it(name, () => {
 					const doc = structuredClone(testCase.doc);
 					const patch = structuredClone(testCase.patch);
@@ -35,13 +36,25 @@ function runSuite(label: string, cases: RFC6902TestCase[]): void {
 				return;
 			}
 
+			if ('expected' in testCase) {
+				// Case 2: expected field present → verify result equals expected
+				it(name, () => {
+					const doc = structuredClone(testCase.doc);
+					const patch = structuredClone(testCase.patch);
+					const expected = structuredClone(testCase.expected);
+
+					const actual = applyPatch(doc, patch);
+					expect(actual).toEqual(expected);
+				});
+				return;
+			}
+
+			// Case 3: neither error nor expected → just verify no error is thrown
 			it(name, () => {
 				const doc = structuredClone(testCase.doc);
 				const patch = structuredClone(testCase.patch);
-				const expected = structuredClone(testCase.expected);
 
-				const actual = applyPatch(doc, patch);
-				expect(actual).toEqual(expected);
+				expect(() => applyPatch(doc, patch)).not.toThrow();
 			});
 		});
 	});
