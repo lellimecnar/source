@@ -6,7 +6,11 @@
  * @packageDocumentation
  */
 
-import { JSONPathError, JSONPathTypeError } from '@jsonpath/core';
+import {
+	JSONPathError,
+	JSONPathTypeError,
+	type EvaluatorOptions,
+} from '@jsonpath/core';
 import {
 	NodeType,
 	type QueryNode,
@@ -23,15 +27,42 @@ import '@jsonpath/functions';
 import { getFunction } from '@jsonpath/core';
 import { QueryResult, type QueryResultNode } from './query-result.js';
 import type { PathSegment } from '@jsonpath/core';
+import { withDefaults } from './options.js';
 
 export class Evaluator {
 	private root: any;
+	private options: Required<EvaluatorOptions>;
+	private startTime: number = 0;
 
-	constructor(root: any) {
+	constructor(root: any, options?: EvaluatorOptions) {
 		this.root = root;
+		this.options = withDefaults(options);
 	}
 
 	public evaluate(ast: QueryNode): QueryResult {
+		this.startTime = Date.now();
+
+		if (this.options.noRecursive) {
+			const hasRecursive = ast.segments.some(
+				(s) => s.type === NodeType.DescendantSegment,
+			);
+			if (hasRecursive) {
+				throw new JSONPathError(
+					'Recursive descent is disabled',
+					'SECURITY_ERROR',
+				);
+			}
+		}
+
+		if (this.options.noFilters) {
+			const hasFilters = ast.segments.some((s) =>
+				s.selectors.some((sel) => sel.type === NodeType.FilterSelector),
+			);
+			if (hasFilters) {
+				throw new JSONPathError('Filters are disabled', 'SECURITY_ERROR');
+			}
+		}
+
 		let currentNodes: QueryResultNode[] = [
 			{ value: this.root, path: [], root: this.root },
 		];
@@ -41,6 +72,36 @@ export class Evaluator {
 		}
 
 		return new QueryResult(currentNodes);
+	}
+
+	private checkLimits(depth: number, resultCount: number): void {
+		if (this.options.maxDepth > 0 && depth > this.options.maxDepth) {
+			throw new JSONPathError(
+				`Maximum depth exceeded: ${this.options.maxDepth}`,
+				'LIMIT_ERROR',
+			);
+		}
+
+		if (this.options.maxResults > 0 && resultCount >= this.options.maxResults) {
+			throw new JSONPathError(
+				`Maximum results exceeded: ${this.options.maxResults}`,
+				'LIMIT_ERROR',
+			);
+		}
+
+		if (this.options.timeout > 0) {
+			if (Date.now() - this.startTime > this.options.timeout) {
+				throw new JSONPathError(
+					`Query timed out after ${this.options.timeout}ms`,
+					'TIMEOUT_ERROR',
+				);
+			}
+		}
+	}
+
+	private addResult(results: QueryResultNode[], node: QueryResultNode): void {
+		this.checkLimits(node.path.length, results.length);
+		results.push(node);
 	}
 
 	private evaluateSegment(
@@ -73,7 +134,19 @@ export class Evaluator {
 	private walkDescendants(
 		node: QueryResultNode,
 		callback: (n: QueryResultNode) => void,
+		visited: Set<any> = new Set(),
 	): void {
+		this.checkLimits(node.path.length, 0); // resultCount check is handled in evaluateSegment
+
+		if (this.options.detectCircular) {
+			if (visited.has(node.value)) {
+				throw new JSONPathError('Circular reference detected', 'LIMIT_ERROR');
+			}
+			if (node.value !== null && typeof node.value === 'object') {
+				visited.add(node.value);
+			}
+		}
+
 		callback(node);
 		const val = node.value;
 		if (val !== null && typeof val === 'object') {
@@ -88,6 +161,7 @@ export class Evaluator {
 							parentKey: i,
 						},
 						callback,
+						new Set(visited),
 					);
 				});
 			} else {
@@ -101,6 +175,7 @@ export class Evaluator {
 							parentKey: k,
 						},
 						callback,
+						new Set(visited),
 					);
 				});
 			}
@@ -131,7 +206,7 @@ export class Evaluator {
 					!Array.isArray(val) &&
 					Object.prototype.hasOwnProperty.call(val, selector.name)
 				) {
-					results.push({
+					this.addResult(results, {
 						value: val[selector.name],
 						path: [...node.path, selector.name],
 						root: node.root,
@@ -145,7 +220,7 @@ export class Evaluator {
 					const idx =
 						selector.index < 0 ? val.length + selector.index : selector.index;
 					if (idx >= 0 && idx < val.length) {
-						results.push({
+						this.addResult(results, {
 							value: val[idx],
 							path: [...node.path, idx],
 							root: node.root,
@@ -158,7 +233,7 @@ export class Evaluator {
 			case NodeType.WildcardSelector:
 				if (Array.isArray(val)) {
 					val.forEach((v, i) =>
-						results.push({
+						this.addResult(results, {
 							value: v,
 							path: [...node.path, i],
 							root: node.root,
@@ -168,7 +243,7 @@ export class Evaluator {
 					);
 				} else {
 					Object.entries(val).forEach(([k, v]) =>
-						results.push({
+						this.addResult(results, {
 							value: v,
 							path: [...node.path, k],
 							root: node.root,
@@ -193,7 +268,7 @@ export class Evaluator {
 
 					if (step > 0) {
 						for (let i = start; i < end; i += step) {
-							results.push({
+							this.addResult(results, {
 								value: val[i],
 								path: [...node.path, i],
 								root: node.root,
@@ -203,7 +278,7 @@ export class Evaluator {
 						}
 					} else {
 						for (let i = start; i > end; i += step) {
-							results.push({
+							this.addResult(results, {
 								value: val[i],
 								path: [...node.path, i],
 								root: node.root,
@@ -226,7 +301,7 @@ export class Evaluator {
 								parentKey: i,
 							})
 						) {
-							results.push({
+							this.addResult(results, {
 								value: v,
 								path: [...node.path, i],
 								root: node.root,
@@ -248,7 +323,7 @@ export class Evaluator {
 								parentKey: k,
 							})
 						) {
-							results.push({
+							this.addResult(results, {
 								value: v,
 								path: [...node.path, k],
 								root: node.root,
@@ -329,6 +404,10 @@ export class Evaluator {
 	}
 }
 
-export function evaluate(root: any, ast: QueryNode): QueryResult {
-	return new Evaluator(root).evaluate(ast);
+export function evaluate(
+	root: any,
+	ast: QueryNode,
+	options?: EvaluatorOptions,
+): QueryResult {
+	return new Evaluator(root, options).evaluate(ast);
 }

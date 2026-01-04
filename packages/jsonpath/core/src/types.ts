@@ -146,3 +146,22 @@ export type ParameterType = 'ValueType' | 'LogicalType' | 'NodesType';
  * Return types for JSONPath functions.
  */
 export type ReturnType = 'ValueType' | 'LogicalType' | 'NodesType';
+
+export interface SecureQueryOptions {
+	readonly allowPaths?: readonly string[];
+	readonly blockPaths?: readonly string[];
+	readonly noRecursive?: boolean;
+	readonly noFilters?: boolean;
+	readonly maxQueryLength?: number;
+}
+
+export interface EvaluatorOptions {
+	readonly maxDepth?: number;
+	readonly maxResults?: number;
+	readonly maxNodes?: number;
+	readonly maxFilterDepth?: number;
+	readonly timeout?: number;
+	readonly detectCircular?: boolean;
+	readonly secure?: SecureQueryOptions;
+	readonly signal?: AbortSignal;
+}
