@@ -19,7 +19,8 @@ import {
 	type FunctionCallNode,
 	type LiteralNode,
 } from '@jsonpath/parser';
-import { globalRegistry } from '@jsonpath/functions';
+import '@jsonpath/functions';
+import { getFunction } from '@jsonpath/core';
 import { QueryResult, type QueryResultNode } from './query-result.js';
 
 export class Evaluator {
@@ -233,17 +234,17 @@ export class Evaluator {
 			}
 			case NodeType.SingularQuery: {
 				const nodes = this.evaluateSingularQuery(expr, current);
-				return nodes.length > 0 ? nodes[0].value : undefined;
+				return nodes[0]?.value;
 			}
 			case NodeType.FunctionCall: {
 				const args = expr.args.map((a) => this.evaluateExpression(a, current));
-				const fn = globalRegistry.get(expr.name);
+				const fn = getFunction(expr.name);
 				if (!fn)
 					throw new JSONPathError(
 						`Unknown function: ${expr.name}`,
 						'FUNCTION_ERROR',
 					);
-				return fn.execute(...args);
+				return fn.evaluate(...args);
 			}
 		}
 	}

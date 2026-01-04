@@ -35,6 +35,27 @@ export function registerFunction(definition: FunctionDefinition): void {
 }
 
 /**
+ * Returns a function definition by name.
+ */
+export function getFunction(name: string): FunctionDefinition | undefined {
+	return functionRegistry.get(name);
+}
+
+/**
+ * Returns true if a function exists.
+ */
+export function hasFunction(name: string): boolean {
+	return functionRegistry.has(name);
+}
+
+/**
+ * Unregisters a function by name.
+ */
+export function unregisterFunction(name: string): boolean {
+	return functionRegistry.delete(name);
+}
+
+/**
  * Registers a selector in the global registry.
  */
 export function registerSelector(definition: SelectorDefinition): void {

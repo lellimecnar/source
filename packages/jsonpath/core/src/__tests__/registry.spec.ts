@@ -6,6 +6,9 @@ import {
 	registerFunction,
 	registerSelector,
 	registerOperator,
+	getFunction,
+	hasFunction,
+	unregisterFunction,
 } from '../registry.js';
 import type {
 	FunctionDefinition,
@@ -47,5 +50,29 @@ describe('registry', () => {
 
 		registerOperator(operator);
 		expect(operatorRegistry.get('==')).toBe(operator);
+	});
+
+	it('should get/has/unregister a function', () => {
+		const fnName = 'testFnLifecycle';
+		expect(hasFunction(fnName)).toBe(false);
+		expect(getFunction(fnName)).toBeUndefined();
+
+		const fn: FunctionDefinition = {
+			name: fnName,
+			signature: ['ValueType'],
+			returns: 'ValueType',
+			evaluate: (x) => x,
+		};
+
+		registerFunction(fn);
+		expect(hasFunction(fnName)).toBe(true);
+		expect(getFunction(fnName)).toBe(fn);
+
+		expect(unregisterFunction(fnName)).toBe(true);
+		expect(hasFunction(fnName)).toBe(false);
+		expect(getFunction(fnName)).toBeUndefined();
+
+		// deleting twice yields false
+		expect(unregisterFunction(fnName)).toBe(false);
 	});
 });

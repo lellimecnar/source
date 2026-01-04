@@ -1,72 +1,56 @@
 /**
  * @jsonpath/functions
  *
- * Function registry and built-in functions for JSONPath.
+ * Built-in functions for JSONPath (RFC 9535).
  *
  * @packageDocumentation
  */
 
-import { JSONPathError } from '@jsonpath/core';
-
-export type FunctionArgument = any;
-export type FunctionResult = any;
-
-export interface FunctionDefinition {
-	name: string;
-	execute: (...args: FunctionArgument[]) => FunctionResult;
-	validate?: (args: FunctionArgument[]) => void;
-}
-
-export class FunctionRegistry {
-	private functions = new Map<string, FunctionDefinition>();
-
-	public register(fn: FunctionDefinition): void {
-		this.functions.set(fn.name, fn);
-	}
-
-	public get(name: string): FunctionDefinition | undefined {
-		return this.functions.get(name);
-	}
-
-	public has(name: string): boolean {
-		return this.functions.has(name);
-	}
-}
-
-export const globalRegistry = new FunctionRegistry();
+import {
+	registerFunction,
+	type FunctionDefinition,
+	// ParameterType,
+	// ReturnType,
+} from '@jsonpath/core';
 
 /**
- * length() - Returns the length of a string, array, or object.
+ * length(value) -> number
  */
-export const lengthFn: FunctionDefinition = {
+export const lengthFn: FunctionDefinition<[unknown], number> = {
 	name: 'length',
-	execute: (val: any) => {
+	signature: ['ValueType'],
+	returns: 'ValueType',
+	evaluate: (val: unknown) => {
 		if (typeof val === 'string' || Array.isArray(val)) {
 			return val.length;
 		}
 		if (val !== null && typeof val === 'object') {
-			return Object.keys(val).length;
+			return Object.keys(val as object).length;
 		}
 		return 0;
 	},
 };
 
 /**
- * count() - Returns the number of nodes in a node list.
+ * count(nodes) -> number
  */
-export const countFn: FunctionDefinition = {
+export const countFn: FunctionDefinition<[unknown], number> = {
 	name: 'count',
-	execute: (nodes: any[]) => {
+	signature: ['NodesType'],
+	returns: 'ValueType',
+	evaluate: (nodes: unknown) => {
 		return Array.isArray(nodes) ? nodes.length : 0;
 	},
 };
 
 /**
- * match() - Regex full match.
+ * match(value, pattern) -> boolean (regex full match)
  */
-export const matchFn: FunctionDefinition = {
+export const matchFn: FunctionDefinition<[unknown, unknown], boolean> = {
 	name: 'match',
-	execute: (val: string, pattern: string) => {
+	signature: ['ValueType', 'ValueType'],
+	returns: 'LogicalType',
+	evaluate: (val: unknown, pattern: unknown) => {
 		if (typeof val !== 'string' || typeof pattern !== 'string') return false;
 		try {
 			const regex = new RegExp(`^${pattern}$`);
@@ -78,11 +62,13 @@ export const matchFn: FunctionDefinition = {
 };
 
 /**
- * search() - Regex partial match.
+ * search(value, pattern) -> boolean (regex partial match)
  */
-export const searchFn: FunctionDefinition = {
+export const searchFn: FunctionDefinition<[unknown, unknown], boolean> = {
 	name: 'search',
-	execute: (val: string, pattern: string) => {
+	signature: ['ValueType', 'ValueType'],
+	returns: 'LogicalType',
+	evaluate: (val: unknown, pattern: unknown) => {
 		if (typeof val !== 'string' || typeof pattern !== 'string') return false;
 		try {
 			const regex = new RegExp(pattern);
@@ -94,11 +80,15 @@ export const searchFn: FunctionDefinition = {
 };
 
 /**
- * value() - Extracts a single value from a node list.
+ * value(nodes) -> any | null
+ *
+ * Returns the single value if the node list contains exactly one node.
  */
-export const valueFn: FunctionDefinition = {
+export const valueFn: FunctionDefinition<[unknown], unknown> = {
 	name: 'value',
-	execute: (nodes: any[]) => {
+	signature: ['NodesType'],
+	returns: 'ValueType',
+	evaluate: (nodes: unknown) => {
 		if (Array.isArray(nodes) && nodes.length === 1) {
 			return nodes[0];
 		}
@@ -106,9 +96,19 @@ export const valueFn: FunctionDefinition = {
 	},
 };
 
-// Register built-ins
-globalRegistry.register(lengthFn);
-globalRegistry.register(countFn);
-globalRegistry.register(matchFn);
-globalRegistry.register(searchFn);
-globalRegistry.register(valueFn);
+export const builtins = [
+	lengthFn,
+	countFn,
+	matchFn,
+	searchFn,
+	valueFn,
+] as const;
+
+export function registerBuiltins(): void {
+	for (const fn of builtins) {
+		registerFunction(fn);
+	}
+}
+
+// Preserve existing behavior: built-ins are available once the package is imported.
+registerBuiltins();

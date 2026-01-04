@@ -68,20 +68,20 @@ pnpm --filter @jsonpath/evaluator type-check
 
 Objective: remove the duplicate function registry class from @jsonpath/functions, extend @jsonpath/core registry with management API, and update evaluator to resolve functions from core.
 
-- [ ] Extend packages/jsonpath/core/src/registry.ts with:
-  - [ ] `getFunction(name)`
-  - [ ] `hasFunction(name)`
-  - [ ] `unregisterFunction(name)`
-- [ ] Rewrite packages/jsonpath/functions/src/registry.ts to:
-  - [ ] Remove `FunctionRegistry` and `globalRegistry`
-  - [ ] Define built-ins in terms of @jsonpath/core `FunctionDefinition` shape (`signature`, `returns`, `evaluate`)
-  - [ ] Register built-ins into @jsonpath/core `functionRegistry`
-- [ ] Update packages/jsonpath/evaluator/src/evaluator.ts to:
-  - [ ] Stop using `globalRegistry`
-  - [ ] Call `getFunction()` from @jsonpath/core
-  - [ ] Execute via `fn.evaluate()`
+- [x] Extend packages/jsonpath/core/src/registry.ts with:
+  - [x] `getFunction(name)`
+  - [x] `hasFunction(name)`
+  - [x] `unregisterFunction(name)`
+- [x] Rewrite packages/jsonpath/functions/src/registry.ts to:
+  - [x] Remove `FunctionRegistry` and `globalRegistry`
+  - [x] Define built-ins in terms of @jsonpath/core `FunctionDefinition` shape (`signature`, `returns`, `evaluate`)
+  - [x] Register built-ins into @jsonpath/core `functionRegistry`
+- [x] Update packages/jsonpath/evaluator/src/evaluator.ts to:
+  - [x] Stop using `globalRegistry`
+  - [x] Call `getFunction()` from @jsonpath/core
+  - [x] Execute via `fn.evaluate()`
 
-#### 1.1.a Update core registry
+#### 1.1.a Update core registry [DONE]
 
 Copy/paste the full file below into packages/jsonpath/core/src/registry.ts, replacing the file contents entirely:
 
@@ -158,7 +158,7 @@ export function registerOperator(definition: OperatorDefinition): void {
 }
 ```
 
-#### 1.1.b Rewrite functions registry
+#### 1.1.b Rewrite functions registry [DONE]
 
 Copy/paste the full file below into packages/jsonpath/functions/src/registry.ts, replacing the file contents entirely:
 
@@ -279,7 +279,7 @@ export function registerBuiltins(): void {
 registerBuiltins();
 ```
 
-#### 1.1.c Update evaluator function resolution
+#### 1.1.c Update evaluator function resolution [DONE]
 
 In packages/jsonpath/evaluator/src/evaluator.ts:
 
@@ -326,7 +326,7 @@ case NodeType.FunctionCall: {
 }
 ```
 
-#### 1.1.d Update/add tests
+#### 1.1.d Update/add tests [DONE]
 
 Update packages/jsonpath/core/src/**tests**/registry.spec.ts to cover get/has/unregister.
 
