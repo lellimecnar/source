@@ -6,7 +6,7 @@
  * @packageDocumentation
  */
 
-export const enum NodeType {
+export enum NodeType {
 	// Root
 	Query = 'Query',
 

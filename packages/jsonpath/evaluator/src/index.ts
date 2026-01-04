@@ -6,4 +6,5 @@
  * @packageDocumentation
  */
 
-// Exports will be added in subsequent steps
+export * from './evaluator.js';
+export * from './query-result.js';
