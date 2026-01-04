@@ -147,4 +147,13 @@ describe('Evaluator', () => {
 			{ items: [1, 2, 3] },
 		]);
 	});
+
+	it('should return RFC 9535 compliant normalized paths', () => {
+		const data = { a: { 'b c': { "'d'": 1 } }, list: [10] };
+		const result = evaluate(data, parse("$..['\\'d\\'']"));
+		expect(result.normalizedPaths()).toEqual(["$['a']['b c']['\\'d\\'']"]);
+		expect(evaluate(data, parse('$.list[0]')).normalizedPaths()).toEqual([
+			"$['list'][0]",
+		]);
+	});
 });

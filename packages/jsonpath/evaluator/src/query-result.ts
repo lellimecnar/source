@@ -30,23 +30,32 @@ function pathToPointer(path: readonly PathSegment[]): string {
 	);
 }
 
+function escapeNormalizedPathName(name: string): string {
+	return name
+		.replace(/\\/g, '\\\\')
+		.replace(/'/g, "\\'")
+		.replace(/\//g, '\\/')
+		.replace(/\x08/g, '\\b')
+		.replace(/\x0c/g, '\\f')
+		.replace(/\n/g, '\\n')
+		.replace(/\r/g, '\\r')
+		.replace(/\t/g, '\\t')
+		.replace(/[\u0000-\u001f]/g, (c) => {
+			return '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0');
+		});
+}
+
 function pathToNormalizedPath(path: readonly PathSegment[]): string {
-	// Minimal normalized path implementation:
-	// - identifiers use `.name`
-	// - others use bracket with JSON-string escaping
+	// RFC 9535 Section 2.2:
+	// - Use bracket notation for all segments
+	// - Names use single quotes
 	let out = '$';
 	for (const seg of path) {
 		if (typeof seg === 'number') {
 			out += `[${seg}]`;
-			continue;
+		} else {
+			out += `['${escapeNormalizedPathName(seg)}']`;
 		}
-
-		if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(seg)) {
-			out += `.${seg}`;
-			continue;
-		}
-
-		out += `[${JSON.stringify(seg)}]`;
 	}
 	return out;
 }
