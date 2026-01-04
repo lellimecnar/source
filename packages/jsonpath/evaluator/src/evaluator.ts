@@ -192,6 +192,18 @@ export class Evaluator {
 		}
 	}
 
+	private normalizeSlice(i: number, len: number): number {
+		return i >= 0 ? i : len + i;
+	}
+
+	private bounds(i: number, len: number): number {
+		return Math.max(0, Math.min(len, i));
+	}
+
+	private boundsStepNeg(i: number, len: number): number {
+		return Math.max(-1, Math.min(len - 1, i));
+	}
+
 	private evaluateSelector(
 		selector: SelectorNode,
 		node: QueryResultNode,
@@ -260,14 +272,13 @@ export class Evaluator {
 					if (step === 0) return;
 
 					const len = val.length;
-					let start = startValue ?? (step > 0 ? 0 : len - 1);
-					let end = endValue ?? (step > 0 ? len : -len - 1);
-
-					start = start < 0 ? Math.max(0, len + start) : Math.min(len, start);
-					end = end < 0 ? Math.max(-1, len + end) : Math.min(len, end);
+					const start = startValue ?? (step > 0 ? 0 : len - 1);
+					const end = endValue ?? (step > 0 ? len : -len - 1);
 
 					if (step > 0) {
-						for (let i = start; i < end; i += step) {
+						const lower = this.bounds(this.normalizeSlice(start, len), len);
+						const upper = this.bounds(this.normalizeSlice(end, len), len);
+						for (let i = lower; i < upper; i += step) {
 							this.addResult(results, {
 								value: val[i],
 								path: [...node.path, i],
@@ -277,7 +288,15 @@ export class Evaluator {
 							});
 						}
 					} else {
-						for (let i = start; i > end; i += step) {
+						const lower = this.boundsStepNeg(
+							this.normalizeSlice(start, len),
+							len,
+						);
+						const upper = this.boundsStepNeg(
+							this.normalizeSlice(end, len),
+							len,
+						);
+						for (let i = lower; i > upper; i += step) {
 							this.addResult(results, {
 								value: val[i],
 								path: [...node.path, i],

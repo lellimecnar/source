@@ -100,6 +100,25 @@ describe('Evaluator', () => {
 		expect(evaluate(list, parse('$[::-1]')).values()).toEqual([
 			5, 4, 3, 2, 1, 0,
 		]);
+		// Reverse with start/end
+		expect(evaluate(list, parse('$[4:1:-1]')).values()).toEqual([4, 3, 2]);
+		// Out of bounds
+		expect(evaluate(list, parse('$[0:100]')).values()).toEqual([
+			0, 1, 2, 3, 4, 5,
+		]);
+		expect(evaluate(list, parse('$[-100:100]')).values()).toEqual([
+			0, 1, 2, 3, 4, 5,
+		]);
+	});
+
+	it('should handle RFC 9535 slice edge cases', () => {
+		const list = ['a', 'b', 'c'];
+		// start > end with positive step -> empty
+		expect(evaluate(list, parse('$[2:1:1]')).values()).toEqual([]);
+		// start < end with negative step -> empty
+		expect(evaluate(list, parse('$[1:2:-1]')).values()).toEqual([]);
+		// start == end -> empty
+		expect(evaluate(list, parse('$[1:1]')).values()).toEqual([]);
 	});
 
 	it('should handle various comparison operators', () => {
