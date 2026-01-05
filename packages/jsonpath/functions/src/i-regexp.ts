@@ -50,7 +50,7 @@ export function validateIRegexp(pattern: string): {
 		};
 	}
 
-	if (/\\[AZzGXPpXRvVhH]/.test(pattern)) {
+	if (/\\[AZzGXRvVhH]/.test(pattern)) {
 		return {
 			valid: false,
 			error: 'I-Regexp does not support advanced escape sequences',

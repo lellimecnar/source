@@ -46,6 +46,20 @@ describe('JSONPointer', () => {
 		it('should throw on invalid pointers', () => {
 			expect(() => JSONPointer.parse('foo')).toThrow();
 		});
+
+		it('should parse URI fragment pointers', () => {
+			expect(JSONPointer.parse('#')).toEqual([]);
+			expect(JSONPointer.parse('#/')).toEqual(['']);
+			expect(JSONPointer.parse('#/foo')).toEqual(['foo']);
+			expect(JSONPointer.parse('#/foo/0')).toEqual(['foo', '0']);
+			expect(JSONPointer.parse('#/a~1b')).toEqual(['a/b']);
+			expect(JSONPointer.parse('#/c%25d')).toEqual(['c%d']);
+			expect(JSONPointer.parse('#/e%5Ef')).toEqual(['e^f']);
+			expect(JSONPointer.parse('#/g%7Ch')).toEqual(['g|h']);
+			expect(JSONPointer.parse('#/i%5Cj')).toEqual(['i\\j']);
+			expect(JSONPointer.parse('#/k%22l')).toEqual(['k"l']);
+			expect(JSONPointer.parse('#/%20')).toEqual([' ']);
+		});
 	});
 
 	describe('relative', () => {
@@ -79,6 +93,14 @@ describe('JSONPointer', () => {
 			expect(JSONPointer.format(['~'])).toBe('/~0');
 			expect(JSONPointer.format(['/'])).toBe('/~1');
 			expect(JSONPointer.format(['~/'])).toBe('/~0~1');
+		});
+
+		it('should format URI fragment pointers', () => {
+			expect(JSONPointer.format([], { fragment: true })).toBe('#');
+			expect(JSONPointer.format(['foo'], { fragment: true })).toBe('#/foo');
+			expect(JSONPointer.format(['a/b'], { fragment: true })).toBe('#/a~1b');
+			expect(JSONPointer.format([' '], { fragment: true })).toBe('#/%20');
+			expect(JSONPointer.format(['c%d'], { fragment: true })).toBe('#/c%25d');
 		});
 	});
 

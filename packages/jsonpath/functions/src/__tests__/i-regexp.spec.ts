@@ -6,8 +6,14 @@ describe('I-Regexp (RFC 9485)', () => {
 		it('should allow valid I-Regexp patterns', () => {
 			expect(validateIRegexp('abc').valid).toBe(true);
 			expect(validateIRegexp('[a-z]+').valid).toBe(true);
-			expect(validateIRegexp('\\d{2,4}').valid).toBe(true);
 			expect(validateIRegexp('(a|b)*').valid).toBe(true);
+			expect(validateIRegexp('\\p{Lu}').valid).toBe(true);
+		});
+
+		it('should reject shorthand character classes', () => {
+			expect(validateIRegexp('\\d').valid).toBe(false);
+			expect(validateIRegexp('\\w').valid).toBe(false);
+			expect(validateIRegexp('\\s').valid).toBe(false);
 		});
 
 		it('should reject non-capturing groups', () => {

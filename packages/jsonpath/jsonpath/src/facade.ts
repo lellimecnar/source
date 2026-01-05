@@ -2,6 +2,7 @@ import { compile, type CompiledQuery } from '@jsonpath/compiler';
 import { type EvaluatorOptions, JSONPathSecurityError } from '@jsonpath/core';
 import {
 	evaluate,
+	stream as evaluatorStream,
 	type QueryResult,
 	Evaluator,
 	type QueryResultNode,
@@ -171,8 +172,7 @@ export function* stream(
 	options?: EvaluatorOptions,
 ): Generator<QueryResultNode> {
 	const ast = parseQuery(path, options);
-	const evaluator = new Evaluator(root, options);
-	yield* evaluator.stream(ast);
+	yield* evaluatorStream(root, ast, options);
 }
 
 /**

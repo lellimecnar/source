@@ -41,6 +41,16 @@ export function split(pointer: string): string[] {
 }
 
 /**
+ * Formats tokens into a JSON Pointer string.
+ */
+export function toPointer(
+	tokens: string[],
+	options?: { fragment?: boolean },
+): string {
+	return JSONPointer.format(tokens, options);
+}
+
+/**
  * Escapes a token for use in a JSON Pointer.
  */
 export function escape(token: string): string {

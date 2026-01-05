@@ -832,7 +832,7 @@ pnpm --filter @jsonpath/compliance-suite test
 
 ---
 
-## Step 6 — Parser AST Gaps + Metadata (P1)
+## Step 6 — Parser AST Gaps + Metadata (P1) [DONE]
 
 **Repo reality note:** the plan references `packages/jsonpath/parser/src/types.ts` and `core/src/types.ts`. In this repo, the parser AST lives in `packages/jsonpath/parser/src/nodes.ts` and already includes:
 
@@ -858,23 +858,23 @@ This step focuses on filling the remaining spec metadata gaps without gratuitous
 
 **RGR/TDD**
 
-- [ ] Red: add parser tests asserting `quoted` and `raw` values.
-- [ ] Green: implement parsing to populate those properties.
-- [ ] Refactor: ensure no downstream consumer breaks (evaluator, compiler codegen, transform/walk).
+- [x] Red: add parser tests asserting `quoted` and `raw` values.
+- [x] Green: implement parsing to populate those properties.
+- [x] Refactor: ensure no downstream consumer breaks (evaluator, compiler codegen, transform/walk).
 
 **Verification**
 
-- [ ] Run parser unit tests.
-- [ ] Run any evaluator tests that rely on parsing filters.
+- [x] Run parser unit tests.
+- [x] Run any evaluator tests that rely on parsing filters.
 
-**STOP & COMMIT**
+**STOP & COMMIT [DONE]**
 
-- [ ] STOP: confirm parser output is stable for representative queries.
-- [ ] COMMIT (VS Code Source Control): `feat(jsonpath-parser): add selector/literal metadata`
+- [x] STOP: confirm parser output is stable for representative queries.
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath-parser): add selector/literal metadata`
 
 ---
 
-## Step 7 — Parser Utilities: `parseExpression()` + enter/leave walk (P1)
+## Step 7 — Parser Utilities: `parseExpression()` + enter/leave walk (P1) [DONE]
 
 **Repo reality note:** `ParserOptions.strict` already exists in `packages/jsonpath/parser/src/parser.ts`. There is no `visitor.ts`; the traversal utility is `packages/jsonpath/parser/src/walk.ts`.
 
@@ -895,17 +895,17 @@ This step focuses on filling the remaining spec metadata gaps without gratuitous
 
 **Verification**
 
-- [ ] Tests cover `parseExpression('@.price > 10')`.
-- [ ] Tests cover walk ordering: enter called before children, leave after.
+- [x] Tests cover `parseExpression('@.price > 10')`.
+- [x] Tests cover walk ordering: enter called before children, leave after.
 
-**STOP & COMMIT**
+**STOP & COMMIT [DONE]**
 
-- [ ] STOP: confirm existing visitors still work unchanged.
-- [ ] COMMIT (VS Code Source Control): `feat(jsonpath-parser): add parseExpression and enter/leave walk`
+- [x] STOP: confirm existing visitors still work unchanged.
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath-parser): add parseExpression and enter/leave walk`
 
 ---
 
-## Step 8 — Evaluator Features: true lazy `stream()` + timeout model (P1)
+## Step 8 — Evaluator Features: true lazy `stream()` + timeout model (P1) [DONE]
 
 **Repo reality note:** the facade already exports a generator `stream()` in `packages/jsonpath/jsonpath/src/facade.ts`, but it currently yields from an eager `QueryResult`. This step is about adding a real lazy evaluator stream in `@jsonpath/evaluator`.
 
@@ -917,25 +917,25 @@ This step focuses on filling the remaining spec metadata gaps without gratuitous
 
 **Work checklist**
 
-- [ ] Add `stream(root, ast, options?)` at the evaluator package level that yields nodes/values incrementally.
-- [ ] Preserve the existing exported `evaluate()` plugin lifecycle wrapper (beforeEvaluate/afterEvaluate/onError).
-- [ ] Align timeout behavior with spec intent:
-  - [ ] Keep existing `Date.now()`-based timeout as baseline.
-  - [ ] If switching to AbortController, ensure it composes with plugin manager and does not break current `EvaluatorOptions`.
-- [ ] Update facade `stream()` to delegate to evaluator `stream()` when available.
+- [x] Add `stream(root, ast, options?)` at the evaluator package level that yields nodes/values incrementally.
+- [x] Preserve the existing exported `evaluate()` plugin lifecycle wrapper (beforeEvaluate/afterEvaluate/onError).
+- [x] Align timeout behavior with spec intent:
+  - [x] Keep existing `Date.now()`-based timeout as baseline.
+  - [x] If switching to AbortController, ensure it composes with plugin manager and does not break current `EvaluatorOptions`.
+- [x] Update facade `stream()` to delegate to evaluator `stream()` when available.
 
 **Verification**
 
-- [ ] Tests prove early termination stops further evaluation.
-- [ ] Tests prove timeout interrupts streaming.
+- [x] Tests prove early termination stops further evaluation.
+- [x] Tests prove timeout interrupts streaming.
 
-**STOP & COMMIT**
+**STOP & COMMIT [DONE]**
 
-- [ ] COMMIT (VS Code Source Control): `feat(jsonpath-evaluator): add lazy stream evaluation`
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath-evaluator): add lazy stream evaluation`
 
 ---
 
-## Step 9 — I-Regexp (RFC 9485) Compliance Hardening (P1)
+## Step 9 — I-Regexp (RFC 9485) Compliance Hardening (P1) [DONE]
 
 **Repo reality note:** `@jsonpath/functions` uses `packages/jsonpath/functions/src/i-regexp.ts` and `packages/jsonpath/functions/src/registry.ts` for `match`/`search`.
 
@@ -947,19 +947,29 @@ This step focuses on filling the remaining spec metadata gaps without gratuitous
 
 **Work checklist**
 
-- [ ] Ensure invalid I-Regexp patterns return `false` (LogicalFalse), not `undefined`.
-- [ ] Add RFC 9485 example coverage to tests.
-- [ ] Keep behavior conservative: unsupported constructs should produce `false`, not throw.
+- [x] Ensure invalid I-Regexp patterns return `false` (LogicalFalse), not `undefined`.
+- [x] Add RFC 9485 example coverage to tests.
+- [x] Keep behavior conservative: unsupported constructs should produce `false`, not throw.
 
-**STOP & COMMIT**
+**STOP & COMMIT [DONE]**
 
-- [ ] COMMIT (VS Code Source Control): `feat(jsonpath-functions): harden i-regexp handling`
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath-functions): harden i-regexp handling`
 
 ---
 
-## Step 10 — JSON Pointer URI Fragment Identifier Support (P1)
+## Step 10 — JSON Pointer URI Fragment Identifier Support (P1) [DONE]
 
 **Repo reality note:** pointer implementation lives in `packages/jsonpath/pointer/src/pointer.ts` and exports from `packages/jsonpath/pointer/src/index.ts`.
+
+**Work checklist**
+
+- [x] Implement `toPointer(path, { fragment: true })`.
+- [x] Support `#` prefix and percent-encoding in `fromPointer`.
+- [x] Add tests for URI fragment pointers.
+
+**STOP & COMMIT [DONE]**
+
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath-pointer): add URI fragment support`
 
 ### Patch: add `fragment.ts`
 

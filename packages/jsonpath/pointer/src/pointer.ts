@@ -26,37 +26,83 @@ export class JSONPointer {
 			return [];
 		}
 
-		if (!pointer.startsWith('/')) {
+		let p = pointer;
+		let isFragment = false;
+		if (p.startsWith('#')) {
+			p = p.substring(1);
+			isFragment = true;
+		}
+
+		if (p === '') {
+			return [];
+		}
+
+		if (!p.startsWith('/')) {
 			throw new PointerSyntaxError(
 				'Invalid JSON Pointer: must start with "/" or be empty',
 				{ path: pointer },
 			);
 		}
 
-		const parts = pointer.split('/').slice(1);
+		const parts = p.split('/').slice(1);
 		return parts.map((part) => {
+			let decoded = part;
+			if (isFragment) {
+				try {
+					decoded = decodeURIComponent(part);
+				} catch {
+					throw new PointerSyntaxError(
+						`Invalid percent-encoding in JSON Pointer fragment: ${part}`,
+						{ path: pointer },
+					);
+				}
+			}
+
 			// RFC 6901 §3: '~' MUST be followed by '0' or '1'.
-			if (/~[^01]/.test(part) || part.endsWith('~')) {
+			if (/~[^01]/.test(decoded) || decoded.endsWith('~')) {
 				throw new PointerSyntaxError(
-					`Invalid tilde sequence in JSON Pointer: ${part}`,
+					`Invalid tilde sequence in JSON Pointer: ${decoded}`,
 					{ path: pointer },
 				);
 			}
-			return part.replace(/~1/g, '/').replace(/~0/g, '~');
+			return decoded.replace(/~1/g, '/').replace(/~0/g, '~');
 		});
 	}
 
 	/**
 	 * Formats tokens into a JSON Pointer string.
 	 */
-	static format(tokens: string[]): string {
+	static format(tokens: string[], options?: { fragment?: boolean }): string {
 		if (tokens.length === 0) {
-			return '';
+			return options?.fragment ? '#' : '';
 		}
 
-		return `/${tokens
-			.map((token) => token.toString().replace(/~/g, '~0').replace(/\//g, '~1'))
-			.join('/')}`;
+		const prefix = options?.fragment ? '#' : '';
+		const formatted = tokens
+			.map((token) => {
+				const escaped = token
+					.toString()
+					.replace(/~/g, '~0')
+					.replace(/\//g, '~1');
+				return options?.fragment ? encodeURIComponent(escaped) : escaped;
+			})
+			.join('/');
+
+		return `${prefix}/${formatted}`;
+	}
+
+	/**
+	 * Creates a JSONPointer from a string.
+	 */
+	static fromPointer(pointer: string): JSONPointer {
+		return new JSONPointer(pointer);
+	}
+
+	/**
+	 * Returns the pointer as a string.
+	 */
+	toPointer(options?: { fragment?: boolean }): string {
+		return JSONPointer.format(this.tokens, options);
 	}
 
 	/**
@@ -167,7 +213,7 @@ export class JSONPointer {
 	 */
 	set<T>(root: T, value: unknown): T {
 		if (this.tokens.length === 0) {
-			return value as unknown as T;
+			return value as T;
 		}
 
 		const parentTokens = this.tokens.slice(0, -1);
@@ -187,7 +233,7 @@ export class JSONPointer {
 			}
 			parent[index] = value;
 		} else if (typeof parent === 'object' && parent !== null) {
-			(parent as any)[lastToken] = value;
+			parent[lastToken] = value;
 		} else {
 			throw new Error('Cannot set value on non-object/non-array parent');
 		}
@@ -218,7 +264,7 @@ export class JSONPointer {
 				parent.splice(index, 1);
 			}
 		} else if (typeof parent === 'object' && parent !== null) {
-			delete (parent as any)[lastToken];
+			delete parent[lastToken];
 		}
 
 		return root;

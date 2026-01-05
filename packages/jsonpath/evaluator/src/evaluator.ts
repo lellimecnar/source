@@ -412,6 +412,12 @@ export class Evaluator {
 	private checkLimits(depth: number): void {
 		this.nodesVisited++;
 
+		if (this.options.signal.aborted) {
+			throw new JSONPathTimeoutError('Evaluation aborted by signal', {
+				code: 'TIMEOUT',
+			});
+		}
+
 		if (
 			this.options.maxNodes > 0 &&
 			this.nodesVisited > this.options.maxNodes
@@ -817,6 +823,30 @@ export function evaluate(
 		const result = new Evaluator(root, options).evaluate(ast);
 		plugins.afterEvaluate({ result });
 		return result;
+	} catch (error) {
+		plugins.onError({ error });
+		throw error;
+	}
+}
+
+/**
+ * Executes a JSONPath query and returns a generator of results.
+ *
+ * @param root - The root object to query.
+ * @param ast - The parsed query AST.
+ * @param options - Evaluator options.
+ * @returns A generator of query result nodes.
+ */
+export function* stream(
+	root: any,
+	ast: QueryNode,
+	options?: EvaluatorOptions,
+): Generator<QueryResultNode> {
+	const plugins = PluginManager.from(options);
+	plugins.beforeEvaluate({ root, query: ast, options });
+	try {
+		const evaluator = new Evaluator(root, options);
+		yield* evaluator.stream(ast);
 	} catch (error) {
 		plugins.onError({ error });
 		throw error;
