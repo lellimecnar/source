@@ -111,4 +111,11 @@ describe('integration workflows', () => {
 
 		expect(activeNames).toContain('Alicia');
 	});
+
+	it('resolveStream produces the same matches as resolve for JSONPath', () => {
+		const dm = new DataMap({ users: [{ name: 'A' }, { name: 'B' }] });
+		const fromResolve = dm.resolve('$.users[*].name');
+		const fromStream = Array.from(dm.resolveStream('$.users[*].name'));
+		expect(fromStream).toEqual(fromResolve);
+	});
 });

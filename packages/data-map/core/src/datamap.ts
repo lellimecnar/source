@@ -2,6 +2,7 @@ import {
 	pointerExists,
 	queryWithPointers,
 	resolvePointer,
+	streamQuery,
 } from './utils/jsonpath';
 
 import { BatchManager } from './batch/manager';
@@ -194,6 +195,57 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				throw new Error(`Invalid JSONPath: ${pathOrPointer}`, { cause: err });
 			}
 			return [];
+		}
+	}
+
+	*resolveStream(
+		pathOrPointer: string,
+		options: CallOptions = {},
+	): Generator<ResolvedMatch> {
+		const strict = options.strict ?? this._strict;
+		const pathType = detectPathType(pathOrPointer);
+		const ctx = this._context as any;
+
+		if (pathType !== 'jsonpath') {
+			const matches = this.resolve(pathOrPointer, options);
+			for (const match of matches) yield match;
+			return;
+		}
+
+		try {
+			for (const node of streamQuery(this._data, pathOrPointer)) {
+				const pointer = node.pointer;
+				const value = cloneSnapshot(
+					this._defs.applyGetter(pointer, node.value, ctx),
+				);
+
+				this._subs.scheduleNotify(
+					pointer,
+					'resolve',
+					'on',
+					value,
+					undefined,
+					undefined,
+					pathOrPointer,
+				);
+				this._subs.scheduleNotify(
+					pointer,
+					'resolve',
+					'after',
+					value,
+					undefined,
+					undefined,
+					pathOrPointer,
+				);
+
+				yield { pointer, value };
+			}
+		} catch (err) {
+			if (strict) {
+				if (err instanceof Error) throw err;
+				throw new Error(`Invalid JSONPath: ${pathOrPointer}`, { cause: err });
+			}
+			return;
 		}
 	}
 
