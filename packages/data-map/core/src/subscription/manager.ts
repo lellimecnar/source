@@ -1,6 +1,5 @@
 import type { DataMap } from '../datamap';
 import type { Operation } from '../types';
-import { compileQuery } from '../utils/jsonpath';
 import { BloomFilter } from './bloom';
 import { generateSubscriptionId } from './id';
 import { NotificationScheduler } from './scheduler';
@@ -13,6 +12,7 @@ import type {
 import type { CompiledPathPattern } from '../path/compile';
 import { compilePathPattern } from '../path/compile';
 import { detectPathType } from '../path/detect';
+import { compileQuery } from '../utils/jsonpath';
 
 type CompiledQuery = ReturnType<typeof compileQuery>;
 

@@ -1,6 +1,6 @@
 import type { Operation } from '../types';
-import { resolvePointer, pointerExists } from '../utils/jsonpath';
 import { buildSetPatch } from './builder';
+import { resolvePointer, pointerExists } from '../utils/jsonpath';
 
 function resolveArray(data: unknown, pointer: string): unknown[] {
 	try {

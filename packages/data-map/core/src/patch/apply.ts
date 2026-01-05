@@ -1,5 +1,4 @@
 import type { Operation } from '../types';
-
 import { applyOperations as applyPatchOperations } from '../utils/jsonpath';
 
 export interface ApplyResult {

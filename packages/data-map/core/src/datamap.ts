@@ -1,10 +1,3 @@
-import {
-	pointerExists,
-	queryWithPointers,
-	resolvePointer,
-	streamQuery,
-} from './utils/jsonpath';
-
 import { BatchManager } from './batch/manager';
 import type { BatchContext } from './batch/types';
 import { DefinitionRegistry } from './definitions/registry';
@@ -30,6 +23,12 @@ import type {
 	ResolvedMatch,
 } from './types';
 import { deepEqual, deepExtends } from './utils/equal';
+import {
+	pointerExists,
+	queryWithPointers,
+	resolvePointer,
+	streamQuery,
+} from './utils/jsonpath';
 
 function normalizePointerInput(input: string): string {
 	if (input === '#') return '';
@@ -245,7 +244,6 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				if (err instanceof Error) throw err;
 				throw new Error(`Invalid JSONPath: ${pathOrPointer}`, { cause: err });
 			}
-			return;
 		}
 	}
 

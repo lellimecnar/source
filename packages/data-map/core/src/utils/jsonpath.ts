@@ -1,13 +1,13 @@
+import type { PathSegment } from '@jsonpath/core';
+import { JSONPathError, JSONPathSyntaxError } from '@jsonpath/core';
 import {
 	query as jpQuery,
 	stream as jpStream,
 	compileQuery,
 } from '@jsonpath/jsonpath';
-import { JSONPointer } from '@jsonpath/pointer';
 import { applyPatch } from '@jsonpath/patch';
-import { JSONPathError, JSONPathSyntaxError } from '@jsonpath/core';
+import { JSONPointer } from '@jsonpath/pointer';
 
-import type { PathSegment } from '@jsonpath/core';
 import type { Operation } from '../types';
 
 export class DataMapPathError extends Error {
