@@ -14,6 +14,23 @@ The `@jsonpath` suite provides a comprehensive, RFC-compliant set of libraries f
 - **`@jsonpath/plugin-types`**: Type checking and conversion functions.
 - **`@jsonpath/path-builder`**: Fluent API for building JSONPath strings.
 
+## Import Patterns
+
+All `@jsonpath` packages are **tree-shakeable** and do not use barrel exports from package roots. Import only what you need:
+
+```typescript
+// ✓ CORRECT - granular imports
+import { query, QuerySet, transform } from '@jsonpath/jsonpath';
+import { JSONPointer } from '@jsonpath/pointer';
+import { applyPatch, PatchBuilder } from '@jsonpath/patch';
+import { pathBuilder, FilterBuilder } from '@jsonpath/path-builder';
+
+// ✗ WRONG - do not use package root imports
+import * from '@jsonpath/jsonpath';
+```
+
+For convenience, the facade (`@jsonpath/jsonpath`) re-exports commonly used types and functions from other packages.
+
 ---
 
 ## `@jsonpath/jsonpath` (Facade)
@@ -77,6 +94,141 @@ const path = pathBuilder()
 // "$.store.book[?(@.price < 10)]"
 ```
 
+### `stream(data: any, expression: string, options?: EvaluatorOptions): Generator<QueryResultNode>`
+
+Lazy evaluation that yields results one at a time. Useful for processing large datasets without materializing all results in memory.
+
+```typescript
+import { stream } from '@jsonpath/jsonpath';
+
+for (const node of stream(data, '$.items[*]')) {
+	console.log(node.value);
+}
+```
+
+### `QuerySet`
+
+A reusable set of named JSONPath queries that can be executed together.
+
+```typescript
+import { QuerySet } from '@jsonpath/jsonpath';
+
+const qs = new QuerySet({
+	authors: '$.store.book[*].author',
+	titles: '$.store.book[*].title',
+	prices: '$.store.book[*].price',
+});
+
+const results = qs.execute(data);
+// results.authors, results.titles, results.prices
+```
+
+Methods:
+
+- `add(name: string, path: string): this` - Add a query
+- `remove(name: string): boolean` - Remove a query
+- `names: string[]` - Get all query names
+- `execute(data, options?): Record<string, QueryResult>` - Run all queries
+- `queryAll(data, options?): Record<string, QueryResult>` - Get QueryResults
+- `valuesAll(data, options?): Record<string, any[]>` - Get values only
+- `pointersAll(data, options?): Record<string, string[]>` - Get pointer strings
+
+### `secureQuery(data: any, expression: string, options?: EvaluatorOptions): QueryResult`
+
+Executes a JSONPath query with strict security constraints. Returns an error if the query violates security settings.
+
+```typescript
+import { secureQuery } from '@jsonpath/jsonpath';
+
+// Throw on queries longer than 500 chars
+const result = secureQuery(data, '$.items[*]', {
+	secure: { maxQueryLength: 500 },
+});
+```
+
+### `parseQuery(expression: string, options?: EvaluatorOptions): QueryNode`
+
+Parses a JSONPath string into an AST without executing it. Results are cached.
+
+### `registerPlugin(plugin: JSONPathPlugin): void`
+
+Registers a custom plugin globally to extend the function registry or add custom selectors.
+
+```typescript
+import { registerPlugin } from '@jsonpath/jsonpath';
+
+registerPlugin(myCustomPlugin());
+```
+
+### `transform(data: T, expression: string, fn: (value, node) => any, options?): T`
+
+Transforms all matches of a JSONPath by applying a function to each, returning a new object.
+
+```typescript
+import { transform } from '@jsonpath/jsonpath';
+
+const updated = transform(data, '$.prices[*]', (v) => v * 1.1);
+// All prices increased by 10%
+```
+
+### `transformAll(data: T, transforms: { path: string; fn: (value, node) => any }[], options?): T`
+
+Applies multiple transformations in sequence.
+
+### `project(data: any, expression: string): any`
+
+Projects matching values into a new structure, preserving the relative path hierarchy.
+
+### `projectWith(data: any, expressions: Record<string, string>): Record<string, any>`
+
+Creates a new object with results of multiple JSONPath queries mapped to keys.
+
+```typescript
+import { projectWith } from '@jsonpath/jsonpath';
+
+const projected = projectWith(data, {
+	allAuthors: '$.store.book[*].author',
+	allTitles: '$.store.book[*].title',
+});
+```
+
+### `pick(data: any, paths: string[]): any`
+
+Creates a new object containing only the specified paths from the original data.
+
+```typescript
+import { pick } from '@jsonpath/jsonpath';
+
+const subset = pick(data, ['$.store.name', '$.store.location']);
+```
+
+### Extended Selectors (Plugin)
+
+The `@jsonpath/plugin-extended` package provides non-standard but useful selectors:
+
+#### Parent Selector (`^`)
+
+Returns the parent node of the current selection. Useful for navigating up the data structure.
+
+```typescript
+import { registerPlugin } from '@jsonpath/jsonpath';
+import { extendedSelectors } from '@jsonpath/plugin-extended';
+
+registerPlugin(extendedSelectors());
+
+const result = query(data, '$.store.book[*]^');
+// Returns the parent (the "store" object)
+```
+
+#### Property Name Selector (`~`)
+
+Returns the property names/keys of an object as values (similar to `Object.keys()`).
+
+```typescript
+const result = query(data, '$.store.*~');
+// Returns ["book", "bicycle"] for store object keys
+```
+
 ### Arithmetic Operators
 
 When `arithmetic` option is enabled (default in facade), the following operators are supported in filters:
@@ -107,12 +259,22 @@ Example: `$.items[?(@.a + @.b > 100)]`
 - `div(a, b)`: Division.
 - `mod(a, b)`: Modulo.
 
+Example: `$.items[?(@.quantity > 10)]` with arithmetic operator `+` in expressions.
+
 #### Extras (`@jsonpath/plugin-extras`)
 
 - `values(obj)`: Returns object values.
 - `entries(obj)`: Returns object entries as `[key, value]` pairs.
 - `flatten(arr)`: Flattens a nested array.
 - `unique(arr)`: Returns unique elements from an array.
+- `keys(obj)`: Returns object keys.
+- `reverse(arr)`: Reverses an array.
+- `sort(arr)`: Sorts an array.
+- `min(arr)`: Returns the minimum value.
+- `max(arr)`: Returns the maximum value.
+- `sum(arr)`: Returns the sum of array elements.
+
+Example: `$.items[?(@.categories | unique | length > 1)]`
 
 #### Types (`@jsonpath/plugin-types`)
 
@@ -121,7 +283,11 @@ Example: `$.items[?(@.a + @.b > 100)]`
 - `is_boolean(val)`: Returns true if value is a boolean.
 - `is_object(val)`: Returns true if value is an object.
 - `is_array(val)`: Returns true if value is an array.
+- `is_null(val)`: Returns true if value is null.
 - `to_number(val)`: Converts value to a number.
+- `to_string(val)`: Converts value to a string.
+
+Example: `$.items[?(@.price | to_number > 50)]`
 
 ---
 
@@ -138,6 +304,7 @@ Class representing an RFC 6901 JSON Pointer.
 - `exists(data: any): boolean`: Returns true if the path exists.
 - `parent(): JSONPointer | undefined`: Returns the parent pointer.
 - `concat(other: string | string[] | JSONPointer): JSONPointer`: Returns a new concatenated pointer.
+- `toURIFragment(): string`: Returns the URI fragment identifier (RFC 6901 §6).
 
 ### `RelativeJSONPointer`
 
@@ -145,6 +312,24 @@ Class representing a Relative JSON Pointer (draft-bhutton).
 
 - `new RelativeJSONPointer(ptr: string)`: Creates a new relative pointer.
 - `evaluate(data: any, basePointer: JSONPointer): any`: Evaluates the relative pointer against a base.
+
+### URI Fragment Support
+
+The `@jsonpath/pointer` package supports RFC 6901 §6 URI fragment identifiers.
+
+```typescript
+import { toURIFragment, fromURIFragment, JSONPointer } from '@jsonpath/pointer';
+
+const ptr = new JSONPointer('/foo/bar');
+const fragment = ptr.toURIFragment(); // "#/foo/bar"
+
+const decoded = fromURIFragment(fragment); // "/foo/bar"
+```
+
+Functions:
+
+- `toURIFragment(pointer: string): string` - Convert pointer to fragment
+- `fromURIFragment(fragment: string): string` - Convert fragment to pointer
 
 ---
 
@@ -156,9 +341,88 @@ Used for applying a sequence of operations to a JSON document.
 
 Applies a JSON Patch. **Immutable by default**. Set `mutate: true` in options to modify the input data in-place.
 
+```typescript
+import { applyPatch } from '@jsonpath/jsonpath';
+
+const patch = [
+	{ op: 'add', path: '/author', value: 'Jane Doe' },
+	{ op: 'remove', path: '/deprecated' },
+];
+
+const result = applyPatch(data, patch);
+// Original data is unmodified
+```
+
 ### `applyPatchImmutable(data: any, patch: PatchOperation[]): any`
 
-Applies a JSON Patch to a deep clone of the data, ensuring the original is not modified.
+Applies a JSON Patch to a deep clone of the data, ensuring the original is not modified. Convenience wrapper around `applyPatch` with immutability guaranteed.
+
+### `applyWithErrors(data: any, patch: PatchOperation[], options?: ApplyOptions)`
+
+Applies a patch and returns an array of errors encountered during application, rather than throwing.
+
+### `validate(patch: PatchOperation[]): { valid: boolean; errors: string[] }`
+
+Validates a patch for syntax errors before applying it.
+
+### `diff(source: any, target: any, options?: DiffOptions): PatchOperation[]`
+
+Generates a JSON Patch that transforms `source` into `target`.
+
+```typescript
+import { diff } from '@jsonpath/jsonpath';
+
+const source = { name: 'John', age: 30 };
+const target = { name: 'Jane', age: 31, title: 'Engineer' };
+
+const patch = diff(source, target);
+// [
+//   { op: 'replace', path: '/name', value: 'Jane' },
+//   { op: 'replace', path: '/age', value: 31 },
+//   { op: 'add', path: '/title', value: 'Engineer' }
+// ]
+```
+
+### `PatchBuilder`
+
+Fluent API for building patches programmatically.
+
+```typescript
+import { patchBuilder } from '@jsonpath/jsonpath';
+
+const patch = patchBuilder()
+	.add('/title', 'Manager')
+	.replace('/salary', 75000)
+	.remove('/deprecated')
+	.build();
+```
+
+Methods:
+
+- `add(path: string, value: any): this`
+- `remove(path: string): this`
+- `replace(path: string, value: any): this`
+- `move(from: string, path: string): this`
+- `copy(from: string, path: string): this`
+- `test(path: string, value: any): this`
+- `when(condition: boolean): this` - Conditionally apply operations
+- `ifExists(path: string): this` - Only operate if path exists
+- `replaceAll(expression: string, value: any): this` - Replace all matches of a JSONPath
+- `removeAll(expression: string): this` - Remove all matches of a JSONPath
+- `build(): PatchOperation[]`
+
+### JSONPath-based Patch Operations
+
+Functions for building patches based on JSONPath queries.
+
+```typescript
+import { jsonpathOps } from '@jsonpath/jsonpath';
+
+const patch = [
+	...jsonpathOps.replaceAll('$.items[*].price', (v) => v * 1.1),
+	...jsonpathOps.removeAll('$.items[?(@.discontinued)]'),
+];
+```
 
 ---
 
