@@ -6,6 +6,79 @@ import {
 	type ExpressionNode,
 	isSingularQuery,
 } from '@jsonpath/parser';
+import { generateFilterPredicate } from './expressions.js';
+import { foldConstants } from './optimizations.js';
+
+const RUNTIME_HELPERS = `
+  const _isTruthy = (val) => {
+    if (val === Nothing) return false;
+    if (typeof val === 'boolean') return val;
+    if (val && typeof val === 'object' && '__isLogicalType' in val) return val.value;
+    if (val instanceof QueryResult) return val.nodes.length > 0;
+    if (Array.isArray(val)) return val.length > 0;
+    return !!val;
+  };
+  
+  const _slice = (len, start, end, step) => {
+    const s = step === null ? 1 : step;
+    if (s === 0) return [];
+    const n = (i, l) => i < 0 ? Math.max(l + i, 0) : Math.min(i, l);
+    const st = start === null ? (s > 0 ? 0 : len - 1) : n(start, len);
+    const en = end === null ? (s > 0 ? len : -1) : n(end, len);
+    const res = [];
+    if (s > 0) {
+      for (let i = st; i < en; i += s) res.push(i);
+    } else {
+      for (let i = st; i > en; i += s) res.push(i);
+    }
+    return res;
+  };
+
+  const _descend = function* (node) {
+    const val = node.value;
+    if (val !== null && typeof val === 'object') {
+      if (Array.isArray(val)) {
+        for (let i = 0; i < val.length; i++) {
+          const child = { value: val[i], path: [...node.path, i], root: node.root, parent: val, parentKey: i };
+          yield child;
+          yield* _descend(child);
+        }
+      } else {
+        for (const k of Object.keys(val)) {
+          const child = { value: val[k], path: [...node.path, k], root: node.root, parent: val, parentKey: k };
+          yield child;
+          yield* _descend(child);
+        }
+      }
+    }
+  };
+
+  const _compare = (left, right, operator) => {
+    const unwrap = (val) => {
+      if (val instanceof QueryResult) {
+        return val.nodes.length === 1 ? val.nodes[0].value : Nothing;
+      }
+      return val;
+    };
+    const l = unwrap(left);
+    const r = unwrap(right);
+    if (l === Nothing && r === Nothing) return operator === '==' || operator === '<=' || operator === '>=';
+    if (l === Nothing || r === Nothing) return operator === '!=';
+    
+    if (operator === '==') return JSON.stringify(l) === JSON.stringify(r);
+    if (operator === '!=') return JSON.stringify(l) !== JSON.stringify(r);
+    
+    if (typeof l === typeof r && (typeof l === 'number' || typeof l === 'string')) {
+      switch (operator) {
+        case '<': return l < r;
+        case '<=': return l <= r;
+        case '>': return l > r;
+        case '>=': return l >= r;
+      }
+    }
+    return false;
+  };
+`;
 
 /**
  * Generate JS source for a function `(root, options) => QueryResult`.
@@ -25,13 +98,64 @@ export function generateQueryFunctionSource(ast: QueryNode): string {
 		return `return (root, options) => evaluate(root, ast, options);`;
 	}
 
-	// For now, generate a small set of segment/selector types that cover the
-	// majority of CTS queries: child/descendant segments and name/index/wildcard/slice/filter selectors.
-	// Anything else falls back per-segment.
-
 	const lines: string[] = [];
+	lines.push(RUNTIME_HELPERS);
 	lines.push('return (root, options) => {');
 	lines.push('  const _root = root;');
+
+	// Fast path for simple queries like $.name or $.name.age
+	const isSimple = ast.segments.every(
+		(seg) =>
+			seg.type === NodeType.ChildSegment &&
+			seg.selectors.length === 1 &&
+			(seg.selectors[0].type === NodeType.NameSelector ||
+				seg.selectors[0].type === NodeType.IndexSelector),
+	);
+
+	if (isSimple && ast.segments.length > 0) {
+		lines.push('  let v = _root;');
+		lines.push('  let p = [];');
+		lines.push('  let parent = null;');
+		lines.push('  let parentKey = null;');
+
+		for (let i = 0; i < ast.segments.length; i++) {
+			const sel = ast.segments[i].selectors[0] as any;
+			if (sel.type === NodeType.NameSelector) {
+				const name = JSON.stringify(sel.name);
+				lines.push(
+					`  if (v !== null && typeof v === 'object' && !Array.isArray(v) && (${name} in v)) {`,
+				);
+				lines.push(
+					`    parent = v; parentKey = ${name}; v = v[${name}]; p.push(${name});`,
+				);
+				lines.push('  } else { return new QueryResult([]); }');
+			} else {
+				const idx = sel.index;
+				if (idx >= 0) {
+					lines.push(
+						`  if (Array.isArray(v) && ${idx} >= 0 && ${idx} < v.length) {`,
+					);
+					lines.push(
+						`    parent = v; parentKey = ${idx}; v = v[${idx}]; p.push(${idx});`,
+					);
+					lines.push('  } else { return new QueryResult([]); }');
+				} else {
+					lines.push(`  if (Array.isArray(v)) {`);
+					lines.push(`    const i = v.length + (${idx});`);
+					lines.push(`    if (i >= 0 && i < v.length) {`);
+					lines.push(`      parent = v; parentKey = i; v = v[i]; p.push(i);`);
+					lines.push('    } else { return new QueryResult([]); }');
+					lines.push('  } else { return new QueryResult([]); }');
+				}
+			}
+		}
+		lines.push(
+			'  return new QueryResult([{ value: v, path: p, root: _root, parent, parentKey }]);',
+		);
+		lines.push('};');
+		return lines.join('\n');
+	}
+
 	lines.push('  let nodes = [{ value: root, path: [], root: _root }];');
 	lines.push('  let next = [];');
 	lines.push('');
@@ -134,20 +258,14 @@ function generateSelector(
 			];
 		}
 		case NodeType.FilterSelector: {
-			// For now: compile filter via interpreter per-element to keep semantics correct.
-			// Step 3 adds a real expression compiler and short-circuiting.
-			if (isSingularQuery(sel.expression as any)) {
-				// no-op; keep TS satisfied
-			}
+			const expr = foldConstants(sel.expression);
 			return [
 				`    if (Array.isArray(${valueVar})) {`,
 				`      for (let i = 0; i < ${valueVar}.length; i++) {`,
-				`        const current = ${valueVar}[i];`,
-				`        // fallback filter predicate: evaluate the filter expression by running a tiny query against @`,
-				`        // NOTE: evaluator handles LogicalType + Nothing semantics.`,
-				`        const ok = _evalFilter(current, ${JSON.stringify(sel.expression)});`,
+				`        const current = { value: ${valueVar}[i], path: [...${nodeVar}.path, i], root: _root, parent: ${valueVar}, parentKey: i };`,
+				`        ${generateFilterPredicate(expr)}`,
 				`        if (ok) {`,
-				`          next.push({ value: current, path: [...${nodeVar}.path, i], root: _root, parent: ${valueVar}, parentKey: i });`,
+				`          next.push(current);`,
 				`        }`,
 				'      }',
 				'    }',

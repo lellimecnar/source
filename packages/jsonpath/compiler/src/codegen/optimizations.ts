@@ -1,4 +1,8 @@
-import type { QueryNode } from '@jsonpath/parser';
+import {
+	NodeType,
+	type QueryNode,
+	type ExpressionNode,
+} from '@jsonpath/parser';
 
 export interface OptimizationFlags {
 	readonly inlineSimpleSelectors?: boolean;
@@ -12,4 +16,67 @@ export function detectOptimizations(ast: QueryNode): OptimizationFlags {
 		inlineSimpleSelectors: true,
 		shortCircuitFilters: true,
 	};
+}
+
+/**
+ * Performs basic constant folding on an expression.
+ */
+export function foldConstants(expr: ExpressionNode): ExpressionNode {
+	if (expr.type === NodeType.BinaryExpr) {
+		const left = foldConstants(expr.left);
+		const right = foldConstants(expr.right);
+
+		if (left.type === NodeType.Literal && right.type === NodeType.Literal) {
+			const l = left.value;
+			const r = right.value;
+
+			switch (expr.operator) {
+				case '&&':
+					return { ...expr, type: NodeType.Literal, value: Boolean(l && r) };
+				case '||':
+					return { ...expr, type: NodeType.Literal, value: Boolean(l || r) };
+				case '==':
+					return { ...expr, type: NodeType.Literal, value: l === r };
+				case '!=':
+					return { ...expr, type: NodeType.Literal, value: l !== r };
+				case '<':
+					return {
+						...expr,
+						type: NodeType.Literal,
+						value: (l as any) < (r as any),
+					};
+				case '<=':
+					return {
+						...expr,
+						type: NodeType.Literal,
+						value: (l as any) <= (r as any),
+					};
+				case '>':
+					return {
+						...expr,
+						type: NodeType.Literal,
+						value: (l as any) > (r as any),
+					};
+				case '>=':
+					return {
+						...expr,
+						type: NodeType.Literal,
+						value: (l as any) >= (r as any),
+					};
+			}
+		}
+		return { ...expr, left, right };
+	}
+
+	if (expr.type === NodeType.UnaryExpr) {
+		const operand = foldConstants(expr.operand);
+		if (operand.type === NodeType.Literal) {
+			if (expr.operator === '!') {
+				return { ...expr, type: NodeType.Literal, value: !operand.value };
+			}
+		}
+		return { ...expr, operand };
+	}
+
+	return expr;
 }
