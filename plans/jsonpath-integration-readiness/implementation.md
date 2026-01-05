@@ -536,13 +536,13 @@ Align patch semantics with `json-p3` expectations (mutate in-place by default) w
 
 ### Checklist
 
-- [ ] Change `applyPatch()` default to mutate (no clone by default)
-- [ ] Introduce `ApplyOptions` with `strictMode` and `atomic`
-- [ ] Add `applyPatchImmutable()`
-- [ ] Add `testPatch()`
-- [ ] Add `createPatch()` alias in diff
-- [ ] Add `PatchBuilder.build()` alias and option-aware `apply()`
-- [ ] Add tests for mutation/immutable/atomic/testPatch
+- [x] Change `applyPatch()` default to mutate (no clone by default)
+- [x] Introduce `ApplyOptions` with `strictMode` and `atomic`
+- [x] Add `applyPatchImmutable()`
+- [x] Add `testPatch()`
+- [x] Add `createPatch()` alias in diff
+- [x] Add `PatchBuilder.build()` alias and option-aware `apply()`
+- [x] Add tests for mutation/immutable/atomic/testPatch
 
 ### Files
 
@@ -790,9 +790,9 @@ Complete merge-patch utilities: generate merge patches and allow configurable ar
 
 ### Checklist
 
-- [ ] Add `createMergePatch(source, target)`
-- [ ] Add `applyMergePatch(target, patch, options?)` (keep existing export stable)
-- [ ] Add tests for create/apply and options
+- [x] Add `createMergePatch(source, target)`
+- [x] Add `applyMergePatch(target, patch, options?)` (keep existing export stable)
+- [x] Add tests for create/apply and options
 
 ### Files
 
@@ -951,10 +951,10 @@ This avoids a large cross-package type break while still supporting DataMap’s 
 
 ### Checklist
 
-- [ ] Update evaluator `QueryResult` to return `JSONPointer[]` from `pointers()`
-- [ ] Add `pointerStrings(): string[]`
-- [ ] Add tests verifying pointer objects and string parity
-- [ ] Update any in-repo callers expecting `string[]`
+- [x] Update evaluator `QueryResult` to return `JSONPointer[]` from `pointers()`
+- [x] Add `pointerStrings(): string[]`
+- [x] Add tests verifying pointer objects and string parity
+- [x] Update any in-repo callers expecting `string[]`
 
 ### Files
 
@@ -1026,10 +1026,10 @@ Make `@jsonpath/functions` the primary public surface for function registration/
 
 ### Checklist
 
-- [ ] Re-export core registry helpers from `@jsonpath/functions`
-- [ ] Update evaluator to import `getFunction` from `@jsonpath/functions`
-- [ ] Add built-ins: `min`, `max`, `avg`, `sum`, `keys`, `type`
-- [ ] Add tests for new built-ins
+- [x] Re-export core registry helpers from `@jsonpath/functions`
+- [x] Update evaluator to import `getFunction` from `@jsonpath/functions`
+- [x] Add built-ins: `min`, `max`, `avg`, `sum`, `keys`, `type`
+- [x] Add tests for new built-ins
 
 ### Files
 
@@ -1217,10 +1217,10 @@ Ensure `transform`/`omit` build JSON Patch operations using JSON Pointer paths, 
 
 ### Checklist
 
-- [ ] Add `first()` convenience alias
-- [ ] Fix `transform()` to patch by pointer strings
-- [ ] Fix `omit()` to remove by pointer strings
-- [ ] Add/adjust tests
+- [x] Add `first()` convenience alias
+- [x] Fix `transform()` to patch by pointer strings
+- [x] Fix `omit()` to remove by pointer strings
+- [x] Add/adjust tests
 
 ### Files
 
@@ -1315,10 +1315,10 @@ Create a new package that defines a schema adapter interface and core helpers th
 
 ### Checklist
 
-- [ ] Scaffold new package `packages/jsonpath/schema`
-- [ ] Define adapter interface and result types
-- [ ] Implement validator creation and helper functions (delegating to adapter)
-- [ ] Add tests using a mock adapter
+- [x] Scaffold new package `packages/jsonpath/schema`
+- [x] Define adapter interface and result types
+- [x] Implement validator creation and helper functions (delegating to adapter)
+- [x] Add tests using a mock adapter
 
 ### Files (new)
 
@@ -1681,11 +1681,11 @@ Provide a drop-in-compatible subset of `json-p3` used by `@data-map/core`.
 
 ### Checklist
 
-- [ ] Add new package `@jsonpath/compat-json-p3`
-- [ ] Implement `jsonpath.query(path, data)` arg-order wrapper
-- [ ] Implement `jsonpatch.apply(patch, target)` wrapper
-- [ ] Re-export `JSONPointer`
-- [ ] Add parity tests vs `@jsonpath/jsonpath` usage
+- [x] Add new package `@jsonpath/compat-json-p3`
+- [x] Implement `jsonpath.query(path, data)` arg-order wrapper
+- [x] Implement `jsonpatch.apply(patch, target)` wrapper
+- [x] Re-export `JSONPointer`
+- [x] Add parity tests vs `@jsonpath/jsonpath` usage
 
 ### Files (new)
 
@@ -1792,8 +1792,8 @@ Create a benchmark workspace using `vitest bench`.
 
 ### Checklist
 
-- [ ] Add package `packages/jsonpath/benchmarks`
-- [ ] Add at least one benchmark for query evaluation
+- [x] Add package `packages/jsonpath/benchmarks`
+- [x] Add at least one benchmark for query evaluation
 
 ### Files (new)
 
@@ -1854,10 +1854,10 @@ Introduce a small plugin hook surface usable by `@data-map/*` without destabiliz
 
 ### Checklist
 
-- [ ] Add plugin types + `PluginManager` in `@jsonpath/core`
-- [ ] Allow `EvaluatorOptions.plugins?: JSONPathPlugin[]`
-- [ ] Wire `beforeEvaluate/afterEvaluate/onError` hooks in evaluator
-- [ ] Tests for order + isolation
+- [x] Add plugin types + `PluginManager` in `@jsonpath/core`
+- [x] Allow `EvaluatorOptions.plugins?: JSONPathPlugin[]`
+- [x] Wire `beforeEvaluate/afterEvaluate/onError` hooks in evaluator
+- [x] Tests for order + isolation
 
 ### Files
 
@@ -2036,9 +2036,9 @@ Add docs for the new surfaces and keep examples executable.
 
 ### Checklist
 
-- [ ] Add docs markdown pages
-- [ ] Add example TS modules
-- [ ] Add a Vitest smoke test that runs the examples
+- [x] Add docs markdown pages
+- [x] Add example TS modules
+- [x] Add a Vitest smoke test that runs the examples
 
 ### Files
 
@@ -2096,9 +2096,9 @@ Prove `@jsonpath/compat-json-p3` can act as a drop-in for the `json-p3` subset u
 
 ### Checklist
 
-- [ ] Add dev dependency on `@jsonpath/compat-json-p3`
-- [ ] Add Vitest alias wiring in data-map so tests run against `src` for jsonpath packages
-- [ ] Add parity tests comparing results with `json-p3`
+- [x] Add dev dependency on `@jsonpath/compat-json-p3`
+- [x] Add Vitest alias wiring in data-map so tests run against `src` for jsonpath packages
+- [x] Add parity tests comparing results with `json-p3`
 
 ### Files
 
@@ -2181,15 +2181,15 @@ test(data-map): add json-p3 parity suite for compat-json-p3
 
 ## Final verification (after Step 13)
 
-- [ ] `pnpm --filter @jsonpath/pointer test`
-- [ ] `pnpm --filter @jsonpath/patch test`
-- [ ] `pnpm --filter @jsonpath/merge-patch test`
-- [ ] `pnpm --filter @jsonpath/evaluator test`
-- [ ] `pnpm --filter @jsonpath/functions test`
-- [ ] `pnpm --filter @jsonpath/jsonpath test`
-- [ ] `pnpm --filter @jsonpath/schema test`
-- [ ] `pnpm --filter @jsonpath/compat-json-p3 test`
-- [ ] `pnpm --filter @data-map/core test`
+- [x] `pnpm --filter @jsonpath/pointer test`
+- [x] `pnpm --filter @jsonpath/patch test`
+- [x] `pnpm --filter @jsonpath/merge-patch test`
+- [x] `pnpm --filter @jsonpath/evaluator test`
+- [x] `pnpm --filter @jsonpath/functions test`
+- [x] `pnpm --filter @jsonpath/jsonpath test`
+- [x] `pnpm --filter @jsonpath/schema test`
+- [x] `pnpm --filter @jsonpath/compat-json-p3 test`
+- [x] `pnpm --filter @data-map/core test`
 
 # JSONPath Integration Readiness — Implementation (Steps 1–3)
 

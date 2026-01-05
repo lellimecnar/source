@@ -15,10 +15,9 @@ import {
 	JSONPathTimeoutError,
 	JSONPathFunctionError,
 	type EvaluatorOptions,
-	PathSegment,
+	type PathSegment,
 	PluginManager,
 } from '@jsonpath/core';
-import '@jsonpath/functions';
 import { getFunction } from '@jsonpath/functions';
 import {
 	NodeType,
@@ -136,14 +135,13 @@ class Evaluator {
 		const pointer =
 			path.length === 0
 				? '/'
-				: '/' +
-					path
+				: `/${path
 						.map((s) => String(s).replace(/~/g, '~0').replace(/\//g, '~1'))
-						.join('/');
+						.join('/')}`;
 
 		if (this.options.secure.blockPaths.length > 0) {
 			for (const blocked of this.options.secure.blockPaths) {
-				if (pointer === blocked || pointer.startsWith(blocked + '/')) {
+				if (pointer === blocked || pointer.startsWith(`${blocked}/`)) {
 					return false;
 				}
 			}
@@ -153,7 +151,7 @@ class Evaluator {
 			for (const allowed of this.options.secure.allowPaths) {
 				if (
 					pointer === allowed ||
-					pointer.startsWith(allowed + '/') ||
+					pointer.startsWith(`${allowed}/`) ||
 					(allowed.startsWith(pointer) &&
 						(pointer === '/' || allowed[pointer.length] === '/'))
 				) {

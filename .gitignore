@@ -4,8 +4,9 @@ node_modules/
 .pnp.js
 
 # Testing
-coverage/
-.nyc_output/
+**/coverage/
+**/test-output.json
+**/.nyc_output/
 
 # Production builds
 dist/
