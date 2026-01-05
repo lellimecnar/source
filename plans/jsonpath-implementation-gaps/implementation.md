@@ -1228,17 +1228,17 @@ This step closes the remaining gaps from the plan:
 
 ---
 
-## Step 15 — plugin-extras functions (P2)
+## Step 15 — plugin-extras functions (P2) [DONE]
 
 **Work checklist**
 
-- [ ] Implement the function set described in the plan (string/array/aggregation/utility).
-- [ ] Register functions with the function registry.
-- [ ] Add unit tests for each function + type errors.
+- [x] Implement the function set described in the plan (string/array/aggregation/utility).
+- [x] Register functions with the function registry.
+- [x] Add unit tests for each function + type errors.
 
 **STOP & COMMIT**
 
-- [ ] COMMIT (VS Code Source Control): `feat(jsonpath-plugin-extras): implement extras function pack`
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath-plugin-extras): implement extras function pack`
 
 ---
 
