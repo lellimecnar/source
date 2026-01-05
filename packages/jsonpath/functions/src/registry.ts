@@ -9,9 +9,11 @@
 import {
 	type FunctionDefinition,
 	registerFunction,
+	Nothing,
 	// ParameterType,
 	// ReturnType,
 } from '@jsonpath/core';
+import { convertIRegexp, validateIRegexp } from './i-regexp.js';
 
 /**
  * length(value) -> number
@@ -62,15 +64,12 @@ export const matchFn: FunctionDefinition<
 	evaluate: (val: unknown, pattern: unknown) => {
 		if (typeof pattern !== 'string') return undefined;
 		if (typeof val !== 'string') return false;
+
+		const validation = validateIRegexp(pattern);
+		if (!validation.valid) return undefined;
+
 		try {
-			// RFC 9535: . matches any character except LF, CR, CRLF.
-			// In JS, . without 's' flag matches any character except LF, CR, U+2028, U+2029.
-			// We need to make it match U+2028 and U+2029.
-			const processedPattern = pattern.replace(
-				/\\.|\[(?:\\.|[^\]])*\]|(\.)/g,
-				(m, dot) => (dot ? '[^\\n\\r]' : m),
-			);
-			const regex = new RegExp(`^${processedPattern}$`, 'u');
+			const regex = convertIRegexp(`^${pattern}$`);
 			return regex.test(val);
 		} catch {
 			return undefined;
@@ -91,12 +90,12 @@ export const searchFn: FunctionDefinition<
 	evaluate: (val: unknown, pattern: unknown) => {
 		if (typeof pattern !== 'string') return undefined;
 		if (typeof val !== 'string') return false;
+
+		const validation = validateIRegexp(pattern);
+		if (!validation.valid) return undefined;
+
 		try {
-			const processedPattern = pattern.replace(
-				/\\.|\[(?:\\.|[^\]])*\]|(\.)/g,
-				(m, dot) => (dot ? '[^\\n\\r]' : m),
-			);
-			const regex = new RegExp(processedPattern, 'u');
+			const regex = convertIRegexp(pattern);
 			return regex.test(val);
 		} catch {
 			return undefined;
@@ -227,6 +226,42 @@ export function registerBuiltins(): void {
 	for (const fn of builtins) {
 		registerFunction(fn);
 	}
+}
+
+export const registerBuiltinFunctions = registerBuiltins;
+
+export function registerLength() {
+	registerFunction(lengthFn);
+}
+export function registerCount() {
+	registerFunction(countFn);
+}
+export function registerMatch() {
+	registerFunction(matchFn);
+}
+export function registerSearch() {
+	registerFunction(searchFn);
+}
+export function registerValue() {
+	registerFunction(valueFn);
+}
+export function registerMin() {
+	registerFunction(minFn);
+}
+export function registerMax() {
+	registerFunction(maxFn);
+}
+export function registerSum() {
+	registerFunction(sumFn);
+}
+export function registerAvg() {
+	registerFunction(avgFn);
+}
+export function registerKeys() {
+	registerFunction(keysFn);
+}
+export function registerType() {
+	registerFunction(typeFn);
 }
 
 // Preserve existing behavior: built-ins are available once the package is imported.
