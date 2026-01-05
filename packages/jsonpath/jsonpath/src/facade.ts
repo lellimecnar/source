@@ -1,6 +1,10 @@
 import { compile, type CompiledQuery } from '@jsonpath/compiler';
-import { type EvaluatorOptions, JSONPathSecurityError } from '@jsonpath/core';
-import { PluginManager } from '@jsonpath/core';
+import {
+	type EvaluatorOptions,
+	JSONPathSecurityError,
+	PluginManager,
+	type JSONPathPlugin,
+} from '@jsonpath/core';
 import {
 	evaluate,
 	stream as evaluatorStream,
@@ -20,10 +24,18 @@ import { getCachedQuery, setCachedQuery } from './cache.js';
 /**
  * Default plugins registered by the facade.
  */
-const DEFAULT_PLUGINS = [arithmetic(), extras()];
+export const DEFAULT_PLUGINS: JSONPathPlugin[] = [arithmetic(), extras()];
 
 // Register default plugins globally for the parser to see them
 PluginManager.from({ plugins: DEFAULT_PLUGINS });
+
+/**
+ * Registers a plugin globally.
+ */
+export function registerPlugin(plugin: JSONPathPlugin): void {
+	DEFAULT_PLUGINS.push(plugin);
+	PluginManager.from({ plugins: DEFAULT_PLUGINS });
+}
 
 /**
  * Parses a JSONPath query string, with caching.
@@ -42,7 +54,10 @@ export function parseQuery(
 	}
 	let ast = getCachedQuery(query);
 	if (!ast) {
-		ast = parse(query);
+		ast = parse(query, {
+			arithmetic: options?.arithmetic ?? true, // Default to true in facade
+			strict: options?.strict,
+		});
 		setCachedQuery(query, ast);
 	}
 	return ast;
@@ -149,18 +164,20 @@ export function toPointer(
 	path: string,
 	options?: EvaluatorOptions,
 ): string | undefined {
-	return query(root, path, options).pointers()[0];
+	return query(root, path, options).pointers()[0]?.toString();
 }
 
 /**
  * Returns all JSON Pointers for matches of a JSONPath.
  */
-export function pointers(
+export function toPointers(
 	root: any,
 	path: string,
 	options?: EvaluatorOptions,
 ): string[] {
-	return query(root, path, options).pointers();
+	return query(root, path, options)
+		.pointers()
+		.map((p) => p.toString());
 }
 
 /**

@@ -6,6 +6,10 @@
  * @packageDocumentation
  */
 
+import { CharCode } from '@jsonpath/core';
+
+export { CharCode };
+
 /**
  * Character flags for ASCII characters (0-127).
  */
@@ -57,53 +61,4 @@ for (let i = 0; i < 128; i++) {
 	}
 
 	CHAR_FLAGS[i] = flags;
-}
-
-/**
- * Character code constants for common characters.
- */
-export const enum CharCode {
-	TAB = 9,
-	LF = 10,
-	CR = 13,
-	SPACE = 32,
-	BANG = 33, // !
-	DOUBLE_QUOTE = 34, // "
-	PERCENT = 37, // %
-	DOLLAR = 36, // $
-	SINGLE_QUOTE = 39, // '
-	LPAREN = 40, // (
-	RPAREN = 41, // )
-	ASTERISK = 42, // *
-	PLUS = 43, // +
-	COMMA = 44, // ,
-	MINUS = 45, // -
-	DOT = 46, // .
-	SLASH = 47, // /
-	ZERO = 48,
-	ONE = 49,
-	TWO = 50,
-	THREE = 51,
-	FOUR = 52,
-	FIVE = 53,
-	SIX = 54,
-	SEVEN = 55,
-	EIGHT = 56,
-	NINE = 57,
-	COLON = 58, // :
-	LT = 60, // <
-	EQ = 61, // =
-	GT = 62, // >
-	QUESTION = 63, // ?
-	AT = 64, // @
-	LBRACKET = 91, // [
-	BACKSLASH = 92, // \
-	RBRACKET = 93, // ]
-	CARET = 94, // ^
-	UNDERSCORE = 95, // _
-	BACKTICK = 96, // `
-	LBRACE = 123, // {
-	PIPE = 124, // |
-	RBRACE = 125, // }
-	TILDE = 126, // ~
 }

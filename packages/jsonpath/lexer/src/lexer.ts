@@ -6,7 +6,7 @@
  * @packageDocumentation
  */
 
-import { JSONPathSyntaxError } from '@jsonpath/core';
+import { JSONPathSyntaxError, type LexerInterface } from '@jsonpath/core';
 
 import {
 	CHAR_FLAGS,
@@ -19,14 +19,7 @@ import {
 } from './char-tables.js';
 import { TokenType, type Token } from './tokens.js';
 
-export interface LexerInterface {
-	next: () => Token;
-	peek: () => Token;
-	peekAhead: (n: number) => Token;
-	isAtEnd: () => boolean;
-	readonly position: number;
-	readonly input: string;
-}
+export type { LexerInterface };
 
 export class Lexer implements LexerInterface {
 	private pos = 0;
@@ -214,10 +207,19 @@ export class Lexer implements LexerInterface {
 				continue;
 			}
 
-			// Numbers
+			// Numbers (including negative)
 			if (charCode < 128 && CHAR_FLAGS[charCode]! & IS_DIGIT) {
 				this.tokens.push(this.readNumber());
 				continue;
+			}
+
+			if (charCode === CharCode.MINUS) {
+				const next = this.peekChar();
+				if (next >= CharCode.ZERO && next <= CharCode.NINE) {
+					this.tokens.push(this.readNumber());
+					continue;
+				}
+				// If not followed by a digit, it's an operator or error
 			}
 
 			// Identifiers and Keywords
@@ -594,6 +596,17 @@ export class Lexer implements LexerInterface {
 			return this.createToken(TokenType.GT, '>', start, line, col);
 		if (char === '!')
 			return this.createToken(TokenType.NOT, '!', start, line, col);
+
+		if (char === '-')
+			return this.createToken(TokenType.MINUS, '-', start, line, col);
+		if (char === '+')
+			return this.createToken(TokenType.PLUS, '+', start, line, col);
+		if (char === '*')
+			return this.createToken(TokenType.STAR, '*', start, line, col);
+		if (char === '/')
+			return this.createToken(TokenType.SLASH, '/', start, line, col);
+		if (char === '%')
+			return this.createToken(TokenType.PERCENT, '%', start, line, col);
 
 		return this.createToken(TokenType.ERROR, char, start, line, col);
 	}

@@ -72,6 +72,56 @@ export class FilterBuilder {
 		return this;
 	}
 
+	/** Add arithmetic: addition */
+	add(a: unknown, b: unknown): this {
+		return this.fn('add', a, b);
+	}
+
+	/** Add arithmetic: subtraction */
+	sub(a: unknown, b: unknown): this {
+		return this.fn('sub', a, b);
+	}
+
+	/** Add arithmetic: multiplication */
+	mul(a: unknown, b: unknown): this {
+		return this.fn('mul', a, b);
+	}
+
+	/** Add arithmetic: division */
+	div(a: unknown, b: unknown): this {
+		return this.fn('div', a, b);
+	}
+
+	/** Add arithmetic: modulo */
+	mod(a: unknown, b: unknown): this {
+		return this.fn('mod', a, b);
+	}
+
+	/** Add function: length */
+	length(arg: unknown): this {
+		return this.fn('length', arg);
+	}
+
+	/** Add function: count */
+	count(arg: unknown): this {
+		return this.fn('count', arg);
+	}
+
+	/** Add function: match */
+	match(val: unknown, regex: string): this {
+		return this.fn('match', val, regex);
+	}
+
+	/** Add function: search */
+	search(val: unknown, regex: string): this {
+		return this.fn('search', val, regex);
+	}
+
+	/** Add function: value */
+	value(arg: unknown): this {
+		return this.fn('value', arg);
+	}
+
 	/** Add logical AND */
 	and(other?: string | ((f: FilterBuilder) => FilterBuilder)): this {
 		if (other === undefined) {

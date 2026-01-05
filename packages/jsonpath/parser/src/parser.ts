@@ -6,8 +6,14 @@
  * @packageDocumentation
  */
 
-import { JSONPathSyntaxError, functionRegistry } from '@jsonpath/core';
-import { Lexer, TokenType, type Token } from '@jsonpath/lexer';
+import {
+	JSONPathSyntaxError,
+	functionRegistry,
+	TokenType,
+	type Token,
+	type ParserOptions,
+} from '@jsonpath/core';
+import { Lexer } from '@jsonpath/lexer';
 
 import {
 	NodeType,
@@ -19,11 +25,6 @@ import {
 	type FunctionCallNode,
 	isSingularQuery,
 } from './nodes.js';
-
-export interface ParserOptions {
-	/** When true, reject non-RFC conveniences/extensions. */
-	readonly strict?: boolean;
-}
 
 const PRECEDENCE: Record<string, number> = {
 	'||': 10,
@@ -47,7 +48,7 @@ export class Parser {
 
 	constructor(input: string | Lexer, options?: ParserOptions) {
 		this.lexer = typeof input === 'string' ? new Lexer(input) : input;
-		this.options = { strict: false, ...options };
+		this.options = { strict: false, arithmetic: false, ...options };
 	}
 
 	public parse(): QueryNode {
@@ -418,6 +419,12 @@ export class Parser {
 		while (true) {
 			const token = this.lexer.peek();
 			const op = token.value as string;
+
+			// Check if this is an arithmetic operator and if it's allowed
+			if (['+', '-', '*', '/', '%'].includes(op) && !this.options.arithmetic) {
+				break;
+			}
+
 			const nextPrecedence = PRECEDENCE[op] || 0;
 
 			if (nextPrecedence <= precedence) break;
@@ -454,6 +461,14 @@ export class Parser {
 		}
 
 		if (token.type === TokenType.MINUS) {
+			if (!this.options.arithmetic) {
+				throw new JSONPathSyntaxError(
+					'Unary minus requires arithmetic option',
+					{
+						position: start,
+					},
+				);
+			}
 			this.lexer.next();
 			const operand = this.parseExpression(70);
 			return {
@@ -663,8 +678,25 @@ export class Parser {
 					});
 				}
 			} else if (node.operator === '&&' || node.operator === '||') {
-				this.validateExpression(node.left);
-				this.validateExpression(node.right);
+				const leftType = this.getExpressionType(node.left);
+				const rightType = this.getExpressionType(node.right);
+
+				if (leftType === 'ValueType') {
+					throw new JSONPathSyntaxError(
+						'Logical operator requires LogicalType or NodesType',
+						{
+							position: node.left.startPos,
+						},
+					);
+				}
+				if (rightType === 'ValueType') {
+					throw new JSONPathSyntaxError(
+						'Logical operator requires LogicalType or NodesType',
+						{
+							position: node.right.startPos,
+						},
+					);
+				}
 			} else if (['+', '-', '*', '/', '%'].includes(node.operator)) {
 				const leftType = this.getExpressionType(node.left);
 				const rightType = this.getExpressionType(node.right);
@@ -677,7 +709,17 @@ export class Parser {
 			}
 		} else if (node.type === NodeType.UnaryExpr) {
 			this.validateExpression(node.operand);
-			if (node.operator === '-') {
+			if (node.operator === '!') {
+				const type = this.getExpressionType(node.operand);
+				if (type === 'ValueType') {
+					throw new JSONPathSyntaxError(
+						'Logical NOT requires LogicalType or NodesType',
+						{
+							position: node.operand.startPos,
+						},
+					);
+				}
+			} else if (node.operator === '-') {
 				const type = this.getExpressionType(node.operand);
 				if (type === 'LogicalType') {
 					throw new JSONPathSyntaxError('Unary minus requires ValueType', {

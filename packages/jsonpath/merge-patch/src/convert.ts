@@ -7,6 +7,7 @@
  */
 
 import type { PatchOperation } from '@jsonpath/patch';
+
 import { applyMergePatchWithTrace } from './trace.js';
 
 /**

@@ -24,6 +24,15 @@ The main entry point for most use cases. Includes internal AST caching for perfo
 
 Evaluates a JSONPath expression and returns a `QueryResult` object.
 
+#### `QueryResult`
+
+- `values(): any[]`: Returns matching values.
+- `paths(): PathSegment[][]`: Returns matching paths as segment arrays.
+- `pointers(): JSONPointer[]`: Returns `JSONPointer` objects (RFC 6901).
+- `pointerStrings(): string[]`: Returns JSON Pointer strings (RFC 6901).
+- `normalizedPaths(): string[]`: Returns RFC 9535 Normalized Path strings.
+- `nodes(): QueryNode[]`: Returns full node objects (value, path, root, parent).
+
 ### `queryValues(data: any, expression: string): any[]`
 
 Returns an array of matching values.
@@ -67,6 +76,18 @@ const path = pathBuilder()
 	.build();
 // "$.store.book[?(@.price < 10)]"
 ```
+
+### Arithmetic Operators
+
+When `arithmetic` option is enabled (default in facade), the following operators are supported in filters:
+
+- `+`: Addition
+- `-`: Subtraction (and unary minus)
+- `*`: Multiplication
+- `/`: Division
+- `%`: Modulo
+
+Example: `$.items[?(@.a + @.b > 100)]`
 
 ### Built-in Functions (RFC 9535)
 

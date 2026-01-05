@@ -26,7 +26,7 @@ export function transform<T = any>(
 
 	const patch: PatchOperation[] = nodes.map((node, i) => ({
 		op: 'replace',
-		path: pointers[i]!,
+		path: pointers[i]!.toString(),
 		value: fn(node.value, node),
 	}));
 
@@ -144,7 +144,7 @@ export function omit(root: any, paths: string[]): any {
 		for (const ptr of pointers) {
 			allOps.push({
 				op: 'remove',
-				path: ptr,
+				path: ptr.toString(),
 			});
 		}
 	}

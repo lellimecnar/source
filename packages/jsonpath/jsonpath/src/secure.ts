@@ -7,6 +7,7 @@
  */
 
 import { type EvaluatorOptions, type QueryResult } from '@jsonpath/core';
+
 import { query } from './facade.js';
 
 /**

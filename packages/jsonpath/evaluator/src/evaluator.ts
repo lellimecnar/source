@@ -459,8 +459,8 @@ export class Evaluator {
 
 	private isPathAllowed(path: Path): boolean {
 		if (
-			this.options.secure!.blockPaths!.length === 0 &&
-			this.options.secure!.allowPaths!.length === 0
+			this.options.secure.blockPaths!.length === 0 &&
+			this.options.secure.allowPaths!.length === 0
 		) {
 			return true;
 		}
@@ -472,16 +472,16 @@ export class Evaluator {
 						.map((s) => String(s).replace(/~/g, '~0').replace(/\//g, '~1'))
 						.join('/')}`;
 
-		if (this.options.secure!.blockPaths!.length > 0) {
-			for (const blocked of this.options.secure!.blockPaths!) {
+		if (this.options.secure.blockPaths!.length > 0) {
+			for (const blocked of this.options.secure.blockPaths!) {
 				if (pointer === blocked || pointer.startsWith(`${blocked}/`)) {
 					return false;
 				}
 			}
 		}
 
-		if (this.options.secure!.allowPaths!.length > 0) {
-			for (const allowed of this.options.secure!.allowPaths!) {
+		if (this.options.secure.allowPaths!.length > 0) {
+			for (const allowed of this.options.secure.allowPaths!) {
 				if (
 					pointer === allowed ||
 					pointer.startsWith(`${allowed}/`) ||

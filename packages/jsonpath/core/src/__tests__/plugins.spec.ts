@@ -75,4 +75,32 @@ describe('PluginManager', () => {
 		// We can't access context directly but we can verify via hooks if we added them
 		// For now, the fact that it didn't throw and we can use ctx in onRegister is enough
 	});
+
+	it('should resolve dependencies with version constraints', () => {
+		const pluginA: JSONPathPlugin = {
+			name: 'plugin-a',
+			version: '1.0.0',
+		};
+		const pluginB: JSONPathPlugin = {
+			name: 'plugin-b',
+			dependencies: ['plugin-a@1.0.0'],
+		};
+
+		expect(() => new PluginManager([pluginA, pluginB])).not.toThrow();
+	});
+
+	it('should throw on version mismatch', () => {
+		const pluginA: JSONPathPlugin = {
+			name: 'plugin-a',
+			version: '2.0.0',
+		};
+		const pluginB: JSONPathPlugin = {
+			name: 'plugin-b',
+			dependencies: ['plugin-a@1.0.0'],
+		};
+
+		expect(() => new PluginManager([pluginA, pluginB])).toThrow(
+			/Circular or missing plugin dependencies/,
+		);
+	});
 });

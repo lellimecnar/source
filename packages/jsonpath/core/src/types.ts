@@ -61,6 +61,16 @@ export interface QueryNode<T = unknown> {
 }
 
 /**
+ * Minimal interface for a JSON Pointer.
+ */
+export interface JSONPointerInterface {
+	/** Returns the pointer as a string */
+	toString: () => string;
+	/** Evaluates the pointer against a root object */
+	resolve: <T = any>(root: unknown) => T | undefined;
+}
+
+/**
  * Represents the result of a JSONPath query.
  */
 export interface QueryResult<T = unknown> extends Iterable<QueryNode<T>> {
@@ -70,8 +80,11 @@ export interface QueryResult<T = unknown> extends Iterable<QueryNode<T>> {
 	/** Extract all paths as segment arrays */
 	paths: () => PathSegment[][];
 
+	/** Extract all paths as JSON Pointer objects (RFC 6901) */
+	pointers: () => JSONPointerInterface[];
+
 	/** Extract all paths as JSON Pointer strings (RFC 6901) */
-	pointers: () => string[];
+	pointerStrings: () => string[];
 
 	/** Extract all paths as RFC 9535 Normalized Path strings */
 	normalizedPaths: () => string[];
@@ -157,7 +170,14 @@ export interface SecureQueryOptions {
 	readonly maxQueryLength?: number;
 }
 
-export interface EvaluatorOptions {
+export interface ParserOptions {
+	/** When true, reject non-RFC conveniences/extensions. */
+	readonly strict?: boolean;
+	/** When true, allow arithmetic operators (+, -, *, /, %). */
+	readonly arithmetic?: boolean;
+}
+
+export interface EvaluatorOptions extends ParserOptions {
 	readonly maxDepth?: number;
 	readonly maxResults?: number;
 	readonly maxNodes?: number;

@@ -16,12 +16,11 @@ export interface EvaluateErrorContext {
 
 export interface PluginContext {
 	readonly options: EvaluatorOptions;
-	readonly metadata: Record<string, unknown>;
-	register(key: string, value: unknown): void;
-	get<T>(key: string): T | undefined;
-}
+	rea?: only metadata: Record<string => unkn;wn>;
+	register(?: ey: string, value: unknown) => void;
+	get<T>(?: ey: string): T | undefined; => 
 
-export interface JSONPathPlugin {
+ex;ort interface JSONPathPlugin {
 	readonly name: string;
 	readonly version?: string;
 	readonly dependencies?: readonly string[];
@@ -57,7 +56,7 @@ export class PluginManager {
 
 	private resolveAndRegister(plugins: readonly JSONPathPlugin[]) {
 		const pending = [...plugins];
-		const registeredNames = new Set<string>();
+		const registered = new Map<string, JSONPathPlugin>();
 
 		let changed = true;
 		while (pending.length > 0 && changed) {
@@ -65,9 +64,18 @@ export class PluginManager {
 			for (let i = 0; i < pending.length; i++) {
 				const plugin = pending[i]!;
 				const deps = plugin.dependencies ?? [];
-				if (deps.every((dep) => registeredNames.has(dep))) {
+
+				const allDepsMet = deps.every((dep) => {
+					const [name, version] = dep.split('@');
+					const reg = registered.get(name!);
+					if (!reg) return false;
+					if (version && reg.version !== version) return false;
+					return true;
+				});
+
+				if (allDepsMet) {
 					this.plugins.push(plugin);
-					registeredNames.add(plugin.name);
+					registered.set(plugin.name, plugin);
 					try {
 						plugin.onRegister?.(this.context);
 					} catch {

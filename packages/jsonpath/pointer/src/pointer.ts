@@ -233,7 +233,7 @@ export class JSONPointer {
 			}
 			parent[index] = value;
 		} else if (typeof parent === 'object' && parent !== null) {
-			(parent as any)[lastToken] = value;
+			parent[lastToken] = value;
 		} else {
 			throw new Error('Cannot set value on non-object/non-array parent');
 		}
@@ -264,7 +264,7 @@ export class JSONPointer {
 				parent.splice(index, 1);
 			}
 		} else if (typeof parent === 'object' && parent !== null) {
-			delete (parent as any)[lastToken];
+			delete parent[lastToken];
 		}
 
 		return root;

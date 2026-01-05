@@ -191,6 +191,13 @@ The project follows a strict dependency flow:
 
 - **Mixins**: The `ts-mixer` library is used to simulate multiple inheritance for game entities, allowing flexible composition of card capabilities.
 
+### JSONPath Suite Patterns (Data Layer)
+
+- **RFC 9535 Compliance**: The JSONPath implementation follows the official RFC 9535 specification for truthiness, comparison, and function evaluation.
+- **Pratt Parsing**: The parser uses a Pratt (Top-Down Operator Precedence) algorithm for efficient and extensible expression parsing.
+- **Plugin-Based Functions**: Built-in and custom functions (e.g., `length()`, `count()`, `arithmetic`) are registered via a plugin system, allowing for modular extensions without bloating the core engine.
+- **Unified Facade**: `@jsonpath/jsonpath` provides a single entry point for JSONPath, JSON Pointer, and JSON Patch, ensuring a consistent API for data manipulation.
+
 ## 10. Implementation Patterns
 
 ### Mixin Implementation (Domain)

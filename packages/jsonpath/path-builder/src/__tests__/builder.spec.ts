@@ -80,4 +80,14 @@ describe('FilterBuilder', () => {
 			.build();
 		expect(filter).toBe('(@.a == 1 || @.b == 2) && @.c > 0');
 	});
+
+	it('should support arithmetic helpers', () => {
+		const filter = new FilterBuilder().add('@.a', '@.b').gt(10).build();
+		expect(filter).toBe('add(@.a, @.b) > 10');
+	});
+
+	it('should support function helpers', () => {
+		const filter = new FilterBuilder().length('@.name').gt(5).build();
+		expect(filter).toBe('length(@.name) > 5');
+	});
 });

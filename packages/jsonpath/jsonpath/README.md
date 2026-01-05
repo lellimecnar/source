@@ -40,9 +40,9 @@ The suite includes several optional plugin packages for extended functionality:
 
 ```typescript
 import { query, registerPlugin } from '@jsonpath/jsonpath';
-import { ArithmeticPlugin } from '@jsonpath/plugin-arithmetic';
+import { arithmetic } from '@jsonpath/plugin-arithmetic';
 
-registerPlugin(new ArithmeticPlugin());
+registerPlugin(arithmetic());
 
 const data = { a: 10, b: 20 };
 const result = query(data, '$[?add(@.a, @.b) > 25]').values();
