@@ -691,3 +691,19 @@ export function parse(input: string, options?: ParserOptions): QueryNode {
 	}
 	return new Parser(input, options).parse();
 }
+
+/**
+ * Parses a JSONPath filter expression.
+ *
+ * @param input - The expression string to parse.
+ * @param options - Parser options.
+ * @returns The parsed expression AST.
+ */
+export function parseExpression(
+	input: string,
+	options?: ParserOptions,
+): ExpressionNode {
+	const parser = new Parser(input, options);
+	// @ts-expect-error - accessing private method for utility
+	return parser.parseExpression();
+}

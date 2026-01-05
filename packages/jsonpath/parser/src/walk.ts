@@ -18,18 +18,27 @@ import {
 	type FunctionCallNode,
 } from './nodes.js';
 
-export type Visitor = {
-	[K in NodeType]?: (node: any, parent: ASTNode | null) => void;
-};
+export type Visitor =
+	| {
+			[K in NodeType]?: (node: any, parent: ASTNode | null) => void;
+	  }
+	| {
+			enter?: (node: ASTNode, parent: ASTNode | null) => void;
+			leave?: (node: ASTNode, parent: ASTNode | null) => void;
+	  };
 
 export function walk(
 	node: ASTNode,
 	visitor: Visitor,
 	parent: ASTNode | null = null,
 ): void {
-	const visit = visitor[node.type];
-	if (visit) {
-		visit(node, parent);
+	if ('enter' in visitor && visitor.enter) {
+		visitor.enter(node, parent);
+	} else if (node.type in visitor) {
+		const visit = (visitor as any)[node.type];
+		if (visit) {
+			visit(node, parent);
+		}
 	}
 
 	switch (node.type) {
@@ -59,5 +68,9 @@ export function walk(
 				walk(a, visitor, node);
 			});
 			break;
+	}
+
+	if ('leave' in visitor && visitor.leave) {
+		visitor.leave(node, parent);
 	}
 }

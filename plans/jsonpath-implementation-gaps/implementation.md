@@ -887,11 +887,11 @@ This step focuses on filling the remaining spec metadata gaps without gratuitous
 
 **Work checklist**
 
-- [ ] Implement `parseExpression(input: string, options?: ParserOptions): ExpressionNode`.
-- [ ] Export `parseExpression` from `packages/jsonpath/parser/src/index.ts`.
-- [ ] Extend `walk()` to support `enter` / `leave` hooks without breaking the existing per-node visitor mapping.
-  - [ ] Keep the current `Visitor` shape working.
-  - [ ] Add an alternate visitor shape: `{ enter?: (node,parent)=>void; leave?: (node,parent)=>void }`.
+- [x] Implement `parseExpression(input: string, options?: ParserOptions): ExpressionNode`.
+- [x] Export `parseExpression` from `packages/jsonpath/parser/src/index.ts`.
+- [x] Extend `walk()` to support `enter` / `leave` hooks without breaking the existing per-node visitor mapping.
+  - [x] Keep the current `Visitor` shape working.
+  - [x] Add an alternate visitor shape: `{ enter?: (node,parent)=>void; leave?: (node,parent)=>void }`.
 
 **Verification**
 
