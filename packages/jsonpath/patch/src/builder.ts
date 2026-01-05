@@ -38,6 +38,18 @@ export class PatchBuilder {
 		return this;
 	}
 
+	/**
+	 * Only applies the next operation if the path does NOT exist in the target.
+	 * Requires the builder to be initialized with a target.
+	 */
+	ifNotExists(path: string): this {
+		if (!this.target) {
+			throw new Error('ifNotExists() requires a target document');
+		}
+		this.nextCondition = !new JSONPointer(path).exists(this.target);
+		return this;
+	}
+
 	private shouldAdd(): boolean {
 		if (this.nextCondition === null) return true;
 		const res = this.nextCondition;

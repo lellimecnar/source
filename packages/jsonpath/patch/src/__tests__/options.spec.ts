@@ -110,6 +110,53 @@ describe('Patch Options & Advanced Features', () => {
 			expect(b).toEqual([{ op: 'add', path: '/a-exists', value: true }]);
 		});
 
+		it('should support ifNotExists()', () => {
+			const data = { a: 1 };
+			const b = builder(data)
+				.ifNotExists('/a')
+				.add('/a-not-exists', true)
+				.ifNotExists('/b')
+				.add('/b-not-exists', true)
+				.build();
+
+			expect(b).toEqual([{ op: 'add', path: '/b-not-exists', value: true }]);
+		});
+
+		it('should throw error when using ifNotExists() without target', () => {
+			expect(() => {
+				builder().ifNotExists('/a').add('/a', 1);
+			}).toThrow('ifNotExists() requires a target document');
+		});
+
+		it('should work with nested paths in ifNotExists()', () => {
+			const data = { a: { b: 1 } };
+			const b = builder(data)
+				.ifNotExists('/a/c')
+				.add('/a/c', 2)
+				.ifNotExists('/a/b')
+				.add('/a/b-modified', 3)
+				.build();
+
+			expect(b).toEqual([{ op: 'add', path: '/a/c', value: 2 }]);
+		});
+
+		it('should chain multiple ifNotExists() conditions', () => {
+			const data = { x: 1 };
+			const b = builder(data)
+				.ifNotExists('/y')
+				.add('/y', 2)
+				.ifNotExists('/z')
+				.add('/z', 3)
+				.ifNotExists('/x')
+				.add('/x-copy', 4)
+				.build();
+
+			expect(b).toEqual([
+				{ op: 'add', path: '/y', value: 2 },
+				{ op: 'add', path: '/z', value: 3 },
+			]);
+		});
+
 		it('should support replaceAll()', () => {
 			const data = { items: [{ val: 1 }, { val: 2 }] };
 			const b = builder(data).replaceAll('$.items[*].val', 0).build();
