@@ -104,6 +104,27 @@ export function exists(
 }
 
 /**
+ * Executes a JSONPath query with security restrictions.
+ *
+ * By default, it disables recursive descent and limits query length.
+ */
+export function secureQuery(
+	root: any,
+	path: string,
+	options: EvaluatorOptions = {},
+): QueryResult {
+	const secureOptions: EvaluatorOptions = {
+		...options,
+		secure: {
+			noRecursive: true,
+			maxQueryLength: 100,
+			...options.secure,
+		},
+	};
+	return query(root, path, secureOptions);
+}
+
+/**
  * Executes a JSONPath query and returns the number of matches.
  */
 export function count(

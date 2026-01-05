@@ -32,6 +32,20 @@ export function transform<T = any>(
 }
 
 /**
+ * Transforms a JSON object by applying multiple transformations.
+ */
+export function transformAll<T = any>(
+	root: T,
+	transforms: Array<{ path: string; fn: (value: any) => any }>,
+): T {
+	let current = root;
+	for (const { path, fn } of transforms) {
+		current = transform(current, path, fn);
+	}
+	return current;
+}
+
+/**
  * Projects a JSON object into a new shape based on a map of JSONPaths.
  */
 export function project(root: any, mapping: Record<string, string>): any {
@@ -42,6 +56,29 @@ export function project(root: any, mapping: Record<string, string>): any {
 			result[targetKey] = matches[0];
 		} else if (matches.length > 1) {
 			result[targetKey] = matches;
+		}
+	}
+	return result;
+}
+
+/**
+ * Projects a JSON object into a new shape using a mapping of target keys to paths or functions.
+ */
+export function projectWith(
+	root: any,
+	mapping: Record<string, string | ((root: any) => any)>,
+): any {
+	const result: any = {};
+	for (const [targetKey, source] of Object.entries(mapping)) {
+		if (typeof source === 'function') {
+			result[targetKey] = source(root);
+		} else {
+			const matches = query(root, source).values();
+			if (matches.length === 1) {
+				result[targetKey] = matches[0];
+			} else if (matches.length > 1) {
+				result[targetKey] = matches;
+			}
 		}
 	}
 	return result;
