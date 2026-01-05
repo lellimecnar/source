@@ -59,7 +59,7 @@
 		"@types/node": "^24",
 		"@typescript/native-preview": "7.0.0-dev.20251228.1",
 		"@vitest/coverage-v8": "^4.0.16",
-		"eslint": "^8.57.1",
+		"eslint": "^9.39.2",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.2.7",
 		"prettier": "^3.4.2",
