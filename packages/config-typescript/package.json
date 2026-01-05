@@ -15,7 +15,7 @@
 	},
 	"devDependencies": {
 		"@vercel/style-guide": "^6",
-		"eslint": "^8",
+		"eslint": "^9",
 		"typescript": "~5.5"
 	},
 	"peerDependencies": {
