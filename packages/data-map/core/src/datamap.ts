@@ -1,4 +1,8 @@
-import { jsonpath, JSONPointer } from 'json-p3';
+import {
+	pointerExists,
+	queryWithPointers,
+	resolvePointer,
+} from './utils/jsonpath';
 
 import { BatchManager } from './batch/manager';
 import type { BatchContext } from './batch/types';
@@ -118,48 +122,45 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				];
 			}
 
-			try {
-				const pointer = new JSONPointer(pointerString);
-				const resolved = pointer.resolve(this._data as any);
-				const value = cloneSnapshot(
-					this._defs.applyGetter(pointerString, resolved, ctx),
-				);
-
-				this._subs.scheduleNotify(
-					pointerString,
-					'resolve',
-					'on',
-					value,
-					undefined,
-					undefined,
-					pathOrPointer,
-				);
-				this._subs.scheduleNotify(
-					pointerString,
-					'resolve',
-					'after',
-					value,
-					undefined,
-					undefined,
-					pathOrPointer,
-				);
-
-				return [
-					{
-						pointer: pointerString,
-						value,
-					},
-				];
-			} catch (e) {
+			const resolved = resolvePointer(this._data, pointerString);
+			if (resolved === undefined && !pointerExists(this._data, pointerString)) {
 				if (strict) throw new Error(`Pointer not found: ${pointerString}`);
 				return [];
 			}
+
+			const value = cloneSnapshot(
+				this._defs.applyGetter(pointerString, resolved, ctx),
+			);
+
+			this._subs.scheduleNotify(
+				pointerString,
+				'resolve',
+				'on',
+				value,
+				undefined,
+				undefined,
+				pathOrPointer,
+			);
+			this._subs.scheduleNotify(
+				pointerString,
+				'resolve',
+				'after',
+				value,
+				undefined,
+				undefined,
+				pathOrPointer,
+			);
+
+			return [
+				{
+					pointer: pointerString,
+					value,
+				},
+			];
 		}
 
 		try {
-			const nodes = jsonpath.query(pathOrPointer, this._data as any);
-			const pointers = nodes.pointers().map((p) => p.toString());
-			const values = nodes.values();
+			const { pointers, values } = queryWithPointers(this._data, pathOrPointer);
 			const matches = pointers.map((pointer, idx) => ({
 				pointer,
 				value: cloneSnapshot(this._defs.applyGetter(pointer, values[idx], ctx)),
@@ -187,8 +188,11 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			}
 
 			return matches;
-		} catch {
-			if (strict) throw new Error(`Invalid JSONPath: ${pathOrPointer}`);
+		} catch (err) {
+			if (strict) {
+				if (err instanceof Error) throw err;
+				throw new Error(`Invalid JSONPath: ${pathOrPointer}`, { cause: err });
+			}
 			return [];
 		}
 	}
@@ -672,8 +676,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		const exists = (data: unknown, pointer: string): boolean => {
 			if (pointer === '') return true;
 			try {
-				new JSONPointer(pointer).resolve(data as any);
-				return true;
+				return pointerExists(data, pointer);
 			} catch {
 				return false;
 			}
