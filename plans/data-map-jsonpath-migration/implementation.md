@@ -1291,10 +1291,11 @@ completes: step 9 of 9 for data-map-jsonpath-migration
 
 ## Final full-suite verification
 
-- [ ] `pnpm --filter @data-map/core type-check`
-- [ ] `pnpm --filter @data-map/core test`
-- [ ] `pnpm --filter @data-map/core test:coverage`
-- [ ] Confirm no `json-p3` or `@jsonpath/compat-json-p3` in `packages/data-map/core/package.json`.
+- [x] `pnpm --filter @data-map/core type-check` ✅ PASSED (0 errors)
+- [x] `pnpm --filter @data-map/core test` ✅ PASSED (214/214 tests)
+- [x] `pnpm --filter @data-map/core test:coverage` ✅ PASSED (91.73% statements, 97.09% functions)
+- [x] Confirm no `json-p3` or `@jsonpath/compat-json-p3` in `packages/data-map/core/package.json`. ✅ VERIFIED
+- [x] Fixed missing `@jsonpath/core` dependency in package.json ✅ COMMITTED
 
 ## Notes
 
