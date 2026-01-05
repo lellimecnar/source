@@ -10,7 +10,7 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@expo/config-plugins": "^9"
+		"@expo/config-plugins": "^54"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",
