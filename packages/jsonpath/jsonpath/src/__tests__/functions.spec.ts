@@ -109,24 +109,26 @@ describe('RFC 9535 Functions', () => {
 		};
 
 		it('min() should return minimum value', () => {
-			const result = query(testData, '$.nums[?@ == min($.nums[*])]').values();
+			// min() in plugin-extras takes a ValueType; pass the array as a singular query.
+			const result = query(testData, '$.nums[?@ == min($.nums)]').values();
 			expect(result).toEqual([1]);
 		});
 
 		it('max() should return maximum value', () => {
-			const result = query(testData, '$.nums[?@ == max($.nums[*])]').values();
+			// max() in plugin-extras takes a ValueType; pass the array as a singular query.
+			const result = query(testData, '$.nums[?@ == max($.nums)]').values();
 			expect(result).toEqual([8]);
 		});
 
 		it('sum() should return sum of values', () => {
 			// Wrap in array to apply filter to the object itself
-			const result = query([testData], '$[?sum(@.nums[*]) == 19]').values();
+			const result = query([testData], '$[?sum(@.nums) == 19]').values();
 			expect(result).toEqual([testData]);
 		});
 
 		it('avg() should return average of values', () => {
 			// avg(1, 5, 3, 8, 2) = 19 / 5 = 3.8
-			const result = query([testData], '$[?avg(@.nums[*]) == 3.8]').values();
+			const result = query([testData], '$[?avg(@.nums) == 3.8]').values();
 			expect(result).toEqual([testData]);
 		});
 
