@@ -49,7 +49,6 @@ export class Evaluator {
 	private options: Required<EvaluatorOptions>;
 	private startTime = 0;
 	private nodesVisited = 0;
-	private resultsFound = 0;
 	private currentFilterDepth = 0;
 
 	constructor(root: any, options?: EvaluatorOptions) {
@@ -58,15 +57,8 @@ export class Evaluator {
 	}
 
 	public evaluate(ast: QueryNode): QueryResult {
-		return new QueryResult(Array.from(this.stream(ast)));
-	}
-
-	public *stream(ast: QueryNode): Generator<QueryResultNode> {
 		this.startTime = Date.now();
-		this.nodesVisited = 0;
-		this.resultsFound = 0;
-		this.currentFilterDepth = 0;
-		this.checkLimits(0);
+		this.checkLimits(0, 0);
 
 		if (this.options.secure.noRecursive) {
 			const hasRecursive = ast.segments.some(
@@ -86,330 +78,18 @@ export class Evaluator {
 			}
 		}
 
-		let currentNodes: Iterable<QueryResultNode> = [
+		let currentNodes: QueryResultNode[] = [
 			{ value: this.root, path: [], root: this.root },
 		];
 
 		for (const segment of ast.segments) {
-			currentNodes = this.streamSegment(segment, currentNodes);
+			currentNodes = this.evaluateSegment(segment, currentNodes);
 		}
 
-		for (const node of currentNodes) {
-			if (
-				this.options.maxResults > 0 &&
-				this.resultsFound >= this.options.maxResults
-			) {
-				throw new JSONPathLimitError(
-					`Maximum results exceeded: ${this.options.maxResults}`,
-					{ code: 'LIMIT_ERROR' },
-				);
-			}
-			yield node;
-			this.resultsFound++;
-		}
+		return new QueryResult(currentNodes);
 	}
 
-	private *streamSegment(
-		segment: SegmentNode,
-		nodes: Iterable<QueryResultNode>,
-	): Generator<QueryResultNode> {
-		const isDescendant = segment.type === NodeType.DescendantSegment;
-
-		for (const node of nodes) {
-			if (isDescendant) {
-				yield* this.streamDescendants(segment, node);
-			} else {
-				yield* this.streamSelectors(segment.selectors, node);
-			}
-		}
-	}
-
-	private *streamDescendants(
-		segment: SegmentNode,
-		node: QueryResultNode,
-		visited = new Set<any>(),
-	): Generator<QueryResultNode> {
-		if (!this.isPathAllowed(node.path)) {
-			return;
-		}
-		this.checkLimits(node.path.length, this.resultsFound);
-
-		if (this.options.detectCircular) {
-			if (visited.has(node.value)) {
-				throw new JSONPathLimitError('Circular reference detected', {
-					path: node.path.join('.'),
-				});
-			}
-			if (node.value !== null && typeof node.value === 'object') {
-				visited.add(node.value);
-			}
-		}
-
-		yield* this.streamSelectors(segment.selectors, node);
-
-		const val = node.value;
-		if (val !== null && typeof val === 'object') {
-			if (Array.isArray(val)) {
-				for (let i = 0; i < val.length; i++) {
-					yield* this.streamDescendants(
-						segment,
-						{
-							value: val[i],
-							path: [...node.path, i],
-							root: node.root,
-							parent: val,
-							parentKey: i,
-						},
-						new Set(visited),
-					);
-				}
-			} else {
-				for (const k of Object.keys(val)) {
-					yield* this.streamDescendants(
-						segment,
-						{
-							value: (val as any)[k],
-							path: [...node.path, k],
-							root: node.root,
-							parent: val,
-							parentKey: k,
-						},
-						new Set(visited),
-					);
-				}
-			}
-		}
-	}
-
-	private *streamSelectors(
-		selectors: SelectorNode[],
-		node: QueryResultNode,
-	): Generator<QueryResultNode> {
-		for (const selector of selectors) {
-			yield* this.streamSelector(selector, node);
-		}
-	}
-
-	private *streamSelector(
-		selector: SelectorNode,
-		node: QueryResultNode,
-	): Generator<QueryResultNode> {
-		const val = node.value;
-
-		switch (selector.type) {
-			case NodeType.NameSelector:
-				if (val !== null && typeof val === 'object') {
-					if (
-						!Array.isArray(val) &&
-						Object.prototype.hasOwnProperty.call(val, selector.name)
-					) {
-						const result = {
-							value: val[selector.name],
-							path: [...node.path, selector.name],
-							root: node.root,
-							parent: val,
-							parentKey: selector.name,
-						};
-						if (this.isPathAllowed(result.path)) {
-							this.checkLimits(result.path.length);
-							yield result;
-						}
-					}
-				}
-				break;
-			case NodeType.IndexSelector:
-				if (val !== null && typeof val === 'object') {
-					if (Array.isArray(val)) {
-						const idx =
-							selector.index < 0 ? val.length + selector.index : selector.index;
-						if (idx >= 0 && idx < val.length) {
-							const result = {
-								value: val[idx],
-								path: [...node.path, idx],
-								root: node.root,
-								parent: val,
-								parentKey: idx,
-							};
-							if (this.isPathAllowed(result.path)) {
-								this.checkLimits(result.path.length);
-								yield result;
-							}
-						}
-					}
-				}
-				break;
-			case NodeType.ParentSelector:
-				if (node.path.length > 0) {
-					const parentPath = node.path.slice(0, -1);
-					let parentValue: any;
-					let grandParent: any;
-					let parentKey: any;
-
-					if (parentPath.length === 0) {
-						parentValue = node.root;
-					} else {
-						parentValue = node.root;
-						for (let i = 0; i < parentPath.length; i++) {
-							grandParent = parentValue;
-							parentKey = parentPath[i];
-							parentValue = parentValue[parentKey];
-						}
-					}
-
-					const result = {
-						value: parentValue,
-						path: parentPath,
-						root: node.root,
-						parent: grandParent,
-						parentKey,
-					};
-					if (this.isPathAllowed(result.path)) {
-						this.checkLimits(result.path.length, this.resultsFound);
-						this.resultsFound++;
-						yield result;
-					}
-				}
-				break;
-			case NodeType.PropertySelector:
-				if (node.parentKey !== undefined) {
-					const result = {
-						value: node.parentKey,
-						path: node.path,
-						root: node.root,
-						parent: node.parent,
-						parentKey: node.parentKey,
-					};
-					if (this.isPathAllowed(result.path)) {
-						this.checkLimits(result.path.length, this.resultsFound);
-						this.resultsFound++;
-						yield result;
-					}
-				}
-				break;
-			case NodeType.WildcardSelector:
-				if (val !== null && typeof val === 'object') {
-					if (Array.isArray(val)) {
-						for (let i = 0; i < val.length; i++) {
-							const result = {
-								value: val[i],
-								path: [...node.path, i],
-								root: node.root,
-								parent: val,
-								parentKey: i,
-							};
-							if (this.isPathAllowed(result.path)) {
-								this.checkLimits(result.path.length);
-								yield result;
-							}
-						}
-					} else {
-						for (const k of Object.keys(val)) {
-							const result = {
-								value: (val as any)[k],
-								path: [...node.path, k],
-								root: node.root,
-								parent: val,
-								parentKey: k,
-							};
-							if (this.isPathAllowed(result.path)) {
-								this.checkLimits(result.path.length);
-								yield result;
-							}
-						}
-					}
-				}
-				break;
-			case NodeType.SliceSelector:
-				if (val !== null && typeof val === 'object') {
-					if (Array.isArray(val)) {
-						const { start, end, step: stepValue } = selector;
-						const s = stepValue ?? 1;
-						if (s === 0) return;
-
-						const len = val.length;
-						let from = start ?? (s > 0 ? 0 : len - 1);
-						let to = end ?? (s > 0 ? len : -len - 1);
-
-						if (from < 0) from = len + from;
-						if (to < 0) to = len + to;
-
-						if (s > 0) {
-							from = Math.min(Math.max(from, 0), len);
-							to = Math.min(Math.max(to, 0), len);
-							for (let i = from; i < to; i += s) {
-								const result = {
-									value: val[i],
-									path: [...node.path, i],
-									root: node.root,
-									parent: val,
-									parentKey: i,
-								};
-								if (this.isPathAllowed(result.path)) {
-									this.checkLimits(result.path.length);
-									yield result;
-								}
-							}
-						} else {
-							from = Math.min(Math.max(from, -1), len - 1);
-							to = Math.min(Math.max(to, -1), len - 1);
-							for (let i = from; i > to; i += s) {
-								const result = {
-									value: val[i],
-									path: [...node.path, i],
-									root: node.root,
-									parent: val,
-									parentKey: i,
-								};
-								if (this.isPathAllowed(result.path)) {
-									this.checkLimits(result.path.length);
-									yield result;
-								}
-							}
-						}
-					}
-				}
-				break;
-			case NodeType.FilterSelector:
-				if (val !== null && typeof val === 'object') {
-					if (Array.isArray(val)) {
-						for (let i = 0; i < val.length; i++) {
-							const item = {
-								value: val[i],
-								path: [...node.path, i],
-								root: node.root,
-								parent: val,
-								parentKey: i,
-							};
-							if (this.evaluateFilter(selector.expression, item)) {
-								if (this.isPathAllowed(item.path)) {
-									this.checkLimits(item.path.length);
-									yield item;
-								}
-							}
-						}
-					} else {
-						for (const k of Object.keys(val)) {
-							const item = {
-								value: (val as any)[k],
-								path: [...node.path, k],
-								root: node.root,
-								parent: val,
-								parentKey: k,
-							};
-							if (this.evaluateFilter(selector.expression, item)) {
-								if (this.isPathAllowed(item.path)) {
-									this.checkLimits(item.path.length);
-									yield item;
-								}
-							}
-						}
-					}
-				}
-				break;
-		}
-	}
-
-	private checkLimits(depth: number): void {
+	private checkLimits(depth: number, resultCount: number): void {
 		this.nodesVisited++;
 
 		if (
@@ -426,6 +106,13 @@ export class Evaluator {
 			throw new JSONPathLimitError(
 				`Maximum depth exceeded: ${this.options.maxDepth}`,
 				{ code: 'MAX_DEPTH_EXCEEDED' },
+			);
+		}
+
+		if (this.options.maxResults > 0 && resultCount >= this.options.maxResults) {
+			throw new JSONPathLimitError(
+				`Maximum results exceeded: ${this.options.maxResults}`,
+				{ code: 'LIMIT_ERROR' },
 			);
 		}
 
@@ -479,12 +166,303 @@ export class Evaluator {
 		return true;
 	}
 
-	private evaluateFilter(
-		expr: ExpressionNode,
-		current: QueryResultNode,
-	): boolean {
-		const result = this.evaluateExpression(expr, current);
-		return this.isTruthy(result);
+	private addResult(results: QueryResultNode[], node: QueryResultNode): void {
+		if (!this.isPathAllowed(node.path)) {
+			return;
+		}
+		this.checkLimits(node.path.length, results.length);
+		results.push(node);
+	}
+
+	private evaluateSegment(
+		segment: SegmentNode,
+		nodes: QueryResultNode[],
+	): QueryResultNode[] {
+		const nextNodes: QueryResultNode[] = [];
+		const isDescendant = segment.type === NodeType.DescendantSegment;
+
+		for (const node of nodes) {
+			if (isDescendant) {
+				this.walkDescendants(node, (n) => {
+					this.applySelectors(segment.selectors, n, nextNodes);
+				});
+			} else {
+				this.applySelectors(segment.selectors, node, nextNodes);
+			}
+		}
+
+		return nextNodes;
+	}
+
+	private walkDescendants(
+		node: QueryResultNode,
+		callback: (n: QueryResultNode) => void,
+		visited = new Set<any>(),
+	): void {
+		if (!this.isPathAllowed(node.path)) {
+			return;
+		}
+		this.checkLimits(node.path.length, 0); // resultCount check is handled in evaluateSegment
+
+		if (this.options.detectCircular) {
+			if (visited.has(node.value)) {
+				throw new JSONPathLimitError('Circular reference detected', {
+					path: node.path.join('.'),
+				});
+			}
+			if (node.value !== null && typeof node.value === 'object') {
+				visited.add(node.value);
+			}
+		}
+
+		callback(node);
+		const val = node.value;
+		if (val !== null && typeof val === 'object') {
+			if (Array.isArray(val)) {
+				val.forEach((v, i) => {
+					this.walkDescendants(
+						{
+							value: v,
+							path: [...node.path, i],
+							root: node.root,
+							parent: val,
+							parentKey: i,
+						},
+						callback,
+						new Set(visited),
+					);
+				});
+			} else {
+				Object.entries(val).forEach(([k, v]) => {
+					this.walkDescendants(
+						{
+							value: v,
+							path: [...node.path, k],
+							root: node.root,
+							parent: val,
+							parentKey: k,
+						},
+						callback,
+						new Set(visited),
+					);
+				});
+			}
+		}
+	}
+
+	private applySelectors(
+		selectors: SelectorNode[],
+		node: QueryResultNode,
+		results: QueryResultNode[],
+	): void {
+		for (const selector of selectors) {
+			this.evaluateSelector(selector, node, results);
+		}
+	}
+
+	/**
+	 * RFC 9535 Section 2.3.4: normalize(i, len)
+	 */
+	private normalize(i: number, len: number): number {
+		return i < 0 ? Math.max(len + i, 0) : Math.min(i, len);
+	}
+
+	private evaluateSelector(
+		selector: SelectorNode,
+		node: QueryResultNode,
+		results: QueryResultNode[],
+	): void {
+		const val = node.value;
+
+		switch (selector.type) {
+			case NodeType.NameSelector:
+				if (val !== null && typeof val === 'object') {
+					if (
+						!Array.isArray(val) &&
+						Object.prototype.hasOwnProperty.call(val, selector.name)
+					) {
+						this.addResult(results, {
+							value: val[selector.name],
+							path: [...node.path, selector.name],
+							root: node.root,
+							parent: val,
+							parentKey: selector.name,
+						});
+					}
+				}
+				break;
+			case NodeType.IndexSelector:
+				if (val !== null && typeof val === 'object') {
+					if (Array.isArray(val)) {
+						const idx =
+							selector.index < 0 ? val.length + selector.index : selector.index;
+						if (idx >= 0 && idx < val.length) {
+							this.addResult(results, {
+								value: val[idx],
+								path: [...node.path, idx],
+								root: node.root,
+								parent: val,
+								parentKey: idx,
+							});
+						}
+					}
+				}
+				break;
+			case NodeType.ParentSelector:
+				if (node.path.length > 0) {
+					const parentPath = node.path.slice(0, -1);
+					let parentValue: any;
+					let grandParent: any;
+					let parentKey: any;
+
+					if (parentPath.length === 0) {
+						parentValue = node.root;
+					} else {
+						parentValue = node.root;
+						for (let i = 0; i < parentPath.length; i++) {
+							grandParent = parentValue;
+							parentKey = parentPath[i];
+							parentValue = parentValue[parentKey];
+						}
+					}
+
+					this.addResult(results, {
+						value: parentValue,
+						path: parentPath,
+						root: node.root,
+						parent: grandParent,
+						parentKey: parentKey,
+					});
+				}
+				break;
+			case NodeType.PropertySelector:
+				if (node.parentKey !== undefined) {
+					this.addResult(results, {
+						value: node.parentKey,
+						path: node.path, // Path to the node whose property name we are returning
+						root: node.root,
+						parent: node.parent,
+						parentKey: node.parentKey,
+					});
+				}
+				break;
+			case NodeType.WildcardSelector:
+				if (val !== null && typeof val === 'object') {
+					if (Array.isArray(val)) {
+						val.forEach((v, i) => {
+							this.addResult(results, {
+								value: v,
+								path: [...node.path, i],
+								root: node.root,
+								parent: val,
+								parentKey: i,
+							});
+						});
+					} else {
+						Object.entries(val).forEach(([k, v]) => {
+							this.addResult(results, {
+								value: v,
+								path: [...node.path, k],
+								root: node.root,
+								parent: val,
+								parentKey: k,
+							});
+						});
+					}
+				}
+				break;
+			case NodeType.SliceSelector:
+				if (val !== null && typeof val === 'object') {
+					if (Array.isArray(val)) {
+						const { start, end, step: stepValue } = selector;
+						const s = stepValue ?? 1;
+
+						if (s === 0) {
+							return;
+						}
+
+						const len = val.length;
+
+						// Defaults depend on direction.
+						let from = start ?? (s > 0 ? 0 : len - 1);
+						let to = end ?? (s > 0 ? len : -len - 1);
+
+						// Normalize negative indices.
+						if (from < 0) from = len + from;
+						if (to < 0) to = len + to;
+
+						if (s > 0) {
+							// Clamp to [0, len]
+							from = Math.min(Math.max(from, 0), len);
+							to = Math.min(Math.max(to, 0), len);
+
+							for (let i = from; i < to; i += s) {
+								this.addResult(results, {
+									value: val[i],
+									path: [...node.path, i],
+									root: node.root,
+									parent: val,
+									parentKey: i,
+								});
+							}
+						} else {
+							// Clamp to [-1, len-1]
+							from = Math.min(Math.max(from, -1), len - 1);
+							to = Math.min(Math.max(to, -1), len - 1);
+
+							for (let i = from; i > to; i += s) {
+								this.addResult(results, {
+									value: val[i],
+									path: [...node.path, i],
+									root: node.root,
+									parent: val,
+									parentKey: i,
+								});
+							}
+						}
+					}
+				}
+				break;
+			case NodeType.FilterSelector:
+				if (val !== null && typeof val === 'object') {
+					if (Array.isArray(val)) {
+						val.forEach((v, i) => {
+							const nodeContext = {
+								value: v,
+								path: [...node.path, i],
+								root: node.root,
+								parent: val,
+								parentKey: i,
+							};
+							if (
+								this.isTruthy(
+									this.evaluateExpression(selector.expression, nodeContext),
+								)
+							) {
+								this.addResult(results, nodeContext);
+							}
+						});
+					} else {
+						Object.entries(val).forEach(([k, v]) => {
+							const nodeContext = {
+								value: v,
+								path: [...node.path, k],
+								root: node.root,
+								parent: val,
+								parentKey: k,
+							};
+							if (
+								this.isTruthy(
+									this.evaluateExpression(selector.expression, nodeContext),
+								)
+							) {
+								this.addResult(results, nodeContext);
+							}
+						});
+					}
+				}
+				break;
+		}
 	}
 
 	private evaluateExpression(
@@ -790,16 +768,14 @@ export class Evaluator {
 		query: QueryNode,
 		current: QueryResultNode,
 	): NodeList {
-		let nodes: Iterable<QueryResultNode> = query.root
+		let nodes: QueryResultNode[] = query.root
 			? [{ value: this.root, path: [], root: this.root }]
 			: [current];
-
 		for (const segment of query.segments) {
-			nodes = Array.from(this.streamSegment(segment, nodes));
+			nodes = this.evaluateSegment(segment, nodes);
 		}
-
 		return {
-			nodes: Array.from(nodes),
+			nodes,
 			__isNodeList: true,
 			isSingular: isSingularQuery(query),
 		};

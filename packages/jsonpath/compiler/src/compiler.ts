@@ -1,6 +1,7 @@
 import { type EvaluatorOptions, Nothing, getFunction } from '@jsonpath/core';
 import { evaluate, QueryResult } from '@jsonpath/evaluator';
 import { type QueryNode } from '@jsonpath/parser';
+
 import { LRUCache } from './cache.js';
 import { generateCode } from './codegen.js';
 import type { CompiledQuery } from './compiled-query.js';

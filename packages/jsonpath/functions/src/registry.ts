@@ -13,6 +13,7 @@ import {
 	// ParameterType,
 	// ReturnType,
 } from '@jsonpath/core';
+
 import { convertIRegexp, validateIRegexp } from './i-regexp.js';
 
 /**
@@ -66,7 +67,9 @@ export const matchFn: FunctionDefinition<[unknown, unknown], boolean> = {
 		if (!validation.valid) return false;
 
 		try {
-			const regex = convertIRegexp(`^${pattern}$`);
+			// Wrap in non-capturing group to handle alternation correctly with anchors.
+			// Even though I-Regexp doesn't support (?:...), we use it here for the JS RegExp engine.
+			const regex = convertIRegexp(`^(?:${pattern})$`);
 			return regex.test(val);
 		} catch {
 			return false;

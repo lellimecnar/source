@@ -6,6 +6,7 @@ import {
 	type ExpressionNode,
 	isSingularQuery,
 } from '@jsonpath/parser';
+
 import { generateFilterPredicate } from './expressions.js';
 import { foldConstants } from './optimizations.js';
 

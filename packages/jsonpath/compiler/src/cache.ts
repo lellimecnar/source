@@ -8,12 +8,12 @@
 
 import type { CompiledQuery } from './compiled-query.js';
 
-type Entry = {
+interface Entry {
 	key: string;
 	value: CompiledQuery;
 	prev: Entry | null;
 	next: Entry | null;
-};
+}
 
 export class LRUCache {
 	private readonly capacity: number;

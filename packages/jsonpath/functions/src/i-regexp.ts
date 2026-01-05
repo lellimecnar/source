@@ -42,6 +42,28 @@ export function validateIRegexp(pattern: string): {
 		return { valid: false, error: 'I-Regexp does not support named groups' };
 	}
 
+	if (/\\[dDsSwWbB]/.test(pattern)) {
+		return {
+			valid: false,
+			error:
+				'I-Regexp does not support shorthand character classes or boundary anchors',
+		};
+	}
+
+	if (/\\[AZzGXPpXRvVhH]/.test(pattern)) {
+		return {
+			valid: false,
+			error: 'I-Regexp does not support advanced escape sequences',
+		};
+	}
+
+	if (/[*+?}]+\+/.test(pattern)) {
+		return {
+			valid: false,
+			error: 'I-Regexp does not support possessive quantifiers',
+		};
+	}
+
 	try {
 		new RegExp(pattern, 'u');
 		return { valid: true };

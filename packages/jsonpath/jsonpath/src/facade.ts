@@ -1,10 +1,15 @@
 import { compile, type CompiledQuery } from '@jsonpath/compiler';
 import { type EvaluatorOptions, JSONPathSecurityError } from '@jsonpath/core';
-import { evaluate, type QueryResult } from '@jsonpath/evaluator';
-import { parse, type QueryNode } from '@jsonpath/parser';
-import { evaluatePointer } from '@jsonpath/pointer';
-import { applyPatch } from '@jsonpath/patch';
+import {
+	evaluate,
+	type QueryResult,
+	Evaluator,
+	type QueryResultNode,
+} from '@jsonpath/evaluator';
 import { applyMergePatch } from '@jsonpath/merge-patch';
+import { parse, type QueryNode } from '@jsonpath/parser';
+import { applyPatch } from '@jsonpath/patch';
+import { evaluatePointer } from '@jsonpath/pointer';
 
 import { getCachedQuery, setCachedQuery } from './cache.js';
 
@@ -164,14 +169,10 @@ export function* stream(
 	root: any,
 	path: string,
 	options?: EvaluatorOptions,
-): IterableIterator<{ value: any; path: string }> {
-	const results = query(root, path, options);
-	for (let i = 0; i < results.length; i++) {
-		yield {
-			value: results.values()[i],
-			path: results.normalizedPaths()[i]!,
-		};
-	}
+): Generator<QueryResultNode> {
+	const ast = parseQuery(path, options);
+	const evaluator = new Evaluator(root, options);
+	yield* evaluator.stream(ast);
 }
 
 /**
