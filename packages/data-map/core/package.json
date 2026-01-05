@@ -24,6 +24,7 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
+		"@jsonpath/core": "workspace:*",
 		"@jsonpath/jsonpath": "workspace:*",
 		"@jsonpath/patch": "workspace:*",
 		"@jsonpath/pointer": "workspace:*"

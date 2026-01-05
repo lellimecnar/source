@@ -297,9 +297,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	 */
 	peek(pointer: string): unknown {
 		try {
-			return new JSONPointer(normalizePointerInput(pointer)).resolve(
-				this._data as any,
-			);
+			return resolvePointer(this._data, normalizePointerInput(pointer));
 		} catch {
 			return undefined;
 		}

@@ -434,6 +434,9 @@ importers:
 
   packages/data-map/core:
     dependencies:
+      '@jsonpath/core':
+        specifier: workspace:*
+        version: link:../../jsonpath/core
       '@jsonpath/jsonpath':
         specifier: workspace:*
         version: link:../../jsonpath/jsonpath
