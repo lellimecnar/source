@@ -54,25 +54,22 @@ export const countFn: FunctionDefinition<[unknown[]], number> = {
 /**
  * match(value, pattern) -> boolean (regex full match)
  */
-export const matchFn: FunctionDefinition<
-	[unknown, unknown],
-	boolean | undefined
-> = {
+export const matchFn: FunctionDefinition<[unknown, unknown], boolean> = {
 	name: 'match',
 	signature: ['ValueType', 'ValueType'],
 	returns: 'LogicalType',
 	evaluate: (val: unknown, pattern: unknown) => {
-		if (typeof pattern !== 'string') return undefined;
+		if (typeof pattern !== 'string') return false;
 		if (typeof val !== 'string') return false;
 
 		const validation = validateIRegexp(pattern);
-		if (!validation.valid) return undefined;
+		if (!validation.valid) return false;
 
 		try {
 			const regex = convertIRegexp(`^${pattern}$`);
 			return regex.test(val);
 		} catch {
-			return undefined;
+			return false;
 		}
 	},
 };
@@ -80,25 +77,22 @@ export const matchFn: FunctionDefinition<
 /**
  * search(value, pattern) -> boolean (regex partial match)
  */
-export const searchFn: FunctionDefinition<
-	[unknown, unknown],
-	boolean | undefined
-> = {
+export const searchFn: FunctionDefinition<[unknown, unknown], boolean> = {
 	name: 'search',
 	signature: ['ValueType', 'ValueType'],
 	returns: 'LogicalType',
 	evaluate: (val: unknown, pattern: unknown) => {
-		if (typeof pattern !== 'string') return undefined;
+		if (typeof pattern !== 'string') return false;
 		if (typeof val !== 'string') return false;
 
 		const validation = validateIRegexp(pattern);
-		if (!validation.valid) return undefined;
+		if (!validation.valid) return false;
 
 		try {
 			const regex = convertIRegexp(pattern);
 			return regex.test(val);
 		} catch {
-			return undefined;
+			return false;
 		}
 	},
 };

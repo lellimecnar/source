@@ -25,12 +25,18 @@ describe('Functions', () => {
 		const match = getFunction('match')!;
 		expect(match.evaluate('abc', 'a.c')).toBe(true);
 		expect(match.evaluate('abcd', 'a.c')).toBe(false);
+		// RFC 9535: invalid pattern => LogicalFalse
+		expect(match.evaluate('abc', '[')).toBe(false);
+		expect(match.evaluate('abc', 123 as any)).toBe(false);
 	});
 
 	it('search() should perform partial regex match', () => {
 		const search = getFunction('search')!;
 		expect(search.evaluate('abcd', 'bc')).toBe(true);
 		expect(search.evaluate('abcd', 'ef')).toBe(false);
+		// RFC 9535: invalid pattern => LogicalFalse
+		expect(search.evaluate('abcd', '[')).toBe(false);
+		expect(search.evaluate('abcd', 123 as any)).toBe(false);
 	});
 
 	it('value() should extract single value', () => {
