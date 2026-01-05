@@ -14,4 +14,4 @@ export {
 	registerFunction,
 	unregisterFunction,
 	functionRegistry,
-} from './registry.js';
+} from '@jsonpath/core';

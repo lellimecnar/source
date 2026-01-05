@@ -27,6 +27,7 @@
 		"json-p3": "^2.2.2"
 	},
 	"devDependencies": {
+		"@jsonpath/compat-json-p3": "workspace:*",
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
 		"@lellimecnar/vite-config": "workspace:^",

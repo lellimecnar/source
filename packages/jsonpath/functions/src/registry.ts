@@ -8,42 +8,10 @@
 
 import {
 	type FunctionDefinition,
+	registerFunction,
 	// ParameterType,
 	// ReturnType,
 } from '@jsonpath/core';
-
-/**
- * Registry for JSONPath functions (RFC 9535).
- */
-export const functionRegistry = new Map<string, FunctionDefinition>();
-
-/**
- * Registers a function in the global registry.
- */
-export function registerFunction(definition: FunctionDefinition): void {
-	functionRegistry.set(definition.name, definition);
-}
-
-/**
- * Returns a function definition by name.
- */
-export function getFunction(name: string): FunctionDefinition | undefined {
-	return functionRegistry.get(name);
-}
-
-/**
- * Returns true if a function exists.
- */
-export function hasFunction(name: string): boolean {
-	return functionRegistry.has(name);
-}
-
-/**
- * Unregisters a function by name.
- */
-export function unregisterFunction(name: string): boolean {
-	return functionRegistry.delete(name);
-}
 
 /**
  * length(value) -> number

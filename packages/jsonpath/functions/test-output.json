@@ -24,7 +24,7 @@
 		"updated": 0,
 		"didUpdate": false
 	},
-	"startTime": 1767570729432,
+	"startTime": 1767571099766,
 	"success": true,
 	"testResults": [
 		{
@@ -34,7 +34,7 @@
 					"fullName": "Functions length() should return correct length",
 					"status": "passed",
 					"title": "length() should return correct length",
-					"duration": 0.5861670000000032,
+					"duration": 0.5865409999999969,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -43,7 +43,7 @@
 					"fullName": "Functions count() should return node count",
 					"status": "passed",
 					"title": "count() should return node count",
-					"duration": 0.09741700000000719,
+					"duration": 0.10083300000000861,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -52,7 +52,7 @@
 					"fullName": "Functions match() should perform full regex match",
 					"status": "passed",
 					"title": "match() should perform full regex match",
-					"duration": 0.16516699999999673,
+					"duration": 0.18974999999998943,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -61,7 +61,7 @@
 					"fullName": "Functions search() should perform partial regex match",
 					"status": "passed",
 					"title": "search() should perform partial regex match",
-					"duration": 0.08541599999999505,
+					"duration": 0.07908299999999713,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -70,7 +70,7 @@
 					"fullName": "Functions value() should extract single value",
 					"status": "passed",
 					"title": "value() should extract single value",
-					"duration": 0.09766700000000128,
+					"duration": 0.09254199999999457,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -79,7 +79,7 @@
 					"fullName": "Functions registers min/max/sum/avg",
 					"status": "passed",
 					"title": "registers min/max/sum/avg",
-					"duration": 0.15641699999999048,
+					"duration": 0.16995800000000827,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -88,13 +88,13 @@
 					"fullName": "Functions registers keys/type",
 					"status": "passed",
 					"title": "registers keys/type",
-					"duration": 0.3288750000000107,
+					"duration": 0.34233299999999645,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767570729555,
-			"endTime": 1767570729557.3289,
+			"startTime": 1767571099896,
+			"endTime": 1767571099898.3423,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/functions/src/__tests__/functions.spec.ts"

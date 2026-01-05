@@ -1,10 +1,10 @@
 {
-	"numTotalTestSuites": 73,
-	"numPassedTestSuites": 73,
+	"numTotalTestSuites": 75,
+	"numPassedTestSuites": 75,
 	"numFailedTestSuites": 0,
 	"numPendingTestSuites": 0,
-	"numTotalTests": 203,
-	"numPassedTests": 203,
+	"numTotalTests": 206,
+	"numPassedTests": 206,
 	"numFailedTests": 0,
 	"numPendingTests": 0,
 	"numTodoTests": 0,
@@ -24,7 +24,7 @@
 		"updated": 0,
 		"didUpdate": false
 	},
-	"startTime": 1767568292963,
+	"startTime": 1767571312125,
 	"success": true,
 	"testResults": [
 		{
@@ -34,7 +34,7 @@
 					"fullName": "DataMap Read API should resolve root pointer",
 					"status": "passed",
 					"title": "should resolve root pointer",
-					"duration": 5.968417000000045,
+					"duration": 2.3008330000000115,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -43,7 +43,7 @@
 					"fullName": "DataMap Read API should resolve simple pointers",
 					"status": "passed",
 					"title": "should resolve simple pointers",
-					"duration": 0.40374999999994543,
+					"duration": 0.40529199999997445,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -52,7 +52,7 @@
 					"fullName": "DataMap Read API should resolve JSONPath",
 					"status": "passed",
 					"title": "should resolve JSONPath",
-					"duration": 0.8922500000001037,
+					"duration": 2.272542000000044,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -61,7 +61,7 @@
 					"fullName": "DataMap Read API should return undefined for missing pointers in non-strict mode",
 					"status": "passed",
 					"title": "should return undefined for missing pointers in non-strict mode",
-					"duration": 0.13266700000008314,
+					"duration": 0.20087499999999636,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -70,7 +70,7 @@
 					"fullName": "DataMap Read API should throw for missing pointers in strict mode",
 					"status": "passed",
 					"title": "should throw for missing pointers in strict mode",
-					"duration": 0.6449159999999665,
+					"duration": 0.5291669999999726,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -79,7 +79,7 @@
 					"fullName": "DataMap Write API should set value via pointer",
 					"status": "passed",
 					"title": "should set value via pointer",
-					"duration": 0.8829579999999169,
+					"duration": 2.1054169999999885,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -88,7 +88,7 @@
 					"fullName": "DataMap Write API should set value via JSONPath",
 					"status": "passed",
 					"title": "should set value via JSONPath",
-					"duration": 0.5474589999998898,
+					"duration": 0.696207999999956,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -97,7 +97,7 @@
 					"fullName": "DataMap Write API should create missing containers on set",
 					"status": "passed",
 					"title": "should create missing containers on set",
-					"duration": 20.848250000000007,
+					"duration": 2.1028329999999755,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -106,7 +106,7 @@
 					"fullName": "DataMap Write API should support functional updates",
 					"status": "passed",
 					"title": "should support functional updates",
-					"duration": 0.21470799999997325,
+					"duration": 0.8892089999999939,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -115,7 +115,7 @@
 					"fullName": "DataMap Write API should setAll via JSONPath",
 					"status": "passed",
 					"title": "should setAll via JSONPath",
-					"duration": 0.7062090000001717,
+					"duration": 0.4860830000000078,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -124,7 +124,7 @@
 					"fullName": "DataMap Write API should map values",
 					"status": "passed",
 					"title": "should map values",
-					"duration": 0.379415999999992,
+					"duration": 0.34699999999998,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -133,7 +133,7 @@
 					"fullName": "DataMap Write API should apply raw patches",
 					"status": "passed",
 					"title": "should apply raw patches",
-					"duration": 0.11050000000000182,
+					"duration": 0.11537500000002865,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -142,7 +142,7 @@
 					"fullName": "DataMap Write API should generate patches without applying them",
 					"status": "passed",
 					"title": "should generate patches without applying them",
-					"duration": 0.13058300000011513,
+					"duration": 0.11929200000002993,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -151,7 +151,7 @@
 					"fullName": "DataMap Write API applies transformedValue returned by before-hook (AC-024)",
 					"status": "passed",
 					"title": "applies transformedValue returned by before-hook (AC-024)",
-					"duration": 0.37808399999994435,
+					"duration": 0.37483300000002373,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -160,7 +160,7 @@
 					"fullName": "DataMap Write API pipelines multiple before-hook transformations (AC-024)",
 					"status": "passed",
 					"title": "pipelines multiple before-hook transformations (AC-024)",
-					"duration": 1.5508749999999054,
+					"duration": 0.2333749999999668,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -169,7 +169,7 @@
 					"fullName": "DataMap Immutability should not mutate initial data",
 					"status": "passed",
 					"title": "should not mutate initial data",
-					"duration": 0.8526249999999891,
+					"duration": 0.09258299999999053,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -178,7 +178,7 @@
 					"fullName": "DataMap Immutability should return cloned snapshots",
 					"status": "passed",
 					"title": "should return cloned snapshots",
-					"duration": 0.7493329999999787,
+					"duration": 0.06404199999997218,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -187,7 +187,7 @@
 					"fullName": "DataMap Array API push() appends items",
 					"status": "passed",
 					"title": "push() appends items",
-					"duration": 0.9060000000001764,
+					"duration": 0.277499999999975,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -196,7 +196,7 @@
 					"fullName": "DataMap Array API pop() removes last item and returns it",
 					"status": "passed",
 					"title": "pop() removes last item and returns it",
-					"duration": 0.6033330000000205,
+					"duration": 0.23762499999998,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -205,7 +205,7 @@
 					"fullName": "DataMap Array API shift() removes first item and returns it",
 					"status": "passed",
 					"title": "shift() removes first item and returns it",
-					"duration": 4.033832999999959,
+					"duration": 0.15516700000000583,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -214,7 +214,7 @@
 					"fullName": "DataMap Array API unshift() prepends items",
 					"status": "passed",
 					"title": "unshift() prepends items",
-					"duration": 1.890292000000045,
+					"duration": 0.24950000000001182,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -223,7 +223,7 @@
 					"fullName": "DataMap Array API splice() removes and inserts items",
 					"status": "passed",
 					"title": "splice() removes and inserts items",
-					"duration": 6.4040410000000065,
+					"duration": 0.31579099999999016,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -232,7 +232,7 @@
 					"fullName": "DataMap Array API sort() reorders items",
 					"status": "passed",
 					"title": "sort() reorders items",
-					"duration": 0.20295800000008057,
+					"duration": 0.16816599999998516,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -241,7 +241,7 @@
 					"fullName": "DataMap Array API shuffle() randomizes items",
 					"status": "passed",
 					"title": "shuffle() randomizes items",
-					"duration": 1.2807920000000195,
+					"duration": 0.5522920000000227,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -250,7 +250,7 @@
 					"fullName": "DataMap Array API should generate patches for array methods",
 					"status": "passed",
 					"title": "should generate patches for array methods",
-					"duration": 0.11008399999991525,
+					"duration": 0.07770899999997027,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -259,7 +259,7 @@
 					"fullName": "DataMap clone() should clone with isolated subscriptions",
 					"status": "passed",
 					"title": "should clone with isolated subscriptions",
-					"duration": 0.24925000000007458,
+					"duration": 0.23612499999995862,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -268,7 +268,7 @@
 					"fullName": "DataMap clone() should preserve definitions in clone",
 					"status": "passed",
 					"title": "should preserve definitions in clone",
-					"duration": 0.22862499999996544,
+					"duration": 0.21895799999998644,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -277,7 +277,7 @@
 					"fullName": "DataMap strict mode should throw for relative pointers in strict mode",
 					"status": "passed",
 					"title": "should throw for relative pointers in strict mode",
-					"duration": 0.1243339999998625,
+					"duration": 0.13629100000002836,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -286,7 +286,7 @@
 					"fullName": "DataMap strict mode should return empty matches for relative pointers in non-strict mode",
 					"status": "passed",
 					"title": "should return empty matches for relative pointers in non-strict mode",
-					"duration": 0.03974999999991269,
+					"duration": 0.04229099999997743,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -295,7 +295,7 @@
 					"fullName": "DataMap error paths should handle get() with invalid JSONPath syntax (non-strict)",
 					"status": "passed",
 					"title": "should handle get() with invalid JSONPath syntax (non-strict)",
-					"duration": 0.11591700000008132,
+					"duration": 0.12691699999999173,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -304,7 +304,7 @@
 					"fullName": "DataMap error paths should throw for invalid JSONPath in strict mode",
 					"status": "passed",
 					"title": "should throw for invalid JSONPath in strict mode",
-					"duration": 0.08791599999995015,
+					"duration": 0.08687499999996362,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -313,7 +313,7 @@
 					"fullName": "DataMap transaction edge cases should not trigger notifications on transaction rollback",
 					"status": "passed",
 					"title": "should not trigger notifications on transaction rollback",
-					"duration": 0.3247080000001006,
+					"duration": 0.23237499999999045,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -322,7 +322,7 @@
 					"fullName": "DataMap transaction edge cases should allow nested transactions",
 					"status": "passed",
 					"title": "should allow nested transactions",
-					"duration": 1.3913330000000315,
+					"duration": 0.18375000000003183,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -331,7 +331,7 @@
 					"fullName": "DataMap batch edge cases should defer notifications within batch",
 					"status": "passed",
 					"title": "should defer notifications within batch",
-					"duration": 0.16837499999996908,
+					"duration": 1.4605419999999754,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -340,7 +340,7 @@
 					"fullName": "DataMap coverage edge cases swallows errors in patch when strict is false",
 					"status": "passed",
 					"title": "swallows errors in patch when strict is false",
-					"duration": 0.24870800000007875,
+					"duration": 0.4279589999999871,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -349,7 +349,7 @@
 					"fullName": "DataMap coverage edge cases cancels patch via subscription",
 					"status": "passed",
 					"title": "cancels patch via subscription",
-					"duration": 0.13437499999986358,
+					"duration": 0.17374999999998408,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -358,7 +358,7 @@
 					"fullName": "DataMap coverage edge cases set.toPatch creates patch for new pointer",
 					"status": "passed",
 					"title": "set.toPatch creates patch for new pointer",
-					"duration": 0.07216599999992468,
+					"duration": 0.08899999999999864,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -367,7 +367,7 @@
 					"fullName": "DataMap coverage edge cases pop.toPatch() returns operations without applying them",
 					"status": "passed",
 					"title": "pop.toPatch() returns operations without applying them",
-					"duration": 0.09433400000011716,
+					"duration": 0.11250000000001137,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -376,7 +376,7 @@
 					"fullName": "DataMap coverage edge cases shift.toPatch() returns operations without applying them",
 					"status": "passed",
 					"title": "shift.toPatch() returns operations without applying them",
-					"duration": 0.08104200000002493,
+					"duration": 0.08550000000002456,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -385,7 +385,7 @@
 					"fullName": "DataMap coverage edge cases splice.toPatch() returns operations without applying them",
 					"status": "passed",
 					"title": "splice.toPatch() returns operations without applying them",
-					"duration": 0.09212499999989632,
+					"duration": 0.09708299999999781,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -394,7 +394,7 @@
 					"fullName": "DataMap coverage edge cases clone() accepts options to override",
 					"status": "passed",
 					"title": "clone() accepts options to override",
-					"duration": 0.12508299999990413,
+					"duration": 0.07995900000003076,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -403,13 +403,13 @@
 					"fullName": "DataMap coverage edge cases batches multiple operations into a single notification cycle (AC-025)",
 					"status": "passed",
 					"title": "batches multiple operations into a single notification cycle (AC-025)",
-					"duration": 1.509999999999991,
+					"duration": 0.6820000000000164,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294102,
-			"endTime": 1767568294159.51,
+			"startTime": 1767571312497,
+			"endTime": 1767571312517.682,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/datamap.spec.ts"
@@ -421,7 +421,7 @@
 					"fullName": "error and negative cases handles get() with empty path as root pointer",
 					"status": "passed",
 					"title": "handles get() with empty path as root pointer",
-					"duration": 4.373125000000073,
+					"duration": 4.695499999999981,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -430,7 +430,7 @@
 					"fullName": "error and negative cases returns undefined for non-existent nested path (non-strict)",
 					"status": "passed",
 					"title": "returns undefined for non-existent nested path (non-strict)",
-					"duration": 0.28749999999990905,
+					"duration": 0.3227089999999748,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -439,7 +439,7 @@
 					"fullName": "error and negative cases throws for non-existent path in strict mode",
 					"status": "passed",
 					"title": "throws for non-existent path in strict mode",
-					"duration": 0.41270799999983865,
+					"duration": 0.425042000000019,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -448,7 +448,7 @@
 					"fullName": "error and negative cases handles patch on non-existent path in non-strict mode",
 					"status": "passed",
 					"title": "handles patch on non-existent path in non-strict mode",
-					"duration": 1.2485410000001593,
+					"duration": 0.5446249999999964,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -457,7 +457,7 @@
 					"fullName": "error and negative cases handles resolve() with fragment pointer",
 					"status": "passed",
 					"title": "handles resolve() with fragment pointer",
-					"duration": 1.032207999999855,
+					"duration": 0.3867089999999962,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -466,7 +466,7 @@
 					"fullName": "error and negative cases handles JSONPath with no matches gracefully",
 					"status": "passed",
 					"title": "handles JSONPath with no matches gracefully",
-					"duration": 2.0995410000000447,
+					"duration": 0.6059169999999767,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -475,7 +475,7 @@
 					"fullName": "error and negative cases subscription handler error does not prevent patch application",
 					"status": "passed",
 					"title": "subscription handler error does not prevent patch application",
-					"duration": 8.940624999999955,
+					"duration": 5.46245799999997,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -484,13 +484,13 @@
 					"fullName": "error and negative cases toJSON returns cloned data",
 					"status": "passed",
 					"title": "toJSON returns cloned data",
-					"duration": 0.15412499999979445,
+					"duration": 0.2775839999999903,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294103,
-			"endTime": 1767568294121.154,
+			"startTime": 1767571312498,
+			"endTime": 1767571312511.2776,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/__tests__/errors.spec.ts"
@@ -502,7 +502,7 @@
 					"fullName": "integration workflows supports read-modify-write cycle with subscriptions",
 					"status": "passed",
 					"title": "supports read-modify-write cycle with subscriptions",
-					"duration": 4.524042000000009,
+					"duration": 8.88354099999998,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -511,7 +511,7 @@
 					"fullName": "integration workflows supports patch preview via toPatch (no immediate mutation)",
 					"status": "passed",
 					"title": "supports patch preview via toPatch (no immediate mutation)",
-					"duration": 0.7392500000000837,
+					"duration": 0.2727499999999736,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -520,7 +520,7 @@
 					"fullName": "integration workflows handles deeply nested objects (10+ levels)",
 					"status": "passed",
 					"title": "handles deeply nested objects (10+ levels)",
-					"duration": 1.0440830000000005,
+					"duration": 0.39674999999999727,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -529,7 +529,7 @@
 					"fullName": "integration workflows maintains immutability across chained operations",
 					"status": "passed",
 					"title": "maintains immutability across chained operations",
-					"duration": 1.1554999999998472,
+					"duration": 0.7119579999999814,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -538,7 +538,7 @@
 					"fullName": "integration workflows combines JSONPath queries with subscriptions",
 					"status": "passed",
 					"title": "combines JSONPath queries with subscriptions",
-					"duration": 1.1866250000000491,
+					"duration": 1.6097910000000297,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -547,7 +547,7 @@
 					"fullName": "integration workflows supports equals() comparison between DataMaps",
 					"status": "passed",
 					"title": "supports equals() comparison between DataMaps",
-					"duration": 0.20545900000001893,
+					"duration": 0.7777909999999792,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -556,16 +556,52 @@
 					"fullName": "integration workflows supports extends() for partial matching",
 					"status": "passed",
 					"title": "supports extends() for partial matching",
-					"duration": 0.11950000000001637,
+					"duration": 0.1864999999999668,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294114,
-			"endTime": 1767568294123.2056,
+			"startTime": 1767571312495,
+			"endTime": 1767571312508.1865,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/__tests__/integration.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["json-p3 parity (compat-json-p3)"],
+					"fullName": "json-p3 parity (compat-json-p3) query values and pointers match common patterns",
+					"status": "passed",
+					"title": "query values and pointers match common patterns",
+					"duration": 2.4567499999999995,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["json-p3 parity (compat-json-p3)"],
+					"fullName": "json-p3 parity (compat-json-p3) JSONPointer resolve/exists match",
+					"status": "passed",
+					"title": "JSONPointer resolve/exists match",
+					"duration": 0.32474999999999454,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["json-p3 parity (compat-json-p3)"],
+					"fullName": "json-p3 parity (compat-json-p3) jsonpatch.apply mutates in place",
+					"status": "passed",
+					"title": "jsonpatch.apply mutates in place",
+					"duration": 0.45591699999999946,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767571312814,
+			"endTime": 1767571312817.4558,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/__tests__/jsonpath-integration.spec.ts"
 		},
 		{
 			"assertionResults": [
@@ -577,7 +613,7 @@
 					"fullName": "spec compliance REQ-001: json-p3 JSONPath behavior uses json-p3 semantics for JSONPath queries",
 					"status": "passed",
 					"title": "uses json-p3 semantics for JSONPath queries",
-					"duration": 1.8318750000000819,
+					"duration": 3.247875000000022,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -589,7 +625,7 @@
 					"fullName": "spec compliance REQ-001: json-p3 JSONPath behavior supports recursive descent",
 					"status": "passed",
 					"title": "supports recursive descent",
-					"duration": 0.36466699999994034,
+					"duration": 0.37883399999998346,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -601,7 +637,7 @@
 					"fullName": "spec compliance REQ-002: RFC6902 patch operations supports add operation",
 					"status": "passed",
 					"title": "supports add operation",
-					"duration": 0.59537499999999,
+					"duration": 1.2362919999999917,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -613,7 +649,7 @@
 					"fullName": "spec compliance REQ-002: RFC6902 patch operations supports remove operation",
 					"status": "passed",
 					"title": "supports remove operation",
-					"duration": 0.21133399999996527,
+					"duration": 0.49170799999996007,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -625,7 +661,7 @@
 					"fullName": "spec compliance REQ-002: RFC6902 patch operations supports replace operation",
 					"status": "passed",
 					"title": "supports replace operation",
-					"duration": 0.24825000000009823,
+					"duration": 0.27416600000003655,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -637,7 +673,7 @@
 					"fullName": "spec compliance REQ-002: RFC6902 patch operations supports copy operation",
 					"status": "passed",
 					"title": "supports copy operation",
-					"duration": 0.19000000000005457,
+					"duration": 0.19445799999999736,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -649,7 +685,7 @@
 					"fullName": "spec compliance REQ-002: RFC6902 patch operations supports move operation",
 					"status": "passed",
 					"title": "supports move operation",
-					"duration": 0.21708399999999983,
+					"duration": 0.3024169999999913,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -661,7 +697,7 @@
 					"fullName": "spec compliance REQ-002: RFC6902 patch operations supports test operation",
 					"status": "passed",
 					"title": "supports test operation",
-					"duration": 0.5580830000000105,
+					"duration": 1.6597909999999843,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -670,7 +706,7 @@
 					"fullName": "spec compliance REQ-003: Immutability does not mutate initial data",
 					"status": "passed",
 					"title": "does not mutate initial data",
-					"duration": 0.30254200000001674,
+					"duration": 0.40625,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -679,7 +715,7 @@
 					"fullName": "spec compliance REQ-003: Immutability returns cloned snapshots",
 					"status": "passed",
 					"title": "returns cloned snapshots",
-					"duration": 0.11649999999997362,
+					"duration": 0.11858399999999847,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -691,7 +727,7 @@
 					"fullName": "spec compliance REQ-004: Path interchangeability accepts JSON Pointer and JSONPath interchangeably for reads",
 					"status": "passed",
 					"title": "accepts JSON Pointer and JSONPath interchangeably for reads",
-					"duration": 0.14508299999999963,
+					"duration": 0.20283299999999826,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -700,7 +736,7 @@
 					"fullName": "spec compliance REQ-005: Path type detection classifies pointer vs relative-pointer vs jsonpath",
 					"status": "passed",
 					"title": "classifies pointer vs relative-pointer vs jsonpath",
-					"duration": 0.14866700000004585,
+					"duration": 0.4017499999999927,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -709,7 +745,7 @@
 					"fullName": "spec compliance REQ-006: Subscription system supports before/on/after stages",
 					"status": "passed",
 					"title": "supports before/on/after stages",
-					"duration": 0.3552079999999478,
+					"duration": 0.5065830000000346,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -718,232 +754,16 @@
 					"fullName": "spec compliance REQ-006: Subscription system supports unsubscribe",
 					"status": "passed",
 					"title": "supports unsubscribe",
-					"duration": 0.28454199999998764,
+					"duration": 0.4774590000000103,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294012,
-			"endTime": 1767568294018.2844,
+			"startTime": 1767571312466,
+			"endTime": 1767571312476.4775,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/__tests__/spec-compliance.spec.ts"
-		},
-		{
-			"assertionResults": [
-				{
-					"ancestorTitles": ["applyOperations"],
-					"fullName": "applyOperations applies operations to cloned data",
-					"status": "passed",
-					"title": "applies operations to cloned data",
-					"duration": 1.262124999999969,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["applyOperations"],
-					"fullName": "applyOperations computes affected pointers",
-					"status": "passed",
-					"title": "computes affected pointers",
-					"duration": 0.5752499999999827,
-					"failureMessages": [],
-					"meta": {}
-				}
-			],
-			"startTime": 1767568293843,
-			"endTime": 1767568293845.5752,
-			"status": "passed",
-			"message": "",
-			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/patch/apply.spec.ts"
-		},
-		{
-			"assertionResults": [
-				{
-					"ancestorTitles": ["patch/array", "buildPushPatch"],
-					"fullName": "patch/array buildPushPatch creates array when pushing to non-existent path",
-					"status": "passed",
-					"title": "creates array when pushing to non-existent path",
-					"duration": 1.0457079999999905,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildPushPatch"],
-					"fullName": "patch/array buildPushPatch appends items to existing array",
-					"status": "passed",
-					"title": "appends items to existing array",
-					"duration": 0.13341600000001108,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildPushPatch"],
-					"fullName": "patch/array buildPushPatch returns empty ops when pushing empty array",
-					"status": "passed",
-					"title": "returns empty ops when pushing empty array",
-					"duration": 0.0782090000000153,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildPopPatch"],
-					"fullName": "patch/array buildPopPatch returns empty ops and undefined for empty array",
-					"status": "passed",
-					"title": "returns empty ops and undefined for empty array",
-					"duration": 0.13199999999994816,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildPopPatch"],
-					"fullName": "patch/array buildPopPatch removes and returns last item",
-					"status": "passed",
-					"title": "removes and returns last item",
-					"duration": 0.1468330000000151,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildShiftPatch"],
-					"fullName": "patch/array buildShiftPatch returns empty ops and undefined for empty array",
-					"status": "passed",
-					"title": "returns empty ops and undefined for empty array",
-					"duration": 0.09199999999998454,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildShiftPatch"],
-					"fullName": "patch/array buildShiftPatch removes and returns first item",
-					"status": "passed",
-					"title": "removes and returns first item",
-					"duration": 0.08474999999998545,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildUnshiftPatch"],
-					"fullName": "patch/array buildUnshiftPatch creates array when unshifting to non-existent path",
-					"status": "passed",
-					"title": "creates array when unshifting to non-existent path",
-					"duration": 0.11691700000005767,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildUnshiftPatch"],
-					"fullName": "patch/array buildUnshiftPatch prepends items to existing array",
-					"status": "passed",
-					"title": "prepends items to existing array",
-					"duration": 0.08754199999998491,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildSplicePatch"],
-					"fullName": "patch/array buildSplicePatch handles splice with deleteCount exceeding length",
-					"status": "passed",
-					"title": "handles splice with deleteCount exceeding length",
-					"duration": 0.32895799999994324,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildSplicePatch"],
-					"fullName": "patch/array buildSplicePatch inserts items without removing",
-					"status": "passed",
-					"title": "inserts items without removing",
-					"duration": 0.10341699999992215,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildSplicePatch"],
-					"fullName": "patch/array buildSplicePatch removes and inserts items",
-					"status": "passed",
-					"title": "removes and inserts items",
-					"duration": 0.07120900000006714,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildSortPatch"],
-					"fullName": "patch/array buildSortPatch sorts with default comparator",
-					"status": "passed",
-					"title": "sorts with default comparator",
-					"duration": 0.08474999999998545,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildSortPatch"],
-					"fullName": "patch/array buildSortPatch sorts with custom comparator",
-					"status": "passed",
-					"title": "sorts with custom comparator",
-					"duration": 0.074416000000042,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildShufflePatch"],
-					"fullName": "patch/array buildShufflePatch uses custom RNG for deterministic shuffle",
-					"status": "passed",
-					"title": "uses custom RNG for deterministic shuffle",
-					"duration": 0.46066700000005767,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch/array", "buildShufflePatch"],
-					"fullName": "patch/array buildShufflePatch shuffles array (result has same elements)",
-					"status": "passed",
-					"title": "shuffles array (result has same elements)",
-					"duration": 0.11950000000001637,
-					"failureMessages": [],
-					"meta": {}
-				}
-			],
-			"startTime": 1767568293890,
-			"endTime": 1767568293893.4607,
-			"status": "passed",
-			"message": "",
-			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/patch/array.spec.ts"
-		},
-		{
-			"assertionResults": [
-				{
-					"ancestorTitles": ["patch builder"],
-					"fullName": "patch builder generates replace when path exists",
-					"status": "passed",
-					"title": "generates replace when path exists",
-					"duration": 1.0319999999999254,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch builder"],
-					"fullName": "patch builder generates add with intermediate containers",
-					"status": "passed",
-					"title": "generates add with intermediate containers",
-					"duration": 0.20770900000002257,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["patch builder"],
-					"fullName": "patch builder infers arrays for numeric segments",
-					"status": "passed",
-					"title": "infers arrays for numeric segments",
-					"duration": 0.25704099999995833,
-					"failureMessages": [],
-					"meta": {}
-				}
-			],
-			"startTime": 1767568294688,
-			"endTime": 1767568294689.257,
-			"status": "passed",
-			"message": "",
-			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/patch/builder.spec.ts"
 		},
 		{
 			"assertionResults": [
@@ -952,7 +772,7 @@
 					"fullName": "batching and transactions defers notifications until the end of a batch",
 					"status": "passed",
 					"title": "defers notifications until the end of a batch",
-					"duration": 2.649583000000007,
+					"duration": 3.0051670000000286,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -961,7 +781,7 @@
 					"fullName": "batching and transactions handles nested batches correctly",
 					"status": "passed",
 					"title": "handles nested batches correctly",
-					"duration": 0.5655000000000427,
+					"duration": 0.5621659999999906,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -970,13 +790,13 @@
 					"fullName": "batching and transactions rolls back on transaction error",
 					"status": "passed",
 					"title": "rolls back on transaction error",
-					"duration": 0.26966699999991306,
+					"duration": 0.2814159999999788,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294012,
-			"endTime": 1767568294016.2698,
+			"startTime": 1767571312464,
+			"endTime": 1767571312468.2815,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/batch/batch.spec.ts"
@@ -984,353 +804,119 @@
 		{
 			"assertionResults": [
 				{
-					"ancestorTitles": ["dynamic subscriptions"],
-					"fullName": "dynamic subscriptions notifies when a matching pointer changes",
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions applies getter transform",
 					"status": "passed",
-					"title": "notifies when a matching pointer changes",
-					"duration": 3.243707999999998,
+					"title": "applies getter transform",
+					"duration": 1.4346669999999904,
 					"failureMessages": [],
 					"meta": {}
 				},
 				{
-					"ancestorTitles": ["dynamic subscriptions"],
-					"fullName": "dynamic subscriptions re-expands on structural changes and notifies added matches",
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions applies setter transform",
 					"status": "passed",
-					"title": "re-expands on structural changes and notifies added matches",
-					"duration": 0.6932079999999985,
+					"title": "applies setter transform",
+					"duration": 0.7232920000000149,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions enforces readOnly",
+					"status": "passed",
+					"title": "enforces readOnly",
+					"duration": 0.4527079999999728,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions registers multiple definitions targeting the same pointer (chained getters)",
+					"status": "passed",
+					"title": "registers multiple definitions targeting the same pointer (chained getters)",
+					"duration": 0.13845900000001166,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions registers JSONPath definitions (path) and matches computed pointers",
+					"status": "passed",
+					"title": "registers JSONPath definitions (path) and matches computed pointers",
+					"duration": 0.5155000000000314,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions supports getter with explicit deps array",
+					"status": "passed",
+					"title": "supports getter with explicit deps array",
+					"duration": 0.327083000000016,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions supports setter with explicit deps array",
+					"status": "passed",
+					"title": "supports setter with explicit deps array",
+					"duration": 0.5054170000000227,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions applies defaultValue into underlying data (AC-003)",
+					"status": "passed",
+					"title": "applies defaultValue into underlying data (AC-003)",
+					"duration": 0.8500839999999812,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions does not invoke getters during construction when defaultValue exists (AC-003)",
+					"status": "passed",
+					"title": "does not invoke getters during construction when defaultValue exists (AC-003)",
+					"duration": 0.18416600000000471,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions caches getter results when deps are declared",
+					"status": "passed",
+					"title": "caches getter results when deps are declared",
+					"duration": 0.487041999999974,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions manual invalidation forces recomputation",
+					"status": "passed",
+					"title": "manual invalidation forces recomputation",
+					"duration": 0.21758299999999053,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["definitions"],
+					"fullName": "definitions auto-invalidates when dependencies change (AC-031)",
+					"status": "passed",
+					"title": "auto-invalidates when dependencies change (AC-031)",
+					"duration": 0.35241700000000264,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294098,
-			"endTime": 1767568294101.693,
+			"startTime": 1767571312464,
+			"endTime": 1767571312470.3525,
 			"status": "passed",
 			"message": "",
-			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/subscription/dynamic.spec.ts"
-		},
-		{
-			"assertionResults": [
-				{
-					"ancestorTitles": ["subscription events"],
-					"fullName": "subscription events treats 'set' as an alias for 'patch' for stage selection",
-					"status": "passed",
-					"title": "treats 'set' as an alias for 'patch' for stage selection",
-					"duration": 2.5938340000000153,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["subscription events"],
-					"fullName": "subscription events supports multiple event types in single subscription",
-					"status": "passed",
-					"title": "supports multiple event types in single subscription",
-					"duration": 0.9098749999999427,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["subscription events"],
-					"fullName": "subscription events receives operation info in event",
-					"status": "passed",
-					"title": "receives operation info in event",
-					"duration": 0.30283299999996416,
-					"failureMessages": [],
-					"meta": {}
-				}
-			],
-			"startTime": 1767568294690,
-			"endTime": 1767568294693.3027,
-			"status": "passed",
-			"message": "",
-			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/subscription/events.spec.ts"
-		},
-		{
-			"assertionResults": [
-				{
-					"ancestorTitles": ["subscription manager"],
-					"fullName": "subscription manager returns subscription with id and query",
-					"status": "passed",
-					"title": "returns subscription with id and query",
-					"duration": 1.4261250000001837,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["subscription manager"],
-					"fullName": "subscription manager cleans up on unsubscribe (no further notifications)",
-					"status": "passed",
-					"title": "cleans up on unsubscribe (no further notifications)",
-					"duration": 7.950790999999981,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["subscription manager"],
-					"fullName": "subscription manager tracks isDynamic for wildcard patterns",
-					"status": "passed",
-					"title": "tracks isDynamic for wildcard patterns",
-					"duration": 1.1473749999997835,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["subscription manager"],
-					"fullName": "subscription manager tracks isDynamic=false for static pointers",
-					"status": "passed",
-					"title": "tracks isDynamic=false for static pointers",
-					"duration": 0.12754199999994853,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["subscription manager"],
-					"fullName": "subscription manager getMatchingSubscriptions returns both static and dynamic matches",
-					"status": "passed",
-					"title": "getMatchingSubscriptions returns both static and dynamic matches",
-					"duration": 0.4206669999998667,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["subscription manager"],
-					"fullName": "subscription manager delivers on/after notifications asynchronously (REQ-016)",
-					"status": "passed",
-					"title": "delivers on/after notifications asynchronously (REQ-016)",
-					"duration": 0.5889999999999418,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["subscription manager"],
-					"fullName": "subscription manager re-expands filter subscriptions when criteria changes (AC-027)",
-					"status": "passed",
-					"title": "re-expands filter subscriptions when criteria changes (AC-027)",
-					"duration": 1.1159159999999702,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["subscription manager"],
-					"fullName": "subscription manager fires get and resolve events (Step 10)",
-					"status": "passed",
-					"title": "fires get and resolve events (Step 10)",
-					"duration": 1.693875000000162,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["subscription manager"],
-					"fullName": "subscription manager supports read interception via get:before (Step 10)",
-					"status": "passed",
-					"title": "supports read interception via get:before (Step 10)",
-					"duration": 0.1697079999999005,
-					"failureMessages": [],
-					"meta": {}
-				}
-			],
-			"startTime": 1767568294109,
-			"endTime": 1767568294137.6938,
-			"status": "passed",
-			"message": "",
-			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/subscription/manager.spec.ts"
-		},
-		{
-			"assertionResults": [
-				{
-					"ancestorTitles": ["static subscriptions"],
-					"fullName": "static subscriptions notifies on patch stages",
-					"status": "passed",
-					"title": "notifies on patch stages",
-					"duration": 1.890875000000051,
-					"failureMessages": [],
-					"meta": {}
-				}
-			],
-			"startTime": 1767568294640,
-			"endTime": 1767568294641.8909,
-			"status": "passed",
-			"message": "",
-			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/subscription/static.spec.ts"
-		},
-		{
-			"assertionResults": [
-				{
-					"ancestorTitles": ["pointer utils"],
-					"fullName": "pointer utils escapes and unescapes",
-					"status": "passed",
-					"title": "escapes and unescapes",
-					"duration": 1.3781659999999647,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["pointer utils"],
-					"fullName": "pointer utils parses pointers",
-					"status": "passed",
-					"title": "parses pointers",
-					"duration": 0.4980000000000473,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["pointer utils"],
-					"fullName": "pointer utils builds pointers",
-					"status": "passed",
-					"title": "builds pointers",
-					"duration": 0.11079200000000355,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["pointer utils"],
-					"fullName": "pointer utils roundtrips fragment pointers to non-fragment",
-					"status": "passed",
-					"title": "roundtrips fragment pointers to non-fragment",
-					"duration": 0.22524999999995998,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["pointer utils"],
-					"fullName": "pointer utils throws for invalid pointers (not starting with / or #)",
-					"status": "passed",
-					"title": "throws for invalid pointers (not starting with / or #)",
-					"duration": 1.1991669999999885,
-					"failureMessages": [],
-					"meta": {}
-				}
-			],
-			"startTime": 1767568294593,
-			"endTime": 1767568294597.1992,
-			"status": "passed",
-			"message": "",
-			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/utils/pointer.spec.ts"
-		},
-		{
-			"assertionResults": [
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepEqual works",
-					"status": "passed",
-					"title": "deepEqual works",
-					"duration": 1.5673339999999598,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepExtends works",
-					"status": "passed",
-					"title": "deepExtends works",
-					"duration": 0.28062499999998636,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities DataMap snapshots are immutable clones",
-					"status": "passed",
-					"title": "DataMap snapshots are immutable clones",
-					"duration": 1.216666000000032,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepEqual compares null vs undefined",
-					"status": "passed",
-					"title": "deepEqual compares null vs undefined",
-					"duration": 0.123958000000016,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepEqual compares empty objects and arrays",
-					"status": "passed",
-					"title": "deepEqual compares empty objects and arrays",
-					"duration": 0.1009159999999838,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepEqual compares Date objects",
-					"status": "passed",
-					"title": "deepEqual compares Date objects",
-					"duration": 0.061916999999994005,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepEqual compares RegExp objects",
-					"status": "passed",
-					"title": "deepEqual compares RegExp objects",
-					"duration": 0.08066699999994853,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepEqual handles circular references",
-					"status": "passed",
-					"title": "deepEqual handles circular references",
-					"duration": 0.06074999999998454,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepExtends returns false when partial array is longer",
-					"status": "passed",
-					"title": "deepExtends returns false when partial array is longer",
-					"duration": 0.04874999999992724,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepExtends returns true for undefined partial",
-					"status": "passed",
-					"title": "deepExtends returns true for undefined partial",
-					"duration": 0.059833000000026004,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepExtends returns false for non-object target when partial is object",
-					"status": "passed",
-					"title": "deepExtends returns false for non-object target when partial is object",
-					"duration": 0.03854200000000674,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepExtends returns false for non-array target when partial is array",
-					"status": "passed",
-					"title": "deepExtends returns false for non-array target when partial is array",
-					"duration": 0.04549999999994725,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["utilities"],
-					"fullName": "utilities deepExtends returns false when partial key is missing in target",
-					"status": "passed",
-					"title": "deepExtends returns false when partial key is missing in target",
-					"duration": 0.033332999999970525,
-					"failureMessages": [],
-					"meta": {}
-				}
-			],
-			"startTime": 1767568294662,
-			"endTime": 1767568294666.0608,
-			"status": "passed",
-			"message": "",
-			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/utils/util.spec.ts"
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/definitions/definitions.spec.ts"
 		},
 		{
 			"assertionResults": [
@@ -1339,7 +925,7 @@
 					"fullName": "compilePathPattern compiles wildcard patterns",
 					"status": "passed",
 					"title": "compiles wildcard patterns",
-					"duration": 2.1678750000000093,
+					"duration": 2.015250000000009,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1348,7 +934,7 @@
 					"fullName": "compilePathPattern compiles slice patterns",
 					"status": "passed",
 					"title": "compiles slice patterns",
-					"duration": 0.14262499999998113,
+					"duration": 0.30237500000001205,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1357,7 +943,7 @@
 					"fullName": "compilePathPattern caches patterns",
 					"status": "passed",
 					"title": "caches patterns",
-					"duration": 0.06633299999998599,
+					"duration": 0.08245800000000258,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1366,7 +952,7 @@
 					"fullName": "compilePathPattern expand returns empty for non-object data when expecting static segment",
 					"status": "passed",
 					"title": "expand returns empty for non-object data when expecting static segment",
-					"duration": 0.17145800000000122,
+					"duration": 0.19187500000001023,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1375,7 +961,7 @@
 					"fullName": "compilePathPattern serializes to JSON via toJSON() (REQ-026)",
 					"status": "passed",
 					"title": "serializes to JSON via toJSON() (REQ-026)",
-					"duration": 0.30920800000001236,
+					"duration": 0.3340829999999926,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1384,7 +970,7 @@
 					"fullName": "compilePathPattern toJSON() covers recursive segment serialization",
 					"status": "passed",
 					"title": "toJSON() covers recursive segment serialization",
-					"duration": 0.07166699999999082,
+					"duration": 0.07587499999999636,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1393,13 +979,13 @@
 					"fullName": "compilePathPattern toJSON source round-trips behavior (REQ-026)",
 					"status": "passed",
 					"title": "toJSON source round-trips behavior (REQ-026)",
-					"duration": 0.14545899999998824,
+					"duration": 0.15779100000000312,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568293995,
-			"endTime": 1767568293998.1455,
+			"startTime": 1767571312631,
+			"endTime": 1767571312634.334,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/path/compile.spec.ts"
@@ -1411,7 +997,7 @@
 					"fullName": "DataMap Coverage Edge Cases resolve relative-pointer strict error",
 					"status": "passed",
 					"title": "resolve relative-pointer strict error",
-					"duration": 0.9702079999999569,
+					"duration": 2.188374999999951,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1420,7 +1006,7 @@
 					"fullName": "DataMap Coverage Edge Cases get non-existent pointer strict error",
 					"status": "passed",
 					"title": "get non-existent pointer strict error",
-					"duration": 0.27408300000001873,
+					"duration": 0.30487499999998136,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1429,7 +1015,7 @@
 					"fullName": "DataMap Coverage Edge Cases set non-existent path strict error",
 					"status": "passed",
 					"title": "set non-existent path strict error",
-					"duration": 0.5104579999999714,
+					"duration": 0.5392080000000306,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1438,7 +1024,7 @@
 					"fullName": "DataMap Coverage Edge Cases setAll non-existent path strict error",
 					"status": "passed",
 					"title": "setAll non-existent path strict error",
-					"duration": 0.2060829999999214,
+					"duration": 0.18495799999999463,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1447,7 +1033,7 @@
 					"fullName": "DataMap Coverage Edge Cases map non-existent path strict error",
 					"status": "passed",
 					"title": "map non-existent path strict error",
-					"duration": 0.15716699999995853,
+					"duration": 0.15275000000002592,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1456,7 +1042,7 @@
 					"fullName": "DataMap Coverage Edge Cases patch cancelled by subscription",
 					"status": "passed",
 					"title": "patch cancelled by subscription",
-					"duration": 0.7188750000000255,
+					"duration": 0.7539579999999546,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1465,7 +1051,7 @@
 					"fullName": "DataMap Coverage Edge Cases batch error handling",
 					"status": "passed",
 					"title": "batch error handling",
-					"duration": 0.13837499999999636,
+					"duration": 0.14474999999998772,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1474,7 +1060,7 @@
 					"fullName": "DataMap Coverage Edge Cases getSnapshot coverage",
 					"status": "passed",
 					"title": "getSnapshot coverage",
-					"duration": 0.29312499999991815,
+					"duration": 0.2887920000000008,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1483,7 +1069,7 @@
 					"fullName": "DataMap Coverage Edge Cases extends coverage",
 					"status": "passed",
 					"title": "extends coverage",
-					"duration": 0.2804159999999456,
+					"duration": 0.27224999999998545,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1492,7 +1078,7 @@
 					"fullName": "DataMap Coverage Edge Cases patch error in strict mode",
 					"status": "passed",
 					"title": "patch error in strict mode",
-					"duration": 0.2655419999999822,
+					"duration": 0.28487499999999955,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1501,7 +1087,7 @@
 					"fullName": "DataMap Coverage Edge Cases registry getDepValues coverage",
 					"status": "passed",
 					"title": "registry getDepValues coverage",
-					"duration": 0.12291700000002947,
+					"duration": 0.7515000000000214,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1510,7 +1096,7 @@
 					"fullName": "Path Compiler Coverage Edge Cases wildcard on object expand",
 					"status": "passed",
 					"title": "wildcard on object expand",
-					"duration": 0.33587500000010095,
+					"duration": 0.6718329999999924,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1519,7 +1105,7 @@
 					"fullName": "Path Compiler Coverage Edge Cases wildcard on non-object expand",
 					"status": "passed",
 					"title": "wildcard on non-object expand",
-					"duration": 0.046542000000044936,
+					"duration": 0.05770799999999099,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1528,7 +1114,7 @@
 					"fullName": "Path Compiler Coverage Edge Cases recursive on array expand",
 					"status": "passed",
 					"title": "recursive on array expand",
-					"duration": 0.44287500000007185,
+					"duration": 2.703125,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1537,7 +1123,7 @@
 					"fullName": "Path Compiler Coverage Edge Cases slice with defaults",
 					"status": "passed",
 					"title": "slice with defaults",
-					"duration": 0.11941600000000108,
+					"duration": 0.4269170000000031,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1546,7 +1132,7 @@
 					"fullName": "Path Compiler Coverage Edge Cases slice with step",
 					"status": "passed",
 					"title": "slice with step",
-					"duration": 0.07087500000000091,
+					"duration": 0.118583000000001,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1555,7 +1141,7 @@
 					"fullName": "Path Compiler Coverage Edge Cases invalid JSONPath",
 					"status": "passed",
 					"title": "invalid JSONPath",
-					"duration": 0.06900000000007367,
+					"duration": 0.0822909999999979,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1564,7 +1150,7 @@
 					"fullName": "Path Compiler Coverage Edge Cases recursive descent edge cases",
 					"status": "passed",
 					"title": "recursive descent edge cases",
-					"duration": 0.16579200000001038,
+					"duration": 1.5854160000000093,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1573,7 +1159,7 @@
 					"fullName": "Path Compiler Coverage Edge Cases invalid filter",
 					"status": "passed",
 					"title": "invalid filter",
-					"duration": 0.07137499999998909,
+					"duration": 0.5030419999999935,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1582,7 +1168,7 @@
 					"fullName": "Path Compiler Coverage Edge Cases index mismatch reasons",
 					"status": "passed",
 					"title": "index mismatch reasons",
-					"duration": 0.18079199999999673,
+					"duration": 0.6728750000000332,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1591,7 +1177,7 @@
 					"fullName": "Path Compiler Coverage Edge Cases slice mismatch reasons",
 					"status": "passed",
 					"title": "slice mismatch reasons",
-					"duration": 0.11229100000002745,
+					"duration": 0.1553339999999821,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1600,7 +1186,7 @@
 					"fullName": "Subscription Manager Coverage Edge Cases unsubscribe edge cases",
 					"status": "passed",
 					"title": "unsubscribe edge cases",
-					"duration": 0.16320900000005167,
+					"duration": 3.0112909999999715,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1609,7 +1195,7 @@
 					"fullName": "Subscription Manager Coverage Edge Cases reexpand dynamic subscriptions",
 					"status": "passed",
 					"title": "reexpand dynamic subscriptions",
-					"duration": 0.7817919999999958,
+					"duration": 2.4933749999999577,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1618,7 +1204,7 @@
 					"fullName": "Array Patch Coverage Edge Cases buildPushPatch empty items non-existent",
 					"status": "passed",
 					"title": "buildPushPatch empty items non-existent",
-					"duration": 0.05962499999998272,
+					"duration": 0.1267909999999688,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1627,7 +1213,7 @@
 					"fullName": "Array Patch Coverage Edge Cases buildUnshiftPatch empty items non-existent",
 					"status": "passed",
 					"title": "buildUnshiftPatch empty items non-existent",
-					"duration": 0.06141700000000583,
+					"duration": 0.16637500000001637,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1636,7 +1222,7 @@
 					"fullName": "Array Patch Coverage Edge Cases buildSplicePatch empty items non-existent",
 					"status": "passed",
 					"title": "buildSplicePatch empty items non-existent",
-					"duration": 0.06529199999999946,
+					"duration": 0.10804200000001174,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1645,7 +1231,7 @@
 					"fullName": "Array Patch Coverage Edge Cases buildSplicePatch start out of range",
 					"status": "passed",
 					"title": "buildSplicePatch start out of range",
-					"duration": 0.04949999999996635,
+					"duration": 0.06625000000002501,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1654,7 +1240,7 @@
 					"fullName": "Utility Coverage Edge Cases deepEqual circular reference",
 					"status": "passed",
 					"title": "deepEqual circular reference",
-					"duration": 0.04620900000008987,
+					"duration": 0.2862089999999853,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1663,7 +1249,7 @@
 					"fullName": "Utility Coverage Edge Cases deepExtends edge cases",
 					"status": "passed",
 					"title": "deepExtends edge cases",
-					"duration": 0.07266700000002402,
+					"duration": 0.1220000000000141,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1672,13 +1258,13 @@
 					"fullName": "Utility Coverage Edge Cases patch builder empty path",
 					"status": "passed",
 					"title": "patch builder empty path",
-					"duration": 0.0659170000000131,
+					"duration": 0.09483399999999165,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294015,
-			"endTime": 1767568294022.0728,
+			"startTime": 1767571312464,
+			"endTime": 1767571312484.2861,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/path/coverage.spec.ts"
@@ -1690,7 +1276,7 @@
 					"fullName": "detectPathType detects pointer",
 					"status": "passed",
 					"title": "detects pointer",
-					"duration": 2.181332999999995,
+					"duration": 1.1158749999999884,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1699,7 +1285,7 @@
 					"fullName": "detectPathType detects relative-pointer",
 					"status": "passed",
 					"title": "detects relative-pointer",
-					"duration": 0.49787499999990814,
+					"duration": 0.16687500000000455,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1708,13 +1294,13 @@
 					"fullName": "detectPathType detects jsonpath",
 					"status": "passed",
 					"title": "detects jsonpath",
-					"duration": 0.12487499999997453,
+					"duration": 0.09475000000000477,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568293758,
-			"endTime": 1767568293761.1248,
+			"startTime": 1767571312643,
+			"endTime": 1767571312644.167,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/path/detect.spec.ts"
@@ -1726,7 +1312,7 @@
 					"fullName": "CompiledPathPattern.expand (non-recursive) expands wildcard patterns",
 					"status": "passed",
 					"title": "expands wildcard patterns",
-					"duration": 1.5677090000000362,
+					"duration": 1.133291999999983,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1735,13 +1321,13 @@
 					"fullName": "CompiledPathPattern.expand (non-recursive) expands slice patterns",
 					"status": "passed",
 					"title": "expands slice patterns",
-					"duration": 0.14975000000004002,
+					"duration": 0.12774999999999181,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294661,
-			"endTime": 1767568294663.1497,
+			"startTime": 1767571312687,
+			"endTime": 1767571312689.1277,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/path/expand.spec.ts"
@@ -1753,7 +1339,7 @@
 					"fullName": "path filter expressions expands filter expressions with boolean comparison",
 					"status": "passed",
 					"title": "expands filter expressions with boolean comparison",
-					"duration": 1.9493749999999181,
+					"duration": 1.7741660000000081,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1762,7 +1348,7 @@
 					"fullName": "path filter expressions handles numeric comparison in filters",
 					"status": "passed",
 					"title": "handles numeric comparison in filters",
-					"duration": 0.17495900000005804,
+					"duration": 1.0688749999999914,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1771,7 +1357,7 @@
 					"fullName": "path filter expressions handles logical AND in filters",
 					"status": "passed",
 					"title": "handles logical AND in filters",
-					"duration": 0.12962500000003274,
+					"duration": 0.5389169999999979,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1780,7 +1366,7 @@
 					"fullName": "path filter expressions handles logical OR in filters",
 					"status": "passed",
 					"title": "handles logical OR in filters",
-					"duration": 0.21679199999994125,
+					"duration": 0.41116599999998016,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1789,7 +1375,7 @@
 					"fullName": "path filter expressions handles negation in filters",
 					"status": "passed",
 					"title": "handles negation in filters",
-					"duration": 0.157416000000012,
+					"duration": 0.32337499999999864,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1798,7 +1384,7 @@
 					"fullName": "path filter expressions returns empty for non-matching filter",
 					"status": "passed",
 					"title": "returns empty for non-matching filter",
-					"duration": 0.08904200000006313,
+					"duration": 0.25470800000002214,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1807,7 +1393,7 @@
 					"fullName": "path filter expressions supports slice with step",
 					"status": "passed",
 					"title": "supports slice with step",
-					"duration": 0.091666000000032,
+					"duration": 0.24837500000001,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1816,13 +1402,13 @@
 					"fullName": "path filter expressions supports recursive descent with objects and arrays",
 					"status": "passed",
 					"title": "supports recursive descent with objects and arrays",
-					"duration": 0.6525000000000318,
+					"duration": 1.5870000000000175,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294657,
-			"endTime": 1767568294660.6526,
+			"startTime": 1767571312644,
+			"endTime": 1767571312650.587,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/path/filter.spec.ts"
@@ -1834,7 +1420,7 @@
 					"fullName": "CompiledPathPattern.match (non-recursive) matches wildcard pattern",
 					"status": "passed",
 					"title": "matches wildcard pattern",
-					"duration": 0.9427500000000464,
+					"duration": 1.1492910000000052,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1843,7 +1429,7 @@
 					"fullName": "CompiledPathPattern.match (non-recursive) matches slice pattern",
 					"status": "passed",
 					"title": "matches slice pattern",
-					"duration": 0.18233300000002828,
+					"duration": 0.2559579999999926,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1852,7 +1438,7 @@
 					"fullName": "CompiledPathPattern.match (non-recursive) matches slice with non-index pointer",
 					"status": "passed",
 					"title": "matches slice with non-index pointer",
-					"duration": 0.08300000000002683,
+					"duration": 0.19054200000002197,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1861,7 +1447,7 @@
 					"fullName": "CompiledPathPattern.match (non-recursive) matches recursive descent with mismatch",
 					"status": "passed",
 					"title": "matches recursive descent with mismatch",
-					"duration": 0.09712499999994861,
+					"duration": 0.14108300000000895,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1870,13 +1456,13 @@
 					"fullName": "CompiledPathPattern.match (non-recursive) matches recursive descent with empty remaining segments",
 					"status": "passed",
 					"title": "matches recursive descent with empty remaining segments",
-					"duration": 0.0747079999999869,
+					"duration": 0.27512500000000273,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294702,
-			"endTime": 1767568294704.0972,
+			"startTime": 1767571312639,
+			"endTime": 1767571312640.2751,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/path/match.spec.ts"
@@ -1888,7 +1474,7 @@
 					"fullName": "compilePredicate compiles simple comparisons",
 					"status": "passed",
 					"title": "compiles simple comparisons",
-					"duration": 1.0476249999999823,
+					"duration": 0.665458000000001,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1897,7 +1483,7 @@
 					"fullName": "compilePredicate compiles logical composition",
 					"status": "passed",
 					"title": "compiles logical composition",
-					"duration": 0.16429099999999153,
+					"duration": 0.11179199999999412,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1906,7 +1492,7 @@
 					"fullName": "compilePredicate compiles match()",
 					"status": "passed",
 					"title": "compiles match()",
-					"duration": 0.162208000000021,
+					"duration": 0.33329200000000014,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1915,13 +1501,13 @@
 					"fullName": "compilePredicate caches predicates",
 					"status": "passed",
 					"title": "caches predicates",
-					"duration": 0.06966699999998127,
+					"duration": 0.09637499999999477,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294681,
-			"endTime": 1767568294682.1643,
+			"startTime": 1767571312735,
+			"endTime": 1767571312736.3333,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/path/predicate.spec.ts"
@@ -1933,7 +1519,7 @@
 					"fullName": "Recursive Descent Matching ($..) should match $..price against all price pointers",
 					"status": "passed",
 					"title": "should match $..price against all price pointers",
-					"duration": 1.0272500000000093,
+					"duration": 1.9522090000000105,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1942,7 +1528,7 @@
 					"fullName": "Recursive Descent Matching ($..) should match $..book[*] against book array elements",
 					"status": "passed",
 					"title": "should match $..book[*] against book array elements",
-					"duration": 0.1452910000000145,
+					"duration": 0.1425830000000019,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1951,7 +1537,7 @@
 					"fullName": "Recursive Descent Matching ($..) should expand $..price correctly",
 					"status": "passed",
 					"title": "should expand $..price correctly",
-					"duration": 0.6074579999999798,
+					"duration": 0.9792500000000075,
 					"failureMessages": [],
 					"meta": {}
 				},
@@ -1960,13 +1546,13 @@
 					"fullName": "Recursive Descent Matching ($..) should expand $..book[0].title",
 					"status": "passed",
 					"title": "should expand $..book[0].title",
-					"duration": 0.3632080000000144,
+					"duration": 0.3996670000000222,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294111,
-			"endTime": 1767568294113.3633,
+			"startTime": 1767571312667,
+			"endTime": 1767571312670.3997,
 			"status": "passed",
 			"message": "",
 			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/path/recursive.spec.ts"
@@ -1974,119 +1560,569 @@
 		{
 			"assertionResults": [
 				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions applies getter transform",
+					"ancestorTitles": ["applyOperations"],
+					"fullName": "applyOperations applies operations to cloned data",
 					"status": "passed",
-					"title": "applies getter transform",
-					"duration": 2.9757079999999405,
+					"title": "applies operations to cloned data",
+					"duration": 1.840332999999987,
 					"failureMessages": [],
 					"meta": {}
 				},
 				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions applies setter transform",
+					"ancestorTitles": ["applyOperations"],
+					"fullName": "applyOperations computes affected pointers",
 					"status": "passed",
-					"title": "applies setter transform",
-					"duration": 2.0612919999999804,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions enforces readOnly",
-					"status": "passed",
-					"title": "enforces readOnly",
-					"duration": 0.7287919999999986,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions registers multiple definitions targeting the same pointer (chained getters)",
-					"status": "passed",
-					"title": "registers multiple definitions targeting the same pointer (chained getters)",
-					"duration": 0.17824999999993452,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions registers JSONPath definitions (path) and matches computed pointers",
-					"status": "passed",
-					"title": "registers JSONPath definitions (path) and matches computed pointers",
-					"duration": 0.5258330000000342,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions supports getter with explicit deps array",
-					"status": "passed",
-					"title": "supports getter with explicit deps array",
-					"duration": 0.3378339999999298,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions supports setter with explicit deps array",
-					"status": "passed",
-					"title": "supports setter with explicit deps array",
-					"duration": 0.231708000000026,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions applies defaultValue into underlying data (AC-003)",
-					"status": "passed",
-					"title": "applies defaultValue into underlying data (AC-003)",
-					"duration": 0.5127919999999904,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions does not invoke getters during construction when defaultValue exists (AC-003)",
-					"status": "passed",
-					"title": "does not invoke getters during construction when defaultValue exists (AC-003)",
-					"duration": 0.16191700000001674,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions caches getter results when deps are declared",
-					"status": "passed",
-					"title": "caches getter results when deps are declared",
-					"duration": 0.2944589999999607,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions manual invalidation forces recomputation",
-					"status": "passed",
-					"title": "manual invalidation forces recomputation",
-					"duration": 0.23250000000007276,
-					"failureMessages": [],
-					"meta": {}
-				},
-				{
-					"ancestorTitles": ["definitions"],
-					"fullName": "definitions auto-invalidates when dependencies change (AC-031)",
-					"status": "passed",
-					"title": "auto-invalidates when dependencies change (AC-031)",
-					"duration": 0.4558749999999918,
+					"title": "computes affected pointers",
+					"duration": 0.5792920000000095,
 					"failureMessages": [],
 					"meta": {}
 				}
 			],
-			"startTime": 1767568294017,
-			"endTime": 1767568294025.4558,
+			"startTime": 1767571312681,
+			"endTime": 1767571312683.5793,
 			"status": "passed",
 			"message": "",
-			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/definitions/definitions.spec.ts"
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/patch/apply.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["patch/array", "buildPushPatch"],
+					"fullName": "patch/array buildPushPatch creates array when pushing to non-existent path",
+					"status": "passed",
+					"title": "creates array when pushing to non-existent path",
+					"duration": 1.818458000000021,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildPushPatch"],
+					"fullName": "patch/array buildPushPatch appends items to existing array",
+					"status": "passed",
+					"title": "appends items to existing array",
+					"duration": 0.16183300000000145,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildPushPatch"],
+					"fullName": "patch/array buildPushPatch returns empty ops when pushing empty array",
+					"status": "passed",
+					"title": "returns empty ops when pushing empty array",
+					"duration": 0.08795899999998369,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildPopPatch"],
+					"fullName": "patch/array buildPopPatch returns empty ops and undefined for empty array",
+					"status": "passed",
+					"title": "returns empty ops and undefined for empty array",
+					"duration": 0.12762499999999477,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildPopPatch"],
+					"fullName": "patch/array buildPopPatch removes and returns last item",
+					"status": "passed",
+					"title": "removes and returns last item",
+					"duration": 0.1832499999999868,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildShiftPatch"],
+					"fullName": "patch/array buildShiftPatch returns empty ops and undefined for empty array",
+					"status": "passed",
+					"title": "returns empty ops and undefined for empty array",
+					"duration": 0.09774999999999068,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildShiftPatch"],
+					"fullName": "patch/array buildShiftPatch removes and returns first item",
+					"status": "passed",
+					"title": "removes and returns first item",
+					"duration": 0.08208300000001145,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildUnshiftPatch"],
+					"fullName": "patch/array buildUnshiftPatch creates array when unshifting to non-existent path",
+					"status": "passed",
+					"title": "creates array when unshifting to non-existent path",
+					"duration": 0.11970800000000281,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildUnshiftPatch"],
+					"fullName": "patch/array buildUnshiftPatch prepends items to existing array",
+					"status": "passed",
+					"title": "prepends items to existing array",
+					"duration": 0.08241599999999494,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildSplicePatch"],
+					"fullName": "patch/array buildSplicePatch handles splice with deleteCount exceeding length",
+					"status": "passed",
+					"title": "handles splice with deleteCount exceeding length",
+					"duration": 0.23199999999999932,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildSplicePatch"],
+					"fullName": "patch/array buildSplicePatch inserts items without removing",
+					"status": "passed",
+					"title": "inserts items without removing",
+					"duration": 0.12966700000001197,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildSplicePatch"],
+					"fullName": "patch/array buildSplicePatch removes and inserts items",
+					"status": "passed",
+					"title": "removes and inserts items",
+					"duration": 0.07383300000000759,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildSortPatch"],
+					"fullName": "patch/array buildSortPatch sorts with default comparator",
+					"status": "passed",
+					"title": "sorts with default comparator",
+					"duration": 0.08899999999999864,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildSortPatch"],
+					"fullName": "patch/array buildSortPatch sorts with custom comparator",
+					"status": "passed",
+					"title": "sorts with custom comparator",
+					"duration": 0.07474999999999454,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildShufflePatch"],
+					"fullName": "patch/array buildShufflePatch uses custom RNG for deterministic shuffle",
+					"status": "passed",
+					"title": "uses custom RNG for deterministic shuffle",
+					"duration": 0.48166599999998994,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch/array", "buildShufflePatch"],
+					"fullName": "patch/array buildShufflePatch shuffles array (result has same elements)",
+					"status": "passed",
+					"title": "shuffles array (result has same elements)",
+					"duration": 0.12450000000001182,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767571312665,
+			"endTime": 1767571312669.4817,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/patch/array.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["patch builder"],
+					"fullName": "patch builder generates replace when path exists",
+					"status": "passed",
+					"title": "generates replace when path exists",
+					"duration": 0.9537499999999994,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch builder"],
+					"fullName": "patch builder generates add with intermediate containers",
+					"status": "passed",
+					"title": "generates add with intermediate containers",
+					"duration": 0.20220799999999883,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["patch builder"],
+					"fullName": "patch builder infers arrays for numeric segments",
+					"status": "passed",
+					"title": "infers arrays for numeric segments",
+					"duration": 0.23862499999999898,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767571312759,
+			"endTime": 1767571312760.2385,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/patch/builder.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["pointer utils"],
+					"fullName": "pointer utils escapes and unescapes",
+					"status": "passed",
+					"title": "escapes and unescapes",
+					"duration": 1.035874999999976,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["pointer utils"],
+					"fullName": "pointer utils parses pointers",
+					"status": "passed",
+					"title": "parses pointers",
+					"duration": 0.4739580000000103,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["pointer utils"],
+					"fullName": "pointer utils builds pointers",
+					"status": "passed",
+					"title": "builds pointers",
+					"duration": 0.1109170000000006,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["pointer utils"],
+					"fullName": "pointer utils roundtrips fragment pointers to non-fragment",
+					"status": "passed",
+					"title": "roundtrips fragment pointers to non-fragment",
+					"duration": 0.12624999999999886,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["pointer utils"],
+					"fullName": "pointer utils throws for invalid pointers (not starting with / or #)",
+					"status": "passed",
+					"title": "throws for invalid pointers (not starting with / or #)",
+					"duration": 0.4392080000000078,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767571312338,
+			"endTime": 1767571312340.4392,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/utils/pointer.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepEqual works",
+					"status": "passed",
+					"title": "deepEqual works",
+					"duration": 0.6405829999999924,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepExtends works",
+					"status": "passed",
+					"title": "deepExtends works",
+					"duration": 0.12095799999997325,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities DataMap snapshots are immutable clones",
+					"status": "passed",
+					"title": "DataMap snapshots are immutable clones",
+					"duration": 1.7773329999999987,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepEqual compares null vs undefined",
+					"status": "passed",
+					"title": "deepEqual compares null vs undefined",
+					"duration": 0.16999999999995907,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepEqual compares empty objects and arrays",
+					"status": "passed",
+					"title": "deepEqual compares empty objects and arrays",
+					"duration": 0.11108300000000781,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepEqual compares Date objects",
+					"status": "passed",
+					"title": "deepEqual compares Date objects",
+					"duration": 0.06658399999997755,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepEqual compares RegExp objects",
+					"status": "passed",
+					"title": "deepEqual compares RegExp objects",
+					"duration": 0.29750000000001364,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepEqual handles circular references",
+					"status": "passed",
+					"title": "deepEqual handles circular references",
+					"duration": 0.1608749999999759,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepExtends returns false when partial array is longer",
+					"status": "passed",
+					"title": "deepExtends returns false when partial array is longer",
+					"duration": 0.059542000000021744,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepExtends returns true for undefined partial",
+					"status": "passed",
+					"title": "deepExtends returns true for undefined partial",
+					"duration": 0.06120800000002191,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepExtends returns false for non-object target when partial is object",
+					"status": "passed",
+					"title": "deepExtends returns false for non-object target when partial is object",
+					"duration": 0.039917000000002645,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepExtends returns false for non-array target when partial is array",
+					"status": "passed",
+					"title": "deepExtends returns false for non-array target when partial is array",
+					"duration": 0.05395899999996345,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["utilities"],
+					"fullName": "utilities deepExtends returns false when partial key is missing in target",
+					"status": "passed",
+					"title": "deepExtends returns false when partial key is missing in target",
+					"duration": 0.12950000000000728,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767571312464,
+			"endTime": 1767571312468.161,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/utils/util.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["dynamic subscriptions"],
+					"fullName": "dynamic subscriptions notifies when a matching pointer changes",
+					"status": "passed",
+					"title": "notifies when a matching pointer changes",
+					"duration": 5.890375000000006,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["dynamic subscriptions"],
+					"fullName": "dynamic subscriptions re-expands on structural changes and notifies added matches",
+					"status": "passed",
+					"title": "re-expands on structural changes and notifies added matches",
+					"duration": 0.9108329999999683,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767571312464,
+			"endTime": 1767571312470.911,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/subscription/dynamic.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["subscription events"],
+					"fullName": "subscription events treats 'set' as an alias for 'patch' for stage selection",
+					"status": "passed",
+					"title": "treats 'set' as an alias for 'patch' for stage selection",
+					"duration": 1.819041999999996,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["subscription events"],
+					"fullName": "subscription events supports multiple event types in single subscription",
+					"status": "passed",
+					"title": "supports multiple event types in single subscription",
+					"duration": 0.6432920000000024,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["subscription events"],
+					"fullName": "subscription events receives operation info in event",
+					"status": "passed",
+					"title": "receives operation info in event",
+					"duration": 0.24354100000002177,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767571312639,
+			"endTime": 1767571312641.6433,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/subscription/events.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["subscription manager"],
+					"fullName": "subscription manager returns subscription with id and query",
+					"status": "passed",
+					"title": "returns subscription with id and query",
+					"duration": 4.827041000000008,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["subscription manager"],
+					"fullName": "subscription manager cleans up on unsubscribe (no further notifications)",
+					"status": "passed",
+					"title": "cleans up on unsubscribe (no further notifications)",
+					"duration": 1.8581249999999727,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["subscription manager"],
+					"fullName": "subscription manager tracks isDynamic for wildcard patterns",
+					"status": "passed",
+					"title": "tracks isDynamic for wildcard patterns",
+					"duration": 0.5748340000000098,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["subscription manager"],
+					"fullName": "subscription manager tracks isDynamic=false for static pointers",
+					"status": "passed",
+					"title": "tracks isDynamic=false for static pointers",
+					"duration": 0.09779200000002675,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["subscription manager"],
+					"fullName": "subscription manager getMatchingSubscriptions returns both static and dynamic matches",
+					"status": "passed",
+					"title": "getMatchingSubscriptions returns both static and dynamic matches",
+					"duration": 0.2515830000000392,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["subscription manager"],
+					"fullName": "subscription manager delivers on/after notifications asynchronously (REQ-016)",
+					"status": "passed",
+					"title": "delivers on/after notifications asynchronously (REQ-016)",
+					"duration": 0.49829100000005155,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["subscription manager"],
+					"fullName": "subscription manager re-expands filter subscriptions when criteria changes (AC-027)",
+					"status": "passed",
+					"title": "re-expands filter subscriptions when criteria changes (AC-027)",
+					"duration": 7.368041000000005,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["subscription manager"],
+					"fullName": "subscription manager fires get and resolve events (Step 10)",
+					"status": "passed",
+					"title": "fires get and resolve events (Step 10)",
+					"duration": 0.7884159999999838,
+					"failureMessages": [],
+					"meta": {}
+				},
+				{
+					"ancestorTitles": ["subscription manager"],
+					"fullName": "subscription manager supports read interception via get:before (Step 10)",
+					"status": "passed",
+					"title": "supports read interception via get:before (Step 10)",
+					"duration": 0.296374999999955,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767571312495,
+			"endTime": 1767571312512.2964,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/subscription/manager.spec.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["static subscriptions"],
+					"fullName": "static subscriptions notifies on patch stages",
+					"status": "passed",
+					"title": "notifies on patch stages",
+					"duration": 1.8189160000000015,
+					"failureMessages": [],
+					"meta": {}
+				}
+			],
+			"startTime": 1767571312701,
+			"endTime": 1767571312702.8188,
+			"status": "passed",
+			"message": "",
+			"name": "/Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/data-map/core/src/subscription/static.spec.ts"
 		}
 	]
 }

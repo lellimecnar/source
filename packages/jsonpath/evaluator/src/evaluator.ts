@@ -18,6 +18,7 @@ import {
 	PathSegment,
 	PluginManager,
 } from '@jsonpath/core';
+import '@jsonpath/functions';
 import { getFunction } from '@jsonpath/functions';
 import {
 	NodeType,
