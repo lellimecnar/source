@@ -1,5 +1,5 @@
-import { bench, describe } from 'vitest';
 import { JSONPointer } from '@jsonpath/pointer';
+import { bench, describe } from 'vitest';
 
 const data = {
 	store: {

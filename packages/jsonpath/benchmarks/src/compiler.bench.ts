@@ -1,7 +1,7 @@
-import { bench, describe } from 'vitest';
 import { Compiler } from '@jsonpath/compiler';
-import { parse } from '@jsonpath/parser';
 import { queryValues } from '@jsonpath/jsonpath';
+import { parse } from '@jsonpath/parser';
+import { bench, describe } from 'vitest';
 
 const data = {
 	store: {

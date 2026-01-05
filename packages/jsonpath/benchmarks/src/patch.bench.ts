@@ -1,6 +1,6 @@
-import { bench, describe } from 'vitest';
-import { applyPatch } from '@jsonpath/patch';
 import type { PatchOperation } from '@jsonpath/patch';
+import { applyPatch } from '@jsonpath/patch';
+import { bench, describe } from 'vitest';
 
 const data = {
 	store: {
