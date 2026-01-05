@@ -56,10 +56,10 @@ This repo does not contain `structured-autonomy-generate.prompt.md` (searched, n
 
 #### Step 1: Introduce RFC 9535 `Nothing` (Core + Cross-Package)
 
-- [ ] (≈3 SP) Add the `Nothing` symbol + type guard in `packages/jsonpath/core/src/nothing.ts`.
-- [ ] (≈3 SP) Export `Nothing` + `isNothing` from `packages/jsonpath/core/src/index.ts`.
-- [ ] (≈3 SP) Replace `undefined`-as-Nothing semantics in `packages/jsonpath/evaluator/src/evaluator.ts` (and later `@jsonpath/functions`) with the sentinel.
-- [ ] (≈3 SP) Add unit tests for the sentinel in `packages/jsonpath/core/src/__tests__/nothing.spec.ts`.
+- [x] (≈3 SP) Add the `Nothing` symbol + type guard in `packages/jsonpath/core/src/nothing.ts`.
+- [x] (≈3 SP) Export `Nothing` + `isNothing` from `packages/jsonpath/core/src/index.ts`.
+- [x] (≈3 SP) Replace `undefined`-as-Nothing semantics in `packages/jsonpath/evaluator/src/evaluator.ts` (and later `@jsonpath/functions`) with the sentinel.
+- [x] (≈3 SP) Add unit tests for the sentinel in `packages/jsonpath/core/src/__tests__/nothing.spec.ts`.
 
 Gap note (why there is no `types.ts` patch):
 
@@ -192,10 +192,10 @@ completes: step 1 of 19 for jsonpath-gap-remediation
 
 #### Step 2: Parser AST Source + Strict Mode
 
-- [ ] (≈3 SP) Add `QueryNode.source` to `packages/jsonpath/parser/src/nodes.ts`.
-- [ ] (≈3 SP) Add `ParserOptions.strict` and wire options through `Parser` + `parse()` in `packages/jsonpath/parser/src/parser.ts`.
-- [ ] (≈3 SP) Enforce strict mode (minimum in this repo: disallow shorthand `.true/.false/.null` selectors when strict).
-- [ ] (≈3 SP) Add targeted parser tests.
+- [x] (≈3 SP) Add `QueryNode.source` to `packages/jsonpath/parser/src/nodes.ts`.
+- [x] (≈3 SP) Add `ParserOptions.strict` and wire options through `Parser` + `parse()` in `packages/jsonpath/parser/src/parser.ts`.
+- [x] (≈3 SP) Enforce strict mode (minimum in this repo: disallow shorthand `.true/.false/.null` selectors when strict).
+- [x] (≈3 SP) Add targeted parser tests.
 
 - [ ] Apply this patch to add `QueryNode.source`:
 
@@ -318,9 +318,9 @@ completes: step 2 of 19 for jsonpath-gap-remediation
 
 #### Step 3: Evaluator Options Enforcement + Evaluator Class
 
-- [ ] (≈3 SP) Audit `packages/jsonpath/evaluator/src/evaluator.ts` for correct enforcement of: `maxFilterDepth`, `detectCircular`, `maxDepth`, `maxResults`, `maxNodes`.
-- [ ] (≈3 SP) Add missing unit tests only for behaviors not already covered.
-- [ ] (≈3 SP) Export a reusable `Evaluator` class façade without breaking existing `evaluate()`.
+- [x] (≈3 SP) Audit `packages/jsonpath/evaluator/src/evaluator.ts` for correct enforcement of: `maxFilterDepth`, `detectCircular`, `maxDepth`, `maxResults`, `maxNodes`.
+- [x] (≈3 SP) Add missing unit tests only for behaviors not already covered.
+- [x] (≈3 SP) Export a reusable `Evaluator` class façade without breaking existing `evaluate()`.
 
 - [ ] If `Evaluator` is not exported, apply this minimal patch:
 
@@ -351,9 +351,9 @@ completes: step 3 of 19 for jsonpath-gap-remediation
 
 #### Step 4: Pointer Instance Methods + RelativePointer
 
-- [ ] (≈3 SP) Audit `packages/jsonpath/pointer/src/pointer.ts` for existing compatibility instance methods.
-- [ ] (≈3 SP) Audit `packages/jsonpath/pointer/src/relative-pointer.ts` and `packages/jsonpath/pointer/src/__tests__/relative-pointer.spec.ts`.
-- [ ] (≈3 SP) Add only the missing aliases/tests required by the gap list in `plan.md`.
+- [x] (≈3 SP) Audit `packages/jsonpath/pointer/src/pointer.ts` for existing compatibility instance methods.
+- [x] (≈3 SP) Audit `packages/jsonpath/pointer/src/relative-pointer.ts` and `packages/jsonpath/pointer/src/__tests__/relative-pointer.spec.ts`.
+- [x] (≈3 SP) Add only the missing aliases/tests required by the gap list in `plan.md`.
 
 Gap note (why there is no patch block here):
 

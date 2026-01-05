@@ -49,9 +49,18 @@ export function isRelativePointer(pointer: string): boolean {
 
 export class RelativeJSONPointer {
 	private readonly parsed: ParsedRelativePointer;
+	public readonly reference: string;
+	public readonly upCount: number;
+	public readonly keyAccess: boolean;
+	public readonly pointer: JSONPointer | null;
 
 	constructor(pointer: string) {
+		this.reference = pointer;
 		this.parsed = parseRelativePointer(pointer);
+		this.upCount = this.parsed.ancestors;
+		this.keyAccess = this.parsed.indexReference;
+		this.pointer =
+			this.parsed.suffix.getTokens().length > 0 ? this.parsed.suffix : null;
 	}
 
 	toAbsolute(current: JSONPointer): JSONPointer {

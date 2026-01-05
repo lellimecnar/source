@@ -244,6 +244,7 @@ Add instance method aliases to `JSONPointer` class for json-p3 compatibility. Co
    ```
 
 2. Complete `RelativePointer` class:
+
    ```typescript
    class RelativePointer {
    	constructor(reference: string);

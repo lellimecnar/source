@@ -97,6 +97,17 @@ export class JSONPointer {
 	}
 
 	/**
+	 * Resolves the pointer or throws if not found.
+	 */
+	resolveOrThrow<T = any>(root: unknown): T {
+		const result = this.evaluate(root);
+		if (result === undefined && !this.exists(root)) {
+			throw new Error(`Pointer not found: ${this.toString()}`);
+		}
+		return result as T;
+	}
+
+	/**
 	 * DataMap compatibility: distinguish missing vs present undefined.
 	 */
 	exists(root: unknown): boolean {
@@ -127,6 +138,69 @@ export class JSONPointer {
 		return true;
 	}
 
+	/**
+	 * Sets a value at the pointer's location.
+	 * Note: This mutates the root object.
+	 */
+	set<T>(root: T, value: unknown): T {
+		if (this.tokens.length === 0) {
+			return value as unknown as T;
+		}
+
+		const parentTokens = this.tokens.slice(0, -1);
+		const lastToken = this.tokens[this.tokens.length - 1];
+		const parent = new JSONPointer(parentTokens).evaluate(root);
+
+		if (parent === undefined) {
+			throw new Error(
+				`Parent path not found: ${JSONPointer.format(parentTokens)}`,
+			);
+		}
+
+		if (Array.isArray(parent)) {
+			const index = lastToken === '-' ? parent.length : parseInt(lastToken, 10);
+			if (Number.isNaN(index) || index < 0 || index > parent.length) {
+				throw new Error(`Invalid array index: ${lastToken}`);
+			}
+			parent[index] = value;
+		} else if (typeof parent === 'object' && parent !== null) {
+			(parent as any)[lastToken] = value;
+		} else {
+			throw new Error('Cannot set value on non-object/non-array parent');
+		}
+
+		return root;
+	}
+
+	/**
+	 * Removes the value at the pointer's location.
+	 * Note: This mutates the root object.
+	 */
+	remove<T>(root: T): T {
+		if (this.tokens.length === 0) {
+			throw new Error('Cannot remove root');
+		}
+
+		const parentTokens = this.tokens.slice(0, -1);
+		const lastToken = this.tokens[this.tokens.length - 1];
+		const parent = new JSONPointer(parentTokens).evaluate(root);
+
+		if (parent === undefined) {
+			return root;
+		}
+
+		if (Array.isArray(parent)) {
+			const index = parseInt(lastToken, 10);
+			if (!Number.isNaN(index) && index >= 0 && index < parent.length) {
+				parent.splice(index, 1);
+			}
+		} else if (typeof parent === 'object' && parent !== null) {
+			delete (parent as any)[lastToken];
+		}
+
+		return root;
+	}
+
 	parent(): JSONPointer {
 		if (this.tokens.length === 0) return new JSONPointer([]);
 		return new JSONPointer(this.tokens.slice(0, -1));
@@ -142,6 +216,10 @@ export class JSONPointer {
 
 	toString(): string {
 		return JSONPointer.format(this.tokens);
+	}
+
+	toJSON(): string {
+		return this.toString();
 	}
 }
 
