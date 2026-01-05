@@ -2,42 +2,14 @@
 
 # Task Research Notes: JSONPath spec-compliance plan (packages/jsonpath/\*)
 
-## Research Executed
+This note is superseded.
 
-### File Analysis
+- Consolidated, evidence-backed plan research (including corrected Vitest/CTS details):
+  - `.copilot-tracking/research/20260105-jsonpath-gap-remediation-plan-research.md`
 
-- plans/jsonpath-spec-compliance/plan.md
-  - Phase 1/2 target file list and intended deltas.
-- package.json
-  - Root scripts use Turborepo for `test`, `test:coverage`, `test:watch`.
-- turbo.json
-  - `test` task has no `dependsOn` and outputs `coverage/**`.
-- vitest.config.ts
-  - Root vitest “projects” does **not** include `packages/jsonpath/*`.
+Reason for supersession:
 
-Phase 1 / Phase 2 files (as referenced by the plan):
-
-- packages/jsonpath/core/src/registry.ts
-  - Provides `functionRegistry` Map + `registerFunction` only (no `get/has/unregister`).
-- packages/jsonpath/core/src/types.ts
-  - Defines `FunctionDefinition` with `signature`, `returns`, `evaluate`.
-  - Defines `QueryResult` interface as **method-based** (`values()`, `paths()`, `nodes()`, etc.)
-- packages/jsonpath/core/src/errors.ts
-  - ErrorCode is a small union (broad categories) + a class hierarchy (`JSONPathError`, `JSONPathSyntaxError`, etc.).
-- packages/jsonpath/core/src/index.ts
-  - Re-exports: `types`, `errors`, `registry`, `utils`.
-
-- packages/jsonpath/functions/src/registry.ts
-  - Contains a separate `FunctionRegistry` class + `globalRegistry` + built-ins registered there.
-- packages/jsonpath/functions/src/index.ts
-  - `export * from './registry.js'`.
-
-- packages/jsonpath/evaluator/src/evaluator.ts
-  - Resolves functions via `@jsonpath/functions` `globalRegistry`, not core registry.
-- packages/jsonpath/evaluator/src/query-result.ts
-  - `QueryResult` class uses getters + `path: string[]`, diverging from core `QueryResult` interface.
-- packages/jsonpath/evaluator/src/index.ts
-  - Re-exports evaluator + query result.
+- This file contained stale statements (e.g., Vitest projects for `packages/jsonpath/*`). The consolidated note reflects the current repo state.
 
 Pointer plan files:
 
