@@ -9,10 +9,6 @@ export default defineConfig({
 	...base,
 	resolve: {
 		alias: {
-			'@jsonpath/compat-json-p3': path.resolve(
-				__dirname,
-				'../../jsonpath/compat-json-p3/src/index.ts',
-			),
 			'@jsonpath/jsonpath': path.resolve(
 				__dirname,
 				'../../jsonpath/jsonpath/src/index.ts',

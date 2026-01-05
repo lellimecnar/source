@@ -6,8 +6,8 @@ import { detectPathType } from '../path/detect';
 const flushMicrotasks = () => new Promise((resolve) => queueMicrotask(resolve));
 
 describe('spec compliance', () => {
-	describe('REQ-001: json-p3 JSONPath behavior', () => {
-		it('uses json-p3 semantics for JSONPath queries', () => {
+	describe('REQ-001: @jsonpath/jsonpath JSONPath behavior', () => {
+		it('uses @jsonpath/jsonpath semantics for JSONPath queries', () => {
 			const dm = new DataMap({ users: [{ name: 'A' }, { name: 'B' }] });
 			expect(dm.getAll('$.users[*].name')).toEqual(['A', 'B']);
 		});

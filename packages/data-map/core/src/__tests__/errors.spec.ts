@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { DataMap } from '../datamap';
+import { DataMapPathError } from '../utils/jsonpath';
 import { flushMicrotasks } from '../__fixtures__/helpers';
 
 describe('error and negative cases', () => {
@@ -62,5 +63,10 @@ describe('error and negative cases', () => {
 		const json = dm.toJSON() as any;
 		json.a.b = 999;
 		expect(dm.get('/a/b')).toBe(1);
+	});
+
+	it('throws DataMapPathError for invalid JSONPath in strict mode', () => {
+		const dm = new DataMap({ a: 1 }, { strict: true });
+		expect(() => dm.get('$.a[')).toThrow(DataMapPathError);
 	});
 });
