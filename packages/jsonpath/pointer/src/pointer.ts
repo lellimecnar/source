@@ -97,6 +97,29 @@ export class JSONPointer {
 	}
 
 	/**
+	 * Calculates a relative pointer from this pointer to another absolute pointer.
+	 */
+	relative(to: JSONPointer): string {
+		const fromTokens = this.tokens;
+		const toTokens = to.getTokens();
+
+		let commonPrefixLength = 0;
+		while (
+			commonPrefixLength < fromTokens.length &&
+			commonPrefixLength < toTokens.length &&
+			fromTokens[commonPrefixLength] === toTokens[commonPrefixLength]
+		) {
+			commonPrefixLength++;
+		}
+
+		const upCount = fromTokens.length - commonPrefixLength;
+		const suffixTokens = toTokens.slice(commonPrefixLength);
+		const suffix = JSONPointer.format(suffixTokens);
+
+		return `${upCount}${suffix}`;
+	}
+
+	/**
 	 * Resolves the pointer or throws if not found.
 	 */
 	resolveOrThrow<T = any>(root: unknown): T {

@@ -35,4 +35,25 @@ describe('Relative JSON Pointer', () => {
 		expect(isRelativePointer('x/foo')).toBe(false);
 		expect(isRelativePointer('1foo')).toBe(false);
 	});
+
+	describe('RelativeJSONPointer class', () => {
+		it('should convert to absolute pointer', () => {
+			const current = new JSONPointer('/a/b/c');
+			const rel = new RelativeJSONPointer('1/d');
+			expect(rel.toAbsolute(current).toString()).toBe('/a/b/d');
+
+			const rel2 = new RelativeJSONPointer('2/x/y');
+			expect(rel2.toAbsolute(current).toString()).toBe('/a/x/y');
+		});
+
+		it('should resolve against root and current', () => {
+			const root = { a: { b: { c: 1, d: 2 } } };
+			const current = new JSONPointer('/a/b/c');
+			const rel = new RelativeJSONPointer('1/d');
+			expect(rel.resolve(root, current)).toBe(2);
+
+			const relKey = new RelativeJSONPointer('1#');
+			expect(relKey.resolve(root, current)).toBe('b');
+		});
+	});
 });

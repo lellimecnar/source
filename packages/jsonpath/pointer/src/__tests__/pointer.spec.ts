@@ -48,6 +48,23 @@ describe('JSONPointer', () => {
 		});
 	});
 
+	describe('relative', () => {
+		it('should calculate relative pointer between absolute pointers', () => {
+			const p1 = new JSONPointer('/a/b/c');
+			const p2 = new JSONPointer('/a/b/d/e');
+			expect(p1.relative(p2)).toBe('1/d/e');
+
+			const p3 = new JSONPointer('/a/x');
+			expect(p1.relative(p3)).toBe('2/x');
+
+			const p4 = new JSONPointer('/a/b/c/d');
+			expect(p1.relative(p4)).toBe('0/d');
+
+			const p5 = new JSONPointer('/a/b/c');
+			expect(p1.relative(p5)).toBe('0');
+		});
+	});
+
 	describe('format', () => {
 		it('should format empty tokens', () => {
 			expect(JSONPointer.format([])).toBe('');
