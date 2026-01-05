@@ -272,6 +272,29 @@ function generateSelector(
 				'    }',
 			];
 		}
+		case NodeType.ParentSelector: {
+			return [
+				`    if (${nodeVar}.path.length > 0) {`,
+				`      const parentPath = ${nodeVar}.path.slice(0, -1);`,
+				`      let parentValue = _root;`,
+				`      let grandParent = null;`,
+				`      let parentKey = null;`,
+				`      for (let i = 0; i < parentPath.length; i++) {`,
+				`        grandParent = parentValue;`,
+				`        parentKey = parentPath[i];`,
+				`        parentValue = parentValue[parentKey];`,
+				`      }`,
+				`      next.push({ value: parentValue, path: parentPath, root: _root, parent: grandParent, parentKey });`,
+				'    }',
+			];
+		}
+		case NodeType.PropertySelector: {
+			return [
+				`    if (${nodeVar}.parentKey !== undefined) {`,
+				`      next.push({ value: ${nodeVar}.parentKey, path: ${nodeVar}.path, root: _root, parent: ${nodeVar}.parent, parentKey: ${nodeVar}.parentKey });`,
+				'    }',
+			];
+		}
 		default:
 			return [
 				`    // unsupported selector (${(sel as any).type}); fallback to interpreter`,

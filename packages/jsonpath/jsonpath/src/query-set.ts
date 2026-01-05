@@ -6,9 +6,10 @@
  * @packageDocumentation
  */
 
-import { type QueryResult } from '@jsonpath/evaluator';
-import { query } from './facade.js';
 import { type EvaluatorOptions } from '@jsonpath/core';
+import { type QueryResult } from '@jsonpath/evaluator';
+
+import { query } from './facade.js';
 
 /**
  * A reusable set of JSONPath queries.
@@ -17,7 +18,7 @@ export class QuerySet {
 	private queries = new Map<string, string>();
 
 	constructor(
-		queries?: Array<{ name: string; path: string }> | Record<string, string>,
+		queries?: { name: string; path: string }[] | Record<string, string>,
 	) {
 		if (Array.isArray(queries)) {
 			for (const { name, path } of queries) {
@@ -59,9 +60,44 @@ export class QuerySet {
 		data: unknown,
 		options?: EvaluatorOptions,
 	): Record<string, QueryResult> {
+		return this.queryAll(data, options);
+	}
+
+	/**
+	 * Executes all queries and returns a map of QueryResults.
+	 */
+	queryAll(
+		data: unknown,
+		options?: EvaluatorOptions,
+	): Record<string, QueryResult> {
 		const results: Record<string, QueryResult> = {};
 		for (const [name, path] of this.queries.entries()) {
 			results[name] = query(data, path, options);
+		}
+		return results;
+	}
+
+	/**
+	 * Executes all queries and returns a map of values.
+	 */
+	valuesAll(data: unknown, options?: EvaluatorOptions): Record<string, any[]> {
+		const results: Record<string, any[]> = {};
+		for (const [name, path] of this.queries.entries()) {
+			results[name] = query(data, path, options).values();
+		}
+		return results;
+	}
+
+	/**
+	 * Executes all queries and returns a map of pointer strings.
+	 */
+	pointersAll(
+		data: unknown,
+		options?: EvaluatorOptions,
+	): Record<string, string[]> {
+		const results: Record<string, string[]> = {};
+		for (const [name, path] of this.queries.entries()) {
+			results[name] = query(data, path, options).pointerStrings();
 		}
 		return results;
 	}
@@ -71,7 +107,7 @@ export class QuerySet {
  * Creates a new QuerySet.
  */
 export function createQuerySet(
-	queries?: Array<{ name: string; path: string }> | Record<string, string>,
+	queries?: { name: string; path: string }[] | Record<string, string>,
 ): QuerySet {
 	return new QuerySet(queries);
 }

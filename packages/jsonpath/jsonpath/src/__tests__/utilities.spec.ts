@@ -66,11 +66,10 @@ describe('JSONPath Utilities', () => {
 		});
 
 		it('should merge multiple patches', () => {
-			const result = mergeWith(
-				data,
+			const result = mergeWith(data, [
 				{ users: { '0': { age: 31 } } },
 				{ users: { '1': { age: 26 } } },
-			);
+			]);
 			expect(result.users[0].age).toBe(31);
 			expect(result.users[1].age).toBe(26);
 		});

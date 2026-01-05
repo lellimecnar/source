@@ -6,6 +6,7 @@
  * @packageDocumentation
  */
 
+import type { EvaluatorOptions } from '@jsonpath/core';
 import { applyPatch, type PatchOperation } from '@jsonpath/patch';
 
 import { query } from './facade.js';
@@ -17,8 +18,9 @@ export function transform<T = any>(
 	root: T,
 	path: string,
 	fn: (value: any) => any,
+	options?: EvaluatorOptions,
 ): T {
-	const results = query(root, path);
+	const results = query(root, path, options);
 	const pointers = results.pointerStrings();
 	const values = results.values();
 
@@ -36,11 +38,12 @@ export function transform<T = any>(
  */
 export function transformAll<T = any>(
 	root: T,
-	transforms: Array<{ path: string; fn: (value: any) => any }>,
+	transforms: { path: string; fn: (value: any) => any }[],
+	options?: EvaluatorOptions,
 ): T {
 	let current = root;
 	for (const { path, fn } of transforms) {
-		current = transform(current, path, fn);
+		current = transform(current, path, fn, options);
 	}
 	return current;
 }
@@ -48,10 +51,14 @@ export function transformAll<T = any>(
 /**
  * Projects a JSON object into a new shape based on a map of JSONPaths.
  */
-export function project(root: any, mapping: Record<string, string>): any {
+export function project(
+	root: any,
+	mapping: Record<string, string>,
+	options?: EvaluatorOptions,
+): any {
 	const result: any = {};
 	for (const [targetKey, path] of Object.entries(mapping)) {
-		const matches = query(root, path).values();
+		const matches = query(root, path, options).values();
 		if (matches.length === 1) {
 			result[targetKey] = matches[0];
 		} else if (matches.length > 1) {
@@ -67,13 +74,14 @@ export function project(root: any, mapping: Record<string, string>): any {
 export function projectWith(
 	root: any,
 	mapping: Record<string, string | ((root: any) => any)>,
+	options?: EvaluatorOptions,
 ): any {
 	const result: any = {};
 	for (const [targetKey, source] of Object.entries(mapping)) {
 		if (typeof source === 'function') {
 			result[targetKey] = source(root);
 		} else {
-			const matches = query(root, source).values();
+			const matches = query(root, source, options).values();
 			if (matches.length === 1) {
 				result[targetKey] = matches[0];
 			} else if (matches.length > 1) {
@@ -87,10 +95,14 @@ export function projectWith(
 /**
  * Picks specific paths from the root object.
  */
-export function pick(root: any, paths: string[]): any {
+export function pick(
+	root: any,
+	paths: string[],
+	options?: EvaluatorOptions,
+): any {
 	const result: any = {};
 	for (const path of paths) {
-		const matches = query(root, path).values();
+		const matches = query(root, path, options).values();
 		if (matches.length > 0) {
 			// Use the last segment of the path as the key
 			const key = path.split('.').pop() || path;

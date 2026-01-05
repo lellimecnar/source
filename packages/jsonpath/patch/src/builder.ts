@@ -6,11 +6,11 @@
  * @packageDocumentation
  */
 
+import { JSONPointer } from '@jsonpath/pointer';
+
+import { replaceAll, removeAll } from './jsonpath-ops.js';
 import type { PatchOperation } from './patch.js';
 import { applyPatch } from './patch.js';
-import { JSONPointer } from '@jsonpath/pointer';
-import { Evaluator } from '@jsonpath/evaluator';
-import { parse } from '@jsonpath/parser';
 
 export class PatchBuilder {
 	private operations: PatchOperation[] = [];
@@ -95,13 +95,7 @@ export class PatchBuilder {
 		if (!this.target) {
 			throw new Error('replaceAll() requires a target document');
 		}
-		const ast = parse(jsonpath);
-		const evaluator = new Evaluator(this.target);
-		const result = evaluator.evaluate(ast);
-		const paths = result.pointerStrings();
-		paths.forEach((path) => {
-			this.operations.push({ op: 'replace', path, value });
-		});
+		this.operations.push(...replaceAll(this.target, jsonpath, value));
 		return this;
 	}
 
@@ -113,16 +107,7 @@ export class PatchBuilder {
 		if (!this.target) {
 			throw new Error('removeAll() requires a target document');
 		}
-		const ast = parse(jsonpath);
-		const evaluator = new Evaluator(this.target);
-		const result = evaluator.evaluate(ast);
-		const paths = result.pointerStrings();
-		// Sort paths in reverse order to avoid index shifts when removing from arrays
-		paths
-			.sort((a, b) => b.localeCompare(a))
-			.forEach((path) => {
-				this.operations.push({ op: 'remove', path });
-			});
+		this.operations.push(...removeAll(this.target, jsonpath));
 		return this;
 	}
 

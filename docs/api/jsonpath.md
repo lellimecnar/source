@@ -48,6 +48,26 @@ Removes the specified paths from the JSON object.
 
 Compiles a JSONPath expression into a reusable function.
 
+### `pathBuilder(): PathBuilder`
+
+Returns a new `PathBuilder` instance for fluent path construction.
+
+### `FilterBuilder`
+
+A fluent API for building filter expressions.
+
+```typescript
+import { pathBuilder } from '@jsonpath/jsonpath';
+
+const path = pathBuilder()
+	.root()
+	.child('store')
+	.child('book')
+	.filter((f) => f.child('price').lt(10))
+	.build();
+// "$.store.book[?(@.price < 10)]"
+```
+
 ### Built-in Functions (RFC 9535)
 
 - `length(val)`: Returns the length of a string, array, or object.
@@ -111,15 +131,39 @@ Class representing a Relative JSON Pointer (draft-bhutton).
 
 Used for applying a sequence of operations to a JSON document.
 
-### `applyPatch(data: any, patch: PatchOperation[], options?: PatchOptions): any`
+### `applyPatch(data: any, patch: PatchOperation[], options?: ApplyOptions): any`
 
-Applies a JSON Patch. **Mutates the input data by default** for performance. Set `atomic: true` in options to ensure the patch is applied fully or not at all.
+Applies a JSON Patch. **Immutable by default**. Set `mutate: true` in options to modify the input data in-place.
 
 ### `applyPatchImmutable(data: any, patch: PatchOperation[]): any`
 
 Applies a JSON Patch to a deep clone of the data, ensuring the original is not modified.
 
 ---
+
+## Migration from `json-p3`
+
+The `@jsonpath` suite is a modern, RFC-compliant successor to `json-p3`.
+
+### Key Changes
+
+1. **RFC 9535 Compliance**: The parser and evaluator strictly follow RFC 9535. Some non-standard syntax from `json-p3` may no longer be supported.
+2. **Immutability**: `applyPatch` is now immutable by default. Use `mutate: true` for the old behavior.
+3. **Nothing Symbol**: "No value" is represented by a unique `Nothing` symbol instead of `undefined` in some internal contexts, though the facade generally returns `undefined` or empty arrays for consistency.
+4. **Plugin System**: Functions and selectors are now registered via a formal plugin system.
+5. **Fluent Builders**: Use `pathBuilder()` and `FilterBuilder` for programmatic query construction.
+
+### Compatibility Layer
+
+For a smoother transition, use `@jsonpath/compat-json-p3`:
+
+```typescript
+import { jsonpath, jsonpatch } from '@jsonpath/compat-json-p3';
+
+// These maintain the old json-p3 API and behavior (e.g., mutation by default)
+const results = jsonpath.query(data, '$.store.book[*]');
+jsonpatch.apply(patch, data);
+```
 
 ## `@jsonpath/merge-patch` (RFC 7386)
 

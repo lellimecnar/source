@@ -1133,17 +1133,17 @@ index 0000000..0000000
 
 ---
 
-## Step 11 — Complete JSON Patch Features (P2)
+## Step 11 — Complete JSON Patch Features (P2) [DONE]
 
 **Repo reality note:** `@jsonpath/patch` already includes `ApplyOptions.before/after`, `validate()`, and `applyWithErrors()` in `packages/jsonpath/patch/src/patch.ts`, and a `PatchBuilder` with `when/ifExists/replaceAll/removeAll` in `packages/jsonpath/patch/src/builder.ts`.
 
 This step closes the remaining gaps from the plan:
 
-- `mutate` default should become `false` (breaking)
-- `validate` option should be respected (it currently exists on `ApplyOptions` but is not used)
-- Diff options: `detectMoves`, `includeTests`
-- JSONPath-based ops module (plan’s `jsonpath-ops.ts`)
-- Export individual op helpers (if not already)
+- `mutate` default should become `false` (breaking) [DONE]
+- `validate` option should be respected (it currently exists on `ApplyOptions` but is not used) [DONE]
+- Diff options: `detectMoves`, `includeTests` [DONE]
+- JSONPath-based ops module (plan’s `jsonpath-ops.ts`) [DONE]
+- Export individual op helpers (if not already) [DONE]
 
 **Files (repo reality):**
 
@@ -1156,14 +1156,14 @@ This step closes the remaining gaps from the plan:
 
 **Work checklist**
 
-- [ ] Change `ApplyOptions.mutate` default from `true` → `false` and update internal call sites (notably `packages/jsonpath/jsonpath/src/facade.ts`’s `patch()` wrapper).
-- [ ] Wire `ApplyOptions.validate`: when true, run `validate(patch)` prior to application.
-- [ ] Add `jsonpath-ops.ts` with helpers that operate over matches from a JSONPath query (e.g., `replaceAll`, `removeAll`) and share logic with `PatchBuilder`.
-- [ ] Expand `diff()` to accept `DiffOptions` (at least `invertible`, plus the plan’s requested options).
+- [x] Change `ApplyOptions.mutate` default from `true` → `false` and update internal call sites (notably `packages/jsonpath/jsonpath/src/facade.ts`’s `patch()` wrapper).
+- [x] Wire `ApplyOptions.validate`: when true, run `validate(patch)` prior to application.
+- [x] Add `jsonpath-ops.ts` with helpers that operate over matches from a JSONPath query (e.g., `replaceAll`, `removeAll`) and share logic with `PatchBuilder`.
+- [x] Expand `diff()` to accept `DiffOptions` (at least `invertible`, plus the plan’s requested options).
 
-**STOP & COMMIT**
+**STOP & COMMIT [DONE]**
 
-- [ ] COMMIT (VS Code Source Control): `feat(jsonpath-patch): complete spec patch utilities`
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath-patch): complete spec patch utilities`
 
 ---
 

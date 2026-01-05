@@ -82,11 +82,16 @@ export function applyPatch(
 ): any {
 	const {
 		strictMode = true,
-		mutate = true,
+		mutate = false,
+		validate: shouldValidate = false,
 		continueOnError = false,
 		before,
 		after,
 	} = options;
+
+	if (shouldValidate) {
+		validate(patch);
+	}
 
 	// RFC 6902 requires atomicity. We always work on a clone to ensure that
 	// if any operation fails, the original target is not modified.
@@ -103,39 +108,39 @@ export function applyPatch(
 			let opResult = working;
 			switch (operation.op) {
 				case 'add':
-					opResult = applyAdd(working, operation.path, operation.value);
+					opResult = patchAdd(working, operation.path, operation.value);
 					break;
 				case 'remove':
 					if (strictMode) {
-						opResult = applyRemove(working, operation.path);
+						opResult = patchRemove(working, operation.path);
 						break;
 					}
 					try {
-						opResult = applyRemove(working, operation.path);
+						opResult = patchRemove(working, operation.path);
 					} catch (err: any) {
 						if (err?.code !== 'PATH_NOT_FOUND') throw err;
 					}
 					break;
 				case 'replace':
 					if (strictMode) {
-						opResult = applyReplace(working, operation.path, operation.value);
+						opResult = patchReplace(working, operation.path, operation.value);
 						break;
 					}
 					try {
-						opResult = applyReplace(working, operation.path, operation.value);
+						opResult = patchReplace(working, operation.path, operation.value);
 					} catch (err: any) {
 						if (err?.code !== 'PATH_NOT_FOUND') throw err;
-						opResult = applyAdd(working, operation.path, operation.value);
+						opResult = patchAdd(working, operation.path, operation.value);
 					}
 					break;
 				case 'move':
-					opResult = applyMove(working, operation.from, operation.path);
+					opResult = patchMove(working, operation.from, operation.path);
 					break;
 				case 'copy':
-					opResult = applyCopy(working, operation.from, operation.path);
+					opResult = patchCopy(working, operation.from, operation.path);
 					break;
 				case 'test':
-					applyTest(working, operation.path, operation.value);
+					patchTest(working, operation.path, operation.value);
 					break;
 				default:
 					throw new JSONPatchError(
@@ -213,13 +218,13 @@ export function applyWithErrors<T>(
 	options: ApplyOptions = {},
 ): {
 	result: T;
-	errors: Array<{ index: number; operation: PatchOperation; error: Error }>;
+	errors: { index: number; operation: PatchOperation; error: Error }[];
 } {
-	const errors: Array<{
+	const errors: {
 		index: number;
 		operation: PatchOperation;
 		error: Error;
-	}> = [];
+	}[] = [];
 
 	const result = applyPatch(target, patch, {
 		...options,
@@ -245,22 +250,22 @@ export function applyWithErrors<T>(
 			let opResult = working;
 			switch (operation.op) {
 				case 'add':
-					opResult = applyAdd(working, operation.path, operation.value);
+					opResult = patchAdd(working, operation.path, operation.value);
 					break;
 				case 'remove':
-					opResult = applyRemove(working, operation.path);
+					opResult = patchRemove(working, operation.path);
 					break;
 				case 'replace':
-					opResult = applyReplace(working, operation.path, operation.value);
+					opResult = patchReplace(working, operation.path, operation.value);
 					break;
 				case 'move':
-					opResult = applyMove(working, operation.from, operation.path);
+					opResult = patchMove(working, operation.from, operation.path);
 					break;
 				case 'copy':
-					opResult = applyCopy(working, operation.from, operation.path);
+					opResult = patchCopy(working, operation.from, operation.path);
 					break;
 				case 'test':
-					applyTest(working, operation.path, operation.value);
+					patchTest(working, operation.path, operation.value);
 					break;
 			}
 			working = opResult;
@@ -288,7 +293,7 @@ export function applyWithErrors<T>(
 		}
 	}
 
-	return { result: working as T, errors };
+	return { result: working, errors };
 }
 
 /**
@@ -310,7 +315,7 @@ export function applyWithInverse(
 
 		switch (operation.op) {
 			case 'add':
-				working = applyAdd(working, operation.path, operation.value);
+				working = patchAdd(working, operation.path, operation.value);
 				if (oldValue === undefined) {
 					inverse.unshift({ op: 'remove', path: operation.path });
 				} else {
@@ -322,11 +327,11 @@ export function applyWithInverse(
 				}
 				break;
 			case 'remove':
-				working = applyRemove(working, operation.path);
+				working = patchRemove(working, operation.path);
 				inverse.unshift({ op: 'add', path: operation.path, value: oldValue });
 				break;
 			case 'replace':
-				working = applyReplace(working, operation.path, operation.value);
+				working = patchReplace(working, operation.path, operation.value);
 				inverse.unshift({
 					op: 'replace',
 					path: operation.path,
@@ -336,7 +341,7 @@ export function applyWithInverse(
 			case 'move': {
 				const fromPointer = new JSONPointer(operation.from);
 				const fromValue = fromPointer.evaluate(working);
-				working = applyMove(working, operation.from, operation.path);
+				working = patchMove(working, operation.from, operation.path);
 				// Inverse of move is move back, but we also need to restore the value at the destination if it existed
 				if (oldValue !== undefined) {
 					inverse.unshift({
@@ -353,7 +358,7 @@ export function applyWithInverse(
 				break;
 			}
 			case 'copy':
-				working = applyCopy(working, operation.from, operation.path);
+				working = patchCopy(working, operation.from, operation.path);
 				if (oldValue === undefined) {
 					inverse.unshift({ op: 'remove', path: operation.path });
 				} else {
@@ -365,7 +370,7 @@ export function applyWithInverse(
 				}
 				break;
 			case 'test':
-				applyTest(working, operation.path, operation.value);
+				patchTest(working, operation.path, operation.value);
 				// test operations don't need an inverse as they don't mutate
 				break;
 		}
@@ -392,7 +397,7 @@ export function applyWithInverse(
 	return { result: working, inverse };
 }
 
-function applyAdd(target: any, path: string, value: any): any {
+export function patchAdd(target: any, path: string, value: any): any {
 	const pointer = new JSONPointer(path);
 	const tokens = pointer.getTokens();
 
@@ -442,7 +447,7 @@ function applyAdd(target: any, path: string, value: any): any {
 	return target;
 }
 
-function applyRemove(target: any, path: string): any {
+export function patchRemove(target: any, path: string): any {
 	const pointer = new JSONPointer(path);
 	const tokens = pointer.getTokens();
 
@@ -491,7 +496,7 @@ function applyRemove(target: any, path: string): any {
 	return target;
 }
 
-function applyReplace(target: any, path: string, value: any): any {
+export function patchReplace(target: any, path: string, value: any): any {
 	const pointer = new JSONPointer(path);
 	const tokens = pointer.getTokens();
 
@@ -540,7 +545,7 @@ function applyReplace(target: any, path: string, value: any): any {
 	return target;
 }
 
-function applyMove(target: any, from: string, path: string): any {
+export function patchMove(target: any, from: string, path: string): any {
 	if (from === path) return target;
 	if (path.startsWith(`${from}/`)) {
 		throw new JSONPathError(
@@ -553,19 +558,19 @@ function applyMove(target: any, from: string, path: string): any {
 	if (value === undefined) {
 		throw new JSONPathError(`From path not found: ${from}`, 'PATH_NOT_FOUND');
 	}
-	applyRemove(target, from);
-	return applyAdd(target, path, value);
+	patchRemove(target, from);
+	return patchAdd(target, path, value);
 }
 
-function applyCopy(target: any, from: string, path: string): any {
+export function patchCopy(target: any, from: string, path: string): any {
 	const value = new JSONPointer(from).evaluate(target);
 	if (value === undefined) {
 		throw new JSONPathError(`From path not found: ${from}`, 'PATH_NOT_FOUND');
 	}
-	return applyAdd(target, path, JSON.parse(JSON.stringify(value)));
+	return patchAdd(target, path, JSON.parse(JSON.stringify(value)));
 }
 
-function applyTest(target: any, path: string, value: any): void {
+export function patchTest(target: any, path: string, value: any): void {
 	const actual = new JSONPointer(path).evaluate(target);
 	if (!deepEqual(actual, value)) {
 		throw new JSONPathError(

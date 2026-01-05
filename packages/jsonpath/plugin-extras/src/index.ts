@@ -14,7 +14,8 @@ export function extras(): JSONPathPlugin {
 				returns: 'ValueType',
 				evaluate: (val: any) => {
 					if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
-						return Object.values(val);
+						const res = Object.values(val);
+						return res;
 					}
 					return Nothing;
 				},

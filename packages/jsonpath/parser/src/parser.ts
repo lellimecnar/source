@@ -73,7 +73,9 @@ export class Parser {
 			if (
 				next.type === TokenType.DOT ||
 				next.type === TokenType.DOT_DOT ||
-				next.type === TokenType.LBRACKET
+				next.type === TokenType.LBRACKET ||
+				next.type === TokenType.PARENT ||
+				next.type === TokenType.PROPERTY
 			) {
 				segments.push(this.parseSegment());
 			} else {
@@ -101,6 +103,34 @@ export class Parser {
 			this.lexer.next();
 		} else if (token.type === TokenType.DOT) {
 			this.lexer.next();
+		} else if (token.type === TokenType.PARENT) {
+			this.lexer.next();
+			return {
+				type: NodeType.ChildSegment,
+				startPos: start,
+				endPos: token.end,
+				selectors: [
+					{
+						type: NodeType.ParentSelector,
+						startPos: start,
+						endPos: token.end,
+					},
+				],
+			};
+		} else if (token.type === TokenType.PROPERTY) {
+			this.lexer.next();
+			return {
+				type: NodeType.ChildSegment,
+				startPos: start,
+				endPos: token.end,
+				selectors: [
+					{
+						type: NodeType.PropertySelector,
+						startPos: start,
+						endPos: token.end,
+					},
+				],
+			};
 		}
 
 		const next = this.lexer.peek();

@@ -1,5 +1,6 @@
 import { compile, type CompiledQuery } from '@jsonpath/compiler';
 import { type EvaluatorOptions, JSONPathSecurityError } from '@jsonpath/core';
+import { PluginManager } from '@jsonpath/core';
 import {
 	evaluate,
 	stream as evaluatorStream,
@@ -9,10 +10,20 @@ import {
 } from '@jsonpath/evaluator';
 import { applyMergePatch } from '@jsonpath/merge-patch';
 import { parse, type QueryNode } from '@jsonpath/parser';
-import { applyPatch } from '@jsonpath/patch';
+import { applyPatch, type ApplyOptions } from '@jsonpath/patch';
+import { arithmetic } from '@jsonpath/plugin-arithmetic';
+import { extras } from '@jsonpath/plugin-extras';
 import { evaluatePointer } from '@jsonpath/pointer';
 
 import { getCachedQuery, setCachedQuery } from './cache.js';
+
+/**
+ * Default plugins registered by the facade.
+ */
+const DEFAULT_PLUGINS = [arithmetic(), extras()];
+
+// Register default plugins globally for the parser to see them
+PluginManager.from({ plugins: DEFAULT_PLUGINS });
 
 /**
  * Parses a JSONPath query string, with caching.
@@ -38,6 +49,16 @@ export function parseQuery(
 }
 
 /**
+ * Merges user options with default plugins.
+ */
+function withDefaultPlugins(options?: EvaluatorOptions): EvaluatorOptions {
+	return {
+		...options,
+		plugins: [...DEFAULT_PLUGINS, ...(options?.plugins ?? [])],
+	};
+}
+
+/**
  * Executes a JSONPath query against a root object.
  */
 export function query(
@@ -46,7 +67,7 @@ export function query(
 	options?: EvaluatorOptions,
 ): QueryResult {
 	const ast = parseQuery(path, options);
-	return evaluate(root, ast, options);
+	return evaluate(root, ast, withDefaultPlugins(options));
 }
 
 /**
@@ -172,7 +193,7 @@ export function* stream(
 	options?: EvaluatorOptions,
 ): Generator<QueryResultNode> {
 	const ast = parseQuery(path, options);
-	yield* evaluatorStream(root, ast, options);
+	yield* evaluatorStream(root, ast, withDefaultPlugins(options));
 }
 
 /**
@@ -205,8 +226,12 @@ export function pointer(root: any, ptr: string): any {
 /**
  * Applies a JSON Patch to a target object.
  */
-export function patch(target: any, operations: any[]): any {
-	return applyPatch(target, operations);
+export function patch(
+	target: any,
+	operations: any[],
+	options?: ApplyOptions,
+): any {
+	return applyPatch(target, operations, options);
 }
 
 /**
@@ -215,6 +240,14 @@ export function patch(target: any, operations: any[]): any {
 export function mergePatch(target: any, patchDoc: any): any {
 	return applyMergePatch(target, patchDoc);
 }
+
+export {
+	transform,
+	transformAll,
+	project,
+	projectWith,
+	pick,
+} from './transform.js';
 
 // Re-export core types and functions
 export { parse } from '@jsonpath/parser';
