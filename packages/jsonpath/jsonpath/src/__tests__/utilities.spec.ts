@@ -73,5 +73,23 @@ describe('JSONPath Utilities', () => {
 			expect(result.users[0].age).toBe(31);
 			expect(result.users[1].age).toBe(26);
 		});
+
+		it('should support array strategies', () => {
+			const base = { tags: ['a'] };
+			const patch = { tags: ['b'] };
+
+			expect(merge(base, patch, { arrays: 'replace' }).tags).toEqual(['b']);
+			expect(merge(base, patch, { arrays: 'concat' }).tags).toEqual(['a', 'b']);
+			expect(merge(base, patch, { arrays: 'union' }).tags).toEqual(['a', 'b']);
+			expect(
+				merge({ tags: ['a'] }, { tags: ['a', 'b'] }, { arrays: 'union' }).tags,
+			).toEqual(['a', 'b']);
+		});
+
+		it('should handle deep merge', () => {
+			const base = { a: { b: 1 }, c: 2 };
+			const patch = { a: { d: 3 }, c: 4 };
+			expect(merge(base, patch)).toEqual({ a: { b: 1, d: 3 }, c: 4 });
+		});
 	});
 });

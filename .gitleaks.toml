@@ -38,7 +38,8 @@ paths = [
   '''.*\.env\..*\.example$''',
   '''.*\.md$''',
   '''.*\.txt$''',
-  '''.*\/jsonpath\/.*'''
+  '''.*\/jsonpath\/.*''',
+  '''plans\/.*'''
 ]
 
 # Allow example/template values

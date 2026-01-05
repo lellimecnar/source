@@ -1183,15 +1183,15 @@ This step closes the remaining gaps from the plan:
 
 **Work checklist**
 
-- [ ] Ensure `createQuerySet()` matches the spec contract (queryAll, valuesAll, pointersAll, etc.).
-- [ ] Ensure `transformAll()` and `projectWith()` match spec behavior and are covered by tests.
-- [ ] Ensure `merge()` / `mergeWith()` handle deep merge semantics (object merge, array behavior per spec).
-- [ ] Ensure `secureQuery()` enforces the documented secure defaults and option overrides.
-- [ ] Ensure exports are deliberate and stable in `packages/jsonpath/jsonpath/src/index.ts`.
+- [x] Ensure `createQuerySet()` matches the spec contract (queryAll, valuesAll, pointersAll, etc.).
+- [x] Ensure `transformAll()` and `projectWith()` match spec behavior and are covered by tests.
+- [x] Ensure `merge()` / `mergeWith()` handle deep merge semantics (object merge, array behavior per spec).
+- [x] Ensure `secureQuery()` enforces the documented secure defaults and option overrides.
+- [x] Ensure exports are deliberate and stable in `packages/jsonpath/jsonpath/src/index.ts`.
 
-**STOP & COMMIT**
+**STOP & COMMIT [DONE]**
 
-- [ ] COMMIT (VS Code Source Control): `feat(jsonpath): complete facade utilities`
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath): complete facade utilities`
 
 ---
 
@@ -1201,30 +1201,30 @@ This step closes the remaining gaps from the plan:
 
 **Work checklist**
 
-- [ ] Implement parent selector (`^`) behavior and register it.
-- [ ] Implement property-name selector (`~`) behavior and register it.
-- [ ] Add tests proving `$..author^` and `$.*~` semantics.
+- [x] Implement parent selector (`^`) behavior and register it.
+- [x] Implement property-name selector (`~`) behavior and register it.
+- [x] Add tests proving `$..author^` and `$.*~` semantics.
 
-**STOP & COMMIT**
+**STOP & COMMIT [DONE]**
 
-- [ ] COMMIT (VS Code Source Control): `feat(jsonpath-plugin-extended): implement ^ and ~ selectors`
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath-plugin-extended): implement ^ and ~ selectors`
 
 ---
 
-## Step 14 — plugin-arithmetic operators (P2)
+## Step 14 — plugin-arithmetic operators (P2) [DONE]
 
 **Repo reality note:** adding arithmetic requires tokenization in `@jsonpath/lexer` and precedence support in `@jsonpath/parser`.
 
 **Work checklist**
 
-- [ ] Extend lexer to tokenize `+ - * / %` appropriately.
-- [ ] Extend parser precedence map to include arithmetic operators.
-- [ ] Implement operators in `packages/jsonpath/plugin-arithmetic/src/operators/*` and register them.
-- [ ] Add evaluator tests covering arithmetic in filters.
+- [x] Extend lexer to tokenize `+ - * / %` appropriately.
+- [x] Extend parser precedence map to include arithmetic operators.
+- [x] Implement operators in `packages/jsonpath/plugin-arithmetic/src/operators/*` and register them.
+- [x] Add evaluator tests covering arithmetic in filters.
 
-**STOP & COMMIT**
+**STOP & COMMIT [DONE]**
 
-- [ ] COMMIT (VS Code Source Control): `feat(jsonpath-plugin-arithmetic): add arithmetic operators`
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath-plugin-arithmetic): add arithmetic operators`
 
 ---
 

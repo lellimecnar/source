@@ -56,4 +56,23 @@ describe('ArithmeticPlugin', () => {
 			evaluate(data, parse('$[?(mod(@.a, 3) == 1)]')).values(),
 		).toHaveLength(1);
 	});
+
+	it('operators work', () => {
+		const options = { arithmetic: true };
+		expect(
+			evaluate(data, parse('$[?(@.a + @.b == 15)]', options)).values(),
+		).toHaveLength(1);
+		expect(
+			evaluate(data, parse('$[?(@.a - @.b == 5)]', options)).values(),
+		).toHaveLength(1);
+		expect(
+			evaluate(data, parse('$[?(@.a * @.b == 50)]', options)).values(),
+		).toHaveLength(1);
+		expect(
+			evaluate(data, parse('$[?(@.a / @.b == 2)]', options)).values(),
+		).toHaveLength(1);
+		expect(
+			evaluate(data, parse('$[?(@.a % 3 == 1)]', options)).values(),
+		).toHaveLength(1);
+	});
 });

@@ -602,11 +602,11 @@ export class Lexer implements LexerInterface {
 		if (char === '+')
 			return this.createToken(TokenType.PLUS, '+', start, line, col);
 		if (char === '*')
-			return this.createToken(TokenType.STAR, '*', start, line, col);
+			return this.createToken(TokenType.MUL, '*', start, line, col);
 		if (char === '/')
-			return this.createToken(TokenType.SLASH, '/', start, line, col);
+			return this.createToken(TokenType.DIV, '/', start, line, col);
 		if (char === '%')
-			return this.createToken(TokenType.PERCENT, '%', start, line, col);
+			return this.createToken(TokenType.MOD, '%', start, line, col);
 
 		return this.createToken(TokenType.ERROR, char, start, line, col);
 	}

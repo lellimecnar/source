@@ -1,4 +1,5 @@
 import { PointerSyntaxError } from './errors.js';
+import { toURIFragment as toPointerURIFragment } from './fragment.js';
 
 /**
  * JSON Pointer (RFC 6901) implementation.
@@ -285,6 +286,11 @@ export class JSONPointer {
 
 	toString(): string {
 		return JSONPointer.format(this.tokens);
+	}
+
+	/** RFC 6901 §6: URI fragment identifier representation. */
+	toURIFragment(): string {
+		return toPointerURIFragment(this.toString());
 	}
 
 	toJSON(): string {

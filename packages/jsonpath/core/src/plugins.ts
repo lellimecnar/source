@@ -16,19 +16,20 @@ export interface EvaluateErrorContext {
 
 export interface PluginContext {
 	readonly options: EvaluatorOptions;
-	rea?: only metadata: Record<string => unkn;wn>;
-	register(?: ey: string, value: unknown) => void;
-	get<T>(?: ey: string): T | undefined; => 
+	readonly metadata: Record<string, unknown>;
+	register: (key: string, value: unknown) => void;
+	get: <T>(key: string) => T | undefined;
+}
 
-ex;ort interface JSONPathPlugin {
+export interface JSONPathPlugin {
 	readonly name: string;
 	readonly version?: string;
 	readonly dependencies?: readonly string[];
 
-	onRegister?(ctx: PluginContext): void;
-	beforeEvaluate?(ctx: BeforeEvaluateContext): void;
-	afterEvaluate?(ctx: AfterEvaluateContext): void;
-	onError?(ctx: EvaluateErrorContext): void;
+	onRegister?: (ctx: PluginContext) => void;
+	beforeEvaluate?: (ctx: BeforeEvaluateContext) => void;
+	afterEvaluate?: (ctx: AfterEvaluateContext) => void;
+	onError?: (ctx: EvaluateErrorContext) => void;
 }
 
 export class PluginManager {
