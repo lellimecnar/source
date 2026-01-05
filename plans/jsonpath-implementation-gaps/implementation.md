@@ -312,7 +312,7 @@ pnpm --filter @jsonpath/compiler test
 
 ---
 
-## Step 2 — Real JIT Compiler: CompiledQuery + Compiler (P0)
+## Step 2 — Real JIT Compiler: CompiledQuery + Compiler (P0) [DONE]
 
 **Repo reality note:** [packages/jsonpath/compiler/src/compiler.ts](../../packages/jsonpath/compiler/src/compiler.ts) currently exports a `compile()` that just calls the evaluator; this step replaces it with a `Compiler` class and returns a callable object that also carries `source`, `ast`, and `compilationTime`.
 
@@ -583,7 +583,7 @@ pnpm --filter @jsonpath/compiler test
 
 ---
 
-## Step 3 — Compiler Optimizations (P0)
+## Step 3 — Compiler Optimizations (P0) [DONE]
 
 This step is the first true performance pass. It should:
 
@@ -609,7 +609,7 @@ pnpm --filter @jsonpath/compiler test
 
 ---
 
-## Step 4 — RFC 9535 Critical Compliance (P0)
+## Step 4 — RFC 9535 Critical Compliance (P0) [DONE]
 
 **Repo reality note:** `match()` and `search()` are implemented in [packages/jsonpath/functions/src/registry.ts](../../packages/jsonpath/functions/src/registry.ts), not in `match.ts` / `search.ts`.
 
@@ -720,7 +720,7 @@ pnpm --filter @jsonpath/evaluator test
 
 ---
 
-## Step 5 — Run + Pass RFC 9535 Compliance Test Suite (P0)
+## Step 5 — Run + Pass RFC 9535 Compliance Test Suite (P0) [DONE]
 
 **Repo reality note:** compliance suite currently lives in [packages/jsonpath/compliance-suite/src/compliance.spec.ts](../../packages/jsonpath/compliance-suite/src/compliance.spec.ts). The plan’s `runner.ts`/`index.spec.ts` don’t exist yet; this step introduces `runner.ts` and updates the existing spec to use it.
 
@@ -851,10 +851,10 @@ This step focuses on filling the remaining spec metadata gaps without gratuitous
 
 **Work checklist**
 
-- [ ] Add `NameSelectorNode.quoted: boolean` (true when selector was quoted, false otherwise).
-- [ ] Add `LiteralNode.raw: string` (original literal source including quotes/escapes).
-- [ ] Ensure filter queries use `QueryNode.root === false` for `@` and `root === true` for `$`.
-- [ ] Confirm binary operators cover logical + comparison (repo uses `BinaryExpr` with string operators; no separate `LogicalExpr` type needed).
+- [x] Add `NameSelectorNode.quoted: boolean` (true when selector was quoted, false otherwise).
+- [x] Add `LiteralNode.raw: string` (original literal source including quotes/escapes).
+- [x] Ensure filter queries use `QueryNode.root === false` for `@` and `root === true` for `$`.
+- [x] Confirm binary operators cover logical + comparison (repo uses `BinaryExpr` with string operators; no separate `LogicalExpr` type needed).
 
 **RGR/TDD**
 

@@ -52,6 +52,8 @@ export interface SegmentNode extends ASTNode {
 export interface NameSelectorNode extends ASTNode {
 	readonly type: NodeType.NameSelector;
 	readonly name: string;
+	/** True if the name was quoted (e.g., ['name']), false if shorthand (e.g., .name). */
+	readonly quoted: boolean;
 }
 
 export interface IndexSelectorNode extends ASTNode {
@@ -114,6 +116,8 @@ export interface FunctionCallNode extends ASTNode {
 export interface LiteralNode extends ASTNode {
 	readonly type: NodeType.Literal;
 	readonly value: string | number | boolean | null;
+	/** Raw source for this literal (including quotes/escapes). */
+	readonly raw: string;
 }
 
 export type ExpressionNode =

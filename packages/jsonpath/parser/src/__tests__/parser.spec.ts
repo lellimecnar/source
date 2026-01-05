@@ -87,4 +87,30 @@ describe('Parser', () => {
 	it('should allow shorthand keyword selectors when not strict', () => {
 		expect(() => parse('$.true')).not.toThrow();
 	});
+
+	it('should populate metadata (quoted, raw)', () => {
+		const ast = parse('$["a"].b[?(1 == "1")]');
+
+		// Bracket notation name selector
+		const s1 = ast.segments[0].selectors[0] as any;
+		expect(s1.type).toBe(NodeType.NameSelector);
+		expect(s1.name).toBe('a');
+		expect(s1.quoted).toBe(true);
+
+		// Shorthand name selector
+		const s2 = ast.segments[1].selectors[0] as any;
+		expect(s2.type).toBe(NodeType.NameSelector);
+		expect(s2.name).toBe('b');
+		expect(s2.quoted).toBe(false);
+
+		// Literals in filter
+		const filter = ast.segments[2].selectors[0] as any;
+		const expr = filter.expression;
+		expect(expr.left.type).toBe(NodeType.Literal);
+		expect(expr.left.value).toBe(1);
+		expect(expr.left.raw).toBe('1');
+		expect(expr.right.type).toBe(NodeType.Literal);
+		expect(expr.right.value).toBe('1');
+		expect(expr.right.raw).toBe('"1"');
+	});
 });

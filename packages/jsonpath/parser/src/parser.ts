@@ -140,6 +140,7 @@ export class Parser {
 				startPos: next.start,
 				endPos: next.end,
 				name: String(next.value),
+				quoted: false,
 			});
 			this.lexer.next();
 		} else if (next.type === TokenType.PARENT) {
@@ -252,6 +253,7 @@ export class Parser {
 				startPos: start,
 				endPos: token.end,
 				name: token.value as string,
+				quoted: true,
 			};
 		}
 
@@ -436,6 +438,7 @@ export class Parser {
 				startPos: start,
 				endPos: token.end,
 				value: token.value,
+				raw: token.raw ?? String(token.value),
 			};
 		}
 

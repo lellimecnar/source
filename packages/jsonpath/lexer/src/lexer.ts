@@ -231,7 +231,8 @@ export class Lexer implements LexerInterface {
 			const charCode = this.input.charCodeAt(this.pos);
 			if (charCode === quote) {
 				this.advance(); // skip closing quote
-				return this.createToken(TokenType.STRING, value, start, line, col);
+				const raw = this.input.slice(start, this.pos);
+				return this.createToken(TokenType.STRING, value, start, line, col, raw);
 			}
 
 			if (charCode === CharCode.BACKSLASH) {
@@ -498,14 +499,21 @@ export class Lexer implements LexerInterface {
 
 		switch (value) {
 			case 'true':
-				return this.createToken(TokenType.TRUE, true, start, line, col);
+				return this.createToken(TokenType.TRUE, true, start, line, col, value);
 			case 'false':
-				return this.createToken(TokenType.FALSE, false, start, line, col);
+				return this.createToken(
+					TokenType.FALSE,
+					false,
+					start,
+					line,
+					col,
+					value,
+				);
 			case 'null':
-				return this.createToken(TokenType.NULL, null, start, line, col);
+				return this.createToken(TokenType.NULL, null, start, line, col, value);
 		}
 
-		return this.createToken(TokenType.IDENT, value, start, line, col);
+		return this.createToken(TokenType.IDENT, value, start, line, col, value);
 	}
 
 	private readOperator(): Token {
