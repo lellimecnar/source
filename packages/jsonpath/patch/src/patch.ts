@@ -11,7 +11,17 @@ export type PatchOperation =
 
 export interface ApplyOptions {
 	readonly strictMode?: boolean;
-	readonly atomic?: boolean;
+	readonly mutate?: boolean;
+	readonly validate?: boolean;
+	readonly continueOnError?: boolean;
+	readonly inverse?: boolean;
+	readonly before?: (data: unknown, op: PatchOperation, index: number) => void;
+	readonly after?: (
+		data: unknown,
+		op: PatchOperation,
+		index: number,
+		result: unknown,
+	) => void;
 }
 
 /**
@@ -40,6 +50,29 @@ function validateOperation(operation: Record<string, unknown>): void {
 }
 
 /**
+ * Validates a patch document without applying it.
+ * @throws {JSONPatchError} if any operation is invalid
+ */
+export function validate(patch: PatchOperation[]): void {
+	patch.forEach((op, index) => {
+		try {
+			validateOperation(op as any);
+		} catch (err: any) {
+			if (err instanceof JSONPatchError) {
+				throw new JSONPatchError(err.message, {
+					...err,
+					operationIndex: index,
+				});
+			}
+			throw new JSONPatchError(err.message, {
+				operationIndex: index,
+				operation: op.op,
+			});
+		}
+	});
+}
+
+/**
  * JSON Patch (RFC 6902) implementation.
  */
 export function applyPatch(
@@ -47,50 +80,62 @@ export function applyPatch(
 	patch: PatchOperation[],
 	options: ApplyOptions = {},
 ): any {
-	const { strictMode = true, atomic = false } = options;
+	const {
+		strictMode = true,
+		mutate = false,
+		continueOnError = false,
+		before,
+		after,
+	} = options;
 
-	const working = atomic ? structuredClone(target) : target;
-	let result = working;
+	// RFC 6902 requires atomicity. We always work on a clone to ensure that
+	// if any operation fails, the original target is not modified.
+	const result = structuredClone(target);
+	let working = result;
 
-	patch.forEach((operation, index) => {
+	for (let index = 0; index < patch.length; index++) {
+		const operation = patch[index]!;
 		try {
+			if (before) before(working, operation, index);
+
 			validateOperation(operation);
 
+			let opResult = working;
 			switch (operation.op) {
 				case 'add':
-					result = applyAdd(result, operation.path, operation.value);
+					opResult = applyAdd(working, operation.path, operation.value);
 					break;
 				case 'remove':
 					if (strictMode) {
-						result = applyRemove(result, operation.path);
+						opResult = applyRemove(working, operation.path);
 						break;
 					}
 					try {
-						result = applyRemove(result, operation.path);
+						opResult = applyRemove(working, operation.path);
 					} catch (err: any) {
 						if (err?.code !== 'PATH_NOT_FOUND') throw err;
 					}
 					break;
 				case 'replace':
 					if (strictMode) {
-						result = applyReplace(result, operation.path, operation.value);
+						opResult = applyReplace(working, operation.path, operation.value);
 						break;
 					}
 					try {
-						result = applyReplace(result, operation.path, operation.value);
+						opResult = applyReplace(working, operation.path, operation.value);
 					} catch (err: any) {
 						if (err?.code !== 'PATH_NOT_FOUND') throw err;
-						result = applyAdd(result, operation.path, operation.value);
+						opResult = applyAdd(working, operation.path, operation.value);
 					}
 					break;
 				case 'move':
-					result = applyMove(result, operation.from, operation.path);
+					opResult = applyMove(working, operation.from, operation.path);
 					break;
 				case 'copy':
-					result = applyCopy(result, operation.from, operation.path);
+					opResult = applyCopy(working, operation.from, operation.path);
 					break;
 				case 'test':
-					applyTest(result, operation.path, operation.value);
+					applyTest(working, operation.path, operation.value);
 					break;
 				default:
 					throw new JSONPatchError(
@@ -98,7 +143,13 @@ export function applyPatch(
 						{ operationIndex: index, operation: (operation as any).op },
 					);
 			}
+			working = opResult;
+
+			if (after) after(working, operation, index, opResult);
 		} catch (err) {
+			if (continueOnError) {
+				continue;
+			}
 			if (err instanceof JSONPathError) {
 				if (err instanceof JSONPatchError && err.operationIndex !== undefined) {
 					throw err;
@@ -112,29 +163,29 @@ export function applyPatch(
 			}
 			throw err;
 		}
-	});
+	}
 
-	if (atomic) {
+	if (mutate) {
 		if (
 			target &&
 			typeof target === 'object' &&
-			result &&
-			typeof result === 'object'
+			working &&
+			typeof working === 'object'
 		) {
-			if (Array.isArray(target) && Array.isArray(result)) {
+			if (Array.isArray(target) && Array.isArray(working)) {
 				target.length = 0;
-				target.push(...result);
+				target.push(...working);
 				return target;
 			}
 
 			for (const key of Object.keys(target)) delete target[key];
-			Object.assign(target, result);
+			Object.assign(target, working);
 			return target;
 		}
-		return result;
+		return working;
 	}
 
-	return result;
+	return working;
 }
 
 export function applyPatchImmutable(
@@ -142,8 +193,7 @@ export function applyPatchImmutable(
 	patch: PatchOperation[],
 	options: ApplyOptions = {},
 ): any {
-	const clone = structuredClone(target);
-	return applyPatch(clone, patch, { ...options, atomic: false });
+	return applyPatch(target, patch, { ...options, mutate: false });
 }
 
 export function testPatch(
@@ -151,7 +201,94 @@ export function testPatch(
 	patch: PatchOperation[],
 	options: ApplyOptions = {},
 ): void {
-	applyPatchImmutable(target, patch, options);
+	applyPatch(target, patch, { ...options, mutate: false });
+}
+
+/**
+ * Applies a patch and returns the result along with any errors encountered.
+ */
+export function applyWithErrors<T>(
+	target: T,
+	patch: PatchOperation[],
+	options: ApplyOptions = {},
+): {
+	result: T;
+	errors: Array<{ index: number; operation: PatchOperation; error: Error }>;
+} {
+	const errors: Array<{
+		index: number;
+		operation: PatchOperation;
+		error: Error;
+	}> = [];
+
+	const result = applyPatch(target, patch, {
+		...options,
+		continueOnError: true,
+		after: (data, op, index, res) => {
+			if (options.after) options.after(data, op, index, res);
+		},
+		// We need a way to catch errors. Let's use a custom before/after or just wrap the calls.
+		// Actually, let's just implement the loop here to be safe and clear.
+	});
+
+	// Re-implementing the loop for applyWithErrors to collect errors correctly
+	const workingResult = structuredClone(target);
+	let working = workingResult;
+
+	for (let index = 0; index < patch.length; index++) {
+		const operation = patch[index]!;
+		try {
+			if (options.before) options.before(working, operation, index);
+
+			validateOperation(operation);
+
+			let opResult = working;
+			switch (operation.op) {
+				case 'add':
+					opResult = applyAdd(working, operation.path, operation.value);
+					break;
+				case 'remove':
+					opResult = applyRemove(working, operation.path);
+					break;
+				case 'replace':
+					opResult = applyReplace(working, operation.path, operation.value);
+					break;
+				case 'move':
+					opResult = applyMove(working, operation.from, operation.path);
+					break;
+				case 'copy':
+					opResult = applyCopy(working, operation.from, operation.path);
+					break;
+				case 'test':
+					applyTest(working, operation.path, operation.value);
+					break;
+			}
+			working = opResult;
+			if (options.after) options.after(working, operation, index, opResult);
+		} catch (err: any) {
+			errors.push({ index, operation, error: err });
+		}
+	}
+
+	if (options.mutate) {
+		if (
+			target &&
+			typeof target === 'object' &&
+			working &&
+			typeof working === 'object'
+		) {
+			if (Array.isArray(target) && Array.isArray(working)) {
+				target.length = 0;
+				target.push(...working);
+			} else {
+				for (const key of Object.keys(target)) delete (target as any)[key];
+				Object.assign(target, working);
+			}
+			return { result: target, errors };
+		}
+	}
+
+	return { result: working as T, errors };
 }
 
 /**
@@ -160,20 +297,20 @@ export function testPatch(
 export function applyWithInverse(
 	target: any,
 	patch: PatchOperation[],
-	options: ApplyOptions & { clone?: boolean } = {},
+	options: ApplyOptions = {},
 ): { result: any; inverse: PatchOperation[] } {
 	const inverse: PatchOperation[] = [];
-	const { clone = true } = options;
-	let result = clone ? structuredClone(target) : target;
+	const { mutate = false } = options;
+	let working = structuredClone(target);
 
 	// To generate an inverse patch, we need to record the state before each operation
 	patch.forEach((operation) => {
 		const pointer = new JSONPointer(operation.path);
-		const oldValue = pointer.evaluate(result);
+		const oldValue = pointer.evaluate(working);
 
 		switch (operation.op) {
 			case 'add':
-				result = applyAdd(result, operation.path, operation.value);
+				working = applyAdd(working, operation.path, operation.value);
 				if (oldValue === undefined) {
 					inverse.unshift({ op: 'remove', path: operation.path });
 				} else {
@@ -185,38 +322,74 @@ export function applyWithInverse(
 				}
 				break;
 			case 'remove':
-				result = applyRemove(result, operation.path);
+				working = applyRemove(working, operation.path);
 				inverse.unshift({ op: 'add', path: operation.path, value: oldValue });
 				break;
 			case 'replace':
-				result = applyReplace(result, operation.path, operation.value);
+				working = applyReplace(working, operation.path, operation.value);
 				inverse.unshift({
 					op: 'replace',
 					path: operation.path,
 					value: oldValue,
 				});
 				break;
-			case 'move':
+			case 'move': {
 				const fromPointer = new JSONPointer(operation.from);
-				const fromValue = fromPointer.evaluate(result);
-				result = applyMove(result, operation.from, operation.path);
+				const fromValue = fromPointer.evaluate(working);
+				working = applyMove(working, operation.from, operation.path);
+				// Inverse of move is move back, but we also need to restore the value at the destination if it existed
+				if (oldValue !== undefined) {
+					inverse.unshift({
+						op: 'add',
+						path: operation.path,
+						value: oldValue,
+					});
+				}
 				inverse.unshift({
 					op: 'move',
 					from: operation.path,
 					path: operation.from,
 				});
 				break;
+			}
 			case 'copy':
-				result = applyCopy(result, operation.from, operation.path);
-				inverse.unshift({ op: 'remove', path: operation.path });
+				working = applyCopy(working, operation.from, operation.path);
+				if (oldValue === undefined) {
+					inverse.unshift({ op: 'remove', path: operation.path });
+				} else {
+					inverse.unshift({
+						op: 'replace',
+						path: operation.path,
+						value: oldValue,
+					});
+				}
 				break;
 			case 'test':
-				applyTest(result, operation.path, operation.value);
+				applyTest(working, operation.path, operation.value);
+				// test operations don't need an inverse as they don't mutate
 				break;
 		}
 	});
 
-	return { result, inverse };
+	if (mutate) {
+		if (
+			target &&
+			typeof target === 'object' &&
+			working &&
+			typeof working === 'object'
+		) {
+			if (Array.isArray(target) && Array.isArray(working)) {
+				target.length = 0;
+				target.push(...working);
+			} else {
+				for (const key of Object.keys(target)) delete target[key];
+				Object.assign(target, working);
+			}
+			return { result: target, inverse };
+		}
+	}
+
+	return { result: working, inverse };
 }
 
 function applyAdd(target: any, path: string, value: any): any {
