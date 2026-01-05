@@ -18,7 +18,6 @@
 		"dev": "turbo dev",
 		"format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,json}\"",
 		"graph": "pnpm list --depth=Infinity --json",
-		"postinstall": "node scripts/node/download-compliance-tests.mjs",
 		"lint": "turbo lint",
 		"miller.pub": "turbo run -F miller.pub",
 		"outdated": "pnpm outdated --recursive",

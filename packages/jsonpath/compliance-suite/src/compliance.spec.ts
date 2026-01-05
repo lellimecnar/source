@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { query } from '@jsonpath/jsonpath';
-import { loadCts, matchesOneOf } from './runner.js';
-
-const cts = loadCts();
+import cts from 'jsonpath-compliance-test-suite/cts.json' assert { type: 'json' };
+import { matchesOneOf } from './runner.js';
 
 describe('RFC 9535 Compliance Suite', () => {
 	cts.tests.forEach((test) => {

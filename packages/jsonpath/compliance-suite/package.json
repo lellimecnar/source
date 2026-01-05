@@ -5,6 +5,7 @@
 	"description": "RFC 9535 compliance tests for JSONPath",
 	"type": "module",
 	"scripts": {
+		"install": "pnpm dlx napa",
 		"lint": "eslint src/**/*.ts",
 		"test": "vitest run"
 	},
@@ -16,5 +17,8 @@
 		"@lellimecnar/vitest-config": "workspace:*",
 		"typescript": "~5.5",
 		"vitest": "^4.0.16"
+	},
+	"napa": {
+		"jsonpath-compliance-test-suite": "jsonpath-standard/jsonpath-compliance-test-suite#main"
 	}
 }
