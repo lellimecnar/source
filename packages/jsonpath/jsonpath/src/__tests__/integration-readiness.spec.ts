@@ -10,37 +10,37 @@ import {
 } from '../index.js';
 
 describe('JSONPath Integration Readiness', () => {
-	const data = {
-		users: [
-			{
-				id: 1,
-				name: 'Alice',
-				profile: { age: 30, city: 'New York' },
-				tags: ['admin', 'editor'],
-			},
-			{
-				id: 2,
-				name: 'Bob',
-				profile: { age: 25, city: 'London' },
-				tags: ['user'],
-			},
-			{
-				id: 3,
-				name: 'Charlie',
-				profile: { age: 35, city: 'Paris' },
-				tags: ['user', 'editor'],
-			},
-		],
-		config: {
-			version: '1.0.0',
-			features: {
-				logging: true,
-				analytics: false,
-			},
-		},
-	};
-
 	it('should support a complex integration workflow', () => {
+		let data = {
+			users: [
+				{
+					id: 1,
+					name: 'Alice',
+					profile: { age: 30, city: 'New York' },
+					tags: ['admin', 'editor'],
+				},
+				{
+					id: 2,
+					name: 'Bob',
+					profile: { age: 25, city: 'London' },
+					tags: ['user'],
+				},
+				{
+					id: 3,
+					name: 'Charlie',
+					profile: { age: 35, city: 'Paris' },
+					tags: ['user', 'editor'],
+				},
+			],
+			config: {
+				version: '1.0.0',
+				features: {
+					logging: true,
+					analytics: false,
+				},
+			},
+		};
+
 		// 1. Use new built-in functions in a filter
 		// Find users where the number of tags is greater than 1
 		const multiTagUsers = query(data, '$.users[?length(@.tags) > 1]');
@@ -61,12 +61,12 @@ describe('JSONPath Integration Readiness', () => {
 		const relName = new RelativeJSONPointer('1/name');
 		expect(relName.resolve(data, aliceProfilePointer)).toBe('Alice');
 
-		// 4. Use JSON Patch (mutation-by-default)
+		// 4. Use JSON Patch (explicit mutation)
 		const patch = [
 			{ op: 'replace', path: '/users/1/name', value: 'Robert' },
 			{ op: 'add', path: '/users/1/profile/country', value: 'UK' },
 		];
-		const patchResult = applyPatch(data, patch);
+		const patchResult = applyPatch(data, patch, { mutate: true });
 		expect(data.users[1].name).toBe('Robert');
 		expect((data.users[1].profile as any).country).toBe('UK');
 
@@ -82,9 +82,9 @@ describe('JSONPath Integration Readiness', () => {
 		expect(data.config.features.analytics).toBe(true);
 		expect(data.config.features.logging).toBe(true); // Preserved because it's not in the patch
 
-		// 6. Use transform with new pointers
+		// 6. Use transform (immutable by default, so we re-assign)
 		// Increment all ages by 1
-		transform(data, '$.users[*].profile.age', (age) => age + 1);
+		data = transform(data, '$.users[*].profile.age', (age) => age + 1);
 		expect(data.users[0].profile.age).toBe(31);
 		expect(data.users[1].profile.age).toBe(26);
 		expect(data.users[2].profile.age).toBe(36);

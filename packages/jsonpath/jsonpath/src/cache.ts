@@ -11,12 +11,20 @@ import type { QueryNode } from '@jsonpath/parser';
 import { getConfig } from './config.js';
 
 const queryCache = new Map<string, QueryNode>();
+let hits = 0;
+let misses = 0;
 
 /**
  * Returns a cached AST for a query string, or undefined if not cached.
  */
 export function getCachedQuery(query: string): QueryNode | undefined {
-	return queryCache.get(query);
+	const ast = queryCache.get(query);
+	if (ast) {
+		hits++;
+	} else {
+		misses++;
+	}
+	return ast;
 }
 
 /**
@@ -42,14 +50,23 @@ export function setCachedQuery(query: string, ast: QueryNode): void {
  */
 export function clearCache(): void {
 	queryCache.clear();
+	hits = 0;
+	misses = 0;
 }
 
 /**
  * Returns cache statistics.
  */
-export function getCacheStats(): { size: number; maxSize: number } {
+export function getCacheStats(): {
+	size: number;
+	maxSize: number;
+	hits: number;
+	misses: number;
+} {
 	return {
 		size: queryCache.size,
 		maxSize: getConfig().cache.maxSize,
+		hits,
+		misses,
 	};
 }
