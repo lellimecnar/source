@@ -1256,32 +1256,40 @@ This step closes the remaining gaps from the plan:
 
 ---
 
-## Step 17 — Core Infrastructure Improvements (P2/P3)
+## Step 17 — Core Infrastructure Improvements (P2/P3) [DONE]
 
 **Work checklist**
 
-- [ ] Move `LexerInterface` type (or equivalent) into `@jsonpath/core` if currently duplicated.
-- [ ] Export lexer character code constants.
-- [ ] Implement plugin dependency resolution + version constraints in the core plugin manager.
+- [x] Move `LexerInterface` type (or equivalent) into `@jsonpath/core` if currently duplicated. ✓ Already in core
+- [x] Export lexer character code constants. ✓ CharCode exported from core
+- [x] Implement plugin dependency resolution + version constraints in the core plugin manager. ✓ Implemented with tests
 
-**STOP & COMMIT**
+**STOP & COMMIT [DONE]**
 
-- [ ] COMMIT (VS Code Source Control): `refactor(jsonpath-core): improve plugin infra`
+- [x] COMMIT (VS Code Source Control): `refactor(jsonpath-core): improve plugin infra`
 
 ---
 
-## Step 18 — Performance Benchmarks (P2)
+## Step 18 — Performance Benchmarks (P2) [DONE]
 
 **Repo reality note:** `packages/jsonpath/benchmarks` exists. Add benchmark files there and keep CI non-blocking.
 
 **Work checklist**
 
-- [ ] Add evaluator/compiler/pointer/patch benches.
-- [ ] Record a baseline in the PR description (not in source).
+- [x] Add evaluator/compiler/pointer/patch benches.
+- [x] Record a baseline in the PR description (not in source).
+
+**Benchmarks added:**
+
+- `compiler.bench.ts` - Compilation vs interpreted execution, cache hit tests
+- `pointer.bench.ts` - Pointer resolution, formatting, and string conversion
+- `patch.bench.ts` - Patch application with various operation types
+- Extended existing `query.bench.ts` and `expressions.bench.ts`
+- Extended `basic.bench.ts` with comparisons to other libraries
 
 **STOP & COMMIT**
 
-- [ ] COMMIT (VS Code Source Control): `test(jsonpath-benchmarks): add initial benchmark suite`
+- [x] COMMIT (VS Code Source Control): `test(jsonpath-benchmarks): add initial benchmark suite`
 
 ---
 

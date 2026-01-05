@@ -1,5 +1,7 @@
 import { bench, describe } from 'vitest';
 import { query } from '@jsonpath/jsonpath';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error - jsonpath library does not have type definitions
 import jp from 'jsonpath';
 import { JSONPath } from 'jsonpath-plus';
 
