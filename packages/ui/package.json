@@ -81,11 +81,11 @@
 		"postcss": "^8.5.6",
 		"react-dom": "^19.2.3",
 		"tailwindcss": "^3.4.17",
-		"typescript": "~5.5",
+		"typescript": "~5.9",
 		"vitest": "^4.0.16"
 	},
 	"peerDependencies": {
 		"react": "^18",
-		"typescript": "~5.5"
+		"typescript": "~5.9"
 	}
 }
