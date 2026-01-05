@@ -11,6 +11,7 @@ export function vitestBaseConfig(): ViteUserConfig {
 		plugins: [tsconfigPaths()],
 		test: {
 			globals: true,
+			watch: false,
 			passWithNoTests: true,
 			reporters: ['json', 'default'],
 			outputFile: 'test-output.json',
