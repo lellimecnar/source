@@ -28,6 +28,8 @@ export enum NodeType {
 	UnaryExpr = 'UnaryExpr',
 	FunctionCall = 'FunctionCall',
 	Literal = 'Literal',
+	ArrayLiteral = 'ArrayLiteral',
+	ObjectLiteral = 'ObjectLiteral',
 }
 
 export interface ASTNode {
@@ -120,11 +122,23 @@ export interface LiteralNode extends ASTNode {
 	readonly raw: string;
 }
 
+export interface ArrayLiteralNode extends ASTNode {
+	readonly type: NodeType.ArrayLiteral;
+	readonly elements: ExpressionNode[];
+}
+
+export interface ObjectLiteralNode extends ASTNode {
+	readonly type: NodeType.ObjectLiteral;
+	readonly properties: Record<string, ExpressionNode>;
+}
+
 export type ExpressionNode =
 	| BinaryExprNode
 	| UnaryExprNode
 	| FunctionCallNode
 	| LiteralNode
+	| ArrayLiteralNode
+	| ObjectLiteralNode
 	| QueryNode;
 
 /**

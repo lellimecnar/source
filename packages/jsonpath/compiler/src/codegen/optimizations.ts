@@ -32,37 +32,61 @@ export function foldConstants(expr: ExpressionNode): ExpressionNode {
 
 			switch (expr.operator) {
 				case '&&':
-					return { ...expr, type: NodeType.Literal, value: Boolean(l && r) };
+					return {
+						...expr,
+						type: NodeType.Literal,
+						value: Boolean(l && r),
+						raw: String(l && r),
+					} as any;
 				case '||':
-					return { ...expr, type: NodeType.Literal, value: Boolean(l || r) };
+					return {
+						...expr,
+						type: NodeType.Literal,
+						value: Boolean(l || r),
+						raw: String(l || r),
+					} as any;
 				case '==':
-					return { ...expr, type: NodeType.Literal, value: l === r };
+					return {
+						...expr,
+						type: NodeType.Literal,
+						value: l === r,
+						raw: String(l === r),
+					} as any;
 				case '!=':
-					return { ...expr, type: NodeType.Literal, value: l !== r };
+					return {
+						...expr,
+						type: NodeType.Literal,
+						value: l !== r,
+						raw: String(l !== r),
+					} as any;
 				case '<':
 					return {
 						...expr,
 						type: NodeType.Literal,
 						value: (l as any) < (r as any),
-					};
+						raw: String((l as any) < (r as any)),
+					} as any;
 				case '<=':
 					return {
 						...expr,
 						type: NodeType.Literal,
 						value: (l as any) <= (r as any),
-					};
+						raw: String((l as any) <= (r as any)),
+					} as any;
 				case '>':
 					return {
 						...expr,
 						type: NodeType.Literal,
 						value: (l as any) > (r as any),
-					};
+						raw: String((l as any) > (r as any)),
+					} as any;
 				case '>=':
 					return {
 						...expr,
 						type: NodeType.Literal,
 						value: (l as any) >= (r as any),
-					};
+						raw: String((l as any) >= (r as any)),
+					} as any;
 			}
 		}
 		return { ...expr, left, right };
@@ -72,7 +96,12 @@ export function foldConstants(expr: ExpressionNode): ExpressionNode {
 		const operand = foldConstants(expr.operand);
 		if (operand.type === NodeType.Literal) {
 			if (expr.operator === '!') {
-				return { ...expr, type: NodeType.Literal, value: !operand.value };
+				return {
+					...expr,
+					type: NodeType.Literal,
+					value: !operand.value,
+					raw: String(!operand.value),
+				} as any;
 			}
 		}
 		return { ...expr, operand };

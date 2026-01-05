@@ -11,14 +11,5 @@ export function normalize(
 		return JSONPointer.format([...pointer]);
 	}
 
-	return JSONPointer.format(JSONPointer.parse(pointer));
-}
-
-export function isValid(pointer: string): boolean {
-	try {
-		JSONPointer.parse(pointer);
-		return true;
-	} catch {
-		return false;
-	}
+	return JSONPointer.format(JSONPointer.parse(pointer as string));
 }

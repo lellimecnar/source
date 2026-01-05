@@ -2,7 +2,6 @@
 	"extends": "@lellimecnar/typescript-config/base.json",
 	"compilerOptions": {
 		"outDir": "./dist",
-		"rootDir": "./src",
 		"paths": {
 			"@jsonpath/core": ["../core/src/index.ts"],
 			"@jsonpath/lexer": ["../lexer/src/index.ts"],

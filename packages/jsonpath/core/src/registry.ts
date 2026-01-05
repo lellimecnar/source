@@ -44,14 +44,18 @@ export function registerOperator(definition: OperatorDefinition): void {
 /**
  * Registers a function in the global registry.
  */
-export function registerFunction(definition: FunctionDefinition): void {
+export function registerFunction(
+	definition: FunctionDefinition<any, any>,
+): void {
 	functionRegistry.set(definition.name, definition);
 }
 
 /**
  * Returns a function definition by name.
  */
-export function getFunction(name: string): FunctionDefinition | undefined {
+export function getFunction(
+	name: string,
+): FunctionDefinition<any, any> | undefined {
 	return functionRegistry.get(name);
 }
 

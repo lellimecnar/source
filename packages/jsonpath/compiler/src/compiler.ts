@@ -35,12 +35,12 @@ export class Compiler {
 			'ast',
 			body,
 		) as (
-			QueryResult: typeof QueryResult,
-			evaluate: typeof evaluate,
-			getFunction: typeof getFunction,
-			Nothing: typeof Nothing,
-			ast: QueryNode,
-		) => (root: unknown, options?: EvaluatorOptions) => QueryResult;
+			QueryResult: any,
+			evaluate: any,
+			getFunction: any,
+			Nothing: any,
+			ast: any,
+		) => (root: unknown, options?: any) => any;
 
 		const fn = factory(QueryResult, evaluate, getFunction, Nothing, ast);
 		const compiled: CompiledQuery = Object.assign(fn, {

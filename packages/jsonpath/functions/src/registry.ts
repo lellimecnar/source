@@ -60,11 +60,11 @@ export const matchFn: FunctionDefinition<[unknown, unknown], boolean> = {
 	signature: ['ValueType', 'ValueType'],
 	returns: 'LogicalType',
 	evaluate: (val: unknown, pattern: unknown) => {
-		if (typeof pattern !== 'string') return false;
-		if (typeof val !== 'string') return false;
+		if (typeof pattern !== 'string') return undefined;
+		if (typeof val !== 'string') return undefined;
 
 		const validation = validateIRegexp(pattern);
-		if (!validation.valid) return false;
+		if (!validation.valid) return undefined;
 
 		try {
 			// Wrap in non-capturing group to handle alternation correctly with anchors.
@@ -72,7 +72,7 @@ export const matchFn: FunctionDefinition<[unknown, unknown], boolean> = {
 			const regex = convertIRegexp(`^(?:${pattern})$`);
 			return regex.test(val);
 		} catch {
-			return false;
+			return undefined;
 		}
 	},
 };
@@ -85,17 +85,17 @@ export const searchFn: FunctionDefinition<[unknown, unknown], boolean> = {
 	signature: ['ValueType', 'ValueType'],
 	returns: 'LogicalType',
 	evaluate: (val: unknown, pattern: unknown) => {
-		if (typeof pattern !== 'string') return false;
-		if (typeof val !== 'string') return false;
+		if (typeof pattern !== 'string') return undefined;
+		if (typeof val !== 'string') return undefined;
 
 		const validation = validateIRegexp(pattern);
-		if (!validation.valid) return false;
+		if (!validation.valid) return undefined;
 
 		try {
 			const regex = convertIRegexp(pattern);
 			return regex.test(val);
 		} catch {
-			return false;
+			return undefined;
 		}
 	},
 };

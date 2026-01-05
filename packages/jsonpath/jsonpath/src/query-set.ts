@@ -97,7 +97,32 @@ export class QuerySet {
 	): Record<string, string[]> {
 		const results: Record<string, string[]> = {};
 		for (const [name, path] of this.queries.entries()) {
-			results[name] = query(data, path, options).pointerStrings();
+			results[name] = query(data, path, options).pointers();
+		}
+		return results;
+	}
+
+	/**
+	 * Executes all queries and returns a map of paths (segment arrays).
+	 */
+	pathsAll(data: unknown, options?: EvaluatorOptions): Record<string, any[][]> {
+		const results: Record<string, any[][]> = {};
+		for (const [name, path] of this.queries.entries()) {
+			results[name] = query(data, path, options).paths();
+		}
+		return results;
+	}
+
+	/**
+	 * Executes all queries and returns a map of RFC 9535 normalized paths.
+	 */
+	normalizedPathsAll(
+		data: unknown,
+		options?: EvaluatorOptions,
+	): Record<string, string[]> {
+		const results: Record<string, string[]> = {};
+		for (const [name, path] of this.queries.entries()) {
+			results[name] = query(data, path, options).normalizedPaths();
 		}
 		return results;
 	}

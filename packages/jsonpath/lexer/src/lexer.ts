@@ -113,6 +113,18 @@ export class Lexer implements LexerInterface {
 						this.createToken(TokenType.RBRACKET, ']', start, line, col),
 					);
 					continue;
+				case CharCode.LBRACE:
+					this.advance();
+					this.tokens.push(
+						this.createToken(TokenType.LBRACE, '{', start, line, col),
+					);
+					continue;
+				case CharCode.RBRACE:
+					this.advance();
+					this.tokens.push(
+						this.createToken(TokenType.RBRACE, '}', start, line, col),
+					);
+					continue;
 				case CharCode.LPAREN:
 					this.advance();
 					this.tokens.push(
@@ -141,6 +153,36 @@ export class Lexer implements LexerInterface {
 					this.advance();
 					this.tokens.push(
 						this.createToken(TokenType.WILDCARD, '*', start, line, col),
+					);
+					continue;
+				case CharCode.PLUS:
+					this.advance();
+					this.tokens.push(
+						this.createToken(TokenType.PLUS, '+', start, line, col),
+					);
+					continue;
+				case CharCode.MINUS:
+					// Check if it's a number: followed by a digit
+					const nextCharNum = this.input.charCodeAt(this.pos + 1);
+					if (nextCharNum < 128 && CHAR_FLAGS[nextCharNum]! & IS_DIGIT) {
+						this.tokens.push(this.readNumber());
+					} else {
+						this.advance();
+						this.tokens.push(
+							this.createToken(TokenType.MINUS, '-', start, line, col),
+						);
+					}
+					continue;
+				case CharCode.SLASH:
+					this.advance();
+					this.tokens.push(
+						this.createToken(TokenType.DIV, '/', start, line, col),
+					);
+					continue;
+				case CharCode.PERCENT:
+					this.advance();
+					this.tokens.push(
+						this.createToken(TokenType.MOD, '%', start, line, col),
 					);
 					continue;
 				case CharCode.CARET:
@@ -173,10 +215,7 @@ export class Lexer implements LexerInterface {
 			}
 
 			// Numbers
-			if (
-				(charCode < 128 && CHAR_FLAGS[charCode]! & IS_DIGIT) ||
-				charCode === CharCode.MINUS
-			) {
+			if (charCode < 128 && CHAR_FLAGS[charCode]! & IS_DIGIT) {
 				this.tokens.push(this.readNumber());
 				continue;
 			}
@@ -349,7 +388,7 @@ export class Lexer implements LexerInterface {
 				if (charCode >= 0xd800 && charCode <= 0xdbff) {
 					const nextCode = this.input.charCodeAt(this.pos + 1);
 					if (nextCode >= 0xdc00 && nextCode <= 0xdfff) {
-						value += this.input[this.pos] + this.input[this.pos + 1];
+						value += this.input[this.pos]! + this.input[this.pos + 1]!;
 						this.pos += 1;
 						this.column += 1;
 					} else {

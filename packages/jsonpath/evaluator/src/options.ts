@@ -1,4 +1,4 @@
-import type { EvaluatorOptions } from '@jsonpath/core';
+import type { EvaluatorOptions, SecureQueryOptions } from '@jsonpath/core';
 
 export const DEFAULT_EVALUATOR_OPTIONS: Required<
 	Pick<
@@ -31,6 +31,8 @@ export function withDefaults(
 ): Required<EvaluatorOptions> {
 	return {
 		...DEFAULT_EVALUATOR_OPTIONS,
+		signal: options?.signal ?? new AbortController().signal,
+		plugins: options?.plugins ?? [],
 		...options,
 		secure: {
 			...DEFAULT_EVALUATOR_OPTIONS.secure,

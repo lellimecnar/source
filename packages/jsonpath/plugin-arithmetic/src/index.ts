@@ -1,4 +1,9 @@
-import { registerFunction, Nothing, type JSONPathPlugin } from '@jsonpath/core';
+import {
+	registerFunction,
+	registerOperator,
+	Nothing,
+	type JSONPathPlugin,
+} from '@jsonpath/core';
 
 /**
  * Arithmetic plugin for JSONPath.
@@ -53,6 +58,58 @@ export function arithmetic(): JSONPathPlugin {
 				name: 'mod',
 				signature: ['ValueType', 'ValueType'],
 				returns: 'ValueType',
+				evaluate: (a: any, b: any) => {
+					if (typeof a !== 'number' || typeof b !== 'number' || b === 0)
+						return Nothing;
+					return a % b;
+				},
+			});
+
+			registerOperator({
+				symbol: '+',
+				precedence: 50,
+				associativity: 'left',
+				evaluate: (a: any, b: any) => {
+					if (typeof a !== 'number' || typeof b !== 'number') return Nothing;
+					return a + b;
+				},
+			});
+
+			registerOperator({
+				symbol: '-',
+				precedence: 50,
+				associativity: 'left',
+				evaluate: (a: any, b: any) => {
+					if (typeof a !== 'number' || typeof b !== 'number') return Nothing;
+					return a - b;
+				},
+			});
+
+			registerOperator({
+				symbol: '*',
+				precedence: 60,
+				associativity: 'left',
+				evaluate: (a: any, b: any) => {
+					if (typeof a !== 'number' || typeof b !== 'number') return Nothing;
+					return a * b;
+				},
+			});
+
+			registerOperator({
+				symbol: '/',
+				precedence: 60,
+				associativity: 'left',
+				evaluate: (a: any, b: any) => {
+					if (typeof a !== 'number' || typeof b !== 'number' || b === 0)
+						return Nothing;
+					return a / b;
+				},
+			});
+
+			registerOperator({
+				symbol: '%',
+				precedence: 60,
+				associativity: 'left',
 				evaluate: (a: any, b: any) => {
 					if (typeof a !== 'number' || typeof b !== 'number' || b === 0)
 						return Nothing;

@@ -24,6 +24,14 @@ export default defineConfig({
 				__dirname,
 				'../merge-patch/src/index.ts',
 			),
+			'@jsonpath/plugin-arithmetic': path.resolve(
+				__dirname,
+				'../plugin-arithmetic/src/index.ts',
+			),
+			'@jsonpath/plugin-extras': path.resolve(
+				__dirname,
+				'../plugin-extras/src/index.ts',
+			),
 			'@jsonpath/compat-json-p3': path.resolve(
 				__dirname,
 				'../compat-json-p3/src/index.ts',

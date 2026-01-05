@@ -14,8 +14,8 @@ export function replaceAll(
 	const ast = parse(jsonpath);
 	const evaluator = new Evaluator(target);
 	const result = evaluator.evaluate(ast);
-	const paths = result.pointerStrings();
-	return paths.map((path) => ({ op: 'replace', path, value }));
+	const paths = result.pointers();
+	return paths.map((path: string) => ({ op: 'replace', path, value }));
 }
 
 /**
@@ -26,12 +26,12 @@ export function removeAll(target: any, jsonpath: string): PatchOperation[] {
 	const ast = parse(jsonpath);
 	const evaluator = new Evaluator(target);
 	const result = evaluator.evaluate(ast);
-	const paths = result.pointerStrings();
+	const paths = result.pointers();
 
 	// Sort paths in reverse order to avoid index shifts when removing from arrays
 	return paths
-		.sort((a, b) => b.localeCompare(a))
-		.map((path) => ({ op: 'remove', path }));
+		.sort((a: string, b: string) => b.localeCompare(a))
+		.map((path: string) => ({ op: 'remove', path }));
 }
 
 /**
@@ -45,6 +45,6 @@ export function addAll(
 	const ast = parse(jsonpath);
 	const evaluator = new Evaluator(target);
 	const result = evaluator.evaluate(ast);
-	const paths = result.pointerStrings();
-	return paths.map((path) => ({ op: 'add', path, value }));
+	const paths = result.pointers();
+	return paths.map((path: string) => ({ op: 'add', path, value }));
 }

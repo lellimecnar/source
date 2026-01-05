@@ -217,7 +217,7 @@ export class JSONPointer {
 		}
 
 		const parentTokens = this.tokens.slice(0, -1);
-		const lastToken = this.tokens[this.tokens.length - 1];
+		const lastToken = this.tokens[this.tokens.length - 1]!;
 		const parent = new JSONPointer(parentTokens).evaluate(root);
 
 		if (parent === undefined) {
@@ -233,7 +233,7 @@ export class JSONPointer {
 			}
 			parent[index] = value;
 		} else if (typeof parent === 'object' && parent !== null) {
-			parent[lastToken] = value;
+			(parent as any)[lastToken] = value;
 		} else {
 			throw new Error('Cannot set value on non-object/non-array parent');
 		}
@@ -251,7 +251,7 @@ export class JSONPointer {
 		}
 
 		const parentTokens = this.tokens.slice(0, -1);
-		const lastToken = this.tokens[this.tokens.length - 1];
+		const lastToken = this.tokens[this.tokens.length - 1]!;
 		const parent = new JSONPointer(parentTokens).evaluate(root);
 
 		if (parent === undefined) {
@@ -264,7 +264,7 @@ export class JSONPointer {
 				parent.splice(index, 1);
 			}
 		} else if (typeof parent === 'object' && parent !== null) {
-			delete parent[lastToken];
+			delete (parent as any)[lastToken];
 		}
 
 		return root;

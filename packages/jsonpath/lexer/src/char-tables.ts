@@ -51,8 +51,8 @@ for (let i = 0; i < 128; i++) {
 		flags |= IS_IDENT_CONT;
 	}
 
-	// Operators: =, !, <, >, &, |
-	if (/[=!<>|&]/.test(char)) {
+	// Operators: =, !, <, >, &, |, +, -, *, /, %
+	if (/[=!<>|&+\-*/%]/.test(char)) {
 		flags |= IS_OPERATOR;
 	}
 
@@ -69,6 +69,7 @@ export const enum CharCode {
 	SPACE = 32,
 	BANG = 33, // !
 	DOUBLE_QUOTE = 34, // "
+	PERCENT = 37, // %
 	DOLLAR = 36, // $
 	SINGLE_QUOTE = 39, // '
 	LPAREN = 40, // (

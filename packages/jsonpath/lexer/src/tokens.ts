@@ -17,6 +17,8 @@ export const enum TokenType {
 	DOT_DOT = 'DOT_DOT', // ..
 	LBRACKET = 'LBRACKET', // [
 	RBRACKET = 'RBRACKET', // ]
+	LBRACE = 'LBRACE', // {
+	RBRACE = 'RBRACE', // }
 	LPAREN = 'LPAREN', // (
 	RPAREN = 'RPAREN', // )
 	COMMA = 'COMMA', // ,
@@ -48,6 +50,13 @@ export const enum TokenType {
 	AND = 'AND', // &&
 	OR = 'OR', // ||
 	NOT = 'NOT', // !
+
+	// Arithmetic operators
+	PLUS = 'PLUS', // +
+	MINUS = 'MINUS', // -
+	MUL = 'MUL', // *
+	DIV = 'DIV', // /
+	MOD = 'MOD', // %
 
 	// Special
 	EOF = 'EOF',

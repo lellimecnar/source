@@ -109,8 +109,8 @@ export function generateQueryFunctionSource(ast: QueryNode): string {
 		(seg) =>
 			seg.type === NodeType.ChildSegment &&
 			seg.selectors.length === 1 &&
-			(seg.selectors[0].type === NodeType.NameSelector ||
-				seg.selectors[0].type === NodeType.IndexSelector),
+			((seg.selectors[0] as any).type === NodeType.NameSelector ||
+				(seg.selectors[0] as any).type === NodeType.IndexSelector),
 	);
 
 	if (isSimple && ast.segments.length > 0) {
@@ -120,7 +120,7 @@ export function generateQueryFunctionSource(ast: QueryNode): string {
 		lines.push('  let parentKey = null;');
 
 		for (let i = 0; i < ast.segments.length; i++) {
-			const sel = ast.segments[i].selectors[0] as any;
+			const sel = ast.segments[i]!.selectors[0] as any;
 			if (sel.type === NodeType.NameSelector) {
 				const name = JSON.stringify(sel.name);
 				lines.push(

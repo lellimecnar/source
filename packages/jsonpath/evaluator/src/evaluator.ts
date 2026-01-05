@@ -16,7 +16,9 @@ import {
 	JSONPathFunctionError,
 	Nothing,
 	isNothing,
+	operatorRegistry,
 	type EvaluatorOptions,
+	type Path,
 	type PathSegment,
 	PluginManager,
 } from '@jsonpath/core';
@@ -27,7 +29,6 @@ import {
 	type SegmentNode,
 	type SelectorNode,
 	type ExpressionNode,
-	type SingularQueryNode,
 	type BinaryExprNode,
 	type UnaryExprNode,
 	type FunctionCallNode,
@@ -204,7 +205,7 @@ export class Evaluator {
 						Object.prototype.hasOwnProperty.call(val, selector.name)
 					) {
 						const result = {
-							value: val[selector.name],
+							value: (val as any)[selector.name],
 							path: [...node.path, selector.name],
 							root: node.root,
 							parent: val,
@@ -409,7 +410,7 @@ export class Evaluator {
 		}
 	}
 
-	private checkLimits(depth: number): void {
+	private checkLimits(depth: number, resultsFound?: number): void {
 		this.nodesVisited++;
 
 		if (this.options.signal.aborted) {
@@ -435,6 +436,17 @@ export class Evaluator {
 			);
 		}
 
+		if (
+			resultsFound !== undefined &&
+			this.options.maxResults > 0 &&
+			resultsFound >= this.options.maxResults
+		) {
+			throw new JSONPathLimitError(
+				`Maximum results exceeded: ${this.options.maxResults}`,
+				{ code: 'MAX_RESULTS_EXCEEDED' },
+			);
+		}
+
 		if (this.options.timeout > 0) {
 			if (Date.now() - this.startTime > this.options.timeout) {
 				throw new JSONPathTimeoutError(
@@ -445,10 +457,10 @@ export class Evaluator {
 		}
 	}
 
-	private isPathAllowed(path: PathSegment[]): boolean {
+	private isPathAllowed(path: Path): boolean {
 		if (
-			this.options.secure.blockPaths.length === 0 &&
-			this.options.secure.allowPaths.length === 0
+			this.options.secure!.blockPaths!.length === 0 &&
+			this.options.secure!.allowPaths!.length === 0
 		) {
 			return true;
 		}
@@ -460,16 +472,16 @@ export class Evaluator {
 						.map((s) => String(s).replace(/~/g, '~0').replace(/\//g, '~1'))
 						.join('/')}`;
 
-		if (this.options.secure.blockPaths.length > 0) {
-			for (const blocked of this.options.secure.blockPaths) {
+		if (this.options.secure!.blockPaths!.length > 0) {
+			for (const blocked of this.options.secure!.blockPaths!) {
 				if (pointer === blocked || pointer.startsWith(`${blocked}/`)) {
 					return false;
 				}
 			}
 		}
 
-		if (this.options.secure.allowPaths.length > 0) {
-			for (const allowed of this.options.secure.allowPaths) {
+		if (this.options.secure!.allowPaths!.length > 0) {
+			for (const allowed of this.options.secure!.allowPaths!) {
 				if (
 					pointer === allowed ||
 					pointer.startsWith(`${allowed}/`) ||
@@ -490,7 +502,14 @@ export class Evaluator {
 		current: QueryResultNode,
 	): boolean {
 		const result = this.evaluateExpression(expr, current);
-		return this.isTruthy(result);
+		const truthy = this.isTruthy(result);
+		console.log(
+			'Filter:',
+			JSON.stringify(expr).slice(0, 100),
+			'Truthy:',
+			truthy,
+		);
+		return truthy;
 	}
 
 	private evaluateExpression(
@@ -511,9 +530,26 @@ export class Evaluator {
 			switch (expr.type) {
 				case NodeType.Literal:
 					return expr.value;
+				case NodeType.ArrayLiteral:
+					return expr.elements.map((el) =>
+						this.unwrap(this.evaluateExpression(el, current)),
+					);
+				case NodeType.ObjectLiteral: {
+					const obj: Record<string, any> = {};
+					for (const [key, valNode] of Object.entries(expr.properties)) {
+						obj[key] = this.unwrap(this.evaluateExpression(valNode, current));
+					}
+					return obj;
+				}
 				case NodeType.BinaryExpr: {
 					const left = this.evaluateExpression(expr.left, current);
 					const right = this.evaluateExpression(expr.right, current);
+
+					const op = operatorRegistry.get(expr.operator);
+					if (op) {
+						return op.evaluate(this.unwrap(left), this.unwrap(right));
+					}
+
 					switch (expr.operator) {
 						case '==':
 							return {
@@ -566,6 +602,11 @@ export class Evaluator {
 							value: !this.isTruthy(operand),
 							__isLogicalType: true,
 						};
+					}
+					if (expr.operator === '-') {
+						const val = this.unwrap(operand);
+						if (typeof val === 'number') return -val;
+						return Nothing;
 					}
 					return false;
 				}
@@ -643,7 +684,7 @@ export class Evaluator {
 	}
 
 	private isTruthy(val: any): boolean {
-		if (isNothing(val)) return false; // "Nothing" is falsy
+		if (isNothing(val)) return false;
 		if (val && typeof val === 'object') {
 			if (val.__isLogicalType === true) {
 				return Boolean(val.value);
@@ -652,10 +693,12 @@ export class Evaluator {
 				// RFC 9535: A result set is truthy if it is not empty.
 				return val.nodes.length > 0;
 			}
+			if (val.__isFunctionResult === true) {
+				return this.isTruthy(val.value);
+			}
 		}
-		// RFC 9535: Literals and ValueType results (from functions) are not truthy
-		// on their own in a filter context. They must be compared.
-		return false;
+		// RFC 9535: A value is truthy if it is not false, null, or an empty NodeList.
+		return val !== false && val !== null;
 	}
 
 	private compare(left: any, right: any, operator: string): boolean {
@@ -686,22 +729,8 @@ export class Evaluator {
 		}
 
 		// RFC 9535: If a comparison operand is a query, it is evaluated as a result set.
-		// If the result set contains exactly one node, its value is used.
-		// Otherwise, the operand is "Nothing".
-		const unwrap = (val: any) => {
-			if (val && typeof val === 'object') {
-				if (val.__isNodeList === true) {
-					return val.nodes.length === 1 ? val.nodes[0].value : Nothing;
-				}
-				if (val.__isLogicalType === true || val.__isFunctionResult === true) {
-					return val.value;
-				}
-			}
-			return val;
-		};
-
-		const leftVal = unwrap(left);
-		const rightVal = unwrap(right);
+		const leftVal = this.unwrap(left);
+		const rightVal = this.unwrap(right);
 
 		// RFC 9535 Section 2.4.4.1:
 		// If both operands are Nothing, the result of the comparison is true for ==, <=, and >=;
@@ -809,6 +838,18 @@ export class Evaluator {
 			__isNodeList: true,
 			isSingular: isSingularQuery(query),
 		};
+	}
+
+	private unwrap(val: any): any {
+		if (val && typeof val === 'object') {
+			if (val.__isNodeList === true) {
+				return val.nodes.length === 1 ? val.nodes[0].value : Nothing;
+			}
+			if (val.__isLogicalType === true || val.__isFunctionResult === true) {
+				return val.value;
+			}
+		}
+		return val;
 	}
 }
 

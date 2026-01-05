@@ -67,7 +67,7 @@ function setPath(obj: any, path: string, value: any): void {
 
 	let current = obj;
 	for (let i = 0; i < parts.length - 1; i++) {
-		const part = parts[i];
+		const part = parts[i]!;
 		if (
 			!(part in current) ||
 			typeof current[part] !== 'object' ||
@@ -78,5 +78,5 @@ function setPath(obj: any, path: string, value: any): void {
 		current = current[part];
 	}
 
-	current[parts[parts.length - 1]] = value;
+	current[parts[parts.length - 1]!] = value;
 }

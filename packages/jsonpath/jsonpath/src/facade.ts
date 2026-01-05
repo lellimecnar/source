@@ -131,27 +131,6 @@ export function exists(
 }
 
 /**
- * Executes a JSONPath query with security restrictions.
- *
- * By default, it disables recursive descent and limits query length.
- */
-export function secureQuery(
-	root: any,
-	path: string,
-	options: EvaluatorOptions = {},
-): QueryResult {
-	const secureOptions: EvaluatorOptions = {
-		...options,
-		secure: {
-			noRecursive: true,
-			maxQueryLength: 100,
-			...options.secure,
-		},
-	};
-	return query(root, path, secureOptions);
-}
-
-/**
  * Executes a JSONPath query and returns the number of matches.
  */
 export function count(
@@ -170,18 +149,18 @@ export function toPointer(
 	path: string,
 	options?: EvaluatorOptions,
 ): string | undefined {
-	return query(root, path, options).pointerStrings()[0];
+	return query(root, path, options).pointers()[0];
 }
 
 /**
- * Executes a JSONPath query and returns all matches as JSON Pointer strings.
+ * Returns all JSON Pointers for matches of a JSONPath.
  */
-export function toPointers(
+export function pointers(
 	root: any,
 	path: string,
 	options?: EvaluatorOptions,
 ): string[] {
-	return query(root, path, options).pointerStrings();
+	return query(root, path, options).pointers();
 }
 
 /**

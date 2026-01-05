@@ -13,6 +13,7 @@ export * from './transform.js';
 export * from './merge.js';
 export * from './multi-query.js';
 export * from './query-set.js';
+export * from './secure.js';
 export {
 	PathBuilder,
 	FilterBuilder,

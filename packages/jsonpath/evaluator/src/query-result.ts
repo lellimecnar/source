@@ -68,12 +68,12 @@ export class QueryResult<T = unknown> implements CoreQueryResult<T> {
 		return this.results.map((r) => [...r.path]);
 	}
 
-	pointers(): JSONPointer[] {
-		return this.results.map((r) => new JSONPointer(pathToPointer(r.path)));
+	pointers(): string[] {
+		return this.results.map((r) => pathToPointer(r.path));
 	}
 
-	pointerStrings(): string[] {
-		return this.results.map((r) => pathToPointer(r.path));
+	pointerObjects(): JSONPointer[] {
+		return this.results.map((r) => new JSONPointer(pathToPointer(r.path)));
 	}
 
 	normalizedPaths(): string[] {

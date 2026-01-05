@@ -13,9 +13,25 @@ export interface MergeOptions {
 
 /**
  * Deep merges multiple documents into a target object.
+ *
+ * If the last argument is a MergeOptions object, it is used as options.
  */
-export function merge<T = any>(target: T, ...sources: any[]): T {
-	return mergeWith(target, sources);
+export function merge<T = any>(target: T, ...args: any[]): T {
+	if (args.length === 0) return target;
+
+	const last = args[args.length - 1];
+	const isOptions =
+		args.length > 1 &&
+		last &&
+		typeof last === 'object' &&
+		!Array.isArray(last) &&
+		Object.keys(last).every((k) => k === 'arrays');
+
+	if (isOptions) {
+		return mergeWith(target, args.slice(0, -1), last);
+	}
+
+	return mergeWith(target, args);
 }
 
 /**

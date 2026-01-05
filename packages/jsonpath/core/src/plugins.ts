@@ -63,7 +63,7 @@ export class PluginManager {
 		while (pending.length > 0 && changed) {
 			changed = false;
 			for (let i = 0; i < pending.length; i++) {
-				const plugin = pending[i];
+				const plugin = pending[i]!;
 				const deps = plugin.dependencies ?? [];
 				if (deps.every((dep) => registeredNames.has(dep))) {
 					this.plugins.push(plugin);

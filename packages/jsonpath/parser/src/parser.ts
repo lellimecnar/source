@@ -34,6 +34,11 @@ const PRECEDENCE: Record<string, number> = {
 	'<=': 40,
 	'>': 40,
 	'>=': 40,
+	'+': 50,
+	'-': 50,
+	'*': 60,
+	'/': 60,
+	'%': 60,
 };
 
 export class Parser {
@@ -438,12 +443,24 @@ export class Parser {
 
 		if (token.type === TokenType.NOT) {
 			this.lexer.next();
-			const operand = this.parseExpression(50);
+			const operand = this.parseExpression(70);
 			return {
 				type: NodeType.UnaryExpr,
 				startPos: start,
 				endPos: operand.endPos,
 				operator: '!',
+				operand,
+			};
+		}
+
+		if (token.type === TokenType.MINUS) {
+			this.lexer.next();
+			const operand = this.parseExpression(70);
+			return {
+				type: NodeType.UnaryExpr,
+				startPos: start,
+				endPos: operand.endPos,
+				operator: '-',
 				operand,
 			};
 		}
@@ -474,6 +491,52 @@ export class Parser {
 
 		if (token.type === TokenType.ROOT || token.type === TokenType.CURRENT) {
 			return this.parseQuery();
+		}
+
+		if (token.type === TokenType.LBRACKET) {
+			this.lexer.next();
+			const elements: ExpressionNode[] = [];
+			if (this.lexer.peek().type !== TokenType.RBRACKET) {
+				while (true) {
+					elements.push(this.parseExpression());
+					if (this.lexer.peek().type === TokenType.COMMA) {
+						this.lexer.next();
+					} else {
+						break;
+					}
+				}
+			}
+			this.expect(TokenType.RBRACKET);
+			return {
+				type: NodeType.ArrayLiteral,
+				startPos: start,
+				endPos: this.lexer.peek().start,
+				elements,
+			};
+		}
+
+		if (token.type === TokenType.LBRACE) {
+			this.lexer.next();
+			const properties: Record<string, ExpressionNode> = {};
+			if (this.lexer.peek().type !== TokenType.RBRACE) {
+				while (true) {
+					const keyToken = this.expect(TokenType.STRING);
+					this.expect(TokenType.COLON);
+					properties[keyToken.value as string] = this.parseExpression();
+					if (this.lexer.peek().type === TokenType.COMMA) {
+						this.lexer.next();
+					} else {
+						break;
+					}
+				}
+			}
+			this.expect(TokenType.RBRACE);
+			return {
+				type: NodeType.ObjectLiteral,
+				startPos: start,
+				endPos: this.lexer.peek().start,
+				properties,
+			};
 		}
 
 		if (token.type === TokenType.IDENT) {
@@ -538,6 +601,8 @@ export class Parser {
 		node: ExpressionNode,
 	): 'ValueType' | 'NodesType' | 'LogicalType' {
 		if (node.type === NodeType.Literal) return 'ValueType';
+		if (node.type === NodeType.ArrayLiteral) return 'ValueType';
+		if (node.type === NodeType.ObjectLiteral) return 'ValueType';
 		if (node.type === NodeType.Query) return 'NodesType';
 		if (node.type === NodeType.BinaryExpr) {
 			if (
@@ -547,7 +612,10 @@ export class Parser {
 			}
 			return 'ValueType';
 		}
-		if (node.type === NodeType.UnaryExpr) return 'LogicalType';
+		if (node.type === NodeType.UnaryExpr) {
+			if (node.operator === '!') return 'LogicalType';
+			return 'ValueType';
+		}
 		if (node.type === NodeType.FunctionCall) {
 			const builtins: Record<string, string> = {
 				count: 'ValueType',
@@ -595,29 +663,26 @@ export class Parser {
 					});
 				}
 			} else if (node.operator === '&&' || node.operator === '||') {
+				this.validateExpression(node.left);
+				this.validateExpression(node.right);
+			} else if (['+', '-', '*', '/', '%'].includes(node.operator)) {
 				const leftType = this.getExpressionType(node.left);
 				const rightType = this.getExpressionType(node.right);
 
-				if (leftType === 'ValueType' || rightType === 'ValueType') {
-					throw new JSONPathSyntaxError(
-						'ValueType cannot be used in logical AND/OR',
-						{
-							position: node.startPos,
-						},
-					);
+				if (leftType === 'LogicalType' || rightType === 'LogicalType') {
+					throw new JSONPathSyntaxError('Arithmetic on LogicalType', {
+						position: node.startPos,
+					});
 				}
 			}
 		} else if (node.type === NodeType.UnaryExpr) {
 			this.validateExpression(node.operand);
-			if (node.operator === '!') {
+			if (node.operator === '-') {
 				const type = this.getExpressionType(node.operand);
-				if (type === 'ValueType') {
-					throw new JSONPathSyntaxError(
-						'ValueType cannot be used in logical NOT',
-						{
-							position: node.startPos,
-						},
-					);
+				if (type === 'LogicalType') {
+					throw new JSONPathSyntaxError('Unary minus requires ValueType', {
+						position: node.startPos,
+					});
 				}
 			}
 		} else if (node.type === NodeType.FunctionCall) {

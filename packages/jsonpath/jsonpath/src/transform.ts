@@ -17,17 +17,17 @@ import { query } from './facade.js';
 export function transform<T = any>(
 	root: T,
 	path: string,
-	fn: (value: any) => any,
+	fn: (value: any, node: any) => any,
 	options?: EvaluatorOptions,
 ): T {
 	const results = query(root, path, options);
-	const pointers = results.pointerStrings();
-	const values = results.values();
+	const nodes = results.nodes();
+	const pointers = results.pointers();
 
-	const patch: PatchOperation[] = pointers.map((ptr, i) => ({
+	const patch: PatchOperation[] = nodes.map((node, i) => ({
 		op: 'replace',
-		path: ptr,
-		value: fn(values[i]),
+		path: pointers[i]!,
+		value: fn(node.value, node),
 	}));
 
 	return applyPatch(root, patch);
@@ -38,7 +38,7 @@ export function transform<T = any>(
  */
 export function transformAll<T = any>(
 	root: T,
-	transforms: { path: string; fn: (value: any) => any }[],
+	transforms: { path: string; fn: (value: any, node: any) => any }[],
 	options?: EvaluatorOptions,
 ): T {
 	let current = root;
@@ -73,19 +73,38 @@ export function project(
  */
 export function projectWith(
 	root: any,
-	mapping: Record<string, string | ((root: any) => any)>,
+	mapping: Record<
+		string,
+		| string
+		| ((root: any) => any)
+		| { path: string; transform?: (v: any) => any }
+	>,
 	options?: EvaluatorOptions,
 ): any {
 	const result: any = {};
 	for (const [targetKey, source] of Object.entries(mapping)) {
 		if (typeof source === 'function') {
 			result[targetKey] = source(root);
-		} else {
+		} else if (typeof source === 'string') {
 			const matches = query(root, source, options).values();
 			if (matches.length === 1) {
 				result[targetKey] = matches[0];
 			} else if (matches.length > 1) {
 				result[targetKey] = matches;
+			}
+		} else {
+			const matches = query(root, source.path, options).values();
+			let value: any;
+			if (matches.length === 1) {
+				value = matches[0];
+			} else if (matches.length > 1) {
+				value = matches;
+			}
+
+			if (source.transform) {
+				result[targetKey] = source.transform(value);
+			} else {
+				result[targetKey] = value;
 			}
 		}
 	}
@@ -121,7 +140,7 @@ export function omit(root: any, paths: string[]): any {
 
 	for (const path of paths) {
 		const results = query(root, path);
-		const pointers = results.pointerStrings();
+		const pointers = results.pointers();
 		for (const ptr of pointers) {
 			allOps.push({
 				op: 'remove',
