@@ -1242,17 +1242,17 @@ This step closes the remaining gaps from the plan:
 
 ---
 
-## Step 16 — FilterBuilder in path-builder (P2)
+## Step 16 — FilterBuilder in path-builder (P2) [DONE]
 
 **Work checklist**
 
-- [ ] Add `FilterBuilder` for building filter expressions.
-- [ ] Ensure builder output round-trips through `parseExpression()`.
-- [ ] Add unit tests for complex nested expressions.
+- [x] Add `FilterBuilder` for building filter expressions.
+- [x] Ensure builder output round-trips through `parseExpression()`.
+- [x] Add unit tests for complex nested expressions.
 
 **STOP & COMMIT**
 
-- [ ] COMMIT (VS Code Source Control): `feat(jsonpath-path-builder): add FilterBuilder`
+- [x] COMMIT (VS Code Source Control): `feat(jsonpath-path-builder): add FilterBuilder`
 
 ---
 

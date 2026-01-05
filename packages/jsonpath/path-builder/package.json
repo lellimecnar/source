@@ -18,7 +18,8 @@
 		"test": "vitest run"
 	},
 	"dependencies": {
-		"@jsonpath/core": "workspace:*"
+		"@jsonpath/core": "workspace:*",
+		"@jsonpath/parser": "workspace:*"
 	},
 	"devDependencies": {
 		"@lellimecnar/vite-config": "workspace:*",
