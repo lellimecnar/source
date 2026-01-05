@@ -20,6 +20,11 @@ import {
 	isSingularQuery,
 } from './nodes.js';
 
+export interface ParserOptions {
+	/** When true, reject non-RFC conveniences/extensions. */
+	readonly strict?: boolean;
+}
+
 const PRECEDENCE: Record<string, number> = {
 	'||': 10,
 	'&&': 20,
@@ -33,9 +38,11 @@ const PRECEDENCE: Record<string, number> = {
 
 export class Parser {
 	private lexer: Lexer;
+	private options: Required<ParserOptions>;
 
-	constructor(input: string | Lexer) {
+	constructor(input: string | Lexer, options?: ParserOptions) {
 		this.lexer = typeof input === 'string' ? new Lexer(input) : input;
+		this.options = { strict: false, ...options };
 	}
 
 	public parse(): QueryNode {
@@ -79,6 +86,7 @@ export class Parser {
 			startPos: start,
 			endPos: this.lexer.peek().start,
 			root: isRoot,
+			source: this.lexer.input.slice(start, this.lexer.peek().start),
 			segments,
 		};
 	}
@@ -111,9 +119,10 @@ export class Parser {
 			this.expect(TokenType.RBRACKET);
 		} else if (
 			next.type === TokenType.IDENT ||
-			next.type === TokenType.TRUE ||
-			next.type === TokenType.FALSE ||
-			next.type === TokenType.NULL
+			(!this.options.strict &&
+				(next.type === TokenType.TRUE ||
+					next.type === TokenType.FALSE ||
+					next.type === TokenType.NULL))
 		) {
 			// Shorthand notation: $.name or $..name
 			// RFC 9535: No whitespace allowed between . and name
@@ -612,7 +621,7 @@ export class Parser {
 	}
 }
 
-export function parse(input: string): QueryNode {
+export function parse(input: string, options?: ParserOptions): QueryNode {
 	// RFC 9535: Whitespace is allowed before the first token and after the last token.
 	// Wait, CTS says "basic, no leading whitespace" is invalid.
 	// Let's check if we should enforce this.
@@ -627,5 +636,5 @@ export function parse(input: string): QueryNode {
 			});
 		}
 	}
-	return new Parser(input).parse();
+	return new Parser(input, options).parse();
 }

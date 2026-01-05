@@ -77,4 +77,14 @@ describe('Parser', () => {
 	it('should throw on invalid index selector $[1.0]', () => {
 		expect(() => parse('$[1.0]')).toThrow();
 	});
+
+	it('should reject shorthand keyword selectors in strict mode', () => {
+		expect(() => parse('$.true', { strict: true })).toThrow();
+		expect(() => parse('$.false', { strict: true })).toThrow();
+		expect(() => parse('$.null', { strict: true })).toThrow();
+	});
+
+	it('should allow shorthand keyword selectors when not strict', () => {
+		expect(() => parse('$.true')).not.toThrow();
+	});
 });

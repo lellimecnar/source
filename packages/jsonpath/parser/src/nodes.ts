@@ -37,6 +37,8 @@ export interface ASTNode {
 export interface QueryNode extends ASTNode {
 	readonly type: NodeType.Query;
 	readonly root: boolean; // true = $, false = @
+	/** Raw source for this query node (substring spanning startPos..endPos). */
+	readonly source: string;
 	readonly segments: SegmentNode[];
 }
 
