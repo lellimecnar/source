@@ -8,6 +8,13 @@ export interface SubscriptionConfig<T, Ctx = unknown> {
 	on?: SubscriptionEvent | SubscriptionEvent[];
 	after?: SubscriptionEvent | SubscriptionEvent[];
 	fn: SubscriptionHandler<T, Ctx>;
+
+	/**
+	 * Disable JSONPath query pre-compilation for this subscription.
+	 * Pre-compilation is enabled by default for JSONPath subscriptions.
+	 * @default false
+	 */
+	noPrecompile?: boolean;
 }
 
 export type SubscriptionEvent = 'get' | 'set' | 'remove' | 'resolve' | 'patch';

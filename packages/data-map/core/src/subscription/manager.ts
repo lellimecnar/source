@@ -1,5 +1,6 @@
 import type { DataMap } from '../datamap';
 import type { Operation } from '../types';
+import { compileQuery } from '../utils/jsonpath';
 import { BloomFilter } from './bloom';
 import { generateSubscriptionId } from './id';
 import { NotificationScheduler } from './scheduler';
@@ -13,12 +14,15 @@ import type { CompiledPathPattern } from '../path/compile';
 import { compilePathPattern } from '../path/compile';
 import { detectPathType } from '../path/detect';
 
+type CompiledQuery = ReturnType<typeof compileQuery>;
+
 interface InternalSubscription<T, Ctx> {
 	id: string;
 	config: SubscriptionConfig<T, Ctx>;
 	compiledPattern: CompiledPathPattern | null;
 	expandedPaths: Set<string>;
 	isDynamic: boolean;
+	compiledQuery?: CompiledQuery;
 }
 
 export interface NotificationResult {
@@ -78,6 +82,7 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		let compiledPattern: CompiledPathPattern | null = null;
 		let expandedPaths: Set<string>;
 		let isDynamic = false;
+		let compiledQuery: CompiledQuery | undefined;
 
 		if (pathType === 'pointer') {
 			expandedPaths = new Set([config.path]);
@@ -87,7 +92,25 @@ export class SubscriptionManagerImpl<T, Ctx> {
 			compiledPattern = compilePathPattern(config.path);
 			isDynamic = !compiledPattern.isSingular;
 			const data = this.dataMap.toJSON();
-			const pointers = compiledPattern.expand(data);
+
+			// Try to compile JSONPath query for precompilation optimization
+			// Only precompile queries without filters since compiled queries need proper context
+			if (
+				pathType === 'jsonpath' &&
+				!config.noPrecompile &&
+				!compiledPattern.hasFilters
+			) {
+				try {
+					compiledQuery = compileQuery(config.path);
+				} catch {
+					// If compilation fails, fall back to pattern expansion
+					compiledQuery = undefined;
+				}
+			}
+
+			const pointers = compiledQuery
+				? compiledQuery(data).pointerStrings()
+				: compiledPattern.expand(data);
 			expandedPaths = new Set(pointers);
 			for (const p of pointers) {
 				this.addToReverseIndex(p, id);
@@ -115,6 +138,7 @@ export class SubscriptionManagerImpl<T, Ctx> {
 			compiledPattern,
 			expandedPaths,
 			isDynamic,
+			compiledQuery,
 		};
 
 		this.subscriptions.set(id, internal);
@@ -220,7 +244,9 @@ export class SubscriptionManagerImpl<T, Ctx> {
 			const sub = this.subscriptions.get(id);
 			if (!sub?.compiledPattern) continue;
 
-			const newPointers = sub.compiledPattern.expand(data);
+			const newPointers = sub.compiledQuery
+				? sub.compiledQuery(data).pointerStrings()
+				: sub.compiledPattern.expand(data);
 			const newExpanded = new Set(newPointers);
 
 			const added: string[] = [];
@@ -266,7 +292,9 @@ export class SubscriptionManagerImpl<T, Ctx> {
 				const sub = this.subscriptions.get(id);
 				if (!sub?.compiledPattern) continue;
 
-				const newPointers = sub.compiledPattern.expand(data);
+				const newPointers = sub.compiledQuery
+					? sub.compiledQuery(data).pointerStrings()
+					: sub.compiledPattern.expand(data);
 				const newExpanded = new Set(newPointers);
 
 				const added: string[] = [];

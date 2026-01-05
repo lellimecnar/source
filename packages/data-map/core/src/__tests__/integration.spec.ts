@@ -89,4 +89,26 @@ describe('integration workflows', () => {
 		expect(dm.extends({ b: { c: 2 } })).toBe(true);
 		expect(dm.extends({ b: { c: 99 } })).toBe(false);
 	});
+
+	it('subscription noPrecompile=true still works for JSONPath subscriptions', async () => {
+		const dm = new DataMap({
+			users: [
+				{ name: 'Alice', active: true },
+				{ name: 'Bob', active: false },
+			],
+		});
+
+		const activeNames: string[] = [];
+		dm.subscribe({
+			path: '$.users[?(@.active == true)].name',
+			noPrecompile: true,
+			after: 'set',
+			fn: (v) => activeNames.push(String(v)),
+		});
+
+		dm.set('/users/0/name', 'Alicia');
+		await flushMicrotasks();
+
+		expect(activeNames).toContain('Alicia');
+	});
 });
