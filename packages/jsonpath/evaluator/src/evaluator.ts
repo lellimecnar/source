@@ -44,7 +44,7 @@ export interface NodeList {
 	readonly isSingular?: boolean;
 }
 
-class Evaluator {
+export class Evaluator {
 	private root: any;
 	private options: Required<EvaluatorOptions>;
 	private startTime = 0;
