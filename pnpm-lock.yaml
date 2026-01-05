@@ -434,13 +434,16 @@ importers:
 
   packages/data-map/core:
     dependencies:
-      json-p3:
-        specifier: ^2.2.2
-        version: 2.2.2
-    devDependencies:
-      '@jsonpath/compat-json-p3':
+      '@jsonpath/jsonpath':
         specifier: workspace:*
-        version: link:../../jsonpath/compat-json-p3
+        version: link:../../jsonpath/jsonpath
+      '@jsonpath/patch':
+        specifier: workspace:*
+        version: link:../../jsonpath/patch
+      '@jsonpath/pointer':
+        specifier: workspace:*
+        version: link:../../jsonpath/pointer
+    devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*
         version: link:../../config-eslint
@@ -3590,7 +3593,7 @@ packages:
       {
         integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==,
       }
-    engines: { node: '>=0.10.0' }
+    engines: { '0': node >=0.10.0 }
 
   '@expo/cli@0.22.27':
     resolution:
@@ -11524,12 +11527,6 @@ packages:
     resolution:
       {
         integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==,
-      }
-
-  json-p3@2.2.2:
-    resolution:
-      {
-        integrity: sha512-TmTgkx+C1ne8Wdm9dFQ4/jCeYYbSoeYJAkRpvTz6O+zWN1Dc3cKW8Mt52sa8mSRXy/+JykA5I6rmM+k8h+JRRg==,
       }
 
   json-parse-better-errors@1.0.2:
@@ -24158,8 +24155,6 @@ snapshots:
   jsesc@3.1.0: {}
 
   json-buffer@3.0.1: {}
-
-  json-p3@2.2.2: {}
 
   json-parse-better-errors@1.0.2: {}
 

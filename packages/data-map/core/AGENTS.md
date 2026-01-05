@@ -6,7 +6,7 @@ Core DataMap implementation.
 - Test: `pnpm turbo -F @data-map/core test`
 - Type-check: `pnpm turbo -F @data-map/core type-check`
 
-This package MUST use `json-p3` as the sole JSONPath/Pointer/Patch engine.
+This package MUST use the workspace-native `@jsonpath/*` packages as the sole JSONPath/Pointer/Patch engine.
 
 ## Testing Conventions
 

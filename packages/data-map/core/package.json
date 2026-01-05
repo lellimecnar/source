@@ -24,10 +24,11 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"json-p3": "^2.2.2"
+		"@jsonpath/jsonpath": "workspace:*",
+		"@jsonpath/patch": "workspace:*",
+		"@jsonpath/pointer": "workspace:*"
 	},
 	"devDependencies": {
-		"@jsonpath/compat-json-p3": "workspace:*",
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
 		"@lellimecnar/vite-config": "workspace:^",
