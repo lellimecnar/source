@@ -553,12 +553,12 @@ completes: step 11 of 19 for jsonpath-gap-remediation
 
 #### Step 12: New Package `@jsonpath/plugin-types`
 
-- [ ] (≈3 SP) Add new workspace package under `packages/jsonpath/plugin-types`.
-- [ ] (≈3 SP) Implement type predicate and coercion functions (register via plugin system).
+- [x] (≈3 SP) Add new workspace package under `packages/jsonpath/plugin-types`.
+- [x] (≈3 SP) Implement type predicate and coercion functions (register via plugin system).
 
 ##### Step 12 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-types test`
+- [x] `pnpm --filter @jsonpath/plugin-types test`
 
 #### Step 12 STOP & COMMIT
 
@@ -574,16 +574,16 @@ completes: step 12 of 19 for jsonpath-gap-remediation
 
 #### Step 13: New Package `@jsonpath/plugin-arithmetic`
 
-- [ ] (≈3 SP) Add new workspace package under `packages/jsonpath/plugin-arithmetic`.
-- [ ] (≈3 SP) Implement arithmetic operators (requires lexer token support first).
+- [x] (≈3 SP) Add new workspace package under `packages/jsonpath/plugin-arithmetic`.
+- [x] (≈3 SP) Implement arithmetic operators (requires lexer token support first).
 
 Gap note (why there is no patch block here):
 
-- [ ] Lexer token set currently excludes arithmetic operators; add tokenizer support and parser operator precedence before implementing evaluator semantics.
+- [x] Lexer token set currently excludes arithmetic operators; add tokenizer support and parser operator precedence before implementing evaluator semantics.
 
 ##### Step 13 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-arithmetic test`
+- [x] `pnpm --filter @jsonpath/plugin-arithmetic test`
 
 #### Step 13 STOP & COMMIT
 
@@ -599,16 +599,16 @@ completes: step 13 of 19 for jsonpath-gap-remediation
 
 #### Step 14: New Package `@jsonpath/plugin-extras`
 
-- [ ] (≈3 SP) Add new workspace package under `packages/jsonpath/plugin-extras`.
-- [ ] (≈3 SP) Implement extras functions and tests.
+- [x] (≈3 SP) Add new workspace package under `packages/jsonpath/plugin-extras`.
+- [x] (≈3 SP) Implement extras functions and tests.
 
 Gap note (why there is no patch block here):
 
-- [ ] Keep extras behind explicit plugin registration to avoid changing baseline RFC behavior.
+- [x] Keep extras behind explicit plugin registration to avoid changing baseline RFC behavior.
 
 ##### Step 14 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-extras test`
+- [x] `pnpm --filter @jsonpath/plugin-extras test`
 
 #### Step 14 STOP & COMMIT
 
@@ -624,16 +624,16 @@ completes: step 14 of 19 for jsonpath-gap-remediation
 
 #### Step 15: New Package `@jsonpath/plugin-path-builder`
 
-- [ ] (≈3 SP) Add new workspace package under `packages/jsonpath/plugin-path-builder`.
-- [ ] (≈3 SP) Implement `PathBuilder` and `FilterBuilder`.
+- [x] (≈3 SP) Add new workspace package under `packages/jsonpath/plugin-path-builder`.
+- [x] (≈3 SP) Implement `PathBuilder` and `FilterBuilder`.
 
 Gap note (why there is no patch block here):
 
-- [ ] Builder APIs are design-sensitive. Write API-level tests in this new package before implementing the fluent API.
+- [x] Builder APIs are design-sensitive. Write API-level tests in this new package before implementing the fluent API.
 
 ##### Step 15 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-path-builder test`
+- [x] `pnpm --filter @jsonpath/plugin-path-builder test`
 
 #### Step 15 STOP & COMMIT
 
@@ -649,17 +649,17 @@ completes: step 15 of 19 for jsonpath-gap-remediation
 
 #### Step 16: Performance Benchmarks & Bundle Analysis
 
-- [ ] (≈3 SP) Add a benchmarks workspace under `packages/jsonpath/benchmarks`.
-- [ ] (≈3 SP) Add benchmark scenarios and basic reporting.
-- [ ] (≈3 SP) Add CI workflow to prevent regressions (wire through Turborepo tasks).
+- [x] (≈3 SP) Add a benchmarks workspace under `packages/jsonpath/benchmarks`.
+- [x] (≈3 SP) Add benchmark scenarios and basic reporting.
+- [x] (≈3 SP) Add CI workflow to prevent regressions (wire through Turborepo tasks).
 
 Gap note (why there is no patch block here):
 
-- [ ] Keep this aligned with existing CI patterns in the repo and avoid introducing non-standard runners.
+- [x] Keep this aligned with existing CI patterns in the repo and avoid introducing non-standard runners.
 
 ##### Step 16 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/benchmarks test`
+- [x] `pnpm --filter @jsonpath/benchmarks test`
 
 #### Step 16 STOP & COMMIT
 
@@ -675,19 +675,19 @@ completes: step 16 of 19 for jsonpath-gap-remediation
 
 #### Step 17: Compliance Test Suites (RFC 9535/6901/6902/7386)
 
-- [ ] (≈3 SP) Add/complete test runners that execute compliance suites using Vitest per package.
-- [ ] (≈3 SP) Ensure the suites are wired into `pnpm test` and pass.
+- [x] (≈3 SP) Add/complete test runners that execute compliance suites using Vitest per package.
+- [x] (≈3 SP) Ensure the suites are wired into `pnpm test` and pass.
 
 Note:
 
-- [ ] The repo already downloads compliance tests in `postinstall` (root `package.json`). This step should wire those fixtures into per-package vitest tests under `packages/jsonpath/*/src/__tests__`.
+- [x] The repo already downloads compliance tests in `postinstall` (root `package.json`). This step should wire those fixtures into per-package vitest tests under `packages/jsonpath/*/src/__tests__`.
 
 ##### Step 17 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/evaluator test`
-- [ ] `pnpm --filter @jsonpath/pointer test`
-- [ ] `pnpm --filter @jsonpath/patch test`
-- [ ] `pnpm --filter @jsonpath/merge-patch test`
+- [x] `pnpm --filter @jsonpath/evaluator test`
+- [x] `pnpm --filter @jsonpath/pointer test`
+- [x] `pnpm --filter @jsonpath/patch test`
+- [x] `pnpm --filter @jsonpath/merge-patch test`
 
 #### Step 17 STOP & COMMIT
 
@@ -703,16 +703,16 @@ completes: step 17 of 19 for jsonpath-gap-remediation
 
 #### Step 18: Documentation & Re-exports
 
-- [ ] (≈3 SP) Ensure the facade re-exports all relevant APIs from `packages/jsonpath/jsonpath/src/index.ts`.
-- [ ] (≈3 SP) Update package README and docs.
+- [x] (≈3 SP) Ensure the facade re-exports all relevant APIs from `packages/jsonpath/jsonpath/src/index.ts`.
+- [x] (≈3 SP) Update package README and docs.
 
 Docs scope:
 
-- [ ] Update `docs/api/jsonpath.md` and package READMEs under `packages/jsonpath/*/README.md` only.
+- [x] Update `docs/api/jsonpath.md` and package READMEs under `packages/jsonpath/*/README.md` only.
 
 ##### Step 18 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/jsonpath test`
+- [x] `pnpm --filter @jsonpath/jsonpath test`
 
 #### Step 18 STOP & COMMIT
 
@@ -728,15 +728,15 @@ completes: step 18 of 19 for jsonpath-gap-remediation
 
 #### Step 19: Final Integration & Cleanup
 
-- [ ] (≈3 SP) Run full repo build and test.
-- [ ] (≈3 SP) Verify no circular deps and dist exports.
-- [ ] (≈3 SP) Prepare release metadata.
+- [x] (≈3 SP) Run full repo build and test.
+- [x] (≈3 SP) Verify no circular deps and dist exports.
+- [x] (≈3 SP) Prepare release metadata.
 
 ##### Step 19 Verification Checklist
 
-- [ ] `pnpm build`
-- [ ] `pnpm test`
-- [ ] `pnpm verify:exports`
+- [x] `pnpm build`
+- [x] `pnpm test`
+- [x] `pnpm verify:exports`
 
 #### Step 19 STOP & COMMIT
 

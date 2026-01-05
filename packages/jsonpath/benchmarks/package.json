@@ -10,7 +10,9 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@jsonpath/jsonpath": "workspace:*"
+		"@jsonpath/jsonpath": "workspace:*",
+		"jsonpath": "^1.1.1",
+		"jsonpath-plus": "^10.2.0"
 	},
 	"devDependencies": {
 		"@lellimecnar/typescript-config": "workspace:*",

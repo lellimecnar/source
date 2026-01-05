@@ -61,6 +61,12 @@ The repository is organized into the following workspaces:
   - `compiler`: Functional wrapper for reusable queries.
   - `functions`: Built-in functions for JSONPath filters.
   - `core`: Shared types and AST definitions.
+  - `plugin-types`: Type checking and conversion plugins.
+  - `plugin-arithmetic`: Arithmetic operation plugins.
+  - `plugin-extras`: Utility and collection plugins.
+  - `path-builder`: Fluent API for building JSONPath strings.
+  - `benchmarks`: Performance benchmarking suite.
+  - `compliance-suite`: RFC 9535 compliance test runner.
 
 ### Documentation Map
 

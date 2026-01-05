@@ -4,7 +4,8 @@ Unified facade for the RFC-compliant JSONPath, Pointer, and Patch suite.
 
 ## Features
 
-- **RFC 9535 JSONPath**: Full support for the latest JSONPath specification.
+- **RFC 9535 JSONPath**: 100% compliance with the official JSONPath specification.
+- **Extensible Function Registry**: Add custom functions via a robust plugin system.
 - **RFC 6901 JSON Pointer**: Resolve, exists, and parent navigation.
 - **Relative JSON Pointer**: Support for relative navigation (draft-bhutton-relative-json-pointer).
 - **RFC 6902 JSON Patch**: Atomic and mutable/immutable patch application.
@@ -25,18 +26,43 @@ pnpm add @jsonpath/jsonpath
 import { query } from '@jsonpath/jsonpath';
 
 const data = { users: [{ name: 'Alice' }, { name: 'Bob' }] };
-const names = query(data, '$.users[*].name');
+const names = query(data, '$.users[*].name').values();
 // ['Alice', 'Bob']
 ```
 
-### Transformation
+### Plugins
+
+The suite includes several optional plugin packages for extended functionality:
+
+- `@jsonpath/plugin-arithmetic`: `add`, `sub`, `mul`, `div`, `mod`
+- `@jsonpath/plugin-extras`: `values`, `entries`, `flatten`, `unique`
+- `@jsonpath/plugin-types`: `is_string`, `to_number`, etc.
 
 ```typescript
-import { transform } from '@jsonpath/jsonpath';
+import { query, registerPlugin } from '@jsonpath/jsonpath';
+import { ArithmeticPlugin } from '@jsonpath/plugin-arithmetic';
 
-const data = { count: 10 };
-transform(data, '$.count', (val) => val + 1);
-// data.count is now 11
+registerPlugin(new ArithmeticPlugin());
+
+const data = { a: 10, b: 20 };
+const result = query(data, '$[?add(@.a, @.b) > 25]').values();
+// [{ a: 10, b: 20 }]
+```
+
+### Path Builder
+
+Fluent API for building JSONPath strings:
+
+```typescript
+import { PathBuilder } from '@jsonpath/jsonpath';
+
+const selector = new PathBuilder()
+	.root()
+	.child('users')
+	.index(0)
+	.child('name')
+	.toString();
+// "$.users[0].name"
 ```
 
 ### JSON Patch

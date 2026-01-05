@@ -13,3 +13,4 @@ export * from './transform.js';
 export * from './merge.js';
 export * from './multi-query.js';
 export * from './query-set.js';
+export { PathBuilder, jp } from '@jsonpath/path-builder';

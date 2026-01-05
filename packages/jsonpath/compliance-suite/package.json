@@ -1,0 +1,20 @@
+{
+	"name": "@jsonpath/compliance-suite",
+	"version": "0.1.0",
+	"private": true,
+	"description": "RFC 9535 compliance tests for JSONPath",
+	"type": "module",
+	"scripts": {
+		"lint": "eslint src/**/*.ts",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@jsonpath/jsonpath": "workspace:*"
+	},
+	"devDependencies": {
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@lellimecnar/vitest-config": "workspace:*",
+		"typescript": "~5.5",
+		"vitest": "^4.0.16"
+	}
+}

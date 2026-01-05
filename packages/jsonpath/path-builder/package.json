@@ -1,0 +1,30 @@
+{
+	"name": "@jsonpath/path-builder",
+	"version": "0.1.0",
+	"description": "Fluent API for building JSONPath expressions",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "vite build",
+		"lint": "eslint src/**/*.ts",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@jsonpath/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@lellimecnar/vite-config": "workspace:*",
+		"@lellimecnar/vitest-config": "workspace:*",
+		"typescript": "^5.5.4",
+		"vite": "^5.4.1",
+		"vitest": "^2.0.5"
+	}
+}

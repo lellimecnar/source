@@ -13,7 +13,8 @@ import {
 	mergePatch,
 	toPointer,
 	toPointers,
-} from '../facade.js';
+	PathBuilder,
+} from '../index.js';
 import { transform, omit } from '../transform.js';
 
 describe('JSONPath Facade', () => {
@@ -114,5 +115,10 @@ describe('JSONPath Facade', () => {
 		const root = { a: 1, b: 2, c: 3 };
 		const result = omit(root, ['$.a', '$.c']);
 		expect(result).toEqual({ b: 2 });
+	});
+
+	it('should expose PathBuilder', () => {
+		const path = PathBuilder.root().child('a').index(0).toString();
+		expect(path).toBe('$.a[0]');
 	});
 });

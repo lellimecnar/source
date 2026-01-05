@@ -9,6 +9,10 @@ The `@jsonpath` suite provides a comprehensive, RFC-compliant set of libraries f
 - **`@jsonpath/patch`**: RFC 6902 JSON Patch implementation.
 - **`@jsonpath/merge-patch`**: RFC 7386 JSON Merge Patch implementation.
 - **`@jsonpath/compiler`**: Functional wrapper for reusable queries.
+- **`@jsonpath/plugin-arithmetic`**: Arithmetic functions (`add`, `sub`, etc.).
+- **`@jsonpath/plugin-extras`**: Utility functions (`flatten`, `unique`, etc.).
+- **`@jsonpath/plugin-types`**: Type checking and conversion functions.
+- **`@jsonpath/path-builder`**: Fluent API for building JSONPath strings.
 
 ---
 
@@ -28,6 +32,10 @@ Returns an array of matching values.
 
 Returns an array of normalized JSONPath strings.
 
+### `registerPlugin(plugin: JSONPathPlugin): void`
+
+Registers a plugin to extend the function registry.
+
 ### `transform(data: any, expression: string, fn: (val: any) => any): any`
 
 Transforms a JSON object by applying a function to all matches of a JSONPath. Uses JSON Patch internally for atomic updates.
@@ -40,19 +48,39 @@ Removes the specified paths from the JSON object.
 
 Compiles a JSONPath expression into a reusable function.
 
-### Built-in Functions (RFC 9535 + Extensions)
+### Built-in Functions (RFC 9535)
 
 - `length(val)`: Returns the length of a string, array, or object.
 - `count(nodes)`: Returns the number of nodes in a node list.
 - `match(val, regex)`: Full regex match.
 - `search(val, regex)`: Partial regex match.
 - `value(nodes)`: Returns the single value from a node list.
-- `min(nodes)`: Returns the minimum numeric value.
-- `max(nodes)`: Returns the maximum numeric value.
-- `sum(nodes)`: Returns the sum of numeric values.
-- `avg(nodes)`: Returns the average of numeric values.
-- `keys(val)`: Returns the keys of an object.
-- `type(val)`: Returns the type of a value ('string', 'number', 'boolean', 'null', 'object', 'array').
+
+### Plugin Functions
+
+#### Arithmetic (`@jsonpath/plugin-arithmetic`)
+
+- `add(a, b)`: Addition.
+- `sub(a, b)`: Subtraction.
+- `mul(a, b)`: Multiplication.
+- `div(a, b)`: Division.
+- `mod(a, b)`: Modulo.
+
+#### Extras (`@jsonpath/plugin-extras`)
+
+- `values(obj)`: Returns object values.
+- `entries(obj)`: Returns object entries as `[key, value]` pairs.
+- `flatten(arr)`: Flattens a nested array.
+- `unique(arr)`: Returns unique elements from an array.
+
+#### Types (`@jsonpath/plugin-types`)
+
+- `is_string(val)`: Returns true if value is a string.
+- `is_number(val)`: Returns true if value is a number.
+- `is_boolean(val)`: Returns true if value is a boolean.
+- `is_object(val)`: Returns true if value is an object.
+- `is_array(val)`: Returns true if value is an array.
+- `to_number(val)`: Converts value to a number.
 
 ---
 

@@ -6,7 +6,7 @@
  * @packageDocumentation
  */
 
-import { JSONPathSyntaxError } from '@jsonpath/core';
+import { JSONPathSyntaxError, functionRegistry } from '@jsonpath/core';
 import { Lexer, TokenType, type Token } from '@jsonpath/lexer';
 
 import {
@@ -523,7 +523,9 @@ export class Parser {
 				search: 'LogicalType',
 				value: 'ValueType',
 			};
-			return (builtins[node.name] as any) || 'ValueType';
+			const spec =
+				builtins[node.name] || functionRegistry.get(node.name)?.returns;
+			return (spec as any) || 'ValueType';
 		}
 		return 'ValueType';
 	}
@@ -594,24 +596,24 @@ export class Parser {
 	}
 
 	private validateFunctionCall(node: FunctionCallNode) {
-		const builtins: Record<string, { args: string[]; returns: string }> = {
-			count: { args: ['NodesType'], returns: 'ValueType' },
-			length: { args: ['ValueType'], returns: 'ValueType' },
-			match: { args: ['ValueType', 'ValueType'], returns: 'LogicalType' },
-			search: { args: ['ValueType', 'ValueType'], returns: 'LogicalType' },
-			value: { args: ['NodesType'], returns: 'ValueType' },
+		const builtins: Record<string, { signature: string[]; returns: string }> = {
+			count: { signature: ['NodesType'], returns: 'ValueType' },
+			length: { signature: ['ValueType'], returns: 'ValueType' },
+			match: { signature: ['ValueType', 'ValueType'], returns: 'LogicalType' },
+			search: { signature: ['ValueType', 'ValueType'], returns: 'LogicalType' },
+			value: { signature: ['NodesType'], returns: 'ValueType' },
 		};
 
-		const spec = builtins[node.name];
+		const spec = builtins[node.name] || functionRegistry.get(node.name);
 		if (!spec) {
 			throw new JSONPathSyntaxError(`Unknown function: ${node.name}`, {
 				position: node.startPos,
 			});
 		}
 
-		if (node.args.length !== spec.args.length) {
+		if (node.args.length !== spec.signature.length) {
 			throw new JSONPathSyntaxError(
-				`Function ${node.name} expects ${spec.args.length} arguments, got ${node.args.length}`,
+				`Function ${node.name} expects ${spec.signature.length} arguments, got ${node.args.length}`,
 				{
 					position: node.startPos,
 				},
@@ -619,8 +621,8 @@ export class Parser {
 		}
 
 		for (let i = 0; i < node.args.length; i++) {
-			const arg = node.args[i];
-			const expected = spec.args[i];
+			const arg = node.args[i]!;
+			const expected = spec.signature[i];
 			const actual = this.getExpressionType(arg);
 
 			if (expected === 'NodesType' && actual !== 'NodesType') {

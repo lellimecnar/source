@@ -155,25 +155,26 @@ describe('JSON Patch', () => {
 		});
 	});
 
-	it('applyPatch does not mutate target by default', () => {
+	it('applyPatch mutates target by default', () => {
 		const data: any = { foo: 'bar' };
 		const result = applyPatch(data, [
 			{ op: 'add', path: '/baz', value: 'qux' },
 		]);
-		expect(result).not.toBe(data);
+		expect(result).toBe(data);
 		expect(result).toEqual({ foo: 'bar', baz: 'qux' });
-		expect(data).toEqual({ foo: 'bar' });
+		expect(data).toEqual({ foo: 'bar', baz: 'qux' });
 	});
 
-	it('applyPatch mutates target when mutate: true', () => {
+	it('applyPatch does not mutate target when mutate: false', () => {
 		const data: any = { foo: 'bar' };
 		const result = applyPatch(
 			data,
 			[{ op: 'add', path: '/baz', value: 'qux' }],
-			{ mutate: true },
+			{ mutate: false },
 		);
-		expect(result).toBe(data);
-		expect(data).toEqual({ foo: 'bar', baz: 'qux' });
+		expect(result).not.toBe(data);
+		expect(result).toEqual({ foo: 'bar', baz: 'qux' });
+		expect(data).toEqual({ foo: 'bar' });
 	});
 
 	it('applyPatchImmutable does not mutate original', () => {

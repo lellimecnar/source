@@ -82,7 +82,7 @@ export function applyPatch(
 ): any {
 	const {
 		strictMode = true,
-		mutate = false,
+		mutate = true,
 		continueOnError = false,
 		before,
 		after,

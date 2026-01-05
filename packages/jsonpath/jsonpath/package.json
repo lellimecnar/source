@@ -39,6 +39,7 @@
 		"@jsonpath/merge-patch": "workspace:*",
 		"@jsonpath/parser": "workspace:*",
 		"@jsonpath/patch": "workspace:*",
+		"@jsonpath/path-builder": "workspace:*",
 		"@jsonpath/pointer": "workspace:*"
 	},
 	"devDependencies": {
