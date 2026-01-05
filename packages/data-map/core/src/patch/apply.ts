@@ -1,6 +1,6 @@
-import { jsonpatch } from 'json-p3';
-
 import type { Operation } from '../types';
+
+import { applyOperations as applyPatchOperations } from '../utils/jsonpath';
 
 export interface ApplyResult {
 	nextData: unknown;
@@ -28,8 +28,9 @@ export function applyOperations(
 	currentData: unknown,
 	ops: Operation[],
 ): ApplyResult {
-	const working = structuredClone(currentData);
-	jsonpatch.apply(ops as any, working as any);
+	// @jsonpath/patch.applyPatch is immutable by default and already clones.
+	// Keep DataMap immutability by returning the new object.
+	const nextData = applyPatchOperations(currentData, ops, { mutate: false });
 
 	const affectedPointers = new Set<string>();
 	const structuralPointers = new Set<string>();
@@ -45,5 +46,5 @@ export function applyOperations(
 		}
 	}
 
-	return { nextData: working, affectedPointers, structuralPointers };
+	return { nextData, affectedPointers, structuralPointers };
 }

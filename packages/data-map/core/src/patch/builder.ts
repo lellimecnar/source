@@ -1,6 +1,5 @@
-import { JSONPointer } from 'json-p3';
-
 import type { Operation } from '../types';
+import { resolvePointer, pointerExists } from '../utils/jsonpath';
 import { parsePointerSegments, buildPointer } from '../utils/pointer';
 
 function isIndexSegment(seg: string): boolean {
@@ -13,12 +12,12 @@ function inferContainerForNextSeg(nextSeg: string | undefined): unknown {
 }
 
 function getAtPointer(data: unknown, pointer: string): unknown {
-	return new JSONPointer(pointer).resolve(data as any);
+	return resolvePointer(data, pointer);
 }
 
 function existsAtPointer(data: unknown, pointer: string): boolean {
 	try {
-		return new JSONPointer(pointer).exists(data as any);
+		return pointerExists(data, pointer);
 	} catch {
 		return false;
 	}
@@ -65,7 +64,7 @@ export function ensureParentContainers(
 		});
 
 		// Apply the op to nextData by directly mutating through JSON Pointer.
-		// (We keep this local to builder to avoid pulling in jsonpatch here.)
+		// (We keep this local to builder to avoid pulling in patch apply here.)
 		const parentValue =
 			parentPointer === '' ? nextData : getAtPointer(nextData, parentPointer);
 		if (parentPointer === '') {

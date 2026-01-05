@@ -1,11 +1,10 @@
-import { JSONPointer } from 'json-p3';
-
 import type { Operation } from '../types';
+import { resolvePointer, pointerExists } from '../utils/jsonpath';
 import { buildSetPatch } from './builder';
 
 function resolveArray(data: unknown, pointer: string): unknown[] {
 	try {
-		const v = new JSONPointer(pointer).resolve(data as any);
+		const v = resolvePointer<unknown>(data, pointer);
 		return Array.isArray(v) ? v : [];
 	} catch {
 		return [];
@@ -14,7 +13,7 @@ function resolveArray(data: unknown, pointer: string): unknown[] {
 
 function existsPointer(data: unknown, pointer: string): boolean {
 	try {
-		return new JSONPointer(pointer).exists(data as any);
+		return pointerExists(data, pointer);
 	} catch {
 		return false;
 	}
