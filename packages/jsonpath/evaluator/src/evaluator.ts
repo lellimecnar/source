@@ -14,6 +14,8 @@ import {
 	JSONPathLimitError,
 	JSONPathTimeoutError,
 	JSONPathFunctionError,
+	Nothing,
+	isNothing,
 	type EvaluatorOptions,
 	type PathSegment,
 	PluginManager,
@@ -499,15 +501,15 @@ class Evaluator {
 					const fn = getFunction(expr.name);
 					if (!fn || expr.args.length !== fn.signature.length) {
 						// RFC 9535: Unknown function or wrong arg count results in "Nothing"
-						return undefined;
+						return Nothing;
 					}
 					const args = expr.args.map((a) =>
 						this.evaluateExpression(a, current),
 					);
 
 					// RFC 9535: If any argument is "Nothing", the result is "Nothing"
-					if (args.some((arg) => arg === undefined)) {
-						return undefined;
+					if (args.some((arg) => isNothing(arg))) {
+						return Nothing;
 					}
 
 					try {
@@ -521,7 +523,7 @@ class Evaluator {
 								arg && typeof arg === 'object' && arg.__isNodeList === true;
 
 							if (paramType === 'NodesType') {
-								if (!isNodeList) return undefined; // Type mismatch
+								if (!isNodeList) return Nothing; // Type mismatch
 								processedArgs.push(arg.nodes);
 							} else if (paramType === 'LogicalType') {
 								processedArgs.push(this.isTruthy(arg));
@@ -531,7 +533,7 @@ class Evaluator {
 									if (arg.nodes.length === 1) {
 										processedArgs.push(arg.nodes[0].value);
 									} else {
-										return undefined; // Non-singular query for ValueType
+										return Nothing; // Non-singular query for ValueType
 									}
 								} else if (
 									arg &&
@@ -546,7 +548,7 @@ class Evaluator {
 						}
 
 						const result = fn.evaluate(...processedArgs);
-						if (result === undefined) return undefined;
+						if (result === undefined) return Nothing;
 
 						if (fn.returns === 'LogicalType') {
 							return { value: result, __isLogicalType: true };
@@ -554,11 +556,11 @@ class Evaluator {
 						return { value: result, __isFunctionResult: true };
 					} catch (err) {
 						// RFC 9535: Errors in function evaluation result in "Nothing"
-						return undefined;
+						return Nothing;
 					}
 				}
 				default:
-					return undefined;
+					return Nothing;
 			}
 		} finally {
 			this.currentFilterDepth--;
@@ -566,7 +568,7 @@ class Evaluator {
 	}
 
 	private isTruthy(val: any): boolean {
-		if (val === undefined) return false; // "Nothing" is falsy
+		if (isNothing(val)) return false; // "Nothing" is falsy
 		if (val && typeof val === 'object') {
 			if (val.__isLogicalType === true) {
 				return Boolean(val.value);
@@ -614,7 +616,7 @@ class Evaluator {
 		const unwrap = (val: any) => {
 			if (val && typeof val === 'object') {
 				if (val.__isNodeList === true) {
-					return val.nodes.length === 1 ? val.nodes[0].value : undefined;
+					return val.nodes.length === 1 ? val.nodes[0].value : Nothing;
 				}
 				if (val.__isLogicalType === true || val.__isFunctionResult === true) {
 					return val.value;
@@ -629,13 +631,13 @@ class Evaluator {
 		// RFC 9535 Section 2.4.4.1:
 		// If both operands are Nothing, the result of the comparison is true for ==, <=, and >=;
 		// it is false for !=, <, and >.
-		if (leftVal === undefined && rightVal === undefined) {
+		if (isNothing(leftVal) && isNothing(rightVal)) {
 			return operator === '==' || operator === '<=' || operator === '>=';
 		}
 
 		// If one operand is Nothing and the other is a value (ValueType),
 		// the result of the comparison is false for ==, <, <=, >, and >=; it is true for !=.
-		if (leftVal === undefined || rightVal === undefined) {
+		if (isNothing(leftVal) || isNothing(rightVal)) {
 			return operator === '!=';
 		}
 
