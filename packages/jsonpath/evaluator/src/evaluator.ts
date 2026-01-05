@@ -273,146 +273,193 @@ export class Evaluator {
 		results: QueryResultNode[],
 	): void {
 		const val = node.value;
-		if (val === null || typeof val !== 'object') return;
 
 		switch (selector.type) {
 			case NodeType.NameSelector:
-				if (
-					!Array.isArray(val) &&
-					Object.prototype.hasOwnProperty.call(val, selector.name)
-				) {
-					this.addResult(results, {
-						value: val[selector.name],
-						path: [...node.path, selector.name],
-						root: node.root,
-						parent: val,
-						parentKey: selector.name,
-					});
+				if (val !== null && typeof val === 'object') {
+					if (
+						!Array.isArray(val) &&
+						Object.prototype.hasOwnProperty.call(val, selector.name)
+					) {
+						this.addResult(results, {
+							value: val[selector.name],
+							path: [...node.path, selector.name],
+							root: node.root,
+							parent: val,
+							parentKey: selector.name,
+						});
+					}
 				}
 				break;
 			case NodeType.IndexSelector:
-				if (Array.isArray(val)) {
-					const idx =
-						selector.index < 0 ? val.length + selector.index : selector.index;
-					if (idx >= 0 && idx < val.length) {
-						this.addResult(results, {
-							value: val[idx],
-							path: [...node.path, idx],
-							root: node.root,
-							parent: val,
-							parentKey: idx,
-						});
+				if (val !== null && typeof val === 'object') {
+					if (Array.isArray(val)) {
+						const idx =
+							selector.index < 0 ? val.length + selector.index : selector.index;
+						if (idx >= 0 && idx < val.length) {
+							this.addResult(results, {
+								value: val[idx],
+								path: [...node.path, idx],
+								root: node.root,
+								parent: val,
+								parentKey: idx,
+							});
+						}
 					}
+				}
+				break;
+			case NodeType.ParentSelector:
+				if (node.path.length > 0) {
+					const parentPath = node.path.slice(0, -1);
+					let parentValue: any;
+					let grandParent: any;
+					let parentKey: any;
+
+					if (parentPath.length === 0) {
+						parentValue = node.root;
+					} else {
+						parentValue = node.root;
+						for (let i = 0; i < parentPath.length; i++) {
+							grandParent = parentValue;
+							parentKey = parentPath[i];
+							parentValue = parentValue[parentKey];
+						}
+					}
+
+					this.addResult(results, {
+						value: parentValue,
+						path: parentPath,
+						root: node.root,
+						parent: grandParent,
+						parentKey: parentKey,
+					});
+				}
+				break;
+			case NodeType.PropertySelector:
+				if (node.parentKey !== undefined) {
+					this.addResult(results, {
+						value: node.parentKey,
+						path: node.path, // Path to the node whose property name we are returning
+						root: node.root,
+						parent: node.parent,
+						parentKey: node.parentKey,
+					});
 				}
 				break;
 			case NodeType.WildcardSelector:
-				if (Array.isArray(val)) {
-					val.forEach((v, i) => {
-						this.addResult(results, {
-							value: v,
-							path: [...node.path, i],
-							root: node.root,
-							parent: val,
-							parentKey: i,
+				if (val !== null && typeof val === 'object') {
+					if (Array.isArray(val)) {
+						val.forEach((v, i) => {
+							this.addResult(results, {
+								value: v,
+								path: [...node.path, i],
+								root: node.root,
+								parent: val,
+								parentKey: i,
+							});
 						});
-					});
-				} else {
-					Object.entries(val).forEach(([k, v]) => {
-						this.addResult(results, {
-							value: v,
-							path: [...node.path, k],
-							root: node.root,
-							parent: val,
-							parentKey: k,
+					} else {
+						Object.entries(val).forEach(([k, v]) => {
+							this.addResult(results, {
+								value: v,
+								path: [...node.path, k],
+								root: node.root,
+								parent: val,
+								parentKey: k,
+							});
 						});
-					});
+					}
 				}
 				break;
 			case NodeType.SliceSelector:
-				if (Array.isArray(val)) {
-					const { start, end, step: stepValue } = selector;
-					const s = stepValue ?? 1;
+				if (val !== null && typeof val === 'object') {
+					if (Array.isArray(val)) {
+						const { start, end, step: stepValue } = selector;
+						const s = stepValue ?? 1;
 
-					if (s === 0) {
-						return;
-					}
-
-					const len = val.length;
-
-					// Defaults depend on direction.
-					let from = start ?? (s > 0 ? 0 : len - 1);
-					let to = end ?? (s > 0 ? len : -len - 1);
-
-					// Normalize negative indices.
-					if (from < 0) from = len + from;
-					if (to < 0) to = len + to;
-
-					if (s > 0) {
-						// Clamp to [0, len]
-						from = Math.min(Math.max(from, 0), len);
-						to = Math.min(Math.max(to, 0), len);
-
-						for (let i = from; i < to; i += s) {
-							this.addResult(results, {
-								value: val[i],
-								path: [...node.path, i],
-								root: node.root,
-								parent: val,
-								parentKey: i,
-							});
+						if (s === 0) {
+							return;
 						}
-					} else {
-						// Clamp to [-1, len-1]
-						from = Math.min(Math.max(from, -1), len - 1);
-						to = Math.min(Math.max(to, -1), len - 1);
 
-						for (let i = from; i > to; i += s) {
-							this.addResult(results, {
-								value: val[i],
-								path: [...node.path, i],
-								root: node.root,
-								parent: val,
-								parentKey: i,
-							});
+						const len = val.length;
+
+						// Defaults depend on direction.
+						let from = start ?? (s > 0 ? 0 : len - 1);
+						let to = end ?? (s > 0 ? len : -len - 1);
+
+						// Normalize negative indices.
+						if (from < 0) from = len + from;
+						if (to < 0) to = len + to;
+
+						if (s > 0) {
+							// Clamp to [0, len]
+							from = Math.min(Math.max(from, 0), len);
+							to = Math.min(Math.max(to, 0), len);
+
+							for (let i = from; i < to; i += s) {
+								this.addResult(results, {
+									value: val[i],
+									path: [...node.path, i],
+									root: node.root,
+									parent: val,
+									parentKey: i,
+								});
+							}
+						} else {
+							// Clamp to [-1, len-1]
+							from = Math.min(Math.max(from, -1), len - 1);
+							to = Math.min(Math.max(to, -1), len - 1);
+
+							for (let i = from; i > to; i += s) {
+								this.addResult(results, {
+									value: val[i],
+									path: [...node.path, i],
+									root: node.root,
+									parent: val,
+									parentKey: i,
+								});
+							}
 						}
 					}
 				}
 				break;
 			case NodeType.FilterSelector:
-				if (Array.isArray(val)) {
-					val.forEach((v, i) => {
-						const nodeContext = {
-							value: v,
-							path: [...node.path, i],
-							root: node.root,
-							parent: val,
-							parentKey: i,
-						};
-						if (
-							this.isTruthy(
-								this.evaluateExpression(selector.expression, nodeContext),
-							)
-						) {
-							this.addResult(results, nodeContext);
-						}
-					});
-				} else {
-					Object.entries(val).forEach(([k, v]) => {
-						const nodeContext = {
-							value: v,
-							path: [...node.path, k],
-							root: node.root,
-							parent: val,
-							parentKey: k,
-						};
-						if (
-							this.isTruthy(
-								this.evaluateExpression(selector.expression, nodeContext),
-							)
-						) {
-							this.addResult(results, nodeContext);
-						}
-					});
+				if (val !== null && typeof val === 'object') {
+					if (Array.isArray(val)) {
+						val.forEach((v, i) => {
+							const nodeContext = {
+								value: v,
+								path: [...node.path, i],
+								root: node.root,
+								parent: val,
+								parentKey: i,
+							};
+							if (
+								this.isTruthy(
+									this.evaluateExpression(selector.expression, nodeContext),
+								)
+							) {
+								this.addResult(results, nodeContext);
+							}
+						});
+					} else {
+						Object.entries(val).forEach(([k, v]) => {
+							const nodeContext = {
+								value: v,
+								path: [...node.path, k],
+								root: node.root,
+								parent: val,
+								parentKey: k,
+							};
+							if (
+								this.isTruthy(
+									this.evaluateExpression(selector.expression, nodeContext),
+								)
+							) {
+								this.addResult(results, nodeContext);
+							}
+						});
+					}
 				}
 				break;
 		}

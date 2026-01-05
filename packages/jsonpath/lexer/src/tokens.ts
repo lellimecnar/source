@@ -23,6 +23,8 @@ export const enum TokenType {
 	COLON = 'COLON', // :
 	WILDCARD = 'WILDCARD', // *
 	FILTER = 'FILTER', // ?
+	PARENT = 'PARENT', // ^
+	PROPERTY = 'PROPERTY', // ~
 
 	// Literals
 	STRING = 'STRING', // 'foo' or "foo"

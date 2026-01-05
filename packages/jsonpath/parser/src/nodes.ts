@@ -20,6 +20,8 @@ export enum NodeType {
 	WildcardSelector = 'WildcardSelector',
 	SliceSelector = 'SliceSelector',
 	FilterSelector = 'FilterSelector',
+	ParentSelector = 'ParentSelector',
+	PropertySelector = 'PropertySelector',
 
 	// Expressions
 	BinaryExpr = 'BinaryExpr',
@@ -73,12 +75,22 @@ export interface FilterSelectorNode extends ASTNode {
 	readonly expression: ExpressionNode;
 }
 
+export interface ParentSelectorNode extends ASTNode {
+	readonly type: NodeType.ParentSelector;
+}
+
+export interface PropertySelectorNode extends ASTNode {
+	readonly type: NodeType.PropertySelector;
+}
+
 export type SelectorNode =
 	| NameSelectorNode
 	| IndexSelectorNode
 	| WildcardSelectorNode
 	| SliceSelectorNode
-	| FilterSelectorNode;
+	| FilterSelectorNode
+	| ParentSelectorNode
+	| PropertySelectorNode;
 
 export interface BinaryExprNode extends ASTNode {
 	readonly type: NodeType.BinaryExpr;

@@ -98,6 +98,7 @@ export const enum CharCode {
 	LBRACKET = 91, // [
 	BACKSLASH = 92, // \
 	RBRACKET = 93, // ]
+	CARET = 94, // ^
 	UNDERSCORE = 95, // _
 	BACKTICK = 96, // `
 	LBRACE = 123, // {

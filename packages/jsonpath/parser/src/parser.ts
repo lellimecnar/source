@@ -142,6 +142,36 @@ export class Parser {
 				name: String(next.value),
 			});
 			this.lexer.next();
+		} else if (next.type === TokenType.PARENT) {
+			if (token.end !== next.start) {
+				throw new JSONPathSyntaxError(
+					'Whitespace not allowed in shorthand notation',
+					{
+						position: token.end,
+					},
+				);
+			}
+			selectors.push({
+				type: NodeType.ParentSelector,
+				startPos: next.start,
+				endPos: next.end,
+			});
+			this.lexer.next();
+		} else if (next.type === TokenType.PROPERTY) {
+			if (token.end !== next.start) {
+				throw new JSONPathSyntaxError(
+					'Whitespace not allowed in shorthand notation',
+					{
+						position: token.end,
+					},
+				);
+			}
+			selectors.push({
+				type: NodeType.PropertySelector,
+				startPos: next.start,
+				endPos: next.end,
+			});
+			this.lexer.next();
 		} else if (next.type === TokenType.WILDCARD) {
 			// Shorthand notation: $.* or $..*
 			if (token.end !== next.start) {
@@ -247,6 +277,24 @@ export class Parser {
 			this.lexer.next();
 			return {
 				type: NodeType.WildcardSelector,
+				startPos: start,
+				endPos: token.end,
+			};
+		}
+
+		if (token.type === TokenType.PARENT) {
+			this.lexer.next();
+			return {
+				type: NodeType.ParentSelector,
+				startPos: start,
+				endPos: token.end,
+			};
+		}
+
+		if (token.type === TokenType.PROPERTY) {
+			this.lexer.next();
+			return {
+				type: NodeType.PropertySelector,
 				startPos: start,
 				endPos: token.end,
 			};

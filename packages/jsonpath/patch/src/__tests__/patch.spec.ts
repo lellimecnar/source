@@ -107,6 +107,39 @@ describe('JSON Patch', () => {
 			expect(applyPatch(result, inverse)).toEqual(data);
 		});
 
+		it('should generate inverse for move', () => {
+			const data = { a: 1, b: 2 };
+			const { result, inverse } = applyWithInverse(data, [
+				{ op: 'move', from: '/a', path: '/c' },
+			]);
+			expect(result).toEqual({ b: 2, c: 1 });
+			expect(inverse).toEqual([{ op: 'move', from: '/c', path: '/a' }]);
+			expect(applyPatch(result, inverse)).toEqual(data);
+		});
+
+		it('should generate inverse for move (overwriting)', () => {
+			const data = { a: 1, b: 2 };
+			const { result, inverse } = applyWithInverse(data, [
+				{ op: 'move', from: '/a', path: '/b' },
+			]);
+			expect(result).toEqual({ b: 1 });
+			expect(inverse).toEqual([
+				{ op: 'move', from: '/b', path: '/a' },
+				{ op: 'add', path: '/b', value: 2 },
+			]);
+			expect(applyPatch(result, inverse)).toEqual(data);
+		});
+
+		it('should generate inverse for copy', () => {
+			const data = { a: 1 };
+			const { result, inverse } = applyWithInverse(data, [
+				{ op: 'copy', from: '/a', path: '/b' },
+			]);
+			expect(result).toEqual({ a: 1, b: 1 });
+			expect(inverse).toEqual([{ op: 'remove', path: '/b' }]);
+			expect(applyPatch(result, inverse)).toEqual(data);
+		});
+
 		it('should generate inverse for multiple operations in reverse order', () => {
 			const data = { a: 1 };
 			const { result, inverse } = applyWithInverse(data, [
@@ -122,11 +155,23 @@ describe('JSON Patch', () => {
 		});
 	});
 
-	it('applyPatch mutates target by default', () => {
+	it('applyPatch does not mutate target by default', () => {
 		const data: any = { foo: 'bar' };
 		const result = applyPatch(data, [
 			{ op: 'add', path: '/baz', value: 'qux' },
 		]);
+		expect(result).not.toBe(data);
+		expect(result).toEqual({ foo: 'bar', baz: 'qux' });
+		expect(data).toEqual({ foo: 'bar' });
+	});
+
+	it('applyPatch mutates target when mutate: true', () => {
+		const data: any = { foo: 'bar' };
+		const result = applyPatch(
+			data,
+			[{ op: 'add', path: '/baz', value: 'qux' }],
+			{ mutate: true },
+		);
 		expect(result).toBe(data);
 		expect(data).toEqual({ foo: 'bar', baz: 'qux' });
 	});
@@ -148,7 +193,7 @@ describe('JSON Patch', () => {
 		expect(data).toEqual({ a: 1 });
 	});
 
-	it('atomic=true applies all-or-nothing', () => {
+	it('applyPatch is atomic (all-or-nothing)', () => {
 		const data: any = { a: 1 };
 		expect(() =>
 			applyPatch(
@@ -157,7 +202,7 @@ describe('JSON Patch', () => {
 					{ op: 'add', path: '/b', value: 2 },
 					{ op: 'remove', path: '/does-not-exist' },
 				],
-				{ atomic: true },
+				{ mutate: true },
 			),
 		).toThrow();
 		expect(data).toEqual({ a: 1 });

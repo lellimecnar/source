@@ -143,6 +143,18 @@ export class Lexer implements LexerInterface {
 						this.createToken(TokenType.WILDCARD, '*', start, line, col),
 					);
 					continue;
+				case CharCode.CARET:
+					this.advance();
+					this.tokens.push(
+						this.createToken(TokenType.PARENT, '^', start, line, col),
+					);
+					continue;
+				case CharCode.TILDE:
+					this.advance();
+					this.tokens.push(
+						this.createToken(TokenType.PROPERTY, '~', start, line, col),
+					);
+					continue;
 				case CharCode.QUESTION:
 					this.advance();
 					this.tokens.push(

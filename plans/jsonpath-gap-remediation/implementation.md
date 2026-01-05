@@ -377,18 +377,18 @@ completes: step 4 of 19 for jsonpath-gap-remediation
 
 #### Step 5: Patch Options & Advanced Features
 
-- [ ] (≈3 SP) Audit current `@jsonpath/patch` exports in `packages/jsonpath/patch/src/index.ts`.
-- [ ] (≈3 SP) Implement the `atomic` -> `mutate` rename (breaking), updating call sites/tests.
-- [ ] (≈3 SP) Add `applyWithErrors()` and `applyWithInverse()` per the gap definitions in `plan.md`.
-- [ ] (≈3 SP) Add JSONPath-based bulk operations and wire them through the facade if required.
+- [x] (≈3 SP) Audit current `@jsonpath/patch` exports in `packages/jsonpath/patch/src/index.ts`.
+- [x] (≈3 SP) Implement the `atomic` -> `mutate` rename (breaking), updating call sites/tests.
+- [x] (≈3 SP) Add `applyWithErrors()` and `applyWithInverse()` per the gap definitions in `plan.md`.
+- [x] (≈3 SP) Add JSONPath-based bulk operations and wire them through the facade if required.
 
 Gap note (why there is no patch block here):
 
-- [ ] The exact patch APIs depend on current exported functions/types in `packages/jsonpath/patch/src`; implement with test-first changes scoped to that package, then update facade re-exports in Step 18.
+- [x] The exact patch APIs depend on current exported functions/types in `packages/jsonpath/patch/src`; implement with test-first changes scoped to that package, then update facade re-exports in Step 18.
 
 ##### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/patch test`
+- [x] `pnpm --filter @jsonpath/patch test`
 
 #### Step 5 STOP & COMMIT
 
@@ -404,12 +404,12 @@ completes: step 5 of 19 for jsonpath-gap-remediation
 
 #### Step 6: Merge Patch Utilities
 
-- [ ] (≈3 SP) Add `isValidMergePatch()`.
-- [ ] (≈3 SP) Add tracing and JSONPatch conversion helpers.
+- [x] (≈3 SP) Add `isValidMergePatch()`.
+- [x] (≈3 SP) Add tracing and JSONPatch conversion helpers.
 
 ##### Step 6 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/merge-patch test`
+- [x] `pnpm --filter @jsonpath/merge-patch test`
 
 #### Step 6 STOP & COMMIT
 
@@ -425,17 +425,17 @@ completes: step 6 of 19 for jsonpath-gap-remediation
 
 #### Step 7: Functions Package Improvements + RFC 9485 I-Regexp
 
-- [ ] (≈3 SP) Add explicit builtin registration exports in `packages/jsonpath/functions/src/index.ts`.
-- [ ] (≈3 SP) Improve I-Regexp validation/conversion (pin exact behavior to tests).
-- [ ] (≈3 SP) Standardize Nothing behavior (`Nothing` internally; return `null` to end-user only where required by the gap list).
+- [x] (≈3 SP) Add explicit builtin registration exports in `packages/jsonpath/functions/src/index.ts`.
+- [x] (≈3 SP) Improve I-Regexp validation/conversion (pin exact behavior to tests).
+- [x] (≈3 SP) Standardize Nothing behavior (`Nothing` internally; return `null` to end-user only where required by the gap list).
 
 Gap note (why there is no patch block here):
 
-- [ ] The exact `null` boundary depends on whether the caller is internal evaluator vs public facade. Implement Step 1 first so the sentinel is available.
+- [x] The exact `null` boundary depends on whether the caller is internal evaluator vs public facade. Implement Step 1 first so the sentinel is available.
 
 ##### Step 7 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/functions test`
+- [x] `pnpm --filter @jsonpath/functions test`
 
 #### Step 7 STOP & COMMIT
 
@@ -451,17 +451,17 @@ completes: step 7 of 19 for jsonpath-gap-remediation
 
 #### Step 8: Facade Configuration, Cache Management, Multi-Query
 
-- [ ] (≈3 SP) Implement `configure()`, `getConfig()`, `reset()` in `packages/jsonpath/jsonpath/src`.
-- [ ] (≈3 SP) Add `clearCache()` and `getCacheStats()`.
-- [ ] (≈3 SP) Implement `multiQuery()` and `QuerySet`.
+- [x] (≈3 SP) Implement `configure()`, `getConfig()`, `reset()` in `packages/jsonpath/jsonpath/src`.
+- [x] (≈3 SP) Add `clearCache()` and `getCacheStats()`.
+- [x] (≈3 SP) Implement `multiQuery()` and `QuerySet`.
 
 Gap note (why there is no patch block here):
 
-- [ ] These APIs must be aligned with the existing facade exports in `packages/jsonpath/jsonpath/src/index.ts`; implement with tests in that package.
+- [x] These APIs must be aligned with the existing facade exports in `packages/jsonpath/jsonpath/src/index.ts`; implement with tests in that package.
 
 ##### Step 8 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/jsonpath test`
+- [x] `pnpm --filter @jsonpath/jsonpath test`
 
 #### Step 8 STOP & COMMIT
 
@@ -477,17 +477,17 @@ completes: step 8 of 19 for jsonpath-gap-remediation
 
 #### Step 9: Secure Query + Transform/Merge Utilities
 
-- [ ] (≈3 SP) Add `secureQuery()` facade helper using `SecureQueryOptions` from `@jsonpath/core`.
-- [ ] (≈3 SP) Add `transformAll()` and `projectWith()`.
-- [ ] (≈3 SP) Add `merge()` and `mergeWith()`.
+- [x] (≈3 SP) Add `secureQuery()` facade helper using `SecureQueryOptions` from `@jsonpath/core`.
+- [x] (≈3 SP) Add `transformAll()` and `projectWith()`.
+- [x] (≈3 SP) Add `merge()` and `mergeWith()`.
 
 Gap note (why there is no patch block here):
 
-- [ ] Keep changes scoped to `packages/jsonpath/jsonpath/src` and its tests; do not change evaluator security semantics beyond what is already enforced.
+- [x] Keep changes scoped to `packages/jsonpath/jsonpath/src` and its tests; do not change evaluator security semantics beyond what is already enforced.
 
 ##### Step 9 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/jsonpath test`
+- [x] `pnpm --filter @jsonpath/jsonpath test`
 
 #### Step 9 STOP & COMMIT
 
@@ -503,16 +503,16 @@ completes: step 9 of 19 for jsonpath-gap-remediation
 
 #### Step 10: Plugin Context & Dependency Resolution
 
-- [ ] (≈3 SP) Add a `PluginContext` concept in `packages/jsonpath/core/src/plugins.ts`.
-- [ ] (≈3 SP) Implement dependency/version resolution in plugin manager (keep changes test-driven).
+- [x] (≈3 SP) Add a `PluginContext` concept in `packages/jsonpath/core/src/plugins.ts`.
+- [x] (≈3 SP) Implement dependency/version resolution in plugin manager (keep changes test-driven).
 
 Gap note (why there is no patch block here):
 
-- [ ] This touches plugin system semantics; implement with small, isolated changes and targeted unit tests in `@jsonpath/core`.
+- [x] This touches plugin system semantics; implement with small, isolated changes and targeted unit tests in `@jsonpath/core`.
 
 ##### Step 10 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test`
+- [x] `pnpm --filter @jsonpath/core test`
 
 #### Step 10 STOP & COMMIT
 
@@ -528,16 +528,16 @@ completes: step 10 of 19 for jsonpath-gap-remediation
 
 #### Step 11: New Package `@jsonpath/plugin-extended`
 
-- [ ] (≈3 SP) Add new workspace package under `packages/jsonpath/plugin-extended` (package.json + build/test configs consistent with other `packages/jsonpath/*`).
-- [ ] (≈3 SP) Implement parent (`^`) and property name (`~`) selectors (requires lexer+parser tokens first).
+- [x] (≈3 SP) Add new workspace package under `packages/jsonpath/plugin-extended` (package.json + build/test configs consistent with other `packages/jsonpath/*`).
+- [x] (≈3 SP) Implement parent (`^`) and property name (`~`) selectors (requires lexer+parser tokens first).
 
 Gap note (why there is no patch block here):
 
-- [ ] Lexer currently does not tokenize `^` or `~`, so selector implementation must be coordinated across `@jsonpath/lexer`, `@jsonpath/parser`, and `@jsonpath/evaluator`.
+- [x] Lexer currently does not tokenize `^` or `~`, so selector implementation must be coordinated across `@jsonpath/lexer`, `@jsonpath/parser`, and `@jsonpath/evaluator`.
 
 ##### Step 11 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/plugin-extended test`
+- [x] `pnpm --filter @jsonpath/plugin-extended test`
 
 #### Step 11 STOP & COMMIT
 

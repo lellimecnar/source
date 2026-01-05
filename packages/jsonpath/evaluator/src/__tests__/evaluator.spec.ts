@@ -165,4 +165,31 @@ describe('Evaluator', () => {
 			"$['list'][0]",
 		]);
 	});
+
+	describe('Extended Selectors', () => {
+		it('should evaluate parent selector (^)', () => {
+			const ast = parse('$.store.book[0].title.^');
+			const result = evaluate(data, ast);
+			expect(result.values()[0]).toBe(data.store.book[0]);
+			expect(result.nodes()[0].path).toEqual(['store', 'book', 0]);
+		});
+
+		it('should evaluate property name selector (~)', () => {
+			const ast = parse('$.store.book[0].title.~');
+			const result = evaluate(data, ast);
+			expect(result.values()).toEqual(['title']);
+		});
+
+		it('should evaluate property name selector on array elements', () => {
+			const ast = parse('$.store.book[*].title.~');
+			const result = evaluate(data, ast);
+			expect(result.values()).toEqual(['title', 'title', 'title', 'title']);
+		});
+
+		it('should evaluate parent of root as empty', () => {
+			const ast = parse('$.^');
+			const result = evaluate(data, ast);
+			expect(result.isEmpty()).toBe(true);
+		});
+	});
 });
