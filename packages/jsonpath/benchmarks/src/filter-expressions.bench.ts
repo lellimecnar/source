@@ -36,7 +36,7 @@ describe('JSONPath: Filter Expressions', () => {
 					(adapter as any).name,
 					() => {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-						void (adapter as any).queryValues(suite.query, STORE_DATA);
+						void (adapter as any).queryValues(STORE_DATA, suite.query);
 					},
 				);
 			}

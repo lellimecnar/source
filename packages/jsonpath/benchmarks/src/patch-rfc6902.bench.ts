@@ -24,7 +24,7 @@ describe('JSON Patch (RFC 6902)', () => {
 				(adapter as any).name,
 				() => {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-					void (adapter as any).applyPatch(patch, STORE_DATA);
+					void (adapter as any).applyPatch(structuredClone(STORE_DATA), patch);
 				},
 			);
 		}
@@ -42,7 +42,7 @@ describe('JSON Patch (RFC 6902)', () => {
 				(adapter as any).name,
 				() => {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-					void (adapter as any).applyPatch(patch, STORE_DATA);
+					void (adapter as any).applyPatch(structuredClone(STORE_DATA), patch);
 				},
 			);
 		}

@@ -41,14 +41,12 @@ describe('JSONPath: Fundamentals', () => {
 	describe('Recursive Descent', () => {
 		const q = '$..author';
 		for (const adapter of adapters) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-			if (!(adapter as any).features.supportsFilter) continue;
 			bench(
 				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 				(adapter as any).name,
 				() => {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-					void (adapter as any).queryValues(q as string, STORE_DATA);
+					void (adapter as any).queryValues(STORE_DATA, q);
 				},
 			);
 		}

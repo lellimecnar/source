@@ -20,8 +20,10 @@ plans/
 │   └── plan.md                         # 🟢 Next.js & Expo performance
 ├── dependency-automation/
 │   └── plan.md                         # 🔵 Renovate Bot setup
-└── documentation-improvements/
-    └── plan.md                         # 🔵 CONTRIBUTING, READMEs, ADRs
+├── documentation-improvements/
+│   └── plan.md                         # 🔵 CONTRIBUTING, READMEs, ADRs
+└── jsonpath-performance-optimization/
+    └── plan.md                         # 🟡 JSONPath suite performance (4-12x gap)
 ```
 
 ## 🎯 Execution Paths

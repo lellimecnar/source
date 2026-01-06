@@ -1,42 +1,14 @@
 <!-- markdownlint-disable-file -->
 
-# Task Research Notes: JSONPath Performance Optimization (Re-run, non-truncated, concrete)
+# Task Research Notes: JSONPath Performance Optimization (Superseded)
 
-Scope: This note is constrained to facts verified by direct file reads and searches in this workspace on 2026-01-05.
+This file is intentionally kept as a stub to avoid carrying outdated conclusions.
 
-## Research Executed
+Use the current, plan-mapped dossier instead:
 
-### File Analysis
+- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/.copilot-tracking/research/20260106-jsonpath-performance-optimization-plan-research.md
 
-- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/package.json
-  - Root scripts use Turborepo: `pnpm test` runs `turbo test`.
-
-- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/turbo.json
-  - `test` depends on `^build` across the monorepo.
-
-- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/plans/jsonpath-performance/plan.md
-  - Defines Steps 1–11, including file lists and intended optimizations.
-
-- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/jsonpath/src/facade.ts
-  - Verified exports and existing behavior (AST caching + default plugins).
-
-- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/jsonpath/src/cache.ts
-  - Verified cache implementation and eviction behavior.
-
-- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/jsonpath/src/config.ts
-  - Verified config shape and defaults.
-
-- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/compiler/src/options.ts
-  - Verified compiler option surface and defaults.
-
-- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/evaluator/src/evaluator.ts
-  - Verified evaluator exports, path allocation behavior, and security checks.
-
-- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/evaluator/src/query-result.ts
-  - Verified QueryResultNode type alias and QueryResult path/pointer behaviors.
-
-- /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/evaluator/src/options.ts
-  - Verified per-call AbortController allocation in `withDefaults()`.
+<!--
 
 - /Volumes/MacStudioExternal/Users/lmiller/Dev/lellimecnar/source/packages/jsonpath/lexer/src/lexer.ts
   - Verified eager tokenization and token buffering.
@@ -713,3 +685,5 @@ Step 11: Documentation and migration guide
   - **Mitigation:** Reset pool at start of each query; thorough testing
 - **Risk:** Compiled queries may have correctness issues
   - **Mitigation:** Compiler already exists with test coverage; gradual rollout
+
+-->

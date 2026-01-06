@@ -17,7 +17,10 @@ describe('JSON Merge Patch (RFC 7386)', () => {
 				(adapter as any).name,
 				() => {
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-					void (adapter as any).apply(patch, STORE_DATA as any);
+					void (adapter as any).apply(
+						structuredClone(STORE_DATA) as any,
+						patch,
+					);
 				},
 			);
 		}
