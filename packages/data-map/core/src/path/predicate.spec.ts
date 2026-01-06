@@ -21,10 +21,32 @@ describe('compilePredicate', () => {
 		expect(predicate({ email: 'a@other.com' }, 0, [])).toBe(false);
 	});
 
-	it('caches predicates', () => {
+	it('caches predicates by normalized hash', () => {
 		const a = compilePredicate('@.active == true');
 		const b = compilePredicate('@.active == true');
 		expect(a.predicate).toBe(b.predicate);
 		expect(a.hash).toBe(b.hash);
+	});
+
+	it('reuses cache for whitespace variations', () => {
+		const a = compilePredicate('@.active == true');
+		const b = compilePredicate('  @.active  ==  true  ');
+		const c = compilePredicate('@.active==true');
+
+		// All should have the same hash after normalization
+		expect(a.hash).toBe(b.hash);
+		expect(a.hash).toBe(c.hash);
+
+		// All should reuse the same compiled function
+		expect(a.predicate).toBe(b.predicate);
+		expect(a.predicate).toBe(c.predicate);
+	});
+
+	it('distinguishes semantically different expressions', () => {
+		const a = compilePredicate('@.score > 90');
+		const b = compilePredicate('@.score > 95');
+
+		expect(a.hash).not.toBe(b.hash);
+		expect(a.predicate).not.toBe(b.predicate);
 	});
 });

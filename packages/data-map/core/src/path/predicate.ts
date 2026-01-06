@@ -14,6 +14,22 @@ function hashString(s: string): string {
 	return (h >>> 0).toString(16);
 }
 
+/**
+ * Normalize a predicate expression by removing extra whitespace.
+ * This allows expressions like '@.foo', '@.foo', and '@.foo' to share the same cache entry.
+ * Also normalizes operators to always have spaces around them.
+ */
+function normalizeExpression(expr: string): string {
+	let result = expr.trim();
+	// Remove all spaces first, then add consistent spacing around operators
+	result = result.replace(/\s+/g, '');
+	// Add single space around operators for consistent formatting
+	result = result.replace(/([=!<>]=?)/g, ' $1 ');
+	// Collapse multiple spaces to single space
+	result = result.replace(/\s+/g, ' ').trim();
+	return result;
+}
+
 function exprToJs(expr: string): string {
 	// Minimal transform:
 	// - @.foo -> value?.foo
@@ -32,15 +48,23 @@ function exprToJs(expr: string): string {
 	return out;
 }
 
+/**
+ * Compile a predicate expression with hash-based caching.
+ * Normalizes whitespace to maximize cache hit rate.
+ * @param expression The predicate expression (e.g., "@.price > 10")
+ * @returns Object with compiled predicate function and its normalized hash
+ */
 export function compilePredicate(expression: string): {
 	predicate: PredicateFn;
 	hash: string;
 } {
-	const cached = predicateCache.get(expression);
+	const normalized = normalizeExpression(expression);
+	const hash = hashString(normalized);
+
+	const cached = predicateCache.get(hash);
 	if (cached) return cached;
 
-	const hash = hashString(expression);
-	const body = exprToJs(expression);
+	const body = exprToJs(normalized);
 
 	// eslint-disable-next-line no-new-func
 	const fn = new Function(
@@ -51,6 +75,6 @@ export function compilePredicate(expression: string): {
 	) as unknown as PredicateFn;
 
 	const result = { predicate: fn, hash };
-	predicateCache.set(expression, result);
+	predicateCache.set(hash, result);
 	return result;
 }
