@@ -5,6 +5,8 @@ Unified facade for the RFC-compliant JSONPath, Pointer, and Patch suite.
 ## Features
 
 - **RFC 9535 JSONPath**: 100% compliance with the official JSONPath specification.
+- **Fast-Path Compilation**: Automatic compilation and optimization of simple queries (e.g., `$.a.b[0]`) for near-native performance without interpretation overhead.
+- **Result Limiting**: Use the `limit` option to stop evaluation after finding N results, reducing computation for large result sets.
 - **Extensible Function Registry**: Add custom functions via a robust plugin system.
 - **RFC 6901 JSON Pointer**: Resolve, exists, and parent navigation.
 - **Relative JSON Pointer**: Support for relative navigation (draft-bhutton-relative-json-pointer).
@@ -28,6 +30,36 @@ import { query } from '@jsonpath/jsonpath';
 const data = { users: [{ name: 'Alice' }, { name: 'Bob' }] };
 const names = query(data, '$.users[*].name').values();
 // ['Alice', 'Bob']
+```
+
+### Compiled Queries (Fast Path)
+
+Simple property and index chains are automatically optimized with a compiled fast-path that avoids interpretation overhead:
+
+```typescript
+import { compile } from '@jsonpath/jsonpath';
+
+// Simple queries like this are automatically fast-pathed
+const compiled = compile('$.users[0].name');
+const name = compiled(data).values()[0];
+// 'Alice' - evaluated with near-native performance
+```
+
+### Limiting Results
+
+Use the `limit` option to stop evaluation after finding N results, significantly improving performance for large datasets:
+
+```typescript
+import { query } from '@jsonpath/jsonpath';
+
+const data = { items: Array.from({ length: 1000000 }, (_, i) => ({ id: i })) };
+
+// Without limit: evaluates all 1M items
+const all = query(data, '$.items[*]').values();
+
+// With limit: stops after finding 10 items
+const first10 = query(data, '$.items[*]', { limit: 10 }).values();
+// Early termination dramatically improves performance
 ```
 
 ### Plugins

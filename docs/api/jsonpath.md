@@ -72,7 +72,38 @@ Removes the specified paths from the JSON object.
 
 ### `compileQuery(expression: string): CompiledQuery`
 
-Compiles a JSONPath expression into a reusable function.
+Compiles a JSONPath expression into a reusable function. Automatic compilation is applied to simple chains like `$.a.b[0]` without explicit calls.
+
+```typescript
+import { compileQuery } from '@jsonpath/jsonpath';
+
+const compiled = compileQuery('$.store.book[0].author');
+
+// Reuse the compiled query many times
+const result1 = compiled(data1);
+const result2 = compiled(data2);
+```
+
+**Performance**: Simple property and index chains (`$.a.b[c]`) use an optimized fast-path that avoids interpretation overhead, delivering near-native performance.
+
+### `EvaluatorOptions`
+
+Options passed to `query()`, `stream()`, and other evaluation functions.
+
+- `limit?: number` - Stop evaluation after finding N results. Useful for large datasets to avoid unnecessary computation.
+- `detectCircular?: boolean` - Detect and prevent infinite recursion on circular references.
+- `secure?: SecurityOptions` - Security constraints (max query length, etc.).
+
+**Example - Limiting results:**
+
+```typescript
+import { query } from '@jsonpath/jsonpath';
+
+const data = { items: Array.from({ length: 1000000 }, (_, i) => ({ id: i })) };
+
+// Find first 10 items - stops after 10 matches, much faster than full scan
+const first10 = query(data, '$.items[*]', { limit: 10 }).values();
+```
 
 ### `pathBuilder(): PathBuilder`
 
@@ -339,18 +370,45 @@ Used for applying a sequence of operations to a JSON document.
 
 ### `applyPatch(data: any, patch: PatchOperation[], options?: ApplyOptions): any`
 
-Applies a JSON Patch. **Immutable by default**. Set `mutate: true` in options to modify the input data in-place.
+Applies a JSON Patch. **Mutates the input by default for performance** (v2.0 breaking change). For immutability, use `structuredClone()` or `applyPatchImmutable()`.
 
 ```typescript
 import { applyPatch } from '@jsonpath/jsonpath';
 
+const doc = { author: 'John' };
+
+// Mutates doc in place (v2.0 default)
+applyPatch(doc, [{ op: 'add', path: '/title', value: 'Engineer' }]);
+// doc is now { author: 'John', title: 'Engineer' }
+
+// For immutability, explicitly clone:
+const next = applyPatch(structuredClone(doc), [
+	{ op: 'replace', path: '/author', value: 'Jane' },
+]);
+// next is { author: 'Jane', title: 'Engineer' }, doc is unchanged
+```
+
+### `ApplyOptions`
+
+- `atomicApply?: boolean` - If true, patch is applied atomically (all or nothing). If any operation fails, all changes are rolled back.
+- `mutate?: boolean` - If true (default in v2.0+), mutates the input. Set to false for immutability.
+
+**Atomic operations example:**
+
+```typescript
 const patch = [
-	{ op: 'add', path: '/author', value: 'Jane Doe' },
-	{ op: 'remove', path: '/deprecated' },
+	{ op: 'add', path: '/foo', value: 'bar' },
+	{ op: 'test', path: '/nonexistent', value: 'x' }, // This will fail
+	{ op: 'add', path: '/baz', value: 'qux' },
 ];
 
-const result = applyPatch(data, patch);
-// Original data is unmodified
+const doc = {};
+try {
+	applyPatch(doc, patch, { atomicApply: true });
+} catch (e) {
+	// All operations rolled back - doc is still {}
+	console.log(doc); // {}
+}
 ```
 
 ### `applyPatchImmutable(data: any, patch: PatchOperation[]): any`

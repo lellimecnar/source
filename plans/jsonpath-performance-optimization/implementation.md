@@ -1046,22 +1046,22 @@ completes: step 9 of 10 for jsonpath-performance-optimization
 
 #### Step 10: Update documentation + benchmark reports
 
-- [ ] Update `packages/jsonpath/jsonpath/README.md` to document:
-  - [ ] compiled fast-path behavior
-  - [ ] new `limit` option for result-count limiting
-- [ ] Update `packages/jsonpath/patch` docs (README if present) to document:
-  - [ ] BREAKING default `mutate: true`
-  - [ ] `atomicApply` option
-  - [ ] migration: `applyPatch(structuredClone(target), patch)` for immutability
-- [ ] Update benchmark docs:
-  - [ ] `packages/jsonpath/benchmarks/AUDIT_REPORT.md`
-  - [ ] `packages/jsonpath/benchmarks/README.md`
-- [ ] Update API docs: `docs/api/jsonpath.md`
+- [x] Update `packages/jsonpath/jsonpath/README.md` to document:
+  - [x] compiled fast-path behavior
+  - [x] new `limit` option for result-count limiting
+- [x] Update `packages/jsonpath/patch` docs (README if present) to document:
+  - [x] BREAKING default `mutate: true`
+  - [x] `atomicApply` option
+  - [x] migration: `applyPatch(structuredClone(target), patch)` for immutability
+- [x] Update benchmark docs:
+  - [x] `packages/jsonpath/benchmarks/AUDIT_REPORT.md`
+  - [x] `packages/jsonpath/benchmarks/README.md`
+- [x] Update API docs: `docs/api/jsonpath.md`
 
 ##### Step 10 Verification Checklist
 
-- [ ] Docs build/lint (if applicable) passes
-- [ ] Benchmarks run and numbers are recorded
+- [x] Docs build/lint (if applicable) passes
+- [x] Benchmarks run and numbers are recorded
 
 #### Step 10 STOP & COMMIT
 

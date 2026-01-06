@@ -38,6 +38,18 @@ From repo root:
 - `pnpm --filter @jsonpath/benchmarks bench:browser:chromium` - Browser (Chromium)
 - `pnpm --filter @jsonpath/benchmarks bench:browser:firefox` - Browser (Firefox)
 - `pnpm --filter @jsonpath/benchmarks bench:browser:webkit` - Browser (WebKit)
+- `pnpm --filter @jsonpath/benchmarks exec vitest run src/performance-regression.spec.ts` - Run performance regression checks
+
+## Performance Regression Testing
+
+A dedicated Vitest spec (`src/performance-regression.spec.ts`) provides **warn-only** performance regression detection:
+
+- **Baselines**: Defined in `baseline.json` with target ops/sec for key operations
+- **Checks**: Simple query (300k), filter query (80k), recursive query (50k)
+- **Warnings**: Emitted when actual performance drops >10% below baseline
+- **CI Behavior**: Tests always pass (never block CI), warnings visible in logs
+
+This allows tracking performance trends without CI failures while optimizations are ongoing.
 
 ## Architecture
 

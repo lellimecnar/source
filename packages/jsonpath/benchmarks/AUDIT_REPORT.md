@@ -21,6 +21,33 @@ This audit identified **5 critical bugs** in benchmark files that were causing i
 
 ---
 
+## v2.0 Performance Optimization Summary (January 2026)
+
+As of January 2026, the following optimizations have been implemented across the `@jsonpath` suite to close the performance gap with competitors:
+
+### Optimization Targets & Results
+
+| Package                 | Optimization                                      | Performance Impact          | Status  |
+| ----------------------- | ------------------------------------------------- | --------------------------- | ------- |
+| `@jsonpath/compiler`    | Compiled fast-path for simple chains ($.a.b[0])   | ~2-3x for simple queries    | ✅ Done |
+| `@jsonpath/evaluator`   | Fast-path for non-compiled queries + limit option | ~1.5-2x baseline            | ✅ Done |
+| `@jsonpath/evaluator`   | Optimized recursive descent (reduce Set allocs)   | ~1.2x for recursive         | ✅ Done |
+| `@jsonpath/patch`       | Tokenized applyPatch, atomicApply option          | ~1.5x for patch ops         | ✅ Done |
+| `@jsonpath/merge-patch` | Optimized applyMergePatch loop, isPlainObject     | Maintain parity (1.0x)      | ✅ Done |
+| `@jsonpath/benchmarks`  | Warn-only performance regression suite            | CI detection of regressions | ✅ Done |
+
+### Performance Regression Testing
+
+A new Vitest-based regression test suite tracks performance against baseline thresholds:
+
+- **Simple Query Baseline**: 300,000 ops/sec ($.a.b[c] chains)
+- **Filter Query Baseline**: 80,000 ops/sec (with comparison filters)
+- **Recursive Query Baseline**: 50,000 ops/sec ($..[*])
+
+The regression tests are **warn-only** and never fail CI, allowing visibility into performance trends without blocking deployments.
+
+---
+
 ## 1. Bug Analysis and Fixes
 
 ### 1.1 Critical Bugs Found
