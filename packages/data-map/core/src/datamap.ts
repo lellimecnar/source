@@ -1,5 +1,7 @@
 import { BatchManager } from './batch/manager';
 import type { BatchContext } from './batch/types';
+import { FluentBatchBuilder } from './batch/builder';
+import type { Batch } from './batch/fluent';
 import { DefinitionRegistry } from './definitions/registry';
 import { applyOperations } from './patch/apply';
 import {
@@ -15,7 +17,11 @@ import { buildSetPatch } from './patch/builder';
 import { compilePathPattern } from './path/compile';
 import { detectPathType } from './path/detect';
 import { SubscriptionManagerImpl } from './subscription/manager';
-import type { Subscription, SubscriptionConfig } from './subscription/types';
+import type {
+	Subscription,
+	SubscriptionConfig,
+	SubscriptionEvent,
+} from './subscription/types';
 import type {
 	CallOptions,
 	DataMapOptions,
@@ -515,25 +521,67 @@ export class DataMap<T = unknown, Ctx = unknown> {
 					this._subs.handleFilterCriteriaChange(p);
 				}
 
+				// Dispatch notifications, expanding move operations for subscription semantics
 				for (const op of effectiveOps) {
-					this._subs.notify(
-						op.path,
-						'patch',
-						'on',
-						this.get(op.path),
-						undefined,
-						op,
-						op.path,
-					);
-					this._subs.notify(
-						op.path,
-						'patch',
-						'after',
-						this.get(op.path),
-						undefined,
-						op,
-						op.path,
-					);
+					if (op.op === 'move') {
+						// Treat move as remove(from) + set(to) for subscription dispatch
+						this._subs.notify(
+							op.from,
+							'remove',
+							'on',
+							undefined,
+							undefined,
+							op,
+							op.from,
+						);
+						this._subs.notify(
+							op.from,
+							'remove',
+							'after',
+							undefined,
+							undefined,
+							op,
+							op.from,
+						);
+
+						this._subs.notify(
+							op.path,
+							'set',
+							'on',
+							this.get(op.path),
+							undefined,
+							op,
+							op.path,
+						);
+						this._subs.notify(
+							op.path,
+							'set',
+							'after',
+							this.get(op.path),
+							undefined,
+							op,
+							op.path,
+						);
+					} else {
+						this._subs.notify(
+							op.path,
+							'patch',
+							'on',
+							this.get(op.path),
+							undefined,
+							op,
+							op.path,
+						);
+						this._subs.notify(
+							op.path,
+							'patch',
+							'after',
+							this.get(op.path),
+							undefined,
+							op,
+							op.path,
+						);
+					}
 				}
 
 				return this;
@@ -688,22 +736,46 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		},
 	);
 
-	batch<R>(fn: (dm: this) => R): R {
-		this._batch.start();
-		try {
-			const result = fn(this);
-			const context = this._batch.end();
+	batch: any = Object.assign(
+		<R>(fn: (dm: this) => R): R => {
+			this._batch.start();
+			try {
+				const result = fn(this);
+				const context = this._batch.end();
 
-			if (this._batch.depth === 0 && context) {
-				this._flushBatch(context);
+				if (this._batch.depth === 0 && context) {
+					this._flushBatch(context);
+				}
+
+				return result;
+			} catch (e) {
+				this._batch.end();
+				throw e;
 			}
-
-			return result;
-		} catch (e) {
-			this._batch.end();
-			throw e;
-		}
-	}
+		},
+		{
+			set: (pathOrPointer: string, value: unknown, options?: CallOptions) => {
+				const builder = new FluentBatchBuilder(this);
+				return builder.set(pathOrPointer, value, options);
+			},
+			remove: (pathOrPointer: string, options?: CallOptions) => {
+				const builder = new FluentBatchBuilder(this);
+				return builder.remove(pathOrPointer, options);
+			},
+			merge: (pathOrPointer: string, value: object, options?: CallOptions) => {
+				const builder = new FluentBatchBuilder(this);
+				return builder.merge(pathOrPointer, value, options);
+			},
+			move: (from: string, to: string, options?: CallOptions) => {
+				const builder = new FluentBatchBuilder(this);
+				return builder.move(from, to, options);
+			},
+			copy: (from: string, to: string, options?: CallOptions) => {
+				const builder = new FluentBatchBuilder(this);
+				return builder.copy(from, to, options);
+			},
+		} as any,
+	);
 
 	transaction<R>(fn: (dm: this) => R): R {
 		const snapshot = this.getSnapshot();

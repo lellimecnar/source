@@ -133,4 +133,30 @@ describe('subscription manager', () => {
 		const val = dm.get('/a');
 		expect(val).toBe('intercepted');
 	});
+
+	it('invokes handlers by specificity (most specific first)', async () => {
+		const dm = new DataMap({ a: { b: 1 } });
+		const calls: string[] = [];
+
+		dm.subscribe({
+			path: '$..b',
+			after: 'patch',
+			fn: () => calls.push('recursive'),
+		});
+		dm.subscribe({
+			path: '$.a.*',
+			after: 'patch',
+			fn: () => calls.push('wildcard'),
+		});
+		dm.subscribe({
+			path: '/a/b',
+			after: 'patch',
+			fn: () => calls.push('pointer'),
+		});
+
+		dm.patch([{ op: 'replace', path: '/a/b', value: 2 }]);
+		await flushMicrotasks();
+
+		expect(calls).toEqual(['pointer', 'wildcard', 'recursive']);
+	});
 });

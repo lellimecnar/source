@@ -23,6 +23,7 @@ interface InternalSubscription<T, Ctx> {
 	expandedPaths: Set<string>;
 	isDynamic: boolean;
 	compiledQuery?: CompiledQuery;
+	registrationOrder: number;
 }
 
 export interface NotificationResult {
@@ -55,6 +56,22 @@ function shouldInvoke(
 	return false;
 }
 
+function calculateSpecificity(path: string): number {
+	// Static pointer: /a/b -> 1000
+	// Wildcard:       $.a.* -> 500
+	// Recursive:      $..a  -> 100
+	if (path.startsWith('$')) {
+		if (path.includes('..')) {
+			return 100; // Recursive
+		}
+		if (path.includes('[*]') || path.includes('.*')) {
+			return 500; // Wildcard
+		}
+		return 1000; // Singular JSONPath (acts like pointer)
+	}
+	return 1000; // Static pointer
+}
+
 export class SubscriptionManagerImpl<T, Ctx> {
 	private readonly reverseIndex = new Map<string, Set<string>>();
 	private readonly subscriptions = new Map<
@@ -70,6 +87,7 @@ export class SubscriptionManagerImpl<T, Ctx> {
 	private readonly bloomFilter = new BloomFilter(10000, 7);
 	private readonly scheduler = new NotificationScheduler();
 	private readonly dataMap: DataMap<T, Ctx>;
+	private registrationCounter = 0;
 
 	constructor(dataMap: DataMap<T, Ctx>) {
 		this.dataMap = dataMap;
@@ -139,6 +157,7 @@ export class SubscriptionManagerImpl<T, Ctx> {
 			expandedPaths,
 			isDynamic,
 			compiledQuery,
+			registrationOrder: this.registrationCounter++,
 		};
 
 		this.subscriptions.set(id, internal);
@@ -372,7 +391,22 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		let handlerCount = 0;
 		let currentValue = value;
 
-		for (const id of ids) {
+		// Sort ids by specificity (descending) then registration order (ascending)
+		const sortedIds = Array.from(ids).sort((idA, idB) => {
+			const subA = this.subscriptions.get(idA);
+			const subB = this.subscriptions.get(idB);
+			if (!subA || !subB) return 0;
+
+			const specA = calculateSpecificity(subA.config.path);
+			const specB = calculateSpecificity(subB.config.path);
+
+			// Higher specificity first
+			if (specA !== specB) return specB - specA;
+			// Then earlier registration order
+			return (subA.registrationOrder ?? 0) - (subB.registrationOrder ?? 0);
+		});
+
+		for (const id of sortedIds) {
 			const sub = this.subscriptions.get(id);
 			if (!sub) continue;
 
