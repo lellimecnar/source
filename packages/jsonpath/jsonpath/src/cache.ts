@@ -6,9 +6,9 @@
  * @packageDocumentation
  */
 
-import type { QueryNode } from '@jsonpath/parser';
 import type { CompiledQuery } from '@jsonpath/compiler';
 import { Compiler } from '@jsonpath/compiler';
+import type { QueryNode } from '@jsonpath/parser';
 
 import { getConfig, configure } from './config.js';
 

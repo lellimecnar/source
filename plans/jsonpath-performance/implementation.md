@@ -2,6 +2,25 @@
 
 This document is an implementation guide for `plans/jsonpath-performance/plan.md`.
 
+## Implementation Status (January 5, 2026)
+
+✓ **Steps 1-4 COMPLETED** (P0 & P1)
+
+- Step 1: Compiled query caching enabled by default
+- Step 2-4: Evaluator optimizations (lazy paths, pooling, security checks)
+- Step 6: Singleton AbortSignal (integrated into Step 2-4)
+
+**In Progress**: Step 5 (Lazy Tokenization in Lexer)
+**Not Started**: Steps 7-11 (P2 optimizations and documentation)
+
+### Quick Links to Completed Work
+
+- [Commit: perf(jsonpath): enable compiled query caching by default](https://github.com/lellimecnar/source/commits/perf/jsonpath-optimization)
+- [Commit: test: add regression tests for node path caching, pooling, and allowPaths](https://github.com/lellimecnar/source/commits/perf/jsonpath-optimization)
+- [Commit: perf(evaluator): lazy paths + pooled nodes + faster secure checks](https://github.com/lellimecnar/source/commits/perf/jsonpath-optimization)
+
+---
+
 ## Prerequisites
 
 - Work from the correct branch.
@@ -843,7 +862,26 @@ Follow the edits shown earlier in Step 2–4.2.4 (this document).
 
 ## Step 5 (P1): Lazy Tokenization in Lexer
 
-Follow the exact code blocks from the plan.
+**Status**: Requires implementation (exact code blocks available in `plans/jsonpath-performance/plan.md` lines 493-850+)
+
+**Files**:
+
+- `packages/jsonpath/lexer/src/lexer.ts`
+- `packages/jsonpath/lexer/src/__tests__/lexer.spec.ts`
+
+**Summary**: Replace eager `tokenizeAll()` in constructor with lazy `ensureTokenized()` / `tokenizeNext()` pattern. Tokens are generated on-demand instead of upfront. See plan.md for exact code blocks to apply.
+
+### Verification
+
+- [ ] `pnpm --filter @jsonpath/lexer test`
+- [ ] `pnpm --filter @jsonpath/lexer type-check`
+- [ ] `pnpm --filter @jsonpath/lexer lint`
+
+### STOP & COMMIT
+
+- Commit: `perf(lexer): lazily tokenize on demand`
+
+---
 
 **Files**:
 
@@ -872,35 +910,23 @@ Use the “Step 5: Lazy Tokenization in Lexer (P1)” blocks from `plans/jsonpat
 
 **Files**:
 
-- `packages/jsonpath/evaluator/src/options.ts`
+- `packages/jsonpath/evaluator/src/options.ts` ✓ COMPLETED
 
 ### Change
 
-In `packages/jsonpath/evaluator/src/options.ts`, add this near top-level:
+✓ In `packages/jsonpath/evaluator/src/options.ts`:
 
-```ts
-const NOOP_SIGNAL: AbortSignal = new AbortController().signal;
-```
-
-Then in `withDefaults()`, replace:
-
-```ts
-signal: options?.signal ?? new AbortController().signal,
-```
-
-With:
-
-```ts
-signal: options?.signal ?? NOOP_SIGNAL,
-```
+- [x] Added `NOOP_SIGNAL` constant at module level
+- [x] Using `signal: options?.signal ?? NOOP_SIGNAL` in `withDefaults()`
+- [x] Prevents allocating new AbortController per evaluation
 
 ### Verification
 
-- [ ] `pnpm --filter @jsonpath/evaluator test`
+- [x] `pnpm --filter @jsonpath/evaluator test`
 
 ### STOP & COMMIT
 
-- Commit: `perf(evaluator): reuse default AbortSignal`
+- Commit: `perf(evaluator): reuse default AbortSignal` ✓ COMPLETED IN STEP 2-4
 
 ---
 
