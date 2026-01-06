@@ -6,6 +6,8 @@
  * @packageDocumentation
  */
 
+import type { FunctionDefinition } from '@jsonpath/core';
+
 export enum NodeType {
 	// Root
 	Query = 'Query',
@@ -113,6 +115,8 @@ export interface FunctionCallNode extends ASTNode {
 	readonly type: NodeType.FunctionCall;
 	readonly name: string;
 	readonly args: ExpressionNode[];
+	/** Optional resolved function definition captured at parse-time. */
+	readonly resolvedFn?: FunctionDefinition<any[], any>;
 }
 
 export interface LiteralNode extends ASTNode {

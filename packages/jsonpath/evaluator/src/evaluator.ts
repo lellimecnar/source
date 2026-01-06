@@ -741,7 +741,7 @@ export class Evaluator {
 					return this.evaluateEmbeddedQuery(expr, current);
 				}
 				case NodeType.FunctionCall: {
-					const fn = getFunction(expr.name);
+					const fn = expr.resolvedFn ?? getFunction(expr.name);
 					if (!fn || expr.args.length !== fn.signature.length) {
 						// RFC 9535: Unknown function or wrong arg count results in "Nothing"
 						return Nothing;

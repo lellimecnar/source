@@ -355,14 +355,14 @@ completes: step 2 of 10 for jsonpath-performance-optimization
 
 #### Step 3: Compile-time function resolution (store resolved function reference in AST)
 
-- [ ] Update `packages/jsonpath/parser/src/nodes.ts` to add an optional resolved function reference to `FunctionCallNode`.
-- [ ] In `packages/jsonpath/parser/src/nodes.ts`, add this import at the top (after docblock):
+- [x] Update `packages/jsonpath/parser/src/nodes.ts` to add an optional resolved function reference to `FunctionCallNode`.
+- [x] In `packages/jsonpath/parser/src/nodes.ts`, add this import at the top (after docblock):
 
 ```ts
 import type { FunctionDefinition } from '@jsonpath/core';
 ```
 
-- [ ] In `packages/jsonpath/parser/src/nodes.ts`, replace the `FunctionCallNode` interface with:
+- [x] In `packages/jsonpath/parser/src/nodes.ts`, replace the `FunctionCallNode` interface with:
 
 ```ts
 export interface FunctionCallNode extends ASTNode {
@@ -374,8 +374,8 @@ export interface FunctionCallNode extends ASTNode {
 }
 ```
 
-- [ ] Update `packages/jsonpath/parser/src/parser.ts` to populate `resolvedFn` when creating a `FunctionCallNode`.
-- [ ] In `packages/jsonpath/parser/src/parser.ts`, inside the FunctionCall creation block (where `const node: FunctionCallNode = { ... }`), replace it with:
+- [x] Update `packages/jsonpath/parser/src/parser.ts` to populate `resolvedFn` when creating a `FunctionCallNode`.
+- [x] In `packages/jsonpath/parser/src/parser.ts`, inside the FunctionCall creation block (where `const node: FunctionCallNode = { ... }`), replace it with:
 
 ```ts
 const resolvedFn = functionRegistry.get(name);
@@ -389,8 +389,8 @@ const node: FunctionCallNode = {
 };
 ```
 
-- [ ] Update `packages/jsonpath/evaluator/src/evaluator.ts` to prefer the resolved function when evaluating `NodeType.FunctionCall`.
-- [ ] In the `case NodeType.FunctionCall:` block, replace:
+- [x] Update `packages/jsonpath/evaluator/src/evaluator.ts` to prefer the resolved function when evaluating `NodeType.FunctionCall`.
+- [x] In the `case NodeType.FunctionCall:` block, replace:
 
 ```ts
 const fn = getFunction(expr.name);
@@ -404,9 +404,9 @@ const fn = expr.resolvedFn ?? getFunction(expr.name);
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/parser test` passes
-- [ ] `pnpm --filter @jsonpath/evaluator test` passes
-- [ ] `pnpm --filter @jsonpath/functions test` passes
+- [x] `pnpm --filter @jsonpath/parser test` passes
+- [x] `pnpm --filter @jsonpath/evaluator test` passes
+- [x] `pnpm --filter @jsonpath/functions test` passes
 
 #### Step 3 STOP & COMMIT
 

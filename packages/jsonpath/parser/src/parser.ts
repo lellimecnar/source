@@ -590,12 +590,14 @@ export class Parser {
 					}
 				}
 				this.expect(TokenType.RPAREN);
+				const resolvedFn = functionRegistry.get(name);
 				const node: FunctionCallNode = {
 					type: NodeType.FunctionCall,
 					startPos: start,
 					endPos: this.lexer.peek().start,
 					name,
 					args,
+					resolvedFn,
 				};
 				this.validateFunctionCall(node);
 				return node;
