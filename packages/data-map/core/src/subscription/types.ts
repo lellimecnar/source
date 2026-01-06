@@ -44,3 +44,14 @@ export interface Subscription {
 	readonly isDynamic: boolean;
 	unsubscribe: () => void;
 }
+
+/**
+ * Public interface for advanced subscription management integrations.
+ * @public
+ */
+export interface SubscriptionManager<T, Ctx = unknown> {
+	/**
+	 * Register a subscription configuration.
+	 */
+	register(config: SubscriptionConfig<T, Ctx>): Subscription;
+}

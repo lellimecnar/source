@@ -10,5 +10,6 @@ export type {
 	SubscriptionConfig,
 	SubscriptionEvent,
 	SubscriptionEventInfo,
+	SubscriptionManager,
 } from './subscription/types';
 export type { Definition, DefinitionFactory } from './definitions/types';
