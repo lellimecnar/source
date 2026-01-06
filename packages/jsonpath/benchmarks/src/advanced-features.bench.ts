@@ -6,7 +6,7 @@ import {
 } from '@jsonpath/jsonpath';
 import { bench, describe } from 'vitest';
 
-import { STORE_DATA } from './fixtures/index.js';
+import { STORE_DATA } from './fixtures';
 
 describe('Advanced @jsonpath/jsonpath Features', () => {
 	describe('transform()', () => {
@@ -14,7 +14,7 @@ describe('Advanced @jsonpath/jsonpath Features', () => {
 			void transform(
 				STORE_DATA,
 				'$.users[*].score',
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
+
 				(score: unknown) => (score as number) + 1,
 			);
 		});
@@ -25,12 +25,12 @@ describe('Advanced @jsonpath/jsonpath Features', () => {
 			void transformAll(STORE_DATA, [
 				{
 					path: '$.users[*].score',
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
+
 					fn: (v: unknown) => (v as number) + 1,
 				},
 				{
 					path: '$.store.book[*].price',
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
+
 					fn: (v: unknown) => (v as number) * 1.1,
 				},
 			]);

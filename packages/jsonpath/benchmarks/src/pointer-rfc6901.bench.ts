@@ -1,10 +1,7 @@
 import { bench, describe } from 'vitest';
 
-import {
-	lellimecnarPointerAdapter,
-	jsonPointerAdapter,
-} from './adapters/index.js';
-import { STORE_DATA } from './fixtures/index.js';
+import { lellimecnarPointerAdapter, jsonPointerAdapter } from './adapters';
+import { STORE_DATA } from './fixtures';
 
 describe('JSON Pointer (RFC 6901)', () => {
 	const adapters = [lellimecnarPointerAdapter, jsonPointerAdapter];

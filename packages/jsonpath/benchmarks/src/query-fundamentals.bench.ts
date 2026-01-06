@@ -5,11 +5,10 @@ import {
 	jsonpathAdapter,
 	jsonpathPlusAdapter,
 	jsonP3Adapter,
-} from './adapters/index.js';
-import { STORE_DATA } from './fixtures/index.js';
+} from './adapters';
+import { STORE_DATA } from './fixtures';
 
 describe('JSONPath: Fundamentals', () => {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	const adapters = [
 		lellimecnarJsonPathAdapter,
 		jsonpathAdapter,
@@ -31,7 +30,7 @@ describe('JSONPath: Fundamentals', () => {
 						(adapter as any).name,
 						() => {
 							// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-							void (adapter as any).queryValues(STORE_DATA, q as string);
+							void (adapter as any).queryValues(STORE_DATA, q);
 						},
 					);
 				}

@@ -11,14 +11,14 @@ export const jsonpathPlusAdapter: JsonPathAdapter = {
 		canReturnNodes: true,
 	},
 	queryValues: <T = unknown>(data: unknown, expression: string): T[] => {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		return JSONPath({
 			path: expression,
 			json: data,
 		} as any) as unknown as T[];
 	},
 	queryNodes: (data: unknown, expression: string): unknown[] => {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		return JSONPath({
 			path: expression,
 			json: data,
@@ -27,12 +27,12 @@ export const jsonpathPlusAdapter: JsonPathAdapter = {
 	},
 	smokeTest: (): boolean => {
 		const data: unknown = { store: { book: [{ price: 1 }, { price: 2 }] } };
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+
 		const values: number[] = JSONPath({
 			path: '$.store.book[*].price',
 			json: data as any,
 		});
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+
 		const nodes = JSONPath({
 			path: '$.store.book[*].price',
 			json: data as any,

@@ -5,11 +5,10 @@ import {
 	jsonpathAdapter,
 	jsonpathPlusAdapter,
 	jsonP3Adapter,
-} from './adapters/index.js';
-import { STORE_DATA } from './fixtures/index.js';
+} from './adapters';
+import { STORE_DATA } from './fixtures';
 
 describe('Output Formats', () => {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	const adapters = [
 		lellimecnarJsonPathAdapter,
 		jsonpathAdapter,

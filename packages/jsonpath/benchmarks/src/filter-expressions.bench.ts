@@ -5,8 +5,8 @@ import {
 	jsonpathAdapter,
 	jsonpathPlusAdapter,
 	jsonP3Adapter,
-} from './adapters/index.js';
-import { STORE_DATA } from './fixtures/index.js';
+} from './adapters';
+import { STORE_DATA } from './fixtures';
 
 describe('JSONPath: Filter Expressions', () => {
 	const adapters = [

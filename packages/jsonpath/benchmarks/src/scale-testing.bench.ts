@@ -5,14 +5,14 @@ import {
 	jsonpathAdapter,
 	jsonpathPlusAdapter,
 	jsonP3Adapter,
-} from './adapters/index.js';
+} from './adapters';
 import {
 	LARGE_ARRAY_100,
 	LARGE_ARRAY_1K,
 	LARGE_ARRAY_10K,
 	DEEP_OBJECT_10,
 	WIDE_OBJECT_1000,
-} from './fixtures/index.js';
+} from './fixtures';
 
 describe('Scale Testing', () => {
 	const adapters = [

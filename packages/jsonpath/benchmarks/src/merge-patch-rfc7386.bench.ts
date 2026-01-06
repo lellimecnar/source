@@ -3,11 +3,10 @@ import { bench, describe } from 'vitest';
 import {
 	lellimecnarMergePatchAdapter,
 	jsonMergePatchAdapter,
-} from './adapters/index.js';
-import { STORE_DATA } from './fixtures/index.js';
+} from './adapters';
+import { STORE_DATA } from './fixtures';
 
 describe('JSON Merge Patch (RFC 7386)', () => {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	const adapters = [lellimecnarMergePatchAdapter, jsonMergePatchAdapter];
 
 	describe('Apply: nested merge + delete', () => {
@@ -26,7 +25,7 @@ describe('JSON Merge Patch (RFC 7386)', () => {
 
 	describe('Generate: source->target', () => {
 		const source = STORE_DATA;
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const target = { ...(STORE_DATA as any), newKey: true };
 		for (const adapter of adapters) {
 			bench(
