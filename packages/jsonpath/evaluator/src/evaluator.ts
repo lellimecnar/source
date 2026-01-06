@@ -111,8 +111,8 @@ export class Evaluator {
 		}
 
 		let current: any = this.root;
-		let parent: any = undefined;
-		let parentKey: any = undefined;
+		let parent: any;
+		let parentKey: any;
 		const path: PathSegment[] = [];
 
 		for (const seg of ast.segments) {
@@ -126,7 +126,7 @@ export class Evaluator {
 				) {
 					parent = current;
 					parentKey = sel.name;
-					current = (current as any)[sel.name];
+					current = current[sel.name];
 					path.push(sel.name);
 					continue;
 				}
@@ -134,6 +134,9 @@ export class Evaluator {
 			}
 
 			// Index
+			if (sel.type !== NodeType.IndexSelector) {
+				return new QueryResult([]);
+			}
 			if (!Array.isArray(current)) return new QueryResult([]);
 			const idx = sel.index < 0 ? current.length + sel.index : sel.index;
 			if (idx < 0 || idx >= current.length) return new QueryResult([]);
@@ -209,6 +212,13 @@ export class Evaluator {
 					`Maximum results exceeded: ${this.options.maxResults}`,
 					{ code: 'LIMIT_ERROR' },
 				);
+			}
+			if (
+				this.options.limit !== undefined &&
+				this.options.limit > 0 &&
+				this.resultsFound >= this.options.limit
+			) {
+				return;
 			}
 			yield node;
 			this.resultsFound++;

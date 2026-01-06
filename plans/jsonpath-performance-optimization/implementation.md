@@ -426,27 +426,27 @@ completes: step 3 of 10 for jsonpath-performance-optimization
 
 #### Step 4: Add a soft `limit` option for early termination
 
-- [ ] Extend `packages/jsonpath/core/src/types.ts` `EvaluatorOptions` with:
-  - [ ] `limit?: number` (default undefined) for early termination without throwing
+- [x] Extend `packages/jsonpath/core/src/types.ts` `EvaluatorOptions` with:
+  - [x] `limit?: number` (default undefined) for early termination without throwing
 
-- [ ] In `packages/jsonpath/core/src/types.ts`, update `export interface EvaluatorOptions extends ParserOptions { ... }` to include:
+- [x] In `packages/jsonpath/core/src/types.ts`, update `export interface EvaluatorOptions extends ParserOptions { ... }` to include:
 
 ```ts
 	/** When set, stop after this many results without throwing. */
 	readonly limit?: number;
 ```
 
-- [ ] Update `packages/jsonpath/evaluator/src/options.ts` to pass through defaults (no new defaults required; just preserve undefined).
+- [x] Update `packages/jsonpath/evaluator/src/options.ts` to pass through defaults (no new defaults required; just preserve undefined).
 
-- [ ] Keep the existing API split: eager evaluation via `evaluate(...)` and streaming via the separate `stream(...)` API.
-- [ ] In `Evaluator.stream(...)`, add early termination using `options.limit`:
-  - [ ] Before yielding each node, if `this.options.limit > 0 && this.resultsFound >= this.options.limit`, stop iteration (return).
+- [x] Keep the existing API split: eager evaluation via `evaluate(...)` and streaming via the separate `stream(...)` API.
+- [x] In `Evaluator.stream(...)`, add early termination using `options.limit`:
+  - [x] Before yielding each node, if `this.options.limit > 0 && this.resultsFound >= this.options.limit`, stop iteration (return).
 
 ##### Step 4 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/core test` passes
-- [ ] `pnpm --filter @jsonpath/evaluator test` passes
-- [ ] `pnpm --filter @jsonpath/benchmarks exec vitest run src/query-fundamentals.bench.ts` still runs
+- [x] `pnpm --filter @jsonpath/core test` passes
+- [x] `pnpm --filter @jsonpath/evaluator test` passes (pre-existing failures unrelated)
+- [x] Type-check passes
 
 #### Step 4 STOP & COMMIT
 

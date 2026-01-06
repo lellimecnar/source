@@ -187,4 +187,6 @@ export interface EvaluatorOptions extends ParserOptions {
 	readonly secure?: SecureQueryOptions;
 	readonly signal?: AbortSignal;
 	readonly plugins?: readonly JSONPathPlugin[];
+	/** When set, stop after this many results without throwing. */
+	readonly limit?: number;
 }

@@ -65,8 +65,8 @@ function compileSimpleQuery(ast: QueryNode): (root: unknown) => QueryResult {
 
 	return (root: unknown) => {
 		let current: any = root;
-		let parent: any = undefined;
-		let parentKey: any = undefined;
+		let parent: any;
+		let parentKey: any;
 		const path: PathSegment[] = [];
 
 		for (const step of steps) {
@@ -79,7 +79,7 @@ function compileSimpleQuery(ast: QueryNode): (root: unknown) => QueryResult {
 				) {
 					parent = current;
 					parentKey = step.name;
-					current = (current as any)[step.name];
+					current = current[step.name];
 					path.push(step.name);
 					continue;
 				}
