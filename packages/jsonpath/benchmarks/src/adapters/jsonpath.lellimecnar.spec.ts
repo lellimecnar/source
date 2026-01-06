@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { lellimecnarJsonPathAdapter } from './jsonpath.lellimecnar';
-import { STORE_DATA } from '../test/store-data';
+import { lellimecnarJsonPathAdapter } from './jsonpath.lellimecnar.js';
+import { STORE_DATA } from '../test/store-data.js';
 
 test('@jsonpath/jsonpath adapter: titles', () => {
 	expect(

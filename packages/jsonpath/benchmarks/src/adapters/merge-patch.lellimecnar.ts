@@ -1,6 +1,6 @@
 import { applyMergePatch, createMergePatch } from '@jsonpath/merge-patch';
 
-import { type JsonMergePatchAdapter } from './types';
+import { type JsonMergePatchAdapter } from './types.js';
 
 export const lellimecnarMergePatchAdapter: JsonMergePatchAdapter = {
 	kind: 'merge-patch',

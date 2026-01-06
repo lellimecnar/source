@@ -13,8 +13,8 @@ export function generateLargeArray(size: number): LargeArrayItem[] {
 			id: i,
 			value: i % 10,
 			active: i % 3 === 0,
-			group: `g${i % 10}`,
-			tags: [i % 2 === 0 ? 'even' : 'odd', `mod${i % 5}`],
+			group: `g${String(i % 10)}`,
+			tags: [i % 2 === 0 ? 'even' : 'odd', `mod${String(i % 5)}`],
 		});
 	}
 	return out;
@@ -27,9 +27,9 @@ export interface DeepNode {
 }
 
 export function generateDeepObject(depth: number): DeepNode {
-	let node: DeepNode = { level: depth, value: `v${depth}` };
+	let node: DeepNode = { level: depth, value: `v${String(depth)}` };
 	for (let d = depth - 1; d >= 0; d--) {
-		node = { level: d, value: `v${d}`, next: node };
+		node = { level: d, value: `v${String(d)}`, next: node };
 	}
 	return node;
 }
@@ -37,7 +37,7 @@ export function generateDeepObject(depth: number): DeepNode {
 export function generateWideObject(width: number): Record<string, number> {
 	const obj: Record<string, number> = {};
 	for (let i = 0; i < width; i++) {
-		obj[`prop${i}`] = i;
+		obj[`prop${String(i)}`] = i;
 	}
 	return obj;
 }

@@ -11,20 +11,31 @@ export const jsonpathPlusAdapter: JsonPathAdapter = {
 		canReturnNodes: true,
 	},
 	queryValues: <T = unknown>(data: unknown, expression: string): T[] => {
-		return JSONPath({ path: expression, json: data }) as T[];
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
+		return JSONPath({
+			path: expression,
+			json: data,
+		} as any) as unknown as T[];
 	},
 	queryNodes: (data: unknown, expression: string): unknown[] => {
-		return JSONPath({ path: expression, json: data, resultType: 'all' });
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
+		return JSONPath({
+			path: expression,
+			json: data,
+			resultType: 'all',
+		} as any) as unknown as unknown[];
 	},
 	smokeTest: (): boolean => {
-		const data = { store: { book: [{ price: 1 }, { price: 2 }] } };
+		const data: unknown = { store: { book: [{ price: 1 }, { price: 2 }] } };
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 		const values: number[] = JSONPath({
 			path: '$.store.book[*].price',
-			json: data,
+			json: data as any,
 		});
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 		const nodes = JSONPath({
 			path: '$.store.book[*].price',
-			json: data,
+			json: data as any,
 			resultType: 'all',
 		});
 		const sum = values.reduce((a, b) => a + b, 0);

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { jsonPointerAdapter } from './pointer.json-pointer';
-import { cloneStoreData } from '../test/store-data';
+import { jsonPointerAdapter } from './pointer.json-pointer.js';
+import { cloneStoreData } from '../test/store-data.js';
 
 test('json-pointer adapter: get/has/parse/compile', () => {
 	const data = cloneStoreData() as unknown as Record<string, unknown>;

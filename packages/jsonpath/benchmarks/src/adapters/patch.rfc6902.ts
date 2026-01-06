@@ -1,6 +1,6 @@
 import { applyPatch } from 'rfc6902';
 
-import { type JsonPatchAdapter } from './types';
+import { type JsonPatchAdapter } from './types.js';
 
 const rfcApplyPatch = applyPatch as unknown as (
 	object: unknown,

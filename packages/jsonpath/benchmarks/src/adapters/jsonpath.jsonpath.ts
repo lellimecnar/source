@@ -1,3 +1,4 @@
+// @ts-expect-error - jsonpath lacks type definitions
 import jp from 'jsonpath';
 
 import { type JsonPathAdapter } from './types.js';

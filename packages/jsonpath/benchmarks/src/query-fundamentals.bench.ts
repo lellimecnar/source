@@ -5,10 +5,11 @@ import {
 	jsonpathAdapter,
 	jsonpathPlusAdapter,
 	jsonP3Adapter,
-} from './adapters';
-import { STORE_DATA } from './fixtures';
+} from './adapters/index.js';
+import { STORE_DATA } from './fixtures/index.js';
 
 describe('JSONPath: Fundamentals', () => {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	const adapters = [
 		lellimecnarJsonPathAdapter,
 		jsonpathAdapter,
@@ -25,9 +26,14 @@ describe('JSONPath: Fundamentals', () => {
 		for (const q of queries) {
 			describe(q, () => {
 				for (const adapter of adapters) {
-					bench(adapter.name, () => {
-						adapter.queryValues(STORE_DATA, q);
-					});
+					bench(
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+						(adapter as any).name,
+						() => {
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+							void (adapter as any).queryValues(STORE_DATA, q as string);
+						},
+					);
 				}
 			});
 		}
@@ -36,8 +42,16 @@ describe('JSONPath: Fundamentals', () => {
 	describe('Recursive Descent', () => {
 		const q = '$..author';
 		for (const adapter of adapters) {
-			if (!adapter.features.supportsFilter) continue;
-			bench(adapter.name, () => adapter.queryValues(q, STORE_DATA));
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			if (!(adapter as any).features.supportsFilter) continue;
+			bench(
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				(adapter as any).name,
+				() => {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+					void (adapter as any).queryValues(q as string, STORE_DATA);
+				},
+			);
 		}
 	});
 });

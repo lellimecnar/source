@@ -4,10 +4,11 @@ import {
 	lellimecnarPatchAdapter,
 	fastJsonPatchAdapter,
 	rfc6902PatchAdapter,
-} from './adapters';
-import { STORE_DATA } from './fixtures';
+} from './adapters/index.js';
+import { STORE_DATA } from './fixtures/index.js';
 
 describe('JSON Patch (RFC 6902)', () => {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	const adapters = [
 		lellimecnarPatchAdapter,
 		fastJsonPatchAdapter,
@@ -15,24 +16,38 @@ describe('JSON Patch (RFC 6902)', () => {
 	];
 
 	describe('Single: replace', () => {
-		const patch = [
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const patch: unknown[] = [
 			{ op: 'replace', path: '/store/bicycle/color', value: 'blue' },
-		] as any;
+		];
 		for (const adapter of adapters) {
-			bench(adapter.name, () => {
-				adapter.applyPatch(patch, STORE_DATA);
-			});
+			bench(
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				(adapter as any).name,
+				() => {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+					void (adapter as any).applyPatch(patch, STORE_DATA);
+				},
+			);
 		}
 	});
 
 	describe('Batch: 100 replaces', () => {
-		const patch = Array.from({ length: 100 }, (_, i) => ({
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const patch: unknown[] = Array.from({ length: 100 }, (_, i) => ({
 			op: 'add',
 			path: `/tmp/${i}`,
 			value: i,
-		})) as any;
+		}));
 		for (const adapter of adapters) {
-			bench(adapter.name, () => adapter.applyPatch(patch, STORE_DATA));
+			bench(
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				(adapter as any).name,
+				() => {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+					void (adapter as any).applyPatch(patch, STORE_DATA);
+				},
+			);
 		}
 	});
 });

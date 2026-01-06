@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { jsonpathPlusAdapter } from './jsonpath.jsonpath-plus';
-import { STORE_DATA } from '../test/store-data';
+import { jsonpathPlusAdapter } from './jsonpath.jsonpath-plus.js';
+import { STORE_DATA } from '../test/store-data.js';
 
 test('jsonpath-plus adapter: titles', () => {
 	expect(

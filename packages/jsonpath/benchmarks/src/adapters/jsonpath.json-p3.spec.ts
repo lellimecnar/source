@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { jsonP3Adapter } from './jsonpath.json-p3';
-import { STORE_DATA } from '../test/store-data';
+import { jsonP3Adapter } from './jsonpath.json-p3.js';
+import { STORE_DATA } from '../test/store-data.js';
 
 test('json-p3 adapter: titles', () => {
 	expect(

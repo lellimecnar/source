@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { jsonMergePatchAdapter } from './merge-patch.json-merge-patch';
-import { cloneStoreData } from '../test/store-data';
+import { jsonMergePatchAdapter } from './merge-patch.json-merge-patch.js';
+import { cloneStoreData } from '../test/store-data.js';
 
 test('json-merge-patch adapter: generate+apply', () => {
 	const source = cloneStoreData() as any;

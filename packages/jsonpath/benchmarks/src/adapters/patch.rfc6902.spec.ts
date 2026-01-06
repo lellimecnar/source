@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { rfc6902PatchAdapter } from './patch.rfc6902';
-import { cloneStoreData } from '../test/store-data';
+import { rfc6902PatchAdapter } from './patch.rfc6902.js';
+import { cloneStoreData } from '../test/store-data.js';
 
 test('rfc6902.applyPatch adapter: add manager', () => {
 	const doc = cloneStoreData() as any;

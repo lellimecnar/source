@@ -5,10 +5,11 @@ import {
 	jsonpathAdapter,
 	jsonpathPlusAdapter,
 	jsonP3Adapter,
-} from './adapters';
-import { STORE_DATA } from './fixtures';
+} from './adapters/index.js';
+import { STORE_DATA } from './fixtures/index.js';
 
 describe('Output Formats', () => {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	const adapters = [
 		lellimecnarJsonPathAdapter,
 		jsonpathAdapter,
@@ -19,14 +20,29 @@ describe('Output Formats', () => {
 
 	describe('Values', () => {
 		for (const adapter of adapters) {
-			bench(adapter.name, () => adapter.queryValues(STORE_DATA, q));
+			bench(
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				(adapter as any).name,
+				() => {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+					void (adapter as any).queryValues(STORE_DATA, q);
+				},
+			);
 		}
 	});
 
 	describe('Paths', () => {
 		for (const adapter of adapters) {
-			if (!adapter.queryNodes) continue;
-			bench(adapter.name, () => adapter.queryNodes!(STORE_DATA, q));
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			if (!(adapter as any).queryNodes) continue;
+			bench(
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				(adapter as any).name,
+				() => {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+					void (adapter as any).queryNodes!(STORE_DATA, q);
+				},
+			);
 		}
 	});
 });

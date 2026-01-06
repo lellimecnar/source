@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { lellimecnarPatchAdapter } from './patch.lellimecnar';
-import { cloneStoreData } from '../test/store-data';
+import { lellimecnarPatchAdapter } from './patch.lellimecnar.js';
+import { cloneStoreData } from '../test/store-data.js';
 
 test('@jsonpath/patch adapter: add manager', () => {
 	const patched = lellimecnarPatchAdapter.applyPatch(cloneStoreData(), [

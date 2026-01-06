@@ -1,6 +1,7 @@
+// @ts-expect-error - json-merge-patch lacks type definitions
 import jsonmergepatch from 'json-merge-patch';
 
-import { type JsonMergePatchAdapter } from './types';
+import { type JsonMergePatchAdapter } from './types.js';
 
 interface JsonMergePatchModule {
 	apply: (source: unknown, patch: unknown) => unknown;

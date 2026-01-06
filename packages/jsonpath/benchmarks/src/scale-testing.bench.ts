@@ -5,14 +5,14 @@ import {
 	jsonpathAdapter,
 	jsonpathPlusAdapter,
 	jsonP3Adapter,
-} from './adapters';
+} from './adapters/index.js';
 import {
 	LARGE_ARRAY_100,
 	LARGE_ARRAY_1K,
 	LARGE_ARRAY_10K,
 	DEEP_OBJECT_10,
 	WIDE_OBJECT_1000,
-} from './fixtures';
+} from './fixtures/index.js';
 
 describe('Scale Testing', () => {
 	const adapters = [
@@ -32,7 +32,9 @@ describe('Scale Testing', () => {
 		for (const ds of datasets) {
 			describe(ds.name, () => {
 				for (const adapter of adapters) {
-					bench(adapter.name, () => adapter.queryValues(ds.data, '$[*].value'));
+					bench(adapter.name, () => {
+						void adapter.queryValues(ds.data, '$[*].value');
+					});
 				}
 			});
 		}
@@ -41,15 +43,17 @@ describe('Scale Testing', () => {
 	describe('Deep Nesting: $.next.next.next.value', () => {
 		const q = '$.next.next.next.next.next.value';
 		for (const adapter of adapters) {
-			bench(adapter.name, () => adapter.queryValues(DEEP_OBJECT_10, q));
+			bench(adapter.name, () => {
+				void adapter.queryValues(DEEP_OBJECT_10, q);
+			});
 		}
 	});
 
 	describe('Wide Objects: $.prop999', () => {
 		for (const adapter of adapters) {
-			bench(adapter.name, () =>
-				adapter.queryValues(WIDE_OBJECT_1000, '$.prop999'),
-			);
+			bench(adapter.name, () => {
+				void adapter.queryValues(WIDE_OBJECT_1000, '$.prop999');
+			});
 		}
 	});
 });

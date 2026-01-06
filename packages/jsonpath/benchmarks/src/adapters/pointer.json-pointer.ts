@@ -1,3 +1,4 @@
+// @ts-expect-error - json-pointer lacks type definitions
 import pointer from 'json-pointer';
 
 import { type JsonPointerAdapter } from './types.js';

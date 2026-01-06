@@ -21,6 +21,7 @@
 	"dependencies": {
 		"@jsonpath/compiler": "workspace:*",
 		"@jsonpath/jsonpath": "workspace:*",
+		"@jsonpath/merge-patch": "workspace:*",
 		"@jsonpath/parser": "workspace:*",
 		"@jsonpath/patch": "workspace:*",
 		"@jsonpath/pointer": "workspace:*",

@@ -11,10 +11,12 @@ import * as fastJsonPatch from 'fast-json-patch';
 import { applyPatch as applyPatchRfc6902 } from 'rfc6902';
 
 // JSON Pointer
+// @ts-expect-error json-pointer has no bundled types
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 import jsonPointer from 'json-pointer';
 
 // JSON Merge Patch
+// @ts-expect-error json-merge-patch has no bundled types
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 import jsonMergePatch from 'json-merge-patch';
 

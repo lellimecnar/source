@@ -5,10 +5,11 @@ import {
 	jsonpathAdapter,
 	jsonpathPlusAdapter,
 	jsonP3Adapter,
-} from '../adapters';
-import { STORE_DATA } from '../fixtures';
+} from '../adapters/index.js';
+import { STORE_DATA } from '../fixtures/index.js';
 
 describe('Browser: Query Performance (subset)', () => {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	const adapters = [
 		lellimecnarJsonPathAdapter,
 		jsonpathAdapter,
@@ -17,6 +18,13 @@ describe('Browser: Query Performance (subset)', () => {
 	];
 	const q = '$.store.book[*].title';
 	for (const adapter of adapters) {
-		bench(adapter.name, () => adapter.queryValues(STORE_DATA, q));
+		bench(
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			(adapter as any).name,
+			() => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+				void (adapter as any).queryValues(STORE_DATA, q);
+			},
+		);
 	}
 });
