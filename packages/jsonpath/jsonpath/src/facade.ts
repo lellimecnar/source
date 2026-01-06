@@ -1,4 +1,4 @@
-import { compile, type CompiledQuery } from '@jsonpath/compiler';
+import type { CompiledQuery } from '@jsonpath/compiler';
 import {
 	type EvaluatorOptions,
 	JSONPathSecurityError,
@@ -19,7 +19,13 @@ import { arithmetic } from '@jsonpath/plugin-arithmetic';
 import { extras } from '@jsonpath/plugin-extras';
 import { evaluatePointer } from '@jsonpath/pointer';
 
-import { getCachedQuery, setCachedQuery } from './cache.js';
+import {
+	getCachedQuery,
+	setCachedQuery,
+	compileCachedQuery,
+	clearCompiledCache,
+	setCompiledCacheSize,
+} from './cache.js';
 
 /**
  * Default plugins registered by the facade.
@@ -81,8 +87,8 @@ export function query(
 	path: string,
 	options?: EvaluatorOptions,
 ): QueryResult {
-	const ast = parseQuery(path, options);
-	return evaluate(root, ast, withDefaultPlugins(options));
+	const compiled = compileQuery(path, options);
+	return compiled(root, withDefaultPlugins(options));
 }
 
 /**
@@ -115,7 +121,7 @@ export function compileQuery(
 	options?: EvaluatorOptions,
 ): CompiledQuery {
 	const ast = parseQuery(path, options);
-	return compile(ast);
+	return compileCachedQuery(ast);
 }
 
 /**
@@ -244,6 +250,9 @@ export {
 	projectWith,
 	pick,
 } from './transform.js';
+
+// Re-export compiled cache management from the facade (public API)
+export { clearCompiledCache, setCompiledCacheSize };
 
 // Re-export core types and functions
 export { parse } from '@jsonpath/parser';

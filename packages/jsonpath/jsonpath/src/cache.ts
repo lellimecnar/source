@@ -1,14 +1,20 @@
 /**
  * @jsonpath/jsonpath
  *
- * Cache management for parsed queries.
+ * Cache management for parsed and compiled queries.
  *
  * @packageDocumentation
  */
 
 import type { QueryNode } from '@jsonpath/parser';
+import type { CompiledQuery } from '@jsonpath/compiler';
+import { Compiler } from '@jsonpath/compiler';
 
-import { getConfig } from './config.js';
+import { getConfig, configure } from './config.js';
+
+// -----------------------------
+// Parsed AST cache
+// -----------------------------
 
 const queryCache = new Map<string, QueryNode>();
 let hits = 0;
@@ -35,7 +41,7 @@ export function setCachedQuery(query: string, ast: QueryNode): void {
 	if (!config.cache.enabled) return;
 
 	if (queryCache.size >= config.cache.maxSize) {
-		// Simple LRU: clear the first entry
+		// Simple insertion-order eviction.
 		const firstKey = queryCache.keys().next().value;
 		if (firstKey !== undefined) {
 			queryCache.delete(firstKey);
@@ -46,7 +52,7 @@ export function setCachedQuery(query: string, ast: QueryNode): void {
 }
 
 /**
- * Clears the query cache.
+ * Clears the parsed query cache.
  */
 export function clearCache(): void {
 	queryCache.clear();
@@ -69,4 +75,46 @@ export function getCacheStats(): {
 		hits,
 		misses,
 	};
+}
+
+// -----------------------------
+// Compiled query cache
+// -----------------------------
+
+let compiler = createCompilerFromConfig();
+
+function createCompilerFromConfig(): Compiler {
+	const { compiledCache } = getConfig();
+	// The Compiler requires `cacheSize > 0` when caching is enabled.
+	// Interpret `maxSize = 0` as "disable compiled cache".
+	const useCache = compiledCache.enabled && compiledCache.maxSize > 0;
+	return new Compiler({
+		useCache,
+		cacheSize: useCache ? compiledCache.maxSize : 1,
+	});
+}
+
+/**
+ * Compile using the module-level compiler instance (enables real LRU).
+ */
+export function compileCachedQuery(ast: QueryNode): CompiledQuery {
+	return compiler.compile(ast);
+}
+
+/**
+ * Clears the compiled query cache.
+ */
+export function clearCompiledCache(): void {
+	compiler = createCompilerFromConfig();
+}
+
+/**
+ * Sets the compiled cache size and clears existing compiled cache.
+ */
+export function setCompiledCacheSize(size: number): void {
+	if (!Number.isInteger(size) || size < 0) {
+		throw new TypeError('compiled cache size must be a non-negative integer');
+	}
+	configure({ compiledCache: { maxSize: size } as any });
+	compiler = createCompilerFromConfig();
 }

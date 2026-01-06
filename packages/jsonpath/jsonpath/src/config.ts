@@ -14,6 +14,10 @@ export interface JSONPathConfig {
 		enabled: boolean;
 		maxSize: number;
 	};
+	compiledCache: {
+		enabled: boolean;
+		maxSize: number;
+	};
 }
 
 const DEFAULT_CONFIG: JSONPathConfig = {
@@ -34,6 +38,10 @@ const DEFAULT_CONFIG: JSONPathConfig = {
 		enabled: true,
 		maxSize: 1000,
 	},
+	compiledCache: {
+		enabled: true,
+		maxSize: 256,
+	},
 };
 
 let currentConfig: JSONPathConfig = { ...DEFAULT_CONFIG };
@@ -52,6 +60,10 @@ export function configure(options: Partial<JSONPathConfig>): void {
 		cache: {
 			...currentConfig.cache,
 			...options.cache,
+		},
+		compiledCache: {
+			...currentConfig.compiledCache,
+			...options.compiledCache,
 		},
 	};
 }

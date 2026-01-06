@@ -24,6 +24,8 @@ describe('Configuration & Cache', () => {
 		configure({ cache: { maxSize: 500 } });
 		reset();
 		expect(getConfig().cache.maxSize).toBe(1000);
+		expect(getConfig().compiledCache.enabled).toBe(true);
+		expect(getConfig().compiledCache.maxSize).toBe(256);
 	});
 
 	it('should track cache hits and misses', () => {
