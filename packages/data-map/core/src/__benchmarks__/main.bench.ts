@@ -60,7 +60,7 @@ describe('DataMap benchmarks', () => {
 
 		bench('batch set operations', () => {
 			const dm = new DataMap({ a: 1, b: 2, c: 3 });
-			dm.batch((d) => {
+			dm.batch((d: DataMap<any, any>) => {
 				d.set('/a', 10);
 				d.set('/b', 20);
 				d.set('/c', 30);
@@ -164,7 +164,7 @@ describe('DataMap benchmarks', () => {
 					define: [
 						{
 							pointer: '/count',
-							get: (v) => v + 1,
+							get: (v) => (v as number) + 1,
 						},
 					],
 				},

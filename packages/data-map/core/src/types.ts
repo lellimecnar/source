@@ -29,4 +29,5 @@ export interface DataMapOptions<T = unknown, Ctx = unknown> {
 	context?: Ctx;
 	define?: (Definition<T, Ctx> | DefinitionFactory<T, Ctx>)[];
 	subscribe?: SubscriptionConfig<T, Ctx>[];
+	schema?: unknown;
 }
