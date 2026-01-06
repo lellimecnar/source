@@ -243,7 +243,7 @@ export class Evaluator {
 	private *streamDescendants(
 		segment: SegmentNode,
 		node: QueryResultNode,
-		visited = new Set<any>(),
+		visited?: Set<any>,
 	): Generator<QueryResultNode> {
 		if (!this.isNodeAllowed(node)) {
 			return;
@@ -251,6 +251,10 @@ export class Evaluator {
 		this.checkLimits(node._depth ?? 0, this.resultsFound);
 
 		if (this.options.detectCircular) {
+			// Initialize visited set only on first call
+			if (!visited) {
+				visited = new Set();
+			}
 			if (visited.has(node.value)) {
 				throw new JSONPathLimitError('Circular reference detected', {
 					path: node.path.join('.'),
@@ -277,7 +281,7 @@ export class Evaluator {
 							pathParent: node,
 							pathSegment: i,
 						}),
-						new Set(visited),
+						visited,
 					);
 				}
 			} else {
@@ -292,7 +296,7 @@ export class Evaluator {
 							pathParent: node,
 							pathSegment: k,
 						}),
-						new Set(visited),
+						visited,
 					);
 				}
 			}
