@@ -138,4 +138,70 @@ describe('spec compliance', () => {
 			expect(calls).toEqual([2]);
 		});
 	});
+
+	describe('REQ-007: Type safety and generic preservation', () => {
+		it('preserves generic type throughout resolve chain', () => {
+			interface User {
+				name: string;
+				age: number;
+			}
+
+			const data: User = { name: 'Alice', age: 30 };
+			const dm = new DataMap<User>(data);
+
+			const resolved = dm.resolve('/name');
+			expect(resolved[0]?.value).toBe('Alice');
+
+			const json = dm.toJSON();
+			expect(json.name).toBe('Alice');
+		});
+	});
+
+	describe('REQ-008: Context and definitions', () => {
+		it('provides context to handlers', async () => {
+			interface AppContext {
+				userId: string;
+			}
+
+			const dm = new DataMap<any, AppContext>(
+				{ a: 1 },
+				{ context: { userId: 'user123' } },
+			);
+			let capturedContext: AppContext | undefined;
+
+			dm.subscribe({
+				path: '/a',
+				after: 'set',
+				fn: (_, __, ___, ____, ctx) => {
+					capturedContext = ctx;
+				},
+			});
+
+			dm.set('/a', 2);
+			await flushMicrotasks();
+
+			expect(capturedContext?.userId).toBe('user123');
+		});
+
+		it('supports definitions with metadata', () => {
+			const store = new DataMap(
+				{ count: 5 },
+				{
+					context: {},
+					define: [
+						{
+							pointer: '/count',
+							readOnly: false,
+							type: 'number',
+						},
+					],
+				},
+			);
+
+			const [match] = store.resolve('/count');
+			expect(match?.value).toBe(5);
+			expect(match?.type).toBe('number');
+			expect(match?.readOnly).toBe(false);
+		});
+	});
 });
