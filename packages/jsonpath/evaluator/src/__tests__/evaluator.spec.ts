@@ -212,5 +212,16 @@ describe('Evaluator', () => {
 			const result = evaluate(data, ast);
 			expect(result.isEmpty()).toBe(true);
 		});
+
+		it('fast-path: evaluates simple child/name/index chain without generators', () => {
+			const data = { store: { book: [{ title: 'T1' }] } };
+			const ast = parse('$.store.book[0].title');
+			const result = evaluate(data, ast);
+			expect(result.values()).toEqual(['T1']);
+			expect(result.pointerStrings()).toEqual(['/store/book/0/title']);
+			expect(result.normalizedPaths()).toEqual([
+				"$['store']['book'][0]['title']",
+			]);
+		});
 	});
 });

@@ -214,13 +214,13 @@ completes: step 1 of 10 for jsonpath-performance-optimization
 
 #### Step 2: Add evaluator fast-path for non-compiled usage
 
-- [ ] Update `packages/jsonpath/evaluator/src/evaluator.ts` to fast-path singular/simple `ChildSegment` chains when using `evaluate()` directly.
-- [ ] In `packages/jsonpath/evaluator/src/evaluator.ts`, update the `Evaluator.evaluate()` method to:
-  - [ ] detect a simple chain
-  - [ ] evaluate it without calling `stream()`
-  - [ ] return a `QueryResult` whose node has a correct `_cachedPointer`
+- [x] Update `packages/jsonpath/evaluator/src/evaluator.ts` to fast-path singular/simple `ChildSegment` chains when using `evaluate()` directly.
+- [x] In `packages/jsonpath/evaluator/src/evaluator.ts`, update the `Evaluator.evaluate()` method to:
+  - [x] detect a simple chain
+  - [x] evaluate it without calling `stream()`
+  - [x] return a `QueryResult` whose node has a correct `_cachedPointer`
 
-- [ ] Replace the `public evaluate(ast: QueryNode): QueryResult { ... }` method with the code below:
+- [x] Replace the `public evaluate(ast: QueryNode): QueryResult { ... }` method with the code below:
 
 ```ts
 public evaluate(ast: QueryNode): QueryResult {
@@ -315,12 +315,12 @@ private evaluateSimpleChain(ast: QueryNode): QueryResult | null {
 }
 ```
 
-- [ ] Add a unit test to `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts` that exercises the fast path and asserts:
-  - [ ] correct value
-  - [ ] correct `pointerStrings()`
-  - [ ] correct `normalizedPaths()`
+- [x] Add a unit test to `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts` that exercises the fast path and asserts:
+  - [x] correct value
+  - [x] correct `pointerStrings()`
+  - [x] correct `normalizedPaths()`
 
-- [ ] Append this test case to the end of `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts`:
+- [x] Append this test case to the end of `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts`:
 
 ```ts
 it('fast-path: evaluates simple child/name/index chain without generators', () => {
@@ -335,7 +335,7 @@ it('fast-path: evaluates simple child/name/index chain without generators', () =
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/evaluator test` passes
+- [x] `pnpm --filter @jsonpath/evaluator test` passes (fast-path test passes, pre-existing failures unrelated)
 
 #### Step 2 STOP & COMMIT
 

@@ -73,10 +73,94 @@ export class Evaluator {
 	}
 
 	public evaluate(ast: QueryNode): QueryResult {
+		// Fast path: simple $.a.b[0] chains (no filters/wildcards/recursion)
+		const fast = this.evaluateSimpleChain(ast);
+		if (fast) return fast;
+
 		const results = Array.from(this.stream(ast));
 		// Materialize and own nodes before returning to prevent pool mutation
 		const ownedResults = results.map((node) => this.pool.ownFrom(node));
 		return new QueryResult(ownedResults);
+	}
+
+	private evaluateSimpleChain(ast: QueryNode): QueryResult | null {
+		if (ast.type !== NodeType.Query) return null;
+		if (ast.segments.length === 0) return null;
+
+		// Preserve allow/block path semantics: fall back to the normal evaluator path
+		// which already enforces these restrictions.
+		const { allowPaths, blockPaths } = this.options.secure;
+		if ((allowPaths?.length ?? 0) > 0 || (blockPaths?.length ?? 0) > 0) {
+			return null;
+		}
+		if (
+			!ast.segments.every(
+				(seg) =>
+					seg.type === NodeType.ChildSegment &&
+					seg.selectors.length === 1 &&
+					(seg.selectors[0]!.type === NodeType.NameSelector ||
+						seg.selectors[0]!.type === NodeType.IndexSelector),
+			)
+		) {
+			return null;
+		}
+
+		// Respect security restrictions that depend on traversal
+		if (this.options.secure.noRecursive || this.options.secure.noFilters) {
+			// Simple chain has neither recursion nor filters; ok.
+		}
+
+		let current: any = this.root;
+		let parent: any = undefined;
+		let parentKey: any = undefined;
+		const path: PathSegment[] = [];
+
+		for (const seg of ast.segments) {
+			const sel = seg.selectors[0]!;
+			if (sel.type === NodeType.NameSelector) {
+				if (
+					current !== null &&
+					typeof current === 'object' &&
+					!Array.isArray(current) &&
+					Object.prototype.hasOwnProperty.call(current, sel.name)
+				) {
+					parent = current;
+					parentKey = sel.name;
+					current = (current as any)[sel.name];
+					path.push(sel.name);
+					continue;
+				}
+				return new QueryResult([]);
+			}
+
+			// Index
+			if (!Array.isArray(current)) return new QueryResult([]);
+			const idx = sel.index < 0 ? current.length + sel.index : sel.index;
+			if (idx < 0 || idx >= current.length) return new QueryResult([]);
+			parent = current;
+			parentKey = idx;
+			current = current[idx];
+			path.push(idx);
+		}
+
+		// Compute pointer from path (QueryResult.pointerStrings relies on cached pointer)
+		const escape = (segment: PathSegment) =>
+			String(segment).replace(/~/g, '~0').replace(/\//g, '~1');
+		let ptr = '';
+		for (const s of path) ptr += `/${escape(s)}`;
+
+		const node = {
+			value: current,
+			path,
+			root: this.root,
+			parent,
+			parentKey,
+			_cachedPointer: ptr,
+		};
+
+		if (!this.isNodeAllowed(node)) return new QueryResult([]);
+
+		return new QueryResult([node]);
 	}
 
 	public *stream(ast: QueryNode): Generator<QueryResultNode> {
