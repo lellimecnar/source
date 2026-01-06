@@ -14,4 +14,5 @@ export { lellimecnarPatchAdapter } from './patch.lellimecnar';
 export { fastJsonPatchAdapter } from './patch.fast-json-patch';
 export { rfc6902PatchAdapter } from './patch.rfc6902';
 
+export { lellimecnarMergePatchAdapter } from './merge-patch.lellimecnar';
 export { jsonMergePatchAdapter } from './merge-patch.json-merge-patch';

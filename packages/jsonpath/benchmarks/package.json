@@ -7,6 +7,15 @@
 	"type": "module",
 	"scripts": {
 		"bench": "vitest bench",
+		"bench:browser": "vitest bench --config vitest.config.browser.ts",
+		"bench:browser:chromium": "vitest bench --config vitest.config.browser.ts --browser.name=chromium",
+		"bench:browser:firefox": "vitest bench --config vitest.config.browser.ts --browser.name=firefox",
+		"bench:browser:webkit": "vitest bench --config vitest.config.browser.ts --browser.name=webkit",
+		"bench:compare": "node scripts/compare-results.js",
+		"bench:full": "vitest bench --reporter=json --outputFile=results.json",
+		"bench:patch": "vitest bench --testNamePattern='Patch'",
+		"bench:pointer": "vitest bench --testNamePattern='Pointer'",
+		"bench:query": "vitest bench --testNamePattern='JSONPath'",
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
@@ -26,6 +35,8 @@
 	"devDependencies": {
 		"@lellimecnar/typescript-config": "workspace:*",
 		"@lellimecnar/vitest-config": "workspace:*",
+		"@vitest/browser": "^4.0.16",
+		"playwright": "^1.48.2",
 		"typescript": "~5.5",
 		"vitest": "^4.0.16"
 	}
