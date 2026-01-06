@@ -15,6 +15,7 @@
 		"dist"
 	],
 	"scripts": {
+		"bench": "vitest bench",
 		"build": "vite build",
 		"dev": "vite build --watch",
 		"lint": "eslint .",
