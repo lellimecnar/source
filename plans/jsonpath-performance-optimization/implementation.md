@@ -978,7 +978,7 @@ completes: step 8 of 10 for jsonpath-performance-optimization
 
 #### Step 9: Add warn-only performance regression tests (benchmarks)
 
-- [ ] Create `packages/jsonpath/benchmarks/baseline.json` with the code below:
+- [x] Create `packages/jsonpath/benchmarks/baseline.json` with the code below:
 
 ```json
 {
@@ -988,7 +988,7 @@ completes: step 8 of 10 for jsonpath-performance-optimization
 }
 ```
 
-- [ ] Create `packages/jsonpath/benchmarks/src/performance-regression.spec.ts` with the code below:
+- [x] Create `packages/jsonpath/benchmarks/src/performance-regression.spec.ts` with the code below:
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -1025,8 +1025,8 @@ describe('Performance Regression (warn-only)', () => {
 
 ##### Step 9 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/benchmarks exec vitest run src/performance-regression.spec.ts` runs and passes
-- [ ] Intentional threshold change prints a warning but still passes
+- [x] `pnpm --filter @jsonpath/benchmarks exec vitest run src/performance-regression.spec.ts` runs and passes
+- [x] Intentional threshold change prints a warning but still passes
 
 #### Step 9 STOP & COMMIT
 

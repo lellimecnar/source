@@ -1,0 +1,11 @@
+{
+	"simpleQuery": {
+		"opsPerSec": 300000
+	},
+	"filterQuery": {
+		"opsPerSec": 80000
+	},
+	"recursiveQuery": {
+		"opsPerSec": 50000
+	}
+}
