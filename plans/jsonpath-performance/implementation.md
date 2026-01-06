@@ -453,7 +453,10 @@ These three steps touch the same hot paths and should be implemented together.
 
 ### 2–4.1 RED — tests
 
-#### 2–4.1.1 Add stable `node.path` caching test
+- [x] Added stable `node.path` caching test in query-result.spec.ts
+- [x] Added pool-stability regression test in evaluator.spec.ts
+- [x] Added allowPaths descendant traversal regression test in security.spec.ts
+- [x] All tests passing
 
 File: `packages/jsonpath/evaluator/src/__tests__/query-result.spec.ts`
 

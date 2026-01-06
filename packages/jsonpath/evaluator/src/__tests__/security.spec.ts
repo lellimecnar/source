@@ -113,4 +113,11 @@ describe('Evaluator Security', () => {
 		expect(results).not.toContain('/private');
 		expect(results).not.toContain('/nested/blocked');
 	});
+
+	it('allows traversal into allowed descendants when allowPaths is set', () => {
+		const data = { nested: { allowed: 1, blocked: 2 } };
+		const options = { secure: { allowPaths: ['/nested/allowed'] } };
+
+		expect(evaluate(data, parse('$..allowed'), options).values()).toEqual([1]);
+	});
 });

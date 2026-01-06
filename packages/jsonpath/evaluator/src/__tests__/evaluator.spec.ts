@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parse } from '@jsonpath/parser';
-import { evaluate } from '../evaluator.js';
+import { evaluate, Evaluator } from '../evaluator.js';
 
 describe('Evaluator', () => {
 	const data = {
@@ -41,6 +41,27 @@ describe('Evaluator', () => {
 		const ast = parse('$.store.bicycle.color');
 		const result = evaluate(data, ast);
 		expect(result.values()).toEqual(['red']);
+	});
+
+	it('does not mutate results from a prior evaluation when reusing the same Evaluator', () => {
+		const root = { a: { x: 1 }, b: { x: 2 } };
+		const evaluator = new Evaluator(root);
+
+		const r1 = evaluator.evaluate(parse('$.a.x'));
+		const n1 = r1.nodes()[0]!;
+		const n1Path = n1.path;
+
+		expect(n1.value).toBe(1);
+		expect(n1.path).toEqual(['a', 'x']);
+		expect(n1.path).toBe(n1Path);
+
+		// Run another query; pooled internal nodes will be reused.
+		evaluator.evaluate(parse('$.b.x'));
+
+		// First query's result must remain stable.
+		expect(n1.value).toBe(1);
+		expect(n1.path).toEqual(['a', 'x']);
+		expect(n1.path).toBe(n1Path);
 	});
 
 	it('should evaluate index selectors', () => {
