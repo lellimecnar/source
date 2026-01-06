@@ -396,6 +396,8 @@ completes: step 6 of 11 for data-map-audit-completion
 
 ---
 
+- [x] **Step 6: Schema Validation Option** - COMPLETED
+
 ### Step 7: SubscriptionManager Interface Export
 
 **Objective**
@@ -424,6 +426,8 @@ completes: step 7 of 11 for data-map-audit-completion
 ```
 
 ---
+
+- [x] **Step 7: SubscriptionManager Interface Export** - COMPLETED
 
 ### Step 8: Relative JSON Pointer Support
 

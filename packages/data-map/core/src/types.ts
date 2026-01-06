@@ -5,6 +5,7 @@ export type PathType = 'pointer' | 'relative-pointer' | 'jsonpath';
 
 export interface CallOptions {
 	strict?: boolean;
+	contextPointer?: string;
 }
 
 export type Operation =
