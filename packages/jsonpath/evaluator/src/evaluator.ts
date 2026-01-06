@@ -501,15 +501,7 @@ export class Evaluator {
 		expr: ExpressionNode,
 		current: QueryResultNode,
 	): boolean {
-		const result = this.evaluateExpression(expr, current);
-		const truthy = this.isTruthy(result);
-		console.log(
-			'Filter:',
-			JSON.stringify(expr).slice(0, 100),
-			'Truthy:',
-			truthy,
-		);
-		return truthy;
+		return this.isTruthy(this.evaluateExpression(expr, current));
 	}
 
 	private evaluateExpression(
