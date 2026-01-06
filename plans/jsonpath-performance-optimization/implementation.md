@@ -847,7 +847,7 @@ completes: step 5 of 10 for jsonpath-performance-optimization
 
 #### Step 6: Optimize @jsonpath/merge-patch apply performance
 
-- [ ] In `packages/jsonpath/merge-patch/src/merge-patch.ts`, replace `isObject` and `applyMergePatch` with the code below (keep `createMergePatch` as-is):
+- [x] In `packages/jsonpath/merge-patch/src/merge-patch.ts`, replace `isObject` and `applyMergePatch` with the code below (keep `createMergePatch` as-is):
 
 ```ts
 function isPlainObject(value: unknown): value is Record<string, any> {
@@ -905,8 +905,8 @@ export function applyMergePatch(
 
 ##### Step 6 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/merge-patch test` passes
-- [ ] `pnpm --filter @jsonpath/benchmarks exec vitest run src/merge-patch-rfc7386.bench.ts` runs
+- [x] `pnpm --filter @jsonpath/merge-patch test` passes
+- [x] `pnpm --filter @jsonpath/benchmarks exec vitest bench` runs (merge-patch benchmarks included)
 
 #### Step 6 STOP & COMMIT
 

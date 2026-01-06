@@ -14,7 +14,7 @@ export interface MergePatchOptions {
 	readonly mutate?: boolean;
 }
 
-function isObject(value: any): value is Record<string, any> {
+function isPlainObject(value: unknown): value is Record<string, any> {
 	return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
@@ -29,43 +29,33 @@ export function applyMergePatch(
 		mutate = true,
 	} = options;
 
-	// RFC 7386: non-object patch replaces target.
-	if (!isObject(patch)) {
+	if (!isPlainObject(patch)) {
 		return patch;
 	}
 
-	// RFC 7386: if target is not an object, treat as empty object.
-	if (!isObject(target)) {
-		if (mutate) {
-			// Cannot mutate non-object into object in-place if it's a primitive
-			// but we return the patch as per RFC.
-			return patch;
-		}
+	if (!isPlainObject(target)) {
+		if (mutate) return patch;
 		target = {};
 	}
 
 	const out: Record<string, any> = mutate ? target : { ...target };
 
-	for (const key of Object.keys(patch)) {
+	for (const key in patch) {
+		if (!Object.prototype.hasOwnProperty.call(patch, key)) continue;
 		const value = patch[key];
+
 		if (value === null) {
-			if (nullBehavior === 'delete') {
-				delete out[key];
-			} else {
-				out[key] = null;
-			}
+			if (nullBehavior === 'delete') delete out[key];
+			else out[key] = null;
 			continue;
 		}
 
 		if (Array.isArray(value)) {
-			if (arrayMergeStrategy === 'replace') {
-				out[key] = value;
-			}
+			if (arrayMergeStrategy === 'replace') out[key] = value;
 			continue;
 		}
 
-		if (isObject(value)) {
-			// For nested objects, we always mutate the child if we are mutating the parent
+		if (isPlainObject(value) && isPlainObject(out[key])) {
 			out[key] = applyMergePatch(out[key], value, { ...options, mutate: true });
 			continue;
 		}
@@ -79,7 +69,7 @@ export function applyMergePatch(
 export function createMergePatch(source: any, target: any): any {
 	// RFC 7386 algorithm: scalar/array differences produce replacement,
 	// object differences produce object patch with deletions as null.
-	if (!isObject(source) || !isObject(target)) {
+	if (!isPlainObject(source) || !isPlainObject(target)) {
 		return deepEqual(source, target) ? {} : structuredClone(target);
 	}
 
@@ -100,9 +90,9 @@ export function createMergePatch(source: any, target: any): any {
 		const t = target[key];
 		if (deepEqual(s, t)) continue;
 
-		if (isObject(s) && isObject(t)) {
+		if (isPlainObject(s) && isPlainObject(t)) {
 			const child = createMergePatch(s, t);
-			if (isObject(child) && Object.keys(child).length === 0) continue;
+			if (isPlainObject(child) && Object.keys(child).length === 0) continue;
 			patch[key] = child;
 			continue;
 		}
