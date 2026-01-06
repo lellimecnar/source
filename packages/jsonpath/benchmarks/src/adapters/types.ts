@@ -14,6 +14,8 @@ export interface JsonPathFeatures {
 	supportsScriptExpressions: SupportFlag;
 	/** Whether the adapter can return node metadata (paths, etc.). */
 	canReturnNodes: SupportFlag;
+	/** Whether the underlying engine supports arithmetic in filter expressions (non-RFC 9535). */
+	supportsArithmetic: SupportFlag;
 }
 
 export interface JsonPathAdapter extends BaseAdapter {

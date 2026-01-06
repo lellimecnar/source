@@ -20,6 +20,7 @@ export const jsonpathAdapter: JsonPathAdapter = {
 		supportsFilter: true,
 		supportsScriptExpressions: true,
 		canReturnNodes: true,
+		supportsArithmetic: true,
 	},
 	queryValues: <T = unknown>(data: unknown, expression: string): T[] => {
 		return jsonpath.query(data, expression) as T[];

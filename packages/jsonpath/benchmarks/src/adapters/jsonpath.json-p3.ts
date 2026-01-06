@@ -19,6 +19,7 @@ export const jsonP3Adapter: JsonPathAdapter = {
 		supportsFilter: true,
 		supportsScriptExpressions: true,
 		canReturnNodes: 'unknown',
+		supportsArithmetic: false, // RFC 9535 does not support arithmetic in filters
 	},
 	queryValues: <T = unknown>(data: unknown, expression: string): T[] => {
 		const nodes = jsonp3.query(expression, data);

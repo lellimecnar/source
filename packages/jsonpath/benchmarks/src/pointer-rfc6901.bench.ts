@@ -1,10 +1,17 @@
 import { bench, describe } from 'vitest';
 
-import { lellimecnarPointerAdapter, jsonPointerAdapter } from './adapters';
+import {
+	lellimecnarPointerAdapter,
+	jsonPointerAdapter,
+	type JsonPointerAdapter,
+} from './adapters';
 import { STORE_DATA } from './fixtures';
 
 describe('JSON Pointer (RFC 6901)', () => {
-	const adapters = [lellimecnarPointerAdapter, jsonPointerAdapter];
+	const adapters: JsonPointerAdapter[] = [
+		lellimecnarPointerAdapter,
+		jsonPointerAdapter,
+	];
 
 	describe('Resolution', () => {
 		const pointers = ['/store/bicycle/color', '/store/book/0/title'];

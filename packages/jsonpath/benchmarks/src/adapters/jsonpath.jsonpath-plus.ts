@@ -9,6 +9,7 @@ export const jsonpathPlusAdapter: JsonPathAdapter = {
 		supportsFilter: true,
 		supportsScriptExpressions: true,
 		canReturnNodes: true,
+		supportsArithmetic: true,
 	},
 	queryValues: <T = unknown>(data: unknown, expression: string): T[] => {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument

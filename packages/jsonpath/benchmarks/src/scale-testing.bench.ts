@@ -5,6 +5,7 @@ import {
 	jsonpathAdapter,
 	jsonpathPlusAdapter,
 	jsonP3Adapter,
+	type JsonPathAdapter,
 } from './adapters';
 import {
 	LARGE_ARRAY_100,
@@ -15,7 +16,7 @@ import {
 } from './fixtures';
 
 describe('Scale Testing', () => {
-	const adapters = [
+	const adapters: JsonPathAdapter[] = [
 		lellimecnarJsonPathAdapter,
 		jsonpathAdapter,
 		jsonpathPlusAdapter,

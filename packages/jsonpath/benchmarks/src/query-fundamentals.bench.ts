@@ -5,11 +5,12 @@ import {
 	jsonpathAdapter,
 	jsonpathPlusAdapter,
 	jsonP3Adapter,
+	type JsonPathAdapter,
 } from './adapters';
 import { STORE_DATA } from './fixtures';
 
 describe('JSONPath: Fundamentals', () => {
-	const adapters = [
+	const adapters: JsonPathAdapter[] = [
 		lellimecnarJsonPathAdapter,
 		jsonpathAdapter,
 		jsonpathPlusAdapter,
@@ -25,14 +26,9 @@ describe('JSONPath: Fundamentals', () => {
 		for (const q of queries) {
 			describe(q, () => {
 				for (const adapter of adapters) {
-					bench(
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-						(adapter as any).name,
-						() => {
-							// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-							void (adapter as any).queryValues(STORE_DATA, q);
-						},
-					);
+					bench(adapter.name, () => {
+						void adapter.queryValues(STORE_DATA, q);
+					});
 				}
 			});
 		}
@@ -41,14 +37,9 @@ describe('JSONPath: Fundamentals', () => {
 	describe('Recursive Descent', () => {
 		const q = '$..author';
 		for (const adapter of adapters) {
-			bench(
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-				(adapter as any).name,
-				() => {
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-					void (adapter as any).queryValues(STORE_DATA, q);
-				},
-			);
+			bench(adapter.name, () => {
+				void adapter.queryValues(STORE_DATA, q);
+			});
 		}
 	});
 });

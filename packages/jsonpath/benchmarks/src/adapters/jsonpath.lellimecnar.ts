@@ -14,6 +14,7 @@ export const lellimecnarJsonPathAdapter: JsonPathAdapter = {
 		supportsFilter: true,
 		supportsScriptExpressions: true,
 		canReturnNodes: false,
+		supportsArithmetic: true,
 	},
 	queryValues: <T = unknown>(data: unknown, expression: string): T[] => {
 		return queryValuesFn<T>(data, expression);
