@@ -523,7 +523,14 @@ it('allows traversal into allowed descendants when allowPaths is set', () => {
 
 ### 2–4.2 GREEN — implementation
 
-#### 2–4.2.1 Replace `query-result.ts` to support lazy path + pointer caching
+- [x] Replaced `query-result.ts` with lazy-path + pointer caching implementation
+- [x] Created `query-result-pool.ts` with `PooledNode` and `QueryResultPool` classes
+- [x] Updated `options.ts` with stable arrays and NOOP_SIGNAL singleton
+- [x] Updated `evaluator.ts` to use pool, compile security predicate, and avoid path materialization
+- [x] Pool is reset per `stream()` invocation
+- [x] Security checks use `isNodeAllowed` predicate instead of `isPathAllowed`
+- [x] All node creation routes through `pool.acquire()`
+- [x] Final results use `pool.ownFrom()` to ensure stability across evaluator reuse
 
 File: `packages/jsonpath/evaluator/src/query-result.ts`
 
@@ -824,13 +831,13 @@ Follow the edits shown earlier in Step 2–4.2.4 (this document).
 
 ### 2–4.3 Verification
 
-- [ ] `pnpm --filter @jsonpath/evaluator test`
-- [ ] `pnpm --filter @jsonpath/evaluator type-check`
-- [ ] `pnpm --filter @jsonpath/evaluator lint`
+- [x] `pnpm --filter @jsonpath/evaluator test` — All 46 tests passing
+- [x] `pnpm --filter @jsonpath/evaluator type-check` — No errors
+- [x] `pnpm --filter @jsonpath/evaluator lint` — Pre-existing lint warnings (unrelated to Step 2-4 changes)
 
 ### STOP & COMMIT
 
-- Commit: `perf(evaluator): lazy paths + pooled nodes + faster secure checks`
+- Commit: `perf(evaluator): lazy paths + pooled nodes + faster secure checks` ✓ COMPLETED
 
 ---
 

@@ -37,7 +37,12 @@ import {
 } from '@jsonpath/parser';
 
 import { withDefaults } from './options.js';
-import { QueryResult, type QueryResultNode } from './query-result.js';
+import { QueryResultPool } from './query-result-pool.js';
+import {
+	QueryResult,
+	type QueryResultNode,
+	pointerStringForNode,
+} from './query-result.js';
 
 export interface NodeList {
 	readonly nodes: QueryResultNode[];
@@ -52,17 +57,30 @@ export class Evaluator {
 	private nodesVisited = 0;
 	private resultsFound = 0;
 	private currentFilterDepth = 0;
+	private readonly pool = new QueryResultPool();
+	private readonly isNodeAllowed: (node: QueryResultNode) => boolean;
 
 	constructor(root: any, options?: EvaluatorOptions) {
 		this.root = root;
 		this.options = withDefaults(options);
+
+		const { allowPaths, blockPaths } = this.options.secure;
+		if (!allowPaths?.length && !blockPaths?.length) {
+			this.isNodeAllowed = () => true;
+		} else {
+			this.isNodeAllowed = (node) => this.checkPathRestrictions(node);
+		}
 	}
 
 	public evaluate(ast: QueryNode): QueryResult {
-		return new QueryResult(Array.from(this.stream(ast)));
+		const results = Array.from(this.stream(ast));
+		// Materialize and own nodes before returning to prevent pool mutation
+		const ownedResults = results.map((node) => this.pool.ownFrom(node));
+		return new QueryResult(ownedResults);
 	}
 
 	public *stream(ast: QueryNode): Generator<QueryResultNode> {
+		this.pool.reset();
 		this.startTime = Date.now();
 		this.nodesVisited = 0;
 		this.resultsFound = 0;
@@ -88,7 +106,10 @@ export class Evaluator {
 		}
 
 		let currentNodes: Iterable<QueryResultNode> = [
-			{ value: this.root, path: [], root: this.root },
+			this.pool.acquire({
+				value: this.root,
+				root: this.root,
+			}),
 		];
 
 		for (const segment of ast.segments) {
@@ -130,10 +151,10 @@ export class Evaluator {
 		node: QueryResultNode,
 		visited = new Set<any>(),
 	): Generator<QueryResultNode> {
-		if (!this.isPathAllowed(node.path)) {
+		if (!this.isNodeAllowed(node)) {
 			return;
 		}
-		this.checkLimits(node.path.length, this.resultsFound);
+		this.checkLimits(node._depth ?? 0, this.resultsFound);
 
 		if (this.options.detectCircular) {
 			if (visited.has(node.value)) {
@@ -154,13 +175,14 @@ export class Evaluator {
 				for (let i = 0; i < val.length; i++) {
 					yield* this.streamDescendants(
 						segment,
-						{
+						this.pool.acquire({
 							value: val[i],
-							path: [...node.path, i],
 							root: node.root,
 							parent: val,
 							parentKey: i,
-						},
+							pathParent: node,
+							pathSegment: i,
+						}),
 						new Set(visited),
 					);
 				}
@@ -168,13 +190,14 @@ export class Evaluator {
 				for (const k of Object.keys(val)) {
 					yield* this.streamDescendants(
 						segment,
-						{
+						this.pool.acquire({
 							value: (val as any)[k],
-							path: [...node.path, k],
 							root: node.root,
 							parent: val,
 							parentKey: k,
-						},
+							pathParent: node,
+							pathSegment: k,
+						}),
 						new Set(visited),
 					);
 				}
@@ -204,15 +227,16 @@ export class Evaluator {
 						!Array.isArray(val) &&
 						Object.prototype.hasOwnProperty.call(val, selector.name)
 					) {
-						const result = {
+						const result = this.pool.acquire({
 							value: (val as any)[selector.name],
-							path: [...node.path, selector.name],
 							root: node.root,
 							parent: val,
 							parentKey: selector.name,
-						};
-						if (this.isPathAllowed(result.path)) {
-							this.checkLimits(result.path.length);
+							pathParent: node,
+							pathSegment: selector.name,
+						});
+						if (this.isNodeAllowed(result)) {
+							this.checkLimits(result._depth ?? 0);
 							yield result;
 						}
 					}
@@ -224,15 +248,16 @@ export class Evaluator {
 						const idx =
 							selector.index < 0 ? val.length + selector.index : selector.index;
 						if (idx >= 0 && idx < val.length) {
-							const result = {
+							const result = this.pool.acquire({
 								value: val[idx],
-								path: [...node.path, idx],
 								root: node.root,
 								parent: val,
 								parentKey: idx,
-							};
-							if (this.isPathAllowed(result.path)) {
-								this.checkLimits(result.path.length);
+								pathParent: node,
+								pathSegment: idx,
+							});
+							if (this.isNodeAllowed(result)) {
+								this.checkLimits(result._depth ?? 0);
 								yield result;
 							}
 						}
@@ -257,15 +282,18 @@ export class Evaluator {
 						}
 					}
 
-					const result = {
+					const result = this.pool.acquire({
 						value: parentValue,
-						path: parentPath,
 						root: node.root,
 						parent: grandParent,
 						parentKey,
-					};
-					if (this.isPathAllowed(result.path)) {
-						this.checkLimits(result.path.length, this.resultsFound);
+					});
+					// Pre-cache the parent path since it's computed and doesn't have lazy chain
+					result._cachedPath = parentPath;
+					result._depth = parentPath.length;
+
+					if (this.isNodeAllowed(result)) {
+						this.checkLimits(result._depth ?? 0, this.resultsFound);
 						this.resultsFound++;
 						yield result;
 					}
@@ -273,15 +301,18 @@ export class Evaluator {
 				break;
 			case NodeType.PropertySelector:
 				if (node.parentKey !== undefined) {
-					const result = {
+					const result = this.pool.acquire({
 						value: node.parentKey,
-						path: node.path,
 						root: node.root,
 						parent: node.parent,
 						parentKey: node.parentKey,
-					};
-					if (this.isPathAllowed(result.path)) {
-						this.checkLimits(result.path.length, this.resultsFound);
+					});
+					// Pre-cache the path since it's the same as the parent node
+					result._cachedPath = [...node.path];
+					result._depth = node._depth;
+
+					if (this.isNodeAllowed(result)) {
+						this.checkLimits(result._depth ?? 0, this.resultsFound);
 						this.resultsFound++;
 						yield result;
 					}
@@ -291,29 +322,31 @@ export class Evaluator {
 				if (val !== null && typeof val === 'object') {
 					if (Array.isArray(val)) {
 						for (let i = 0; i < val.length; i++) {
-							const result = {
+							const result = this.pool.acquire({
 								value: val[i],
-								path: [...node.path, i],
 								root: node.root,
 								parent: val,
 								parentKey: i,
-							};
-							if (this.isPathAllowed(result.path)) {
-								this.checkLimits(result.path.length);
+								pathParent: node,
+								pathSegment: i,
+							});
+							if (this.isNodeAllowed(result)) {
+								this.checkLimits(result._depth ?? 0);
 								yield result;
 							}
 						}
 					} else {
 						for (const k of Object.keys(val)) {
-							const result = {
+							const result = this.pool.acquire({
 								value: (val as any)[k],
-								path: [...node.path, k],
 								root: node.root,
 								parent: val,
 								parentKey: k,
-							};
-							if (this.isPathAllowed(result.path)) {
-								this.checkLimits(result.path.length);
+								pathParent: node,
+								pathSegment: k,
+							});
+							if (this.isNodeAllowed(result)) {
+								this.checkLimits(result._depth ?? 0);
 								yield result;
 							}
 						}
@@ -338,15 +371,16 @@ export class Evaluator {
 							from = Math.min(Math.max(from, 0), len);
 							to = Math.min(Math.max(to, 0), len);
 							for (let i = from; i < to; i += s) {
-								const result = {
+								const result = this.pool.acquire({
 									value: val[i],
-									path: [...node.path, i],
 									root: node.root,
 									parent: val,
 									parentKey: i,
-								};
-								if (this.isPathAllowed(result.path)) {
-									this.checkLimits(result.path.length);
+									pathParent: node,
+									pathSegment: i,
+								});
+								if (this.isNodeAllowed(result)) {
+									this.checkLimits(result._depth ?? 0);
 									yield result;
 								}
 							}
@@ -354,15 +388,16 @@ export class Evaluator {
 							from = Math.min(Math.max(from, -1), len - 1);
 							to = Math.min(Math.max(to, -1), len - 1);
 							for (let i = from; i > to; i += s) {
-								const result = {
+								const result = this.pool.acquire({
 									value: val[i],
-									path: [...node.path, i],
 									root: node.root,
 									parent: val,
 									parentKey: i,
-								};
-								if (this.isPathAllowed(result.path)) {
-									this.checkLimits(result.path.length);
+									pathParent: node,
+									pathSegment: i,
+								});
+								if (this.isNodeAllowed(result)) {
+									this.checkLimits(result._depth ?? 0);
 									yield result;
 								}
 							}
@@ -374,32 +409,34 @@ export class Evaluator {
 				if (val !== null && typeof val === 'object') {
 					if (Array.isArray(val)) {
 						for (let i = 0; i < val.length; i++) {
-							const item = {
+							const item = this.pool.acquire({
 								value: val[i],
-								path: [...node.path, i],
 								root: node.root,
 								parent: val,
 								parentKey: i,
-							};
+								pathParent: node,
+								pathSegment: i,
+							});
 							if (this.evaluateFilter(selector.expression, item)) {
-								if (this.isPathAllowed(item.path)) {
-									this.checkLimits(item.path.length);
+								if (this.isNodeAllowed(item)) {
+									this.checkLimits(item._depth ?? 0);
 									yield item;
 								}
 							}
 						}
 					} else {
 						for (const k of Object.keys(val)) {
-							const item = {
+							const item = this.pool.acquire({
 								value: (val as any)[k],
-								path: [...node.path, k],
 								root: node.root,
 								parent: val,
 								parentKey: k,
-							};
+								pathParent: node,
+								pathSegment: k,
+							});
 							if (this.evaluateFilter(selector.expression, item)) {
-								if (this.isPathAllowed(item.path)) {
-									this.checkLimits(item.path.length);
+								if (this.isNodeAllowed(item)) {
+									this.checkLimits(item._depth ?? 0);
 									yield item;
 								}
 							}
@@ -457,31 +494,19 @@ export class Evaluator {
 		}
 	}
 
-	private isPathAllowed(path: Path): boolean {
-		if (
-			this.options.secure.blockPaths!.length === 0 &&
-			this.options.secure.allowPaths!.length === 0
-		) {
-			return true;
-		}
+	private checkPathRestrictions(node: QueryResultNode): boolean {
+		// Avoid node.path here.
+		const pointer = this.pointerStringForNode(node);
 
-		const pointer =
-			path.length === 0
-				? '/'
-				: `/${path
-						.map((s) => String(s).replace(/~/g, '~0').replace(/\//g, '~1'))
-						.join('/')}`;
-
-		if (this.options.secure.blockPaths!.length > 0) {
-			for (const blocked of this.options.secure.blockPaths!) {
-				if (pointer === blocked || pointer.startsWith(`${blocked}/`)) {
+		if (this.options.secure.blockPaths?.length) {
+			for (const blocked of this.options.secure.blockPaths) {
+				if (pointer === blocked || pointer.startsWith(`${blocked}/`))
 					return false;
-				}
 			}
 		}
 
-		if (this.options.secure.allowPaths!.length > 0) {
-			for (const allowed of this.options.secure.allowPaths!) {
+		if (this.options.secure.allowPaths?.length) {
+			for (const allowed of this.options.secure.allowPaths) {
 				if (
 					pointer === allowed ||
 					pointer.startsWith(`${allowed}/`) ||
@@ -495,6 +520,32 @@ export class Evaluator {
 		}
 
 		return true;
+	}
+
+	private pointerStringForNode(node: QueryResultNode): string {
+		if (node._cachedPointer) return node._cachedPointer;
+
+		// Root path
+		if (node._pathSegment === undefined) {
+			node._cachedPointer = '/';
+			return '/';
+		}
+
+		const segments: PathSegment[] = [];
+		let curr: QueryResultNode | undefined = node;
+		while (curr?._pathSegment !== undefined) {
+			segments.push(curr._pathSegment);
+			curr = curr._pathParent;
+		}
+
+		let out = '';
+		for (let i = segments.length - 1; i >= 0; i--) {
+			const s = String(segments[i]).replace(/~/g, '~0').replace(/\//g, '~1');
+			out += `/${s}`;
+		}
+
+		node._cachedPointer = out;
+		return out;
 	}
 
 	private evaluateFilter(
@@ -818,7 +869,12 @@ export class Evaluator {
 		current: QueryResultNode,
 	): NodeList {
 		let nodes: Iterable<QueryResultNode> = query.root
-			? [{ value: this.root, path: [], root: this.root }]
+			? [
+					this.pool.acquire({
+						value: this.root,
+						root: this.root,
+					}),
+				]
 			: [current];
 
 		for (const segment of query.segments) {

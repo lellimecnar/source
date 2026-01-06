@@ -7,25 +7,70 @@
  */
 
 import type {
+	Path,
 	PathSegment,
 	QueryNode as CoreQueryNode,
 	QueryResult as CoreQueryResult,
 } from '@jsonpath/core';
 import { JSONPointer } from '@jsonpath/pointer';
 
-export type QueryResultNode<T = unknown> = CoreQueryNode<T>;
+export interface QueryResultNode<T = unknown> extends CoreQueryNode<T> {
+	// Backwards-compatible API: `path` is still a property.
+	readonly path: Path;
 
-function escapeJsonPointerSegment(segment: string): string {
-	return segment.replace(/~/g, '~0').replace(/\//g, '~1');
+	// Internal lazy-path chain
+	_pathParent?: QueryResultNode | undefined;
+	_pathSegment?: PathSegment | undefined;
+	_cachedPath?: PathSegment[] | undefined;
+	_cachedPointer?: string | undefined;
+	_depth?: number | undefined;
 }
 
-function pathToPointer(path: readonly PathSegment[]): string {
-	if (path.length === 0) return '';
-	return `/${path
-		.map((seg) =>
-			escapeJsonPointerSegment(typeof seg === 'number' ? String(seg) : seg),
-		)
-		.join('/')}`;
+export function materializePath(node: QueryResultNode): PathSegment[] {
+	if (node._cachedPath) return node._cachedPath;
+
+	const segments: PathSegment[] = [];
+	let curr: QueryResultNode | undefined = node;
+	while (curr?._pathSegment !== undefined) {
+		segments.push(curr._pathSegment);
+		curr = curr._pathParent;
+	}
+	segments.reverse();
+
+	node._cachedPath = segments;
+	node._depth ??= segments.length;
+
+	return segments;
+}
+
+function escapeJsonPointerSegmentFromPathSegment(segment: PathSegment): string {
+	return String(segment).replace(/~/g, '~0').replace(/\//g, '~1');
+}
+
+export function pointerStringForNode(node: QueryResultNode): string {
+	if (node._cachedPointer) return node._cachedPointer;
+
+	// Root pointer
+	if (node._pathSegment === undefined) {
+		// Match existing QueryResult.pointerStrings() behavior: root is "".
+		node._cachedPointer = '';
+		return '';
+	}
+
+	// Collect segments without materializing `node.path`.
+	const segs: PathSegment[] = [];
+	let curr: QueryResultNode | undefined = node;
+	while (curr?._pathSegment !== undefined) {
+		segs.push(curr._pathSegment);
+		curr = curr._pathParent;
+	}
+	segs.reverse();
+
+	let out = '';
+	for (const s of segs) out += `/${escapeJsonPointerSegmentFromPathSegment(s)}`;
+
+	node._cachedPointer = out;
+	return out;
 }
 
 function escapeNormalizedPathName(name: string): string {
@@ -69,11 +114,13 @@ export class QueryResult<T = unknown> implements CoreQueryResult<T> {
 	}
 
 	pointers(): JSONPointer[] {
-		return this.results.map((r) => new JSONPointer(pathToPointer(r.path)));
+		return this.results.map(
+			(r) => new JSONPointer(r._cachedPointer ?? pointerStringForNode(r)),
+		);
 	}
 
 	pointerStrings(): string[] {
-		return this.results.map((r) => pathToPointer(r.path));
+		return this.results.map((r) => r._cachedPointer ?? pointerStringForNode(r));
 	}
 
 	normalizedPaths(): string[] {
@@ -119,7 +166,10 @@ export class QueryResult<T = unknown> implements CoreQueryResult<T> {
 		for (const n of this.results) {
 			if (n.parent === undefined) continue;
 			const parentPath = n.path.slice(0, -1);
-			const key = pathToPointer(parentPath);
+			const key =
+				parentPath.length === 0
+					? ''
+					: pointerStringForNode(n).slice(0, -String(n.parentKey).length - 1);
 			if (seen.has(key)) continue;
 			seen.add(key);
 
