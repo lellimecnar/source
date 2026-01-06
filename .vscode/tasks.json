@@ -5,6 +5,61 @@
 			"label": "create-llms-txt",
 			"type": "shell",
 			"command": "printf \"# @lellimecnar/source\\n\\n> A pnpm + Turborepo monorepo containing web applications (Next.js), mobile applications (Expo), shared UI libraries, and a card game engine.\\n\\n## Core Documentation\\n\\n- [Developer Guide & AI Instructions](AGENTS.md): The primary entry point for developers and AI agents, detailing project structure, commands, and patterns.\\n- [Project README](README.md): General project overview and entry point.\\n\\n## Architecture & Blueprints\\n\\n- [Architecture Blueprint](Project_Architecture_Blueprint.md): High-level system design, data flow, and architectural decisions.\\n- [Folder Structure Blueprint](Project_Folders_Structure_Blueprint.md): Detailed breakdown of the directory hierarchy and organization principles.\\n- [Technology Stack Blueprint](Technology_Stack_Blueprint.md): Comprehensive list of technologies, frameworks, and versions used.\\n\\n## Workflows\\n\\n- [Workflow Documentation](Project_Workflow_Documentation.md): Common development scenarios, code paths, and standard operating procedures.\\n\\n## Configuration\\n\\n- [Workspace Configuration](pnpm-workspace.yaml): Defines the monorepo workspace structure.\\n- [Turborepo Config](turbo.json): Configuration for the build system and task pipeline.\\n- [Root Package Config](package.json): Root-level scripts and dependencies.\\n\" > llms.txt"
+		},
+		{
+			"label": "test:benchmarks-smoke",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@jsonpath/benchmarks",
+				"exec",
+				"vitest",
+				"run",
+				"src/adapters"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "pnpm:install",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"install"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "typecheck:benchmarks",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@jsonpath/benchmarks",
+				"type-check"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "typecheck:benchmarks:verbose",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@jsonpath/benchmarks",
+				"exec",
+				"tsgo",
+				"--noEmit",
+				"--pretty",
+				"false"
+			],
+			"isBackground": false,
+			"problemMatcher": []
 		}
 	]
 }

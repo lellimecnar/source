@@ -1,0 +1,31 @@
+export const STORE_DATA = {
+	store: {
+		book: [
+			{
+				category: 'reference',
+				author: 'Nigel Rees',
+				title: 'Sayings of the Century',
+				price: 8.95,
+			},
+			{
+				category: 'fiction',
+				author: 'Evelyn Waugh',
+				title: 'Sword of Honour',
+				price: 12.99,
+			},
+			{
+				category: 'fiction',
+				author: 'Herman Melville',
+				title: 'Moby Dick',
+				isbn: '0-553-21311-3',
+				price: 8.99,
+			},
+		],
+		bicycle: {
+			color: 'red',
+			price: 19.95,
+		},
+	},
+} as const;
+
+export const cloneStoreData = () => structuredClone(STORE_DATA);

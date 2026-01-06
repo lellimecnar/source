@@ -11,6 +11,7 @@ module.exports = {
 		'./mobile/**',
 		'./web/**',
 		'./packages/**',
+		'!./packages/jsonpath/benchmarks/**',
 		'**/dist/**',
 		'**/build/**',
 		'**/node_modules/**',

@@ -15,8 +15,13 @@
 		"@jsonpath/parser": "workspace:*",
 		"@jsonpath/patch": "workspace:*",
 		"@jsonpath/pointer": "workspace:*",
+		"fast-json-patch": "^3.1.1",
+		"json-merge-patch": "^1.0.2",
+		"json-p3": "^2.2.2",
+		"json-pointer": "^0.6.2",
 		"jsonpath": "^1.1.1",
-		"jsonpath-plus": "^10.2.0"
+		"jsonpath-plus": "^10.2.0",
+		"rfc6902": "^5.1.2"
 	},
 	"devDependencies": {
 		"@lellimecnar/typescript-config": "workspace:*",
