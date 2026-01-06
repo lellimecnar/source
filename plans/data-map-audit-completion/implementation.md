@@ -253,9 +253,31 @@ completes: step 3 of 11 for data-map-audit-completion
 
 ---
 
+- [x] **Step 1: Fluent Batch API** - COMPLETED
+- [x] **Step 2: Move Operation Subscription Semantics** - COMPLETED
 - [x] **Step 3: Subscription Specificity Ordering** - COMPLETED
+- [x] **Step 4: ResolvedMatch Full Metadata** - COMPLETED
+- [x] **Step 5: Performance Benchmark Suite** - COMPLETED
+- [x] **Step 6: Schema Validation Option** - COMPLETED
+- [x] **Step 7: SubscriptionManager Interface Export** - COMPLETED
+- [x] **Step 8: Relative JSON Pointer Support** - COMPLETED
+- [x] **Step 9: Predicate Caching by Hash** - COMPLETED
+- [x] **Step 10: Integration Test Suite** - COMPLETED
+- [x] **Step 11: Spec Compliance Test Suite** - COMPLETED
 
-### Step 4: ResolvedMatch Full Metadata
+## STOP & COMMIT
+
+The following commit message should be applied:
+
+```txt
+test(data-map-core): expand spec compliance suite and add compliance report
+
+- Restructure spec-compliance tests into REQ-* and AC-* sections
+- Add concrete coverage for patch generation and subscription cancellation/transform
+- Add SPEC_COMPLIANCE_REPORT.md checklist for remaining REQ/AC matrix
+
+completes: step 11 of 11 for data-map-audit-completion
+```
 
 **Objective**
 
@@ -498,15 +520,6 @@ completes: step 9 of 11 for data-map-audit-completion
 
 ### Step 10: Integration Test Suite
 
-- Normalize predicate expressions and key cache by stable hash
-- Add tests for cache sharing
-
-completes: step 9 of 11 for data-map-audit-completion
-
-````
-
-### Step 10: Integration Test Suite
-
 **Objective**
 
 Expand the integration and negative-case suites in `@data-map/core` to push coverage toward:
@@ -643,7 +656,7 @@ Expand the integration and negative-case suites in `@data-map/core` to push cove
 +	});
  });
 *** End Patch
-````
+```
 
 #### Diff: expand error and negative cases
 

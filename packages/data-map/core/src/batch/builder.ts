@@ -1,7 +1,7 @@
 import type { DataMap } from '../datamap';
-import type { CallOptions, Operation } from '../types';
-import { buildSetPatch } from '../patch/builder';
 import type { Batch } from './fluent';
+import { buildSetPatch } from '../patch/builder';
+import type { CallOptions, Operation } from '../types';
 
 export class FluentBatchBuilder<T, Ctx> implements Batch<DataMap<T, Ctx>> {
 	private ops: Operation[] = [];

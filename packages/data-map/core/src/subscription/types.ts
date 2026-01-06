@@ -53,5 +53,5 @@ export interface SubscriptionManager<T, Ctx = unknown> {
 	/**
 	 * Register a subscription configuration.
 	 */
-	register(config: SubscriptionConfig<T, Ctx>): Subscription;
+	register: (config: SubscriptionConfig<T, Ctx>) => Subscription;
 }

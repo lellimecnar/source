@@ -1,7 +1,7 @@
-import { BatchManager } from './batch/manager';
-import type { BatchContext } from './batch/types';
 import { FluentBatchBuilder } from './batch/builder';
 import type { Batch } from './batch/fluent';
+import { BatchManager } from './batch/manager';
+import type { BatchContext } from './batch/types';
 import { DefinitionRegistry } from './definitions/registry';
 import { applyOperations } from './patch/apply';
 import {

@@ -98,5 +98,5 @@ export function resolveRelativePointer(
 		resultSegments.push(...remainingSegments);
 	}
 
-	return resultSegments.length === 0 ? '/' : '/' + resultSegments.join('/');
+	return resultSegments.length === 0 ? '/' : `/${resultSegments.join('/')}`;
 }

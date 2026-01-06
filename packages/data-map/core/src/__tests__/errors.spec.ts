@@ -69,4 +69,63 @@ describe('error and negative cases', () => {
 		const dm = new DataMap({ a: 1 }, { strict: true });
 		expect(() => dm.get('$.a[')).toThrow(DataMapPathError);
 	});
+
+	it('map() throws on no matches in strict mode and is a no-op in non-strict mode', () => {
+		const dmLoose = new DataMap({ a: 1 }, { strict: false });
+		expect(() => dmLoose.map('$.missing[*]', () => 1)).not.toThrow();
+		expect(dmLoose.get('/a')).toBe(1);
+
+		const dmStrict = new DataMap({ a: 1 }, { strict: true });
+		expect(() => dmStrict.map('$.missing[*]', () => 1)).toThrow(
+			'No matches for map()',
+		);
+		// strict mode should not partially mutate
+		expect(dmStrict.get('/a')).toBe(1);
+	});
+
+	it('setAll() does not throw in non-strict mode for invalid JSONPath, but throws DataMapPathError in strict mode', () => {
+		const dmLoose = new DataMap({ a: 1 }, { strict: false });
+		expect(() => dmLoose.setAll('$.a[', 2)).not.toThrow();
+		expect(dmLoose.get('/a')).toBe(1);
+
+		const dmStrict = new DataMap({ a: 1 }, { strict: true });
+		expect(() => dmStrict.setAll('$.a[', 2)).toThrow(DataMapPathError);
+		expect(dmStrict.get('/a')).toBe(1);
+	});
+
+	it('a before:set cancel() aborts mutation; strict controls whether an error is thrown', () => {
+		const dmLoose = new DataMap({ a: 1 }, { strict: false });
+		dmLoose.subscribe({
+			path: '/a',
+			before: 'set',
+			fn: (_value, _event, cancel) => cancel(),
+		});
+		expect(() => dmLoose.set('/a', 2)).not.toThrow();
+		expect(dmLoose.get('/a')).toBe(1);
+
+		const dmStrict = new DataMap({ a: 1 }, { strict: true });
+		dmStrict.subscribe({
+			path: '/a',
+			before: 'set',
+			fn: (_value, _event, cancel) => cancel(),
+		});
+		expect(() => dmStrict.set('/a', 2)).toThrow(
+			'Patch cancelled by subscription',
+		);
+		expect(dmStrict.get('/a')).toBe(1);
+	});
+
+	it('relative-pointer paths are rejected in strict mode and treated as no-match in non-strict mode', () => {
+		const dmLoose = new DataMap({ a: 1 }, { strict: false });
+		expect(dmLoose.get('1/a')).toBeUndefined();
+		expect(dmLoose.resolve('1/a')).toEqual([]);
+
+		const dmStrict = new DataMap({ a: 1 }, { strict: true });
+		expect(() => dmStrict.get('1/a')).toThrow(
+			'Unsupported path type: relative-pointer',
+		);
+		expect(() => dmStrict.resolve('1/a')).toThrow(
+			'Unsupported path type: relative-pointer',
+		);
+	});
 });

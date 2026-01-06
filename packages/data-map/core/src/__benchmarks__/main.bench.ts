@@ -1,4 +1,5 @@
 import { bench, describe } from 'vitest';
+
 import { DataMap } from '../datamap';
 
 describe('DataMap benchmarks', () => {

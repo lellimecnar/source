@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { DataMap } from '../datamap';
-import { flushMicrotasks } from '../__fixtures__/helpers';
+import { createEventSpy, flushMicrotasks } from '../__fixtures__/helpers';
 
 describe('integration workflows', () => {
 	it('supports read-modify-write cycle with subscriptions', async () => {
@@ -117,6 +117,100 @@ describe('integration workflows', () => {
 		const fromResolve = dm.resolve('$.users[*].name');
 		const fromStream = Array.from(dm.resolveStream('$.users[*].name'));
 		expect(fromStream).toEqual(fromResolve);
+	});
+
+	it('supports fluent batch preview (toPatch) and apply() with correct notification scheduling', async () => {
+		const dm = new DataMap({ a: 1, b: 1 });
+		const spy = createEventSpy();
+
+		dm.subscribe({
+			path: '/a',
+			after: 'set',
+			fn: spy.fn,
+		});
+
+		const b = dm.batch.set('/a', 2).set('/b', 3);
+		const ops = b.toPatch();
+		expect(ops.length).toBeGreaterThan(0);
+		expect(dm.get('/a')).toBe(1);
+		expect(dm.get('/b')).toBe(1);
+
+		b.apply();
+		// after-handlers are scheduled via queueMicrotask
+		expect(spy.events).toHaveLength(0);
+		await flushMicrotasks();
+
+		expect(dm.get('/a')).toBe(2);
+		expect(dm.get('/b')).toBe(3);
+		expect(spy.values).toContain(2);
+	});
+
+	it('batch() coalesces multi-op updates and updates multi-match paths (setAll + map)', async () => {
+		const dm = new DataMap({
+			users: [
+				{ name: 'Alice', active: false },
+				{ name: 'Bob', active: false },
+			],
+		});
+
+		const seen: Array<{ value: unknown; pointer: string; stage: string }> = [];
+		dm.subscribe({
+			path: '/users/0/name',
+			after: 'set',
+			fn: (value, event) => {
+				seen.push({ value, pointer: event.pointer, stage: event.stage });
+			},
+		});
+
+		dm.batch((d) => {
+			d.setAll('$.users[*].active', true);
+			d.map('$.users[*].name', (v) => `${String(v)}!`);
+		});
+
+		// after-handlers should not have executed yet
+		expect(seen).toHaveLength(0);
+		await flushMicrotasks();
+
+		expect(dm.get('/users/0/active')).toBe(true);
+		expect(dm.get('/users/1/active')).toBe(true);
+		expect(dm.get('/users/0/name')).toBe('Alice!');
+		expect(dm.get('/users/1/name')).toBe('Bob!');
+
+		expect(seen).toEqual([
+			{ value: 'Alice!', pointer: '/users/0/name', stage: 'after' },
+		]);
+	});
+
+	it('map() mapper receives JSON Pointer strings (not JSONPath) for each match', () => {
+		const dm = new DataMap({ nums: [1, 2] });
+		const pointers: string[] = [];
+
+		dm.map('$.nums[*]', (v, pointer) => {
+			pointers.push(pointer);
+			return (v as number) + 1;
+		});
+
+		expect(pointers).toEqual(['/nums/0', '/nums/1']);
+		expect(dm.get('/nums')).toEqual([2, 3]);
+	});
+
+	it('map.toPatch() generates operations without applying them', () => {
+		const dm = new DataMap({ nums: [1, 2] });
+		const ops = dm.map.toPatch('$.nums[*]', (v) => (v as number) * 10);
+		expect(dm.get('/nums')).toEqual([1, 2]); // unchanged
+		expect(ops.length).toBeGreaterThan(0);
+		dm.patch(ops);
+		expect(dm.get('/nums')).toEqual([10, 20]);
+	});
+
+	it('setAll.toPatch() generates operations without applying them', () => {
+		const dm = new DataMap({ a: 1, b: 1 });
+		const ops = dm.setAll.toPatch('$..*', 5);
+		expect(dm.get('/a')).toBe(1); // unchanged
+		expect(ops.length).toBeGreaterThan(0);
+		dm.patch(ops);
+		expect(dm.get('/a')).toBe(5);
+		expect(dm.get('/b')).toBe(5);
 	});
 
 	it('fluent batch supports toPatch() preview and apply() with notification scheduling', async () => {
