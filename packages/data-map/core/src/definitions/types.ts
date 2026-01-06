@@ -30,6 +30,7 @@ export interface DefinitionBase<T, Ctx> {
 	set?: SetterFn<T, Ctx> | SetterConfig<T, Ctx>;
 	deps?: string[];
 	readOnly?: boolean;
+	type?: string;
 	defaultValue?: unknown;
 }
 

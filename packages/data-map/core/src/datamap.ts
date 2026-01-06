@@ -54,6 +54,8 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	private readonly _batch = new BatchManager();
 	private readonly _defs = new DefinitionRegistry<T, Ctx>(this);
 	private readonly _defineOptions: DataMapOptions<T, Ctx>['define'] | undefined;
+	private readonly _previousValues = new Map<string, unknown>();
+	private readonly _lastUpdated = new Map<string, number>();
 
 	constructor(initialValue: T, options: DataMapOptions<T, Ctx> = {}) {
 		this._strict = options.strict ?? false;
@@ -76,6 +78,40 @@ export class DataMap<T = unknown, Ctx = unknown> {
 
 	subscribe(config: SubscriptionConfig<T, Ctx>): Subscription {
 		return this._subs.register(config);
+	}
+
+	private buildResolvedMatch(pointer: string, value: unknown): ResolvedMatch {
+		const defs = this._defs.findForPointer(pointer);
+
+		// Extract metadata from first matching definition
+		let readOnly: boolean | undefined;
+		let type: string | undefined;
+		if (defs.length > 0) {
+			const def = defs[0];
+			if (def && 'readOnly' in def) {
+				readOnly = (def as any).readOnly;
+			}
+			if (def && 'type' in def) {
+				type = (def as any).type;
+			}
+		}
+
+		// Extract write tracking metadata
+		const previousValue = this._previousValues.get(pointer);
+		const lastUpdated = this._lastUpdated.get(pointer);
+
+		const match: ResolvedMatch = {
+			pointer,
+			value,
+		};
+
+		if (readOnly !== undefined) (match as any).readOnly = readOnly;
+		if (type !== undefined) (match as any).type = type;
+		if (previousValue !== undefined)
+			(match as any).previousValue = previousValue;
+		if (lastUpdated !== undefined) (match as any).lastUpdated = lastUpdated;
+
+		return match;
 	}
 
 	toJSON(): T {
@@ -120,12 +156,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 					undefined,
 					pathOrPointer,
 				);
-				return [
-					{
-						pointer: '',
-						value,
-					},
-				];
+				return [this.buildResolvedMatch('', value)];
 			}
 
 			const resolved = resolvePointer(this._data, pointerString);
@@ -157,20 +188,17 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				pathOrPointer,
 			);
 
-			return [
-				{
-					pointer: pointerString,
-					value,
-				},
-			];
+			return [this.buildResolvedMatch(pointerString, value)];
 		}
 
 		try {
 			const { pointers, values } = queryWithPointers(this._data, pathOrPointer);
-			const matches = pointers.map((pointer, idx) => ({
-				pointer,
-				value: cloneSnapshot(this._defs.applyGetter(pointer, values[idx], ctx)),
-			}));
+			const matches = pointers.map((pointer, idx) =>
+				this.buildResolvedMatch(
+					pointer,
+					cloneSnapshot(this._defs.applyGetter(pointer, values[idx], ctx)),
+				),
+			);
 
 			for (const m of matches) {
 				this._subs.scheduleNotify(
@@ -477,8 +505,18 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			const effectiveOps: Operation[] = ops.map((op) => ({ ...op })) as any;
 
 			try {
+				// Capture previous values before applying operations
+				const previousValues = new Map<string, unknown>();
 				for (const op of effectiveOps) {
 					const previousValue = this.get(op.path);
+					previousValues.set(op.path, previousValue);
+					if (op.op === 'move') {
+						previousValues.set(op.from, undefined);
+					}
+				}
+
+				for (const op of effectiveOps) {
+					const previousValue = previousValues.get(op.path);
 					const nextValue = 'value' in op ? op.value : undefined;
 
 					const before = this._subs.notify(
@@ -503,6 +541,22 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				const { nextData, affectedPointers, structuralPointers } =
 					applyOperations(this._data, effectiveOps);
 				this._data = nextData as T;
+
+				// Track metadata for all affected pointers
+				const now = Date.now();
+				for (const op of effectiveOps) {
+					const pointer = op.path;
+					const prevValue = previousValues.get(pointer);
+					this._previousValues.set(pointer, prevValue);
+					this._lastUpdated.set(pointer, now);
+
+					// For move operations, also track the from pointer
+					if (op.op === 'move') {
+						const fromPointer = op.from;
+						this._previousValues.set(fromPointer, undefined);
+						this._lastUpdated.set(fromPointer, now);
+					}
+				}
 
 				if (this._batch.isBatching) {
 					this._batch.collect(
