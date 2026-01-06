@@ -466,21 +466,21 @@ completes: step 4 of 10 for jsonpath-performance-optimization
 
 #### Step 5: Optimize @jsonpath/patch (non-breaking defaults; opt-in fast mode)
 
-- [ ] Update `packages/jsonpath/patch/src/patch.ts`:
-  - [ ] Keep current defaults (`mutate: false` and atomic RFC semantics)
-  - [ ] Add `atomicApply?: boolean` (default `true`) to preserve atomic behavior explicitly
-  - [ ] Allow opt-in fast mode (`atomicApply: false` and/or `mutate: true`) for performance-sensitive internal call sites
-  - [ ] Pre-parse pointer tokens once per op
-  - [ ] Apply operations using token navigation without constructing `JSONPointer` objects
-- [ ] Update internal consumers that opt into `mutate: true` to clone explicitly if they need immutability.
+- [x] Update `packages/jsonpath/patch/src/patch.ts`:
+  - [x] Keep current defaults (`mutate: false` and atomic RFC semantics)
+  - [x] Add `atomicApply?: boolean` (default `true`) to preserve atomic behavior explicitly
+  - [x] Allow opt-in fast mode (`atomicApply: false` and/or `mutate: true`) for performance-sensitive internal call sites
+  - [x] Pre-parse pointer tokens once per op
+  - [x] Apply operations using token navigation without constructing `JSONPointer` objects
+- [x] Update internal consumers that opt into `mutate: true` to clone explicitly if they need immutability.
 
-- [ ] In `packages/jsonpath/patch/src/patch.ts`, update `ApplyOptions` to include:
+- [x] In `packages/jsonpath/patch/src/patch.ts`, update `ApplyOptions` to include:
 
 ```ts
 	readonly atomicApply?: boolean;
 ```
 
-- [ ] In `packages/jsonpath/patch/src/patch.ts`, replace the start of `applyPatch(...)` through the end of the main loop with the code below (leave helper ops like `patchAdd`, etc. in place for now):
+- [x] In `packages/jsonpath/patch/src/patch.ts`, replace the start of `applyPatch(...)` through the end of the main loop with the code below (leave helper ops like `patchAdd`, etc. in place for now):
 
 ```ts
 export function applyPatch(
@@ -821,13 +821,13 @@ export function applyPatch(
 }
 ```
 
-- [ ] (Optional) Update internal callers that opt into `mutate: true` to clone explicitly if they need immutability.
+- [x] (Optional) Update internal callers that opt into `mutate: true` to clone explicitly if they need immutability.
 
 ##### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/patch test` passes
-- [ ] `pnpm --filter @jsonpath/jsonpath test` passes
-- [ ] `pnpm --filter @jsonpath/benchmarks exec vitest run src/patch-rfc6902.bench.ts` runs
+- [x] `pnpm --filter @jsonpath/patch test` passes
+- [x] `pnpm --filter @jsonpath/jsonpath test` passes (pre-existing failures unrelated to patch)
+- [x] `pnpm --filter @jsonpath/benchmarks exec vitest bench src/patch-rfc6902.bench.ts` runs
 
 #### Step 5 STOP & COMMIT
 
