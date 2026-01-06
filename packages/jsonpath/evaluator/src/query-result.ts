@@ -50,6 +50,15 @@ function escapeJsonPointerSegmentFromPathSegment(segment: PathSegment): string {
 export function pointerStringForNode(node: QueryResultNode): string {
 	if (node._cachedPointer) return node._cachedPointer;
 
+	// Check if we have a path array (from fast paths or manual construction)
+	if (Array.isArray(node.path) && node.path.length > 0) {
+		let out = '';
+		for (const s of node.path)
+			out += `/${escapeJsonPointerSegmentFromPathSegment(s)}`;
+		node._cachedPointer = out;
+		return out;
+	}
+
 	// Root pointer
 	if (node._pathSegment === undefined) {
 		// Match existing QueryResult.pointerStrings() behavior: root is "".

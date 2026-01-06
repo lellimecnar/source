@@ -15,7 +15,9 @@ const RUNTIME_HELPERS = `
     if (val === Nothing) return false;
     if (typeof val === 'boolean') return val;
     if (val && typeof val === 'object' && '__isLogicalType' in val) return val.value;
-    if (val instanceof QueryResult) return val.nodes.length > 0;
+    if (val instanceof QueryResult) return val.length > 0;
+    // Handle { __exists: true, value: X } from simple relative access
+    if (val && typeof val === 'object' && '__exists' in val) return val.__exists;
     if (Array.isArray(val)) return val.length > 0;
     return !!val;
   };
@@ -23,9 +25,13 @@ const RUNTIME_HELPERS = `
   const _slice = (len, start, end, step) => {
     const s = step === null ? 1 : step;
     if (s === 0) return [];
+    // Normalize function per RFC 9535
     const n = (i, l) => i < 0 ? Math.max(l + i, 0) : Math.min(i, l);
-    const st = start === null ? (s > 0 ? 0 : len - 1) : n(start, len);
-    const en = end === null ? (s > 0 ? len : -1) : n(end, len);
+    // For negative step, clamp to len-1 (last valid index), not len
+    let st = start === null ? (s > 0 ? 0 : len - 1) : n(start, len);
+    let en = end === null ? (s > 0 ? len : -1) : (s > 0 ? n(end, len) : (end < 0 && end + len < 0 ? -1 : n(end, len)));
+    // For negative step, if start >= len, start at len-1
+    if (s < 0 && st >= len) st = len - 1;
     const res = [];
     if (s > 0) {
       for (let i = st; i < en; i += s) res.push(i);
@@ -54,21 +60,60 @@ const RUNTIME_HELPERS = `
     }
   };
 
+  // Deep equality that ignores object key order (per RFC 9535)
+  const _deepEqual = (a, b) => {
+    if (a === b) return true;
+    if (a === null || b === null) return a === b;
+    if (typeof a !== typeof b) return false;
+    if (typeof a !== 'object') return a === b;
+    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    if (Array.isArray(a)) {
+      if (a.length !== b.length) return false;
+      for (let i = 0; i < a.length; i++) {
+        if (!_deepEqual(a[i], b[i])) return false;
+      }
+      return true;
+    }
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    if (keysA.length !== keysB.length) return false;
+    for (const k of keysA) {
+      if (!Object.prototype.hasOwnProperty.call(b, k)) return false;
+      if (!_deepEqual(a[k], b[k])) return false;
+    }
+    return true;
+  };
+
   const _compare = (left, right, operator) => {
     const unwrap = (val) => {
       if (val instanceof QueryResult) {
-        return val.nodes.length === 1 ? val.nodes[0].value : Nothing;
+        const nodes = val.nodes();
+        return nodes.length === 1 ? nodes[0].value : Nothing;
+      }
+      // Handle { __exists, value } from simple relative access
+      if (val && typeof val === 'object' && '__exists' in val) {
+        return val.__exists ? val.value : Nothing;
       }
       return val;
     };
-    const l = unwrap(left);
-    const r = unwrap(right);
+    let l = unwrap(left);
+    let r = unwrap(right);
+    // Treat undefined as Nothing (functions may return undefined instead of Nothing)
+    if (l === undefined) l = Nothing;
+    if (r === undefined) r = Nothing;
+    
     if (l === Nothing && r === Nothing) return operator === '==' || operator === '<=' || operator === '>=';
     if (l === Nothing || r === Nothing) return operator === '!=';
     
-    if (operator === '==') return JSON.stringify(l) === JSON.stringify(r);
-    if (operator === '!=') return JSON.stringify(l) !== JSON.stringify(r);
+    // Check deep equality (ignores object key order per RFC 9535)
+    const deepEqual = _deepEqual(l, r);
+    if (operator === '==') return deepEqual;
+    if (operator === '!=') return !deepEqual;
     
+    // For <= and >=, if values are deeply equal, return true
+    if ((operator === '<=' || operator === '>=') && deepEqual) return true;
+    
+    // For ordering comparisons, only works for numbers and strings
     if (typeof l === typeof r && (typeof l === 'number' || typeof l === 'string')) {
       switch (operator) {
         case '<': return l < r;
@@ -78,6 +123,98 @@ const RUNTIME_HELPERS = `
       }
     }
     return false;
+  };
+
+  const _arithmetic = (left, right, operator) => {
+    const unwrap = (val) => {
+      if (val instanceof QueryResult) {
+        const nodes = val.nodes();
+        return nodes.length === 1 ? nodes[0].value : Nothing;
+      }
+      // Handle { __exists, value } from simple relative access
+      if (val && typeof val === 'object' && '__exists' in val) {
+        return val.__exists ? val.value : Nothing;
+      }
+      return val;
+    };
+    const l = unwrap(left);
+    const r = unwrap(right);
+    if (l === Nothing || r === Nothing) return Nothing;
+    if (typeof l !== 'number' || typeof r !== 'number') return Nothing;
+    
+    switch (operator) {
+      case '+': return l + r;
+      case '-': return l - r;
+      case '*': return l * r;
+      case '/': return r === 0 ? Nothing : l / r;
+      case '%': return r === 0 ? Nothing : l % r;
+    }
+    return Nothing;
+  };
+
+  const _callFunction = (fn, name, args) => {
+    if (!fn) return Nothing;
+    
+    // Process args based on function signature
+    const processedArgs = [];
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      const paramType = fn.signature?.[i] || 'ValueType';
+      
+      // Handle { __exists, value } from simple relative access
+      let val = arg;
+      if (val && typeof val === 'object' && '__exists' in val) {
+        if (!val.__exists) {
+          val = Nothing;
+        } else {
+          // For NodesType, wrap in an array as node-like object; for ValueType, use the value
+          if (paramType === 'NodesType') {
+            val = [{ value: val.value }];
+          } else {
+            val = val.value;
+          }
+        }
+      }
+      
+      // Handle QueryResult
+      if (val instanceof QueryResult) {
+        const nodes = val.nodes();
+        if (paramType === 'NodesType') {
+          // Pass node objects for NodesType (functions access .value)
+          val = nodes;
+        } else if (paramType === 'LogicalType') {
+          // Pass boolean for LogicalType
+          val = nodes.length > 0;
+        } else {
+          // ValueType - need exactly one node
+          if (nodes.length === 1) {
+            val = nodes[0].value;
+          } else {
+            return Nothing; // Non-singular for ValueType
+          }
+        }
+      }
+      
+      if (val === Nothing) return Nothing;
+      processedArgs.push(val);
+    }
+    
+    return fn.evaluate(...processedArgs);
+  };
+
+  const _unaryMinus = (val) => {
+    // Unwrap and negate the value
+    let v = val;
+    if (v instanceof QueryResult) {
+      const nodes = v.nodes();
+      v = nodes.length === 1 ? nodes[0].value : Nothing;
+    }
+    if (v && typeof v === 'object' && '__exists' in v) {
+      v = v.__exists ? v.value : Nothing;
+    }
+    if (v === Nothing) return Nothing;
+    if (typeof v !== 'number') return Nothing;
+    return -v;
   };
 `;
 
@@ -180,6 +317,12 @@ function generateSegment(segment: SegmentNode, index: number): string[] {
 	const isDesc = segment.type === NodeType.DescendantSegment;
 	if (isDesc) {
 		lines.push('  for (const node of nodes) {');
+		// Apply selectors to the node itself first (like interpreter)
+		lines.push('    const v0 = node.value;');
+		for (const sel of segment.selectors) {
+			lines.push(...generateSelector(sel, 'node', 'v0'));
+		}
+		// Then apply selectors to all descendants
 		lines.push('    for (const desc of _descend(node)) {');
 		lines.push('      const v = desc.value;');
 		for (const sel of segment.selectors) {
@@ -264,6 +407,14 @@ function generateSelector(
 				`    if (Array.isArray(${valueVar})) {`,
 				`      for (let i = 0; i < ${valueVar}.length; i++) {`,
 				`        const current = { value: ${valueVar}[i], path: [...${nodeVar}.path, i], root: _root, parent: ${valueVar}, parentKey: i };`,
+				`        ${generateFilterPredicate(expr)}`,
+				`        if (ok) {`,
+				`          next.push(current);`,
+				`        }`,
+				'      }',
+				`    } else if (${valueVar} !== null && typeof ${valueVar} === 'object') {`,
+				`      for (const k of Object.keys(${valueVar})) {`,
+				`        const current = { value: ${valueVar}[k], path: [...${nodeVar}.path, k], root: _root, parent: ${valueVar}, parentKey: k };`,
 				`        ${generateFilterPredicate(expr)}`,
 				`        if (ok) {`,
 				`          next.push(current);`,

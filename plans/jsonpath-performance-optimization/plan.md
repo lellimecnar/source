@@ -1,17 +1,33 @@
 # JSONPath Performance Optimization
 
 **Branch:** `feat/jsonpath-performance-optimization`
-**Description:** Optimize @jsonpath packages to achieve performance parity with jsonpath-plus, fast-json-patch, and json-merge-patch.
+**Description:** Optimize @jsonpath packages to outperform all competing JSONPath libraries
 
 ## Goal
 
-Close the performance gap identified in the benchmark audit:
+Close the performance gaps identified in the v4 benchmark audit and achieve market-leading performance:
 
-- **@jsonpath/jsonpath**: Currently 4-12x slower than jsonpath-plus → Target: within 2x
-- **@jsonpath/patch**: Currently 2.2x slower than fast-json-patch → Target: within 1.5x
-- **@jsonpath/merge-patch apply**: Currently 2.6x slower → Target: within 1.5x
+### Current Performance Status (January 2026)
 
-These optimizations will make the @jsonpath suite competitive with existing solutions while maintaining RFC compliance and the enhanced feature set.
+| Scenario         | @jsonpath       | Best Competitor         | Gap                 | Target                       |
+| ---------------- | --------------- | ----------------------- | ------------------- | ---------------------------- |
+| Simple path      | **2.24M ops/s** | 1.97M (jsonpath-plus)   | ✅ 1.14x **faster** | Maintain/extend lead         |
+| Deep nesting     | **1.49M ops/s** | 1.31M (jsonpath-plus)   | ✅ 1.14x **faster** | Maintain/extend lead         |
+| Wide object      | **3.76M ops/s** | 2.79M (jsonpath-plus)   | ✅ 1.35x **faster** | Maintain/extend lead         |
+| **Wildcards**    | 145K ops/s      | 1.13M (jsonpath-plus)   | ❌ 7.78x slower     | **1.5M+ ops/s** (outperform) |
+| **Recursive**    | 74K ops/s       | 348K (jsonpath-plus)    | ❌ 4.72x slower     | **500K+ ops/s** (outperform) |
+| **Large arrays** | 1.3K ops/s      | 10.5K (jsonpath-plus)   | ❌ 7.90x slower     | **15K+ ops/s** (outperform)  |
+| Pointer          | **2.66M ops/s** | 1.80M (json-pointer)    | ✅ 1.47x **faster** | Maintain/extend lead         |
+| Patch            | 89K ops/s       | 190K (fast-json-patch)  | ❌ 2.1x slower      | **250K+ ops/s** (outperform) |
+| Merge-patch      | 187K ops/s      | 185K (json-merge-patch) | ≈ Parity            | **250K+ ops/s** (outperform) |
+
+### Root Causes Identified
+
+1. **Generator overhead**: Wildcard/recursive use generator-based iteration with per-element `yield`
+2. **Object allocation**: `pool.acquire()` called for every matched element
+3. **Path tracking**: Path computed even when not needed
+4. **Security checks**: `isNodeAllowed()` called per element even when no restrictions configured
+5. **Function call overhead**: `checkLimits()` called per element in tight loops
 
 ---
 
@@ -19,19 +35,247 @@ These optimizations will make the @jsonpath suite competitive with existing solu
 
 The following decisions were made during planning:
 
-| Decision                      | Choice                           | Rationale                                                                                         |
-| ----------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **Breaking Changes**          | ✅ Acceptable                    | Breaking changes (e.g., `mutate: true` default) are acceptable as long as internal usage is fixed |
-| **Streaming Mode**            | Fully supported, not default     | Streaming remains available via `{ stream: true }` but eager evaluation is default                |
-| **Compliance vs Performance** | Performance first, opt-in strict | Prioritize performance; strict RFC mode available via options                                     |
-| **AST Modification**          | ✅ Acceptable                    | Parser may store resolved function references directly in AST nodes                               |
-| **Regression Tests**          | Warn only (non-blocking)         | CI warns on performance regression but does not block PRs                                         |
+| Decision                      | Choice                           | Rationale                                                                          |
+| ----------------------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
+| **Breaking Changes**          | ✅ No backwards compatibility    | Breaking changes are acceptable; no migration period needed                        |
+| **Streaming Mode**            | Fully supported, not default     | Streaming remains available via `{ stream: true }` but eager evaluation is default |
+| **Compliance vs Performance** | Performance first, opt-in strict | Prioritize performance; strict RFC mode available via options                      |
+| **AST Modification**          | ✅ Acceptable                    | Parser may store resolved function references directly in AST nodes                |
+| **Regression Tests**          | Warn only (non-blocking)         | CI warns on performance regression but does not block PRs                          |
+| **Optimization Order**        | Highest impact first             | Prioritize wildcards, recursion, and large arrays over incremental gains           |
 
 ---
 
-## Implementation Steps
+## Phase 1: Quick Wins (Steps 1-4)
 
-### Step 1: Enable Compiled Queries by Default in Facade
+### Step 1: Wildcard Fast Path for All Patterns ⭐ HIGHEST PRIORITY
+
+**Files:**
+
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts`
+
+**What:**
+Add a dedicated fast path for wildcard patterns at **any position** in the query (`$[*]`, `$[*].property`, `$.prop[*]`, `$.a.b[*].c.d[*]`) that bypasses generator overhead, object pooling, and per-element security checks. This is the **highest impact** optimization, targeting the 7.78x gap and aiming to **outperform** all competitors.
+
+**Scope:** Wildcards can appear anywhere in the path, not just at the root level.
+
+**Changes:**
+
+```typescript
+// Add to Evaluator class after evaluateSimpleChain()
+
+/**
+ * Fast path for queries containing only name selectors and wildcard selectors.
+ * Handles patterns like: $[*], $.prop[*], $[*].prop, $.a[*].b[*].c
+ * Bypasses generators, pooling, and per-element security checks.
+ */
+private evaluateWildcardChainFastPath(ast: QueryNode): QueryResult | null {
+  // Skip if security restrictions are configured
+  if (this.options.secure.allowPaths?.length || this.options.secure.blockPaths?.length) {
+    return null;
+  }
+
+  // Validate all segments have single, simple selectors (name or wildcard)
+  for (const seg of ast.segments) {
+    if (seg.selectors.length !== 1) return null;
+    const sel = seg.selectors[0];
+    if (sel.type !== NodeType.NameSelector && sel.type !== NodeType.WildcardSelector) {
+      return null;
+    }
+  }
+
+  // Build operation chain for iteration
+  type Op = { type: 'name'; name: string } | { type: 'wildcard' };
+  const ops: Op[] = ast.segments.map(seg => {
+    const sel = seg.selectors[0];
+    return sel.type === NodeType.NameSelector
+      ? { type: 'name', name: sel.name }
+      : { type: 'wildcard' };
+  });
+
+  // Must have at least one wildcard to use this path
+  if (!ops.some(op => op.type === 'wildcard')) return null;
+
+  // Execute chain imperatively
+  interface IntermediateNode {
+    value: unknown;
+    path: (string | number)[];
+    parent: unknown;
+    parentKey: string | number;
+  }
+
+  let current: IntermediateNode[] = [
+    { value: this.root, path: [], parent: null as unknown, parentKey: '' }
+  ];
+
+  for (const op of ops) {
+    const next: IntermediateNode[] = [];
+
+    if (op.type === 'name') {
+      // Property access
+      for (const node of current) {
+        const val = node.value;
+        if (val && typeof val === 'object' && op.name in (val as Record<string, unknown>)) {
+          next.push({
+            value: (val as Record<string, unknown>)[op.name],
+            path: [...node.path, op.name],
+            parent: val,
+            parentKey: op.name,
+          });
+        }
+      }
+    } else {
+      // Wildcard expansion
+      for (const node of current) {
+        const val = node.value;
+        if (Array.isArray(val)) {
+          // Pre-allocate for arrays (hot path)
+          for (let i = 0; i < val.length; i++) {
+            next.push({
+              value: val[i],
+              path: [...node.path, i],
+              parent: val,
+              parentKey: i,
+            });
+          }
+        } else if (val && typeof val === 'object') {
+          // Object properties
+          const keys = Object.keys(val as Record<string, unknown>);
+          for (const key of keys) {
+            next.push({
+              value: (val as Record<string, unknown>)[key],
+              path: [...node.path, key],
+              parent: val,
+              parentKey: key,
+            });
+          }
+        }
+      }
+    }
+
+    current = next;
+    if (current.length === 0) break; // Early exit
+  }
+
+  // Convert to QueryResultNode[]
+  const results: QueryResultNode[] = current.map(node => ({
+    value: node.value,
+    path: node.path,
+    root: this.root,
+    parent: node.parent,
+    parentKey: node.parentKey,
+  }));
+
+  return new QueryResult(results);
+}
+
+// In evaluate() method, add after evaluateSimpleChain():
+public evaluate(ast: QueryNode): QueryResult {
+  const fast = this.evaluateSimpleChain(ast);
+  if (fast) return fast;
+
+  const wildcard = this.evaluateWildcardChainFastPath(ast);  // NEW
+  if (wildcard) return wildcard;                              // NEW
+
+  const results = Array.from(this.stream(ast));
+  // ... rest
+}
+```
+
+**Testing:**
+
+1. Run evaluator tests: `pnpm --filter @jsonpath/evaluator test`
+2. Run benchmarks: `pnpm --filter @jsonpath/benchmarks bench src/query-fundamentals.bench.ts`
+3. Verify wildcard queries improve to **1.5M+ ops/s** (outperforming jsonpath-plus's 1.13M)
+4. Add unit tests for:
+   - `$[*]` - root array wildcard
+   - `$.prop[*]` - nested wildcard
+   - `$[*].prop` - wildcard then property
+   - `$.a[*].b[*].c` - multiple wildcards in chain
+
+**Expected Impact:** 10x+ improvement on wildcard queries, achieving **1.5M+ ops/s** to outperform jsonpath-plus (1.13M ops/s)
+
+---
+
+### Step 2: Inline Limit Checking in Hot Paths
+
+**Files:**
+
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+
+**What:**
+Replace `this.checkLimits()` function calls in tight loops with inline conditional checks to eliminate function call overhead.
+
+**Changes:**
+
+```typescript
+// In WildcardSelector, SliceSelector, FilterSelector cases:
+// Replace:
+this.checkLimits(result._depth ?? 0);
+
+// With inline check:
+if (++this.nodesVisited > this.options.maxNodes) {
+	throw new JSONPathLimitError(
+		`Maximum nodes exceeded: ${this.options.maxNodes}`,
+	);
+}
+// Keep timeout check in separate method for less frequent calls
+```
+
+**Testing:**
+
+1. Run evaluator tests
+2. Run benchmarks to verify 5-10% improvement
+3. Ensure limit errors still thrown correctly
+
+**Expected Impact:** 5-10% improvement in tight loops
+
+---
+
+### Step 3: Skip Security Checks When Unconfigured
+
+**Files:**
+
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+
+**What:**
+Add a compile-time boolean flag to completely bypass security checks when no `allowPaths` or `blockPaths` are configured (the 99% case).
+
+**Changes:**
+
+```typescript
+// In constructor
+private readonly securityEnabled: boolean;
+
+constructor(root: any, options?: EvaluatorOptions) {
+  // ...
+  this.securityEnabled =
+    (options?.secure?.allowPaths?.length ?? 0) > 0 ||
+    (options?.secure?.blockPaths?.length ?? 0) > 0;
+}
+
+// In streamSelector cases, use early check:
+case NodeType.WildcardSelector:
+  for (let i = 0; i < val.length; i++) {
+    const result = this.pool.acquire({...});
+    // Only check if security is enabled
+    if (this.securityEnabled && !this.isNodeAllowed(result)) continue;
+    yield result;
+  }
+```
+
+**Testing:**
+
+1. Run evaluator tests including security tests
+2. Benchmark with and without security options
+3. Verify no regression when security is enabled
+
+**Expected Impact:** 10-20% improvement for default usage
+
+---
+
+### Step 4: Enable Compiled Queries by Default in Facade
 
 **Files:**
 
@@ -39,7 +283,7 @@ The following decisions were made during planning:
 - `packages/jsonpath/jsonpath/src/__tests__/facade.spec.ts`
 
 **What:**
-The compiler already has a fast-path implementation in `generators.ts` that detects simple `$.a.b.c[0]` patterns and generates direct property access code. However, the facade doesn't use compiled queries by default—it uses the interpreter. Wire the facade to use `compileQuery()` for all queries, leveraging the existing fast-path detection.
+Wire the facade to use `compileQuery()` for all queries by default, leveraging the existing fast-path detection in the compiler.
 
 **Changes:**
 
@@ -66,7 +310,9 @@ export function query(
 
 ---
 
-### Step 2: Add Fast-Path to Evaluator for Non-Compiled Usage
+## Phase 2: Core Optimizations (Steps 5-8)
+
+### Step 5: Add Fast-Path to Evaluator for Non-Compiled Usage
 
 **Files:**
 
@@ -74,60 +320,84 @@ export function query(
 - `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts`
 
 **What:**
-For cases where the evaluator is used directly (not through the compiler), add inline fast-path detection for simple property chains. This avoids generator overhead for the most common query patterns.
-
-**Changes:**
-
-```typescript
-public evaluate(ast: QueryNode): QueryResult {
-  // Fast path: simple property/index chains without filters, wildcards, or recursion
-  if (this.isSimplePath(ast)) {
-    return this.evaluateSimplePath(ast);
-  }
-  // Full evaluation with generators
-  return this.evaluateFull(ast);
-}
-
-private isSimplePath(ast: QueryNode): boolean {
-  return ast.segments.every(seg =>
-    seg.type === NodeType.ChildSegment &&
-    seg.selectors.length === 1 &&
-    (seg.selectors[0].type === NodeType.NameSelector ||
-     seg.selectors[0].type === NodeType.IndexSelector)
-  );
-}
-
-private evaluateSimplePath(ast: QueryNode): QueryResult {
-  let value = this.root;
-  const path: PathSegment[] = [];
-
-  for (const segment of ast.segments) {
-    const selector = segment.selectors[0];
-    if (selector.type === NodeType.NameSelector) {
-      if (value == null || typeof value !== 'object') return emptyResult();
-      path.push(selector.name);
-      value = value[selector.name];
-    } else { // IndexSelector
-      if (!Array.isArray(value)) return emptyResult();
-      const idx = selector.index < 0 ? value.length + selector.index : selector.index;
-      path.push(idx);
-      value = value[idx];
-    }
-  }
-
-  return new QueryResult([{ value, path, root: this.root }]);
-}
-```
+Extend the existing `evaluateSimpleChain()` method to handle more patterns. This is already partially implemented, ensure it's used consistently.
 
 **Testing:**
 
 1. Run evaluator unit tests
-2. Run benchmarks comparing interpreter vs compiled paths
-3. Verify 3-5x improvement for simple queries via evaluator
+2. Verify simple queries use fast path
 
 ---
 
-### Step 3: Implement Compile-Time Function Resolution
+### Step 6: Batch Wildcard Collection
+
+**Files:**
+
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/evaluator/src/query-result-pool.ts`
+
+**What:**
+For large arrays, instead of yielding one element at a time (O(n) generator suspensions), collect results in batches of 100+ elements and yield the entire batch. This reduces generator overhead from O(n) to O(n/batchSize).
+
+**Changes:**
+
+```typescript
+// Add to Evaluator class
+private readonly BATCH_THRESHOLD = 50;  // Use batching for arrays > 50 elements
+
+private *streamWildcardBatched(
+  node: QueryResultNode,
+  batchSize = 100
+): Generator<QueryResultNode[]> {
+  const val = node.value;
+  if (!Array.isArray(val)) return;
+
+  const batch: QueryResultNode[] = [];
+  for (let i = 0; i < val.length; i++) {
+    batch.push(this.pool.acquire({
+      value: val[i],
+      root: node.root,
+      parent: val,
+      parentKey: i,
+      pathParent: node,
+      pathSegment: i,
+    }));
+
+    if (batch.length >= batchSize) {
+      yield [...batch];
+      batch.length = 0;
+    }
+  }
+
+  if (batch.length > 0) yield batch;
+}
+
+// In WildcardSelector case, use batching for large arrays:
+case NodeType.WildcardSelector:
+  if (Array.isArray(val) && val.length > this.BATCH_THRESHOLD) {
+    for (const batch of this.streamWildcardBatched(node)) {
+      for (const result of batch) {
+        if (!this.securityEnabled || this.isNodeAllowed(result)) {
+          yield result;
+        }
+      }
+    }
+  } else {
+    // Existing per-element iteration for small arrays
+  }
+```
+
+**Testing:**
+
+1. Run evaluator tests
+2. Run scale-testing benchmarks: `pnpm --filter @jsonpath/benchmarks bench src/scale-testing.bench.ts`
+3. Verify improvement from ~1.3K to ~5K+ ops/s on 1K arrays
+
+**Expected Impact:** 2-3x improvement for large array operations
+
+---
+
+### Step 7: Implement Compile-Time Function Resolution
 
 **Files:**
 
@@ -137,7 +407,7 @@ private evaluateSimplePath(ast: QueryNode): QueryResult {
 - `packages/jsonpath/functions/src/registry.ts`
 
 **What:**
-Currently, functions like `length()`, `match()`, `search()` are resolved at runtime during filter evaluation via `getFunction()`. Move function resolution to parse/compile time by storing resolved function references in AST nodes, eliminating repeated registry lookups.
+Move function resolution from runtime to parse/compile time by storing resolved function references in AST nodes.
 
 **Changes:**
 
@@ -167,7 +437,7 @@ private evaluateFunctionCall(node: FunctionCallNode): any {
 
 ---
 
-### Step 4: Lazy Generator Conversion
+### Step 8: Lazy Generator Conversion
 
 **Files:**
 
@@ -219,7 +489,9 @@ private evaluateEager(ast: QueryNode): QueryResult {
 
 ---
 
-### Step 5: Optimize @jsonpath/patch Performance
+## Phase 3: Package-Specific Optimizations (Steps 9-11)
+
+### Step 9: Optimize @jsonpath/patch Performance
 
 **Files:**
 
@@ -231,23 +503,11 @@ private evaluateEager(ast: QueryNode): QueryResult {
 **What:**
 Optimize patch operations by:
 
-1. Default to in-place mutation (`mutate: true`) instead of cloning — **BREAKING CHANGE**
+1. Default to in-place mutation (`mutate: true`) instead of cloning
 2. Pre-parse paths once instead of per-operation
 3. Skip validation by default (already implemented, ensure enforced)
 4. Use direct property access instead of full pointer resolution
 5. Update all internal usages to pass `structuredClone()` when immutability is needed
-
-**Breaking Change Migration:**
-
-```typescript
-// Before (implicit clone)
-const result = applyPatch(target, patch);
-
-// After (explicit clone if needed)
-const result = applyPatch(structuredClone(target), patch);
-// OR use option
-const result = applyPatch(target, patch, { mutate: false });
-```
 
 **Changes:**
 
@@ -319,7 +579,7 @@ function applyOperationFast(target: any, op: ParsedOperation): void {
 
 ---
 
-### Step 6: Optimize @jsonpath/merge-patch Apply Performance
+### Step 10: Optimize @jsonpath/merge-patch Apply Performance
 
 **Files:**
 
@@ -383,7 +643,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 ---
 
-### Step 7: Reduce Object Allocations in Hot Paths
+### Step 11: Reduce Object Allocations in Hot Paths
 
 **Files:**
 
@@ -429,7 +689,9 @@ private evaluateSimplePath(ast: QueryNode): QueryResult {
 
 ---
 
-### Step 8: Optimize Recursive Descent
+## Phase 4: Architectural Improvements (Steps 12-14)
+
+### Step 12: Optimize Recursive Descent
 
 **Files:**
 
@@ -482,12 +744,12 @@ private evaluateDescendantEager(
 **Testing:**
 
 1. Run recursive descent benchmarks
-2. Target: 3-5x improvement over current implementation
+2. Target: **7x improvement to 500K+ ops/s** (outperforming jsonpath-plus 348K)
 3. Verify correctness with compliance suite
 
 ---
 
-### Step 9: Add Performance Regression Tests
+### Step 13: Add Performance Regression Tests
 
 **Files:**
 
@@ -543,7 +805,7 @@ describe('Performance Regression', () => {
 
 ---
 
-### Step 10: Update Documentation and Benchmarks
+### Step 14: Update Documentation and Benchmarks
 
 **Files:**
 
@@ -569,35 +831,44 @@ describe('Performance Regression', () => {
 
 ## Summary
 
-| Step | Priority | Expected Impact             | Package               |
-| ---- | -------- | --------------------------- | --------------------- |
-| 1    | P0       | 2-4x faster simple queries  | @jsonpath/jsonpath    |
-| 2    | P1       | 3-5x faster evaluator       | @jsonpath/evaluator   |
-| 3    | P1       | 10-30% faster filters       | parser/evaluator      |
-| 4    | P1       | 20-40% faster non-streaming | @jsonpath/evaluator   |
-| 5    | P1       | 1.5-2x faster patch         | @jsonpath/patch       |
-| 6    | P1       | 1.5-2x faster merge-patch   | @jsonpath/merge-patch |
-| 7    | P2       | 10-20% faster               | evaluator/core        |
-| 8    | P2       | 3-5x faster `..`            | @jsonpath/evaluator   |
-| 9    | P2       | CI safety                   | benchmarks            |
-| 10   | P2       | Documentation               | docs                  |
+| Step | Phase      | Expected Impact               | Package               |
+| ---- | ---------- | ----------------------------- | --------------------- |
+| 1    | Quick Wins | **10x+ faster wildcards ⭐**  | @jsonpath/evaluator   |
+| 2    | Quick Wins | 5-10% faster loops            | @jsonpath/evaluator   |
+| 3    | Quick Wins | 10-20% faster (default)       | @jsonpath/evaluator   |
+| 4    | Quick Wins | 2-4x faster simple queries    | @jsonpath/jsonpath    |
+| 5    | Core       | Ensure fast path used         | @jsonpath/evaluator   |
+| 6    | Core       | 2-3x faster large arrays      | @jsonpath/evaluator   |
+| 7    | Core       | 10-30% faster filters         | parser/evaluator      |
+| 8    | Core       | 20-40% faster non-streaming   | @jsonpath/evaluator   |
+| 9    | Package    | **2-3x faster patch**         | @jsonpath/patch       |
+| 10   | Package    | **1.5-2x faster merge-patch** | @jsonpath/merge-patch |
+| 11   | Package    | 10-20% faster                 | evaluator/core        |
+| 12   | Arch       | **5-7x faster `$..`**         | @jsonpath/evaluator   |
+| 13   | Arch       | CI regression detection       | benchmarks            |
+| 14   | Arch       | Documentation                 | docs                  |
 
 ## Rollback Plan
 
 Each step is independent and can be reverted individually:
 
-- Steps 1-4: Revert to interpreter-based evaluation
-- Steps 5-6: Revert default options
-- Steps 7-8: Revert optimization code paths
-- Steps 9-10: Non-functional, safe to revert
+- **Phase 1 (Steps 1-4):** Revert fast path additions
+- **Phase 2 (Steps 5-8):** Revert core optimizations
+- **Phase 3 (Steps 9-11):** Revert package-specific changes
+- **Phase 4 (Steps 12-14):** Non-functional, safe to revert
 
 ## Success Criteria
 
-- [ ] @jsonpath/jsonpath within 2x of jsonpath-plus (currently 4-12x)
-- [ ] @jsonpath/patch within 1.5x of fast-json-patch (currently 2.2x)
-- [ ] @jsonpath/merge-patch within 1.5x of json-merge-patch (currently 2.6x)
-- [ ] All compliance tests passing
+**Goal: Outperform all existing JSONPath implementations**
+
+- [ ] Wildcards: From 145K → **1.5M+ ops/s** (10x+ improvement, beats jsonpath-plus 1.13M)
+- [ ] Recursive: From 74K → **500K+ ops/s** (7x improvement, beats jsonpath-plus 348K)
+- [ ] Large arrays: From 1.3K → **15K+ ops/s** (11x improvement, beats jsonpath-plus 10.5K)
+- [ ] Simple paths: Maintain 2.24M+ ops/s (no regression)
+- [ ] Pointer: Maintain 2.66M+ ops/s (no regression)
+- [ ] Patch: From 89K → **250K+ ops/s** (2.8x improvement, beats fast-json-patch 190K)
+- [ ] Merge-patch: From 187K → **250K+ ops/s** (1.3x improvement)
+- [ ] All RFC compliance tests passing
 - [ ] No memory leaks or regressions in streaming mode
 - [ ] Performance regression tests in CI (warn-only, non-blocking)
-- [ ] All internal usages updated for breaking changes
-- [ ] Documentation updated with new defaults and migration guide
+- [ ] Documentation updated with optimization notes

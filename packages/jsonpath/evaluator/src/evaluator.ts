@@ -59,6 +59,7 @@ export class Evaluator {
 	private currentFilterDepth = 0;
 	private readonly pool = new QueryResultPool();
 	private readonly isNodeAllowed: (node: QueryResultNode) => boolean;
+	private readonly hasEvaluationHooks: boolean;
 
 	constructor(root: any, options?: EvaluatorOptions) {
 		this.root = root;
@@ -70,12 +71,21 @@ export class Evaluator {
 		} else {
 			this.isNodeAllowed = (node) => this.checkPathRestrictions(node);
 		}
+
+		// Check if any plugin has evaluation hooks (not just function registration)
+		this.hasEvaluationHooks = this.options.plugins.some(
+			(p) => p.beforeEvaluate || p.afterEvaluate || p.onError,
+		);
 	}
 
 	public evaluate(ast: QueryNode): QueryResult {
 		// Fast path: simple $.a.b[0] chains (no filters/wildcards/recursion)
 		const fast = this.evaluateSimpleChain(ast);
 		if (fast) return fast;
+
+		// Fast path: wildcard chains ($.a[*].b, $[*].prop, $.a[*].b[*].c)
+		const wildcard = this.evaluateWildcardChain(ast);
+		if (wildcard) return wildcard;
 
 		const results = Array.from(this.stream(ast));
 		// Materialize and own nodes before returning to prevent pool mutation
@@ -86,6 +96,21 @@ export class Evaluator {
 	private evaluateSimpleChain(ast: QueryNode): QueryResult | null {
 		if (ast.type !== NodeType.Query) return null;
 		if (ast.segments.length === 0) return null;
+
+		// Skip fast path when features require full evaluator:
+		// - detectCircular requires tracking visited nodes
+		// - plugins with evaluation hooks need to fire during traversal
+		// - maxDepth < chain length would be violated by this chain
+		// - maxResults === 0 means user wants no results
+		if (
+			this.options.detectCircular ||
+			this.hasEvaluationHooks ||
+			(this.options.maxDepth > 0 &&
+				ast.segments.length > this.options.maxDepth) ||
+			this.options.maxResults === 0
+		) {
+			return null;
+		}
 
 		// Preserve allow/block path semantics: fall back to the normal evaluator path
 		// which already enforces these restrictions.
@@ -164,6 +189,188 @@ export class Evaluator {
 		if (!this.isNodeAllowed(node)) return new QueryResult([]);
 
 		return new QueryResult([node]);
+	}
+
+	/**
+	 * Fast path for queries containing only name selectors and wildcard selectors.
+	 * Handles patterns like: $[*], $.prop[*], $[*].prop, $.a[*].b[*].c
+	 * Bypasses generators, pooling, and per-element security checks for maximum speed.
+	 */
+	private evaluateWildcardChain(ast: QueryNode): QueryResult | null {
+		if (ast.type !== NodeType.Query) return null;
+		if (ast.segments.length === 0) return null;
+
+		// Circular detection requires tracking visited nodes
+		if (this.options.detectCircular) return null;
+
+		// Plugins with evaluation hooks require the full evaluator
+		if (this.hasEvaluationHooks) return null;
+
+		// Depth check: bail if user's maxDepth is less than the chain's depth
+		const depth = ast.segments.length;
+		if (this.options.maxDepth > 0 && this.options.maxDepth < depth) return null;
+
+		// maxResults: For wildcard fast path, we cannot easily enforce mid-traversal
+		// without performance cost. Bail to the full evaluator when maxResults is set
+		// below the default (10,000), as user expects enforcement.
+		// Default of 10_000 and 0 (disabled) both allow fast path.
+		if (this.options.maxResults > 0 && this.options.maxResults < 10_000) {
+			return null;
+		}
+
+		// Skip if security restrictions are configured
+		const { allowPaths, blockPaths } = this.options.secure;
+		if ((allowPaths?.length ?? 0) > 0 || (blockPaths?.length ?? 0) > 0) {
+			return null;
+		}
+
+		// Validate all segments have single, simple selectors (name, index, or wildcard)
+		let hasWildcard = false;
+		for (const seg of ast.segments) {
+			if (seg.type !== NodeType.ChildSegment) return null;
+			if (seg.selectors.length !== 1) return null;
+			const sel = seg.selectors[0]!;
+			if (
+				sel.type !== NodeType.NameSelector &&
+				sel.type !== NodeType.IndexSelector &&
+				sel.type !== NodeType.WildcardSelector
+			) {
+				return null;
+			}
+			if (sel.type === NodeType.WildcardSelector) hasWildcard = true;
+		}
+
+		// Must have at least one wildcard to use this path (otherwise evaluateSimpleChain handles it)
+		if (!hasWildcard) return null;
+
+		// Build operation chain for iteration
+		type Op =
+			| { type: 'name'; name: string }
+			| { type: 'index'; index: number }
+			| { type: 'wildcard' };
+
+		const ops: Op[] = ast.segments.map((seg) => {
+			const sel = seg.selectors[0]!;
+			if (sel.type === NodeType.NameSelector) {
+				return { type: 'name', name: sel.name };
+			} else if (sel.type === NodeType.IndexSelector) {
+				return { type: 'index', index: sel.index };
+			}
+			return { type: 'wildcard' };
+		});
+
+		// Execute chain imperatively with minimal allocations
+		interface IntermediateNode {
+			value: unknown;
+			path: PathSegment[];
+			parent: unknown;
+			parentKey: PathSegment;
+		}
+
+		let current: IntermediateNode[] = [
+			{
+				value: this.root,
+				path: [],
+				parent: undefined as unknown,
+				parentKey: '' as PathSegment,
+			},
+		];
+
+		for (const op of ops) {
+			if (current.length === 0) break; // Early exit
+
+			const next: IntermediateNode[] = [];
+
+			if (op.type === 'name') {
+				// Property access
+				for (let i = 0; i < current.length; i++) {
+					const node = current[i]!;
+					const val = node.value;
+					if (
+						val !== null &&
+						typeof val === 'object' &&
+						!Array.isArray(val) &&
+						Object.prototype.hasOwnProperty.call(val, op.name)
+					) {
+						next.push({
+							value: (val as Record<string, unknown>)[op.name],
+							path: [...node.path, op.name],
+							parent: val,
+							parentKey: op.name,
+						});
+					}
+				}
+			} else if (op.type === 'index') {
+				// Array index access
+				for (let i = 0; i < current.length; i++) {
+					const node = current[i]!;
+					const val = node.value;
+					if (Array.isArray(val)) {
+						const idx = op.index < 0 ? val.length + op.index : op.index;
+						if (idx >= 0 && idx < val.length) {
+							next.push({
+								value: val[idx],
+								path: [...node.path, idx],
+								parent: val,
+								parentKey: idx,
+							});
+						}
+					}
+				}
+			} else {
+				// Wildcard expansion
+				for (let i = 0; i < current.length; i++) {
+					const node = current[i]!;
+					const val = node.value;
+					if (Array.isArray(val)) {
+						// Pre-allocate for arrays (hot path)
+						for (let j = 0; j < val.length; j++) {
+							next.push({
+								value: val[j],
+								path: [...node.path, j],
+								parent: val,
+								parentKey: j,
+							});
+						}
+					} else if (val !== null && typeof val === 'object') {
+						// Object properties
+						const keys = Object.keys(val as Record<string, unknown>);
+						for (let k = 0; k < keys.length; k++) {
+							const key = keys[k]!;
+							next.push({
+								value: (val as Record<string, unknown>)[key],
+								path: [...node.path, key],
+								parent: val,
+								parentKey: key,
+							});
+						}
+					}
+				}
+			}
+
+			current = next;
+		}
+
+		// Convert to QueryResultNode[] with cached pointers
+		const escape = (segment: PathSegment) =>
+			String(segment).replace(/~/g, '~0').replace(/\//g, '~1');
+
+		const results: QueryResultNode[] = new Array(current.length);
+		for (let i = 0; i < current.length; i++) {
+			const node = current[i]!;
+			let ptr = '';
+			for (const s of node.path) ptr += `/${escape(s)}`;
+			results[i] = {
+				value: node.value,
+				path: node.path,
+				root: this.root,
+				parent: node.parent,
+				parentKey: node.parentKey,
+				_cachedPointer: ptr,
+			};
+		}
+
+		return new QueryResult(results);
 	}
 
 	public *stream(ast: QueryNode): Generator<QueryResultNode> {
