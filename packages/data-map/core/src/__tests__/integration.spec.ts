@@ -118,4 +118,53 @@ describe('integration workflows', () => {
 		const fromStream = Array.from(dm.resolveStream('$.users[*].name'));
 		expect(fromStream).toEqual(fromResolve);
 	});
+
+	it('fluent batch supports toPatch() preview and apply() with notification scheduling', async () => {
+		const dm = new DataMap({ a: 1, b: 1 });
+		const calls: unknown[] = [];
+
+		dm.subscribe({
+			path: '/a',
+			after: 'set',
+			fn: (v) => calls.push(v),
+		});
+
+		const batch = dm.batch.set('/a', 2).set('/b', 3);
+		const ops = batch.toPatch();
+		expect(ops.length).toBeGreaterThan(0);
+		expect(dm.get('/a')).toBe(1);
+		expect(dm.get('/b')).toBe(1);
+
+		batch.apply();
+		expect(calls).toHaveLength(0); // notifications not yet scheduled
+
+		await flushMicrotasks();
+		expect(dm.get('/a')).toBe(2);
+		expect(dm.get('/b')).toBe(3);
+		expect(calls).toContain(2);
+	});
+
+	it('transaction() rolls back state and does not schedule after-handlers on failure', async () => {
+		const dm = new DataMap({ a: 1 });
+		let afterCalls = 0;
+
+		dm.subscribe({
+			path: '/a',
+			after: 'set',
+			fn: () => {
+				afterCalls++;
+			},
+		});
+
+		expect(() =>
+			dm.transaction((d) => {
+				d.set('/a', 2);
+				throw new Error('boom');
+			}),
+		).toThrow('boom');
+
+		await flushMicrotasks();
+		expect(dm.get('/a')).toBe(1);
+		expect(afterCalls).toBe(0);
+	});
 });

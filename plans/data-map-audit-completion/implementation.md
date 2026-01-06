@@ -461,6 +461,8 @@ completes: step 8 of 11 for data-map-audit-completion
 
 ---
 
+- [x] **Step 8: Relative JSON Pointer Support** - COMPLETED
+
 ### Step 9: Predicate Caching by Hash
 
 **Objective**
@@ -483,11 +485,25 @@ pnpm --filter @data-map/core test
 ```txt
 refactor(data-map-core): cache predicates by hash
 
+- Cache predicates by normalized hash instead of raw expression
+- Whitespace variations now reuse cached predicates
+- Add tests for whitespace normalization and cache reuse
+
+completes: step 9 of 11 for data-map-audit-completion
+```
+
+---
+
+- [x] **Step 9: Predicate Caching by Hash** - COMPLETED
+
+### Step 10: Integration Test Suite
+
 - Normalize predicate expressions and key cache by stable hash
 - Add tests for cache sharing
 
 completes: step 9 of 11 for data-map-audit-completion
-```
+
+````
 
 ### Step 10: Integration Test Suite
 
@@ -627,7 +643,7 @@ Expand the integration and negative-case suites in `@data-map/core` to push cove
 +	});
  });
 *** End Patch
-```
+````
 
 #### Diff: expand error and negative cases
 
