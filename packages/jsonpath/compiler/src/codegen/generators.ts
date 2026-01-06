@@ -84,7 +84,7 @@ const RUNTIME_HELPERS = `
 /**
  * Generate JS source for a function `(root, options) => QueryResult`.
  *
- * Runtime dependencies are injected by the compiler via `new Function(...)`:
+ * Runtime dependencies are injected by the closure-based executor:
  * - QueryResult (class)
  * - evaluate (fallback interpreter)
  * - getFunction (builtin function resolver)

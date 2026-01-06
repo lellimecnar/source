@@ -17,8 +17,8 @@ export function wrapFactory(
 	fnBodySource: string,
 	options: CodegenOptions,
 ): GeneratedModule {
-	// NOTE: we generate a factory so we can inject runtime dependencies safely.
-	// new Function('QueryResult', 'getFunction', 'Nothing', 'return (root, opts) => {...}')
+	// NOTE: we generate code for reference/inspection only.
+	// (Compiled query execution is closure-based, delegating to @jsonpath/evaluator.)
 	const source = options.sourceMap
 		? `// source: ${JSON.stringify(ast.source)}\n${fnBodySource}`
 		: fnBodySource;

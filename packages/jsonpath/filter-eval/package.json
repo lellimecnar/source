@@ -1,10 +1,12 @@
 {
-	"name": "@jsonpath/jsonpath",
+	"name": "@jsonpath/filter-eval",
 	"version": "0.1.0",
-	"description": "JSONPath jsonpath implementation",
+	"description": "JSONPath filter expression parser and evaluator (jsep-based)",
 	"keywords": [
 		"jsonpath",
-		"json"
+		"json",
+		"filter",
+		"rfc9535"
 	],
 	"license": "MIT",
 	"sideEffects": false,
@@ -31,19 +33,10 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@jsonpath/compiler": "workspace:*",
+		"@jsep-plugin/regex": "^1.0.3",
 		"@jsonpath/core": "workspace:*",
-		"@jsonpath/evaluator": "workspace:*",
-		"@jsonpath/filter-eval": "workspace:*",
 		"@jsonpath/functions": "workspace:*",
-		"@jsonpath/lexer": "workspace:*",
-		"@jsonpath/merge-patch": "workspace:*",
-		"@jsonpath/parser": "workspace:*",
-		"@jsonpath/patch": "workspace:*",
-		"@jsonpath/path-builder": "workspace:*",
-		"@jsonpath/plugin-arithmetic": "workspace:^",
-		"@jsonpath/plugin-extras": "workspace:^",
-		"@jsonpath/pointer": "workspace:*"
+		"jsep": "^1.4.0"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

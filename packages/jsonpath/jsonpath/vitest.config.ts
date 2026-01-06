@@ -12,6 +12,10 @@ export default defineConfig({
 				'../evaluator/src/index.ts',
 			),
 			'@jsonpath/compiler': path.resolve(__dirname, '../compiler/src/index.ts'),
+			'@jsonpath/filter-eval': path.resolve(
+				__dirname,
+				'../filter-eval/src/index.ts',
+			),
 			'@jsonpath/pointer': path.resolve(__dirname, '../pointer/src/index.ts'),
 			'@jsonpath/core': path.resolve(__dirname, '../core/src/index.ts'),
 			'@jsonpath/lexer': path.resolve(__dirname, '../lexer/src/index.ts'),

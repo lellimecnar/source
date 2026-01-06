@@ -1,11 +1,19 @@
-import { type EvaluatorOptions, Nothing, getFunction } from '@jsonpath/core';
-import { evaluate, QueryResult } from '@jsonpath/evaluator';
+import { type EvaluatorOptions } from '@jsonpath/core';
+import { evaluate } from '@jsonpath/evaluator';
 import { type QueryNode } from '@jsonpath/parser';
 
 import { LRUCache } from './cache.js';
 import { generateCode } from './codegen.js';
 import type { CompiledQuery } from './compiled-query.js';
 import { defaultCompilerOptions, type CompilerOptions } from './options.js';
+
+function executeInterpreted(
+	root: unknown,
+	ast: QueryNode,
+	options?: EvaluatorOptions,
+) {
+	return evaluate(root, ast, options);
+}
 
 export class Compiler {
 	private readonly options: Required<CompilerOptions>;
@@ -25,26 +33,13 @@ export class Compiler {
 			if (cached) return cached;
 		}
 
-		const body = generateCode(ast);
-		// Create a factory so we can inject dependencies.
-		const factory = new Function(
-			'QueryResult',
-			'evaluate',
-			'getFunction',
-			'Nothing',
-			'ast',
-			body,
-		) as (
-			QueryResult: any,
-			evaluate: any,
-			getFunction: any,
-			Nothing: any,
-			ast: any,
-		) => (root: unknown, options?: any) => any;
+		const source = generateCode(ast);
 
-		const fn = factory(QueryResult, evaluate, getFunction, Nothing, ast);
+		const fn = (root: unknown, options?: EvaluatorOptions) =>
+			executeInterpreted(root, ast, options);
+
 		const compiled: CompiledQuery = Object.assign(fn, {
-			source: body,
+			source,
 			ast,
 			compilationTime: performance.now() - started,
 		});

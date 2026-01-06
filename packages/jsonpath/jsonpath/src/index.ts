@@ -20,3 +20,4 @@ export {
 	pathBuilder,
 	jp,
 } from '@jsonpath/path-builder';
+export * from '@jsonpath/filter-eval';
