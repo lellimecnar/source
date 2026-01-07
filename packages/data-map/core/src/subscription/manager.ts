@@ -88,6 +88,9 @@ export class SubscriptionManagerImpl<T, Ctx> {
 	private readonly scheduler = new NotificationScheduler();
 	private readonly dataMap: DataMap<T, Ctx>;
 	private registrationCounter = 0;
+	private readonly BLOOM_THRESHOLD = 100;
+	private readonly pointerSet = new Set<string>();
+	private useBloom = false;
 
 	constructor(dataMap: DataMap<T, Ctx>) {
 		this.dataMap = dataMap;
@@ -225,7 +228,11 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		}
 
 		const execute = () => {
-			if (!this.bloomFilter.mightContain(pointer)) {
+			const mightHaveStatic = this.useBloom
+				? this.bloomFilter.mightContain(pointer)
+				: this.pointerSet.has(pointer);
+
+			if (!mightHaveStatic) {
 				return this.notifyDynamic(
 					pointer,
 					event,
@@ -478,6 +485,21 @@ export class SubscriptionManagerImpl<T, Ctx> {
 			this.reverseIndex.set(pointer, set);
 		}
 		set.add(subscriptionId);
+
+		// Track pointer in Set for small subscription counts
+		this.pointerSet.add(pointer);
+
+		// Switch to Bloom filter when exceeding threshold
+		if (!this.useBloom && this.pointerSet.size > this.BLOOM_THRESHOLD) {
+			this.useBloom = true;
+			// Seed the Bloom filter with all existing pointers
+			for (const p of this.pointerSet) this.bloomFilter.add(p);
+		}
+
+		// Add to Bloom filter if already using it
+		if (this.useBloom) {
+			this.bloomFilter.add(pointer);
+		}
 	}
 
 	private removeFromReverseIndex(
@@ -487,7 +509,10 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		const set = this.reverseIndex.get(pointer);
 		if (!set) return;
 		set.delete(subscriptionId);
-		if (set.size === 0) this.reverseIndex.delete(pointer);
+		if (set.size === 0) {
+			this.reverseIndex.delete(pointer);
+			this.pointerSet.delete(pointer);
+		}
 	}
 
 	private addStructuralWatcher(pointer: string, subscriptionId: string): void {

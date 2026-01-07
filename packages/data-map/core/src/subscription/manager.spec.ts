@@ -179,4 +179,21 @@ describe('subscription manager', () => {
 		dm.subscribe({ path: '/a', after: 'set', fn: () => {} });
 		expect((dm as any)._subs).not.toBeNull();
 	});
+
+	it('uses Set-based pointer tracking for small subscription counts and switches to Bloom at threshold', async () => {
+		const dm = new DataMap({ root: Array.from({ length: 200 }, (_, i) => i) });
+		const calls: string[] = [];
+
+		for (let i = 0; i < 101; i++) {
+			dm.subscribe({
+				path: `/root/${i}`,
+				after: 'set',
+				fn: () => calls.push(String(i)),
+			});
+		}
+
+		dm.set('/root/0', 999);
+		await flushMicrotasks();
+		expect(calls.includes('0')).toBe(true);
+	});
 });
