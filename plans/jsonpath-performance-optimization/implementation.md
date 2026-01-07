@@ -346,38 +346,25 @@ completes: step 2 of 10 for jsonpath-performance-optimization-v2
 
 **Files**
 
-- `packages/jsonpath/patch/src/patch.ts`
+- [x] `packages/jsonpath/patch/src/patch.ts`
 
 #### Step 3.1 — Import `fastDeepClone`
 
-Update the import at the top of `patch.ts`:
-
-```ts
-import {
-	JSONPathError,
-	JSONPatchError,
-	deepEqual,
-	fastDeepClone,
-} from '@jsonpath/core';
-```
+- [x] Update the import at the top of `patch.ts`
 
 #### Step 3.2 — Replace all `structuredClone(...)` in this file
 
-As verified in the repo, there are multiple `structuredClone(` call sites (not only the
-`workingRoot` initializer). Replace all of them with `fastDeepClone`.
-
-At minimum, cover these known locations:
-
-1. `workingRoot` initialization (two call sites)
-2. `copy` operation: `structuredClone(value)`
-3. `applyWithErrors`: `const workingResult = structuredClone(target)`
-4. `applyWithInverse`: `let working = structuredClone(target)`
-
-After edits, `grep structuredClone(` in this file should return **0** matches.
+- [x] workingRoot initialization (two call sites) — REPLACED
+- [x] copy operation: `structuredClone(value)` — REPLACED
+- [x] applyWithErrors: `const workingResult = structuredClone(target)` — REPLACED
+- [x] applyWithInverse: `let working = structuredClone(target)` — REPLACED
+- [x] Verified: `grep structuredClone(` returns 0 matches
 
 #### Step 3 verification
 
-- `pnpm --filter @jsonpath/patch test`
+- [x] `pnpm --filter @jsonpath/patch test` — 134 passed | 4 skipped (138)
+- [x] `pnpm --filter @jsonpath/core build` — Success
+- [x] `pnpm --filter @jsonpath/patch type-check` — Success
 
 #### Step 3 STOP & COMMIT
 

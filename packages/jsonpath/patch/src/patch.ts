@@ -1,4 +1,9 @@
-import { JSONPathError, JSONPatchError, deepEqual } from '@jsonpath/core';
+import {
+	JSONPathError,
+	JSONPatchError,
+	deepEqual,
+	fastDeepClone,
+} from '@jsonpath/core';
 import { JSONPointer } from '@jsonpath/pointer';
 
 export type PatchOperation =
@@ -266,10 +271,10 @@ export function applyPatch(
 	// When atomicApply is enabled, always work on a clone and only copy back on success.
 	// Note: cloning strategy is optimized in Step 3.
 	const workingRoot = atomicApply
-		? structuredClone(target)
+		? fastDeepClone(target)
 		: mutate
 			? target
-			: structuredClone(target);
+			: fastDeepClone(target);
 	let working = workingRoot;
 
 	for (let index = 0; index < patch.length; index++) {
@@ -346,7 +351,7 @@ export function applyPatch(
 							'PATH_NOT_FOUND',
 						);
 					}
-					opResult = setAt(working, pathTokens, structuredClone(value), true);
+					opResult = setAt(working, pathTokens, fastDeepClone(value), true);
 					break;
 				}
 				case 'test': {
@@ -453,7 +458,7 @@ export function applyWithErrors<T>(
 	});
 
 	// Re-implementing the loop for applyWithErrors to collect errors correctly
-	const workingResult = structuredClone(target);
+	const workingResult = fastDeepClone(target);
 	let working = workingResult;
 
 	for (let index = 0; index < patch.length; index++) {
@@ -522,7 +527,7 @@ export function applyWithInverse(
 ): { result: any; inverse: PatchOperation[] } {
 	const inverse: PatchOperation[] = [];
 	const { mutate = false } = options;
-	let working = structuredClone(target);
+	let working = fastDeepClone(target);
 
 	// To generate an inverse patch, we need to record the state before each operation
 	patch.forEach((operation) => {
