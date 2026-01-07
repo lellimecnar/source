@@ -1,4 +1,4 @@
-import { deepEqual } from '@jsonpath/core';
+import { deepEqual, fastDeepClone } from '@jsonpath/core';
 
 /**
  * JSON Merge Patch (RFC 7386) implementation.
@@ -70,19 +70,16 @@ export function createMergePatch(source: any, target: any): any {
 	// RFC 7386 algorithm: scalar/array differences produce replacement,
 	// object differences produce object patch with deletions as null.
 	if (!isPlainObject(source) || !isPlainObject(target)) {
-		return deepEqual(source, target) ? {} : structuredClone(target);
+		return deepEqual(source, target) ? {} : fastDeepClone(target);
 	}
 
 	const patch: Record<string, any> = {};
-	const keys = new Set([...Object.keys(source), ...Object.keys(target)]);
 
-	for (const key of keys) {
-		if (!(key in target)) {
+	for (const key in source) {
+		if (!Object.prototype.hasOwnProperty.call(source, key)) continue;
+
+		if (!Object.prototype.hasOwnProperty.call(target, key)) {
 			patch[key] = null;
-			continue;
-		}
-		if (!(key in source)) {
-			patch[key] = structuredClone(target[key]);
 			continue;
 		}
 
@@ -97,7 +94,13 @@ export function createMergePatch(source: any, target: any): any {
 			continue;
 		}
 
-		patch[key] = structuredClone(t);
+		patch[key] = t;
+	}
+
+	for (const key in target) {
+		if (!Object.prototype.hasOwnProperty.call(target, key)) continue;
+		if (Object.prototype.hasOwnProperty.call(source, key)) continue;
+		patch[key] = target[key];
 	}
 
 	return patch;

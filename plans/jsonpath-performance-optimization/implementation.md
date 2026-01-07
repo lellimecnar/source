@@ -2921,8 +2921,8 @@ export function patchTest(target: any, path: string, value: any): void {
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/patch test`
-- [ ] `pnpm --filter @jsonpath/patch type-check`
+- [x] `pnpm --filter @jsonpath/patch test` — 134 passed | 4 skipped (138)
+- [x] `pnpm --filter @jsonpath/patch type-check` — Success
 - [ ] Optional: `pnpm --filter @jsonpath/benchmarks bench:patch`
 
 #### Step 3 STOP & COMMIT
@@ -2947,7 +2947,7 @@ This step speeds up batch patches that reuse the same paths by caching parsed JS
 
 #### Step 4.1 — Replace `packages/jsonpath/patch/src/patch.ts` (Step 4 state)
 
-- [ ] Copy and paste code below into `packages/jsonpath/patch/src/patch.ts`:
+- [x] Copy and paste code below into `packages/jsonpath/patch/src/patch.ts`:
 
 ```ts
 import {
@@ -3726,7 +3726,7 @@ export function patchTest(target: any, path: string, value: any): void {
 
 ##### Step 4 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/patch test`
+- [x] `pnpm --filter @jsonpath/patch test` — 134 passed | 4 skipped (138)
 - [ ] `pnpm --filter @jsonpath/benchmarks bench:patch`
 
 #### Step 4 STOP & COMMIT
@@ -3749,7 +3749,7 @@ completes: step 4 of 10 for jsonpath-performance-optimization-v2
 
 #### Step 5.1 — Replace `packages/jsonpath/merge-patch/src/merge-patch.ts` (Step 5 state)
 
-- [ ] Copy and paste code below into `packages/jsonpath/merge-patch/src/merge-patch.ts`:
+- [x] Copy and paste code below into `packages/jsonpath/merge-patch/src/merge-patch.ts`:
 
 ```ts
 import { deepEqual } from '@jsonpath/core';
@@ -3863,8 +3863,8 @@ export function createMergePatch(source: any, target: any): any {
 
 ##### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/merge-patch test`
-- [ ] `pnpm --filter @jsonpath/merge-patch type-check`
+- [x] `pnpm --filter @jsonpath/merge-patch test` — 11 passed (11)
+- [x] `pnpm --filter @jsonpath/merge-patch type-check` — Success
 - [ ] Optional: `pnpm --filter @jsonpath/benchmarks bench --testNamePattern='Merge Patch'`
 
 #### Step 5 STOP & COMMIT
@@ -3889,7 +3889,7 @@ This aligns merge-patch with the shared cloning strategy without reintroducing `
 
 #### Step 6.1 — Replace `packages/jsonpath/merge-patch/src/merge-patch.ts` (Step 6 state)
 
-- [ ] Copy and paste code below into `packages/jsonpath/merge-patch/src/merge-patch.ts`:
+- [x] Copy and paste code below into `packages/jsonpath/merge-patch/src/merge-patch.ts`:
 
 ```ts
 import { deepEqual, fastDeepClone } from '@jsonpath/core';
@@ -3993,7 +3993,7 @@ export function createMergePatch(source: any, target: any): any {
 
 ##### Step 6 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/merge-patch test`
+- [x] `pnpm --filter @jsonpath/merge-patch test` — 11 passed (11)
 
 #### Step 6 STOP & COMMIT
 

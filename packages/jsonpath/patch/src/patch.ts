@@ -82,13 +82,30 @@ function unescapePointer(s: string): string {
 	return s.replace(/~1/g, '/').replace(/~0/g, '~');
 }
 
-function parseTokens(ptr: string): string[] {
+function parseTokensImpl(ptr: string): string[] {
 	if (ptr === '') return [];
 	if (!ptr.startsWith('/')) {
 		throw new JSONPathError(`Invalid JSON Pointer: ${ptr}`, 'PATCH_ERROR');
 	}
-	// Keep empty segments (valid pointer into "" property)
 	return ptr.split('/').slice(1).map(unescapePointer);
+}
+
+const TOKEN_CACHE_MAX = 1000;
+const tokenCache = new Map<string, string[]>();
+
+function parseTokens(ptr: string): string[] {
+	const cached = tokenCache.get(ptr);
+	if (cached) return cached;
+
+	const tokens = parseTokensImpl(ptr);
+
+	if (tokenCache.size >= TOKEN_CACHE_MAX) {
+		const firstKey = tokenCache.keys().next().value as string | undefined;
+		if (firstKey !== undefined) tokenCache.delete(firstKey);
+	}
+
+	tokenCache.set(ptr, tokens);
+	return tokens;
 }
 
 function getAt(doc: any, tokens: string[]): any {
