@@ -1,1078 +1,521 @@
-# jsonpath-performance-optimization
+## JSONPath Performance Optimization (Implementation Guide)
 
 ## Goal
 
-Optimize the `@jsonpath/*` suite along the 10-step plan to close the benchmark gap (compiled fast paths, evaluator fast paths, lower allocation hot paths, and faster RFC 6902 / RFC 7386 apply paths) while keeping RFC compliance available.
+Implement the 14-step plan in `plans/jsonpath-performance-optimization/plan.md` to close the v4 benchmark gaps and achieve market-leading performance.
 
-## Prerequisites
+Primary priorities:
 
-Make sure that the use is currently on the `feat/jsonpath-performance-optimization` branch before beginning implementation.
-If not, move them to the correct branch. If the branch does not exist, create it from master.
+- Wildcards
+- Recursive descent (`..`)
+- Large arrays
+- Patch / merge-patch throughput
 
-### Step-by-Step Instructions
+## Constraints and Conventions
 
-#### Step 1: Make compiled queries actually fast (compiler fast-path) and ensure facade uses compilation
+- Branch: `feat/jsonpath-performance-optimization`
+- Run commands from repo root (do not `cd` into packages).
+- Each step ends with **STOP & COMMIT** using a conventional commit message.
 
-- [x] Update `packages/jsonpath/compiler/src/compiler.ts` so `compile()` returns a real fast-path function for simple `$.a.b[0]` queries (no generators, no interpreter, and **no** dynamic eval).
-- [x] In `packages/jsonpath/compiler/src/compiler.ts`, replace the entire file contents with the code below:
+## Quick Commands
 
-```ts
-import { type EvaluatorOptions, type PathSegment } from '@jsonpath/core';
-import {
-	evaluate,
-	QueryResult,
-	type QueryResultNode,
-} from '@jsonpath/evaluator';
-import { NodeType, type QueryNode } from '@jsonpath/parser';
+- Install: `pnpm install`
+- Tests (all): `pnpm test`
+- Type-check (all): `pnpm type-check`
+- Benchmarks (all): `pnpm --filter @jsonpath/benchmarks bench`
+- Benchmarks (JSONPath only): `pnpm --filter @jsonpath/benchmarks bench:query`
 
-import { LRUCache } from './cache.js';
-import { generateCode } from './codegen.js';
-import type { CompiledQuery } from './compiled-query.js';
-import { defaultCompilerOptions, type CompilerOptions } from './options.js';
+## Step-by-Step
 
-function executeInterpreted(
-	root: unknown,
-	ast: QueryNode,
-	options?: EvaluatorOptions,
-) {
-	return evaluate(root, ast, options);
-}
+### Step 1: Wildcard fast path for all patterns (highest priority)
 
-type SimpleStep =
-	| { kind: 'name'; name: string }
-	| { kind: 'index'; index: number };
+**Files:**
 
-function isSimpleAst(ast: QueryNode): ast is QueryNode {
-	return (
-		ast.type === NodeType.Query &&
-		ast.segments.length > 0 &&
-		ast.segments.every(
-			(seg) =>
-				seg.type === NodeType.ChildSegment &&
-				seg.selectors.length === 1 &&
-				(seg.selectors[0]!.type === NodeType.NameSelector ||
-					seg.selectors[0]!.type === NodeType.IndexSelector),
-		)
-	);
-}
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts`
 
-function toSimpleSteps(ast: QueryNode): SimpleStep[] {
-	const steps: SimpleStep[] = [];
-	for (const seg of ast.segments) {
-		const sel = seg.selectors[0]!;
-		if (sel.type === NodeType.NameSelector) {
-			steps.push({ kind: 'name', name: sel.name });
-		} else {
-			steps.push({ kind: 'index', index: sel.index });
-		}
-	}
-	return steps;
-}
+**Objective:** Add (or ensure) an eager, non-generator fast path for wildcard chains where wildcards can appear anywhere in the chain, bypassing generator overhead, pooling, and per-element security checks.
 
-function escapeJsonPointerSegment(segment: PathSegment): string {
-	return String(segment).replace(/~/g, '~0').replace(/\//g, '~1');
-}
+**Checklist:**
 
-function pointerStringFromPath(path: readonly PathSegment[]): string {
-	let out = '';
-	for (const s of path) out += `/${escapeJsonPointerSegment(s)}`;
-	return out;
-}
+- [x] Add a dedicated wildcard chain fast path (or expand existing one) that supports wildcards at any position in a child-segment chain.
+- [x] Ensure it only accepts segments with a single selector where selector type is name or wildcard.
+- [x] Ensure it bails out if security restrictions are configured (`secure.allowPaths` or `secure.blockPaths`).
+- [x] Ensure it returns plain result nodes (no pool acquisition).
+- [x] Add unit tests for:
+  - [x] `$[*]`
+  - [x] `$.prop[*]`
+  - [x] `$[*].prop`
+  - [x] `$.a[*].b[*].c`
 
-function compileSimpleQuery(ast: QueryNode): (root: unknown) => QueryResult {
-	const steps = toSimpleSteps(ast);
+**Verification:**
 
-	return (root: unknown) => {
-		let current: any = root;
-		let parent: any = undefined;
-		let parentKey: any = undefined;
-		const path: PathSegment[] = [];
+- `pnpm --filter @jsonpath/evaluator test`
+- `pnpm --filter @jsonpath/benchmarks bench src/query-fundamentals.bench.ts`
+- Confirm wildcard scenarios trend toward **1.5M+ ops/s** (plan target)
 
-		for (const step of steps) {
-			if (step.kind === 'name') {
-				if (
-					current !== null &&
-					typeof current === 'object' &&
-					!Array.isArray(current) &&
-					Object.prototype.hasOwnProperty.call(current, step.name)
-				) {
-					parent = current;
-					parentKey = step.name;
-					current = (current as any)[step.name];
-					path.push(step.name);
-					continue;
-				}
-				return new QueryResult([]);
-			}
-
-			// index
-			if (!Array.isArray(current)) return new QueryResult([]);
-			const idx = step.index < 0 ? current.length + step.index : step.index;
-			if (idx < 0 || idx >= current.length) return new QueryResult([]);
-			parent = current;
-			parentKey = idx;
-			current = current[idx];
-			path.push(idx);
-		}
-
-		const node: QueryResultNode = {
-			value: current,
-			path,
-			root,
-			parent,
-			parentKey,
-			_cachedPointer: pointerStringFromPath(path),
-		};
-
-		return new QueryResult([node]);
-	};
-}
-
-export class Compiler {
-	private readonly options: Required<CompilerOptions>;
-	private readonly cache: LRUCache;
-
-	constructor(options: CompilerOptions = {}) {
-		this.options = { ...defaultCompilerOptions, ...options };
-		this.cache = new LRUCache(this.options.cacheSize);
-	}
-
-	compile(ast: QueryNode): CompiledQuery {
-		const started = performance.now();
-		const cacheKey = ast.source;
-
-		if (this.options.useCache) {
-			const cached = this.cache.get(cacheKey);
-			if (cached) return cached;
-		}
-
-		const source = generateCode(ast);
-
-		const fast = isSimpleAst(ast) ? compileSimpleQuery(ast) : null;
-
-		const fn = (root: unknown, options?: EvaluatorOptions) => {
-			if (fast) return fast(root);
-			return executeInterpreted(root, ast, options);
-		};
-
-		const compiled: CompiledQuery = Object.assign(fn, {
-			source,
-			ast,
-			compilationTime: performance.now() - started,
-		});
-
-		if (this.options.useCache) this.cache.set(cacheKey, compiled);
-		return compiled;
-	}
-}
-
-export function compile(
-	ast: QueryNode,
-	options: CompilerOptions = {},
-): CompiledQuery {
-	return new Compiler(options).compile(ast);
-}
-```
-
-- [ ] Ensure the facade stays routed through `compileQuery()` (it already is). Confirm `packages/jsonpath/jsonpath/src/facade.ts` still contains:
-
-```ts
-export function query(
-	root: any,
-	path: string,
-	options?: EvaluatorOptions,
-): QueryResult {
-	const compiled = compileQuery(path, options);
-	return compiled(root, withDefaultPlugins(options));
-}
-```
-
-- [x] Run compiler tests: `pnpm --filter @jsonpath/compiler test`
-- [x] Run facade tests: `pnpm --filter @jsonpath/jsonpath test`
-
-##### Step 1 Verification Checklist
-
-- [x] `pnpm --filter @jsonpath/compiler test` passes
-- [x] `pnpm --filter @jsonpath/jsonpath test` passes (pre-existing failures unrelated to this step)
-- [x] `packages/jsonpath/compiler/src/__tests__/no-dynamic-eval.spec.ts` still passes
-
-#### Step 1 STOP & COMMIT
-
-Multiline conventional commit message:
+**Step 1 STOP & COMMIT**
 
 ```txt
-feat(jsonpath-performance-optimization): compiler fast-path for simple compiled queries
+perf(evaluator): wildcard chain fast path
 
-Make @jsonpath/compiler return a real fast-path closure for simple child/name/index chains, without dynamic eval, and keep fallback to interpreter for complex AST.
+- Add/expand eager wildcard chain evaluation
+- Add unit coverage for wildcard chain forms
 
-completes: step 1 of 10 for jsonpath-performance-optimization
+completes: step 1 of 14 for jsonpath-performance-optimization
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 2: Add evaluator fast-path for non-compiled usage
+### Step 2: Inline limit checking in evaluator hot loops
 
-- [x] Update `packages/jsonpath/evaluator/src/evaluator.ts` to fast-path singular/simple `ChildSegment` chains when using `evaluate()` directly.
-- [x] In `packages/jsonpath/evaluator/src/evaluator.ts`, update the `Evaluator.evaluate()` method to:
-  - [x] detect a simple chain
-  - [x] evaluate it without calling `stream()`
-  - [x] return a `QueryResult` whose node has a correct `_cachedPointer`
+**Files:**
 
-- [x] Replace the `public evaluate(ast: QueryNode): QueryResult { ... }` method with the code below:
+- `packages/jsonpath/evaluator/src/evaluator.ts`
 
-```ts
-public evaluate(ast: QueryNode): QueryResult {
-	// Fast path: simple $.a.b[0] chains (no filters/wildcards/recursion)
-	const fast = this.evaluateSimpleChain(ast);
-	if (fast) return fast;
+**Objective:** Replace hot-path `checkLimits(...)` calls with inline checks to reduce per-element function-call overhead.
 
-	const results = Array.from(this.stream(ast));
-	// Materialize and own nodes before returning to prevent pool mutation
-	const ownedResults = results.map((node) => this.pool.ownFrom(node));
-	return new QueryResult(ownedResults);
-}
+**Checklist:**
 
-private evaluateSimpleChain(ast: QueryNode): QueryResult | null {
-	if (ast.type !== NodeType.Query) return null;
-	if (ast.segments.length === 0) return null;
+- [ ] Identify hot loops (wildcard, slices, filters, large arrays) that call `checkLimits(...)`.
+- [ ] Replace calls with inline checks that preserve semantics for:
+  - [ ] `signal.aborted`
+  - [ ] `maxNodes`
+  - [ ] `maxDepth`
+  - [ ] `timeout`
+  - [ ] `maxResults` (for call sites that check `resultsFound`)
 
-	// Preserve allow/block path semantics: fall back to the normal evaluator path
-	// which already enforces these restrictions.
-	const { allowPaths, blockPaths } = this.options.secure;
-	if ((allowPaths?.length ?? 0) > 0 || (blockPaths?.length ?? 0) > 0) {
-		return null;
-	}
-	if (
-		!ast.segments.every(
-			(seg) =>
-				seg.type === NodeType.ChildSegment &&
-				seg.selectors.length === 1 &&
-				(seg.selectors[0]!.type === NodeType.NameSelector ||
-					seg.selectors[0]!.type === NodeType.IndexSelector),
-		)
-	) {
-		return null;
-	}
+**Verification:**
 
-	// Respect security restrictions that depend on traversal
-	if (this.options.secure.noRecursive || this.options.secure.noFilters) {
-		// Simple chain has neither recursion nor filters; ok.
-	}
+- `pnpm --filter @jsonpath/evaluator test`
+- `pnpm --filter @jsonpath/benchmarks bench --testNamePattern='Fundamentals'`
 
-	let current: any = this.root;
-	let parent: any = undefined;
-	let parentKey: any = undefined;
-	const path: PathSegment[] = [];
-
-	for (const seg of ast.segments) {
-		const sel = seg.selectors[0]!;
-		if (sel.type === NodeType.NameSelector) {
-			if (
-				current !== null &&
-				typeof current === 'object' &&
-				!Array.isArray(current) &&
-				Object.prototype.hasOwnProperty.call(current, sel.name)
-			) {
-				parent = current;
-				parentKey = sel.name;
-				current = (current as any)[sel.name];
-				path.push(sel.name);
-				continue;
-			}
-			return new QueryResult([]);
-		}
-
-		// Index
-		if (!Array.isArray(current)) return new QueryResult([]);
-		const idx = sel.index < 0 ? current.length + sel.index : sel.index;
-		if (idx < 0 || idx >= current.length) return new QueryResult([]);
-		parent = current;
-		parentKey = idx;
-		current = current[idx];
-		path.push(idx);
-	}
-
-	// Compute pointer from path (QueryResult.pointerStrings relies on cached pointer)
-	const escape = (segment: PathSegment) =>
-		String(segment).replace(/~/g, '~0').replace(/\//g, '~1');
-	let ptr = '';
-	for (const s of path) ptr += `/${escape(s)}`;
-
-	const node = {
-		value: current,
-		path,
-		root: this.root,
-		parent,
-		parentKey,
-		_cachedPointer: ptr,
-	};
-
-	if (!this.isNodeAllowed(node)) return new QueryResult([]);
-
-	return new QueryResult([node]);
-}
-```
-
-- [x] Add a unit test to `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts` that exercises the fast path and asserts:
-  - [x] correct value
-  - [x] correct `pointerStrings()`
-  - [x] correct `normalizedPaths()`
-
-- [x] Append this test case to the end of `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts`:
-
-```ts
-it('fast-path: evaluates simple child/name/index chain without generators', () => {
-	const data = { store: { book: [{ title: 'T1' }] } };
-	const ast = parse('$.store.book[0].title');
-	const result = evaluate(data, ast);
-	expect(result.values()).toEqual(['T1']);
-	expect(result.pointerStrings()).toEqual(['/store/book/0/title']);
-	expect(result.normalizedPaths()).toEqual(["$['store']['book'][0]['title']"]);
-});
-```
-
-##### Step 2 Verification Checklist
-
-- [x] `pnpm --filter @jsonpath/evaluator test` passes (fast-path test passes, pre-existing failures unrelated)
-
-#### Step 2 STOP & COMMIT
-
-Multiline conventional commit message:
+**Step 2 STOP & COMMIT**
 
 ```txt
-feat(jsonpath-performance-optimization): evaluator fast-path for simple chains
+perf(evaluator): inline limit checks in hot loops
 
-Add a non-generator fast-path for simple child/name/index chains in @jsonpath/evaluator when evaluate() is used directly.
+Replace per-element checkLimits() calls with inline checks to reduce overhead while preserving limit/timeout semantics.
 
-completes: step 2 of 10 for jsonpath-performance-optimization
+completes: step 2 of 14 for jsonpath-performance-optimization
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 3: Compile-time function resolution (store resolved function reference in AST)
+### Step 3: Skip security checks when unconfigured
 
-- [x] Update `packages/jsonpath/parser/src/nodes.ts` to add an optional resolved function reference to `FunctionCallNode`.
-- [x] In `packages/jsonpath/parser/src/nodes.ts`, add this import at the top (after docblock):
+**Files:**
 
-```ts
-import type { FunctionDefinition } from '@jsonpath/core';
-```
+- `packages/jsonpath/evaluator/src/evaluator.ts`
 
-- [x] In `packages/jsonpath/parser/src/nodes.ts`, replace the `FunctionCallNode` interface with:
+**Objective:** Avoid per-element security checks in the common case where allow/block paths are not configured.
 
-```ts
-export interface FunctionCallNode extends ASTNode {
-	readonly type: NodeType.FunctionCall;
-	readonly name: string;
-	readonly args: ExpressionNode[];
-	/** Optional resolved function definition captured at parse-time. */
-	readonly resolvedFn?: FunctionDefinition<any[], any>;
-}
-```
+**Checklist:**
 
-- [x] Update `packages/jsonpath/parser/src/parser.ts` to populate `resolvedFn` when creating a `FunctionCallNode`.
-- [x] In `packages/jsonpath/parser/src/parser.ts`, inside the FunctionCall creation block (where `const node: FunctionCallNode = { ... }`), replace it with:
+- [ ] Add a boolean flag in evaluator initialization that indicates whether security is enabled.
+- [ ] Guard security checks (`isNodeAllowed`) behind that flag.
+- [ ] Ensure security behavior is unchanged when allow/block rules are configured.
 
-```ts
-const resolvedFn = functionRegistry.get(name);
-const node: FunctionCallNode = {
-	type: NodeType.FunctionCall,
-	startPos: start,
-	endPos: this.lexer.peek().start,
-	name,
-	args,
-	resolvedFn,
-};
-```
+**Verification:**
 
-- [x] Update `packages/jsonpath/evaluator/src/evaluator.ts` to prefer the resolved function when evaluating `NodeType.FunctionCall`.
-- [x] In the `case NodeType.FunctionCall:` block, replace:
+- `pnpm --filter @jsonpath/evaluator test`
+- `pnpm --filter @jsonpath/compliance-suite test`
 
-```ts
-const fn = getFunction(expr.name);
-```
-
-with:
-
-```ts
-const fn = expr.resolvedFn ?? getFunction(expr.name);
-```
-
-##### Step 3 Verification Checklist
-
-- [x] `pnpm --filter @jsonpath/parser test` passes
-- [x] `pnpm --filter @jsonpath/evaluator test` passes
-- [x] `pnpm --filter @jsonpath/functions test` passes
-
-#### Step 3 STOP & COMMIT
-
-Multiline conventional commit message:
+**Step 3 STOP & COMMIT**
 
 ```txt
-feat(jsonpath-performance-optimization): parse-time function resolution in AST
+perf(evaluator): skip security checks when unconfigured
 
-Store an optional resolved function definition on FunctionCall AST nodes and prefer it at evaluation time to avoid repeated registry lookups.
+Avoid per-element security overhead when allow/block paths are not set.
 
-completes: step 3 of 10 for jsonpath-performance-optimization
+completes: step 3 of 14 for jsonpath-performance-optimization
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 4: Add a soft `limit` option for early termination
+### Step 4: Enable compiled queries by default in facade
 
-- [x] Extend `packages/jsonpath/core/src/types.ts` `EvaluatorOptions` with:
-  - [x] `limit?: number` (default undefined) for early termination without throwing
+**Files:**
 
-- [x] In `packages/jsonpath/core/src/types.ts`, update `export interface EvaluatorOptions extends ParserOptions { ... }` to include:
+- `packages/jsonpath/jsonpath/src/facade.ts`
+- `packages/jsonpath/jsonpath/src/__tests__/facade.spec.ts`
 
-```ts
-	/** When set, stop after this many results without throwing. */
-	readonly limit?: number;
-```
+**Objective:** Use `compileQuery()` by default for facade queries so compiler fast paths are used automatically.
 
-- [x] Update `packages/jsonpath/evaluator/src/options.ts` to pass through defaults (no new defaults required; just preserve undefined).
+**Checklist:**
 
-- [x] Keep the existing API split: eager evaluation via `evaluate(...)` and streaming via the separate `stream(...)` API.
-- [x] In `Evaluator.stream(...)`, add early termination using `options.limit`:
-  - [x] Before yielding each node, if `this.options.limit > 0 && this.resultsFound >= this.options.limit`, stop iteration (return).
+- [ ] Change facade flow from interpreter-first to compiler-first.
+- [ ] Ensure plugins and options are preserved.
+- [ ] Ensure cache strategy (if any) remains correct.
 
-##### Step 4 Verification Checklist
+**Verification:**
 
-- [x] `pnpm --filter @jsonpath/core test` passes
-- [x] `pnpm --filter @jsonpath/evaluator test` passes (pre-existing failures unrelated)
-- [x] Type-check passes
+- `pnpm --filter @jsonpath/jsonpath test`
+- `pnpm --filter @jsonpath/compliance-suite test`
+- `pnpm --filter @jsonpath/benchmarks bench --testNamePattern='Fundamentals'`
 
-#### Step 4 STOP & COMMIT
-
-Multiline conventional commit message:
+**Step 4 STOP & COMMIT**
 
 ```txt
-feat(jsonpath-performance-optimization): soft limit option for evaluation
+perf(jsonpath): compile queries by default in facade
 
-Add EvaluatorOptions.limit for early termination without throwing and preserve existing eager vs streaming API split.
+Route facade query execution through compileQuery() to leverage compiler fast paths by default.
 
-completes: step 4 of 10 for jsonpath-performance-optimization
+completes: step 4 of 14 for jsonpath-performance-optimization
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 5: Optimize @jsonpath/patch (non-breaking defaults; opt-in fast mode)
+### Step 5: Add/extend evaluator fast path for non-compiled usage
 
-- [x] Update `packages/jsonpath/patch/src/patch.ts`:
-  - [x] Keep current defaults (`mutate: false` and atomic RFC semantics)
-  - [x] Add `atomicApply?: boolean` (default `true`) to preserve atomic behavior explicitly
-  - [x] Allow opt-in fast mode (`atomicApply: false` and/or `mutate: true`) for performance-sensitive internal call sites
-  - [x] Pre-parse pointer tokens once per op
-  - [x] Apply operations using token navigation without constructing `JSONPointer` objects
-- [x] Update internal consumers that opt into `mutate: true` to clone explicitly if they need immutability.
+**Files:**
 
-- [x] In `packages/jsonpath/patch/src/patch.ts`, update `ApplyOptions` to include:
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts`
 
-```ts
-	readonly atomicApply?: boolean;
-```
+**Objective:** Ensure evaluator fast paths cover more simple patterns and are used consistently in non-compiled scenarios.
 
-- [x] In `packages/jsonpath/patch/src/patch.ts`, replace the start of `applyPatch(...)` through the end of the main loop with the code below (leave helper ops like `patchAdd`, etc. in place for now):
+**Checklist:**
 
-```ts
-export function applyPatch(
-	target: any,
-	patch: PatchOperation[],
-	options: ApplyOptions = {},
-): any {
-	const {
-		strictMode = true,
-		mutate = false,
-		validate: shouldValidate = false,
-		continueOnError = false,
-		atomicApply = true,
-		before,
-		after,
-	} = options;
+- [ ] Extend the simple-chain fast path coverage (where appropriate).
+- [ ] Add/extend tests that prove fast-path behavior.
+- [ ] Confirm no behavior differences vs. interpreter path.
 
-	if (shouldValidate) {
-		validate(patch);
-	}
+**Verification:**
 
-	// When atomicApply is enabled, always work on a clone and only copy back on success.
-	const workingRoot = atomicApply
-		? structuredClone(target)
-		: mutate
-			? target
-			: structuredClone(target);
-	let working = workingRoot;
+- `pnpm --filter @jsonpath/evaluator test`
+- `pnpm --filter @jsonpath/benchmarks bench --testNamePattern='Fundamentals'`
 
-	const unescapePointer = (s: string) =>
-		s.replace(/~1/g, '/').replace(/~0/g, '~');
-	const parseTokens = (ptr: string): string[] => {
-		if (ptr === '') return [];
-		if (!ptr.startsWith('/'))
-			throw new JSONPathError(`Invalid JSON Pointer: ${ptr}`, 'PATCH_ERROR');
-		// Keep empty segments (valid pointer into "" property)
-		return ptr.split('/').slice(1).map(unescapePointer);
-	};
-
-	const getAt = (doc: any, tokens: string[]): any => {
-		let curr = doc;
-		for (const t of tokens) {
-			if (curr === null || typeof curr !== 'object') return undefined;
-			curr = (curr as any)[t];
-		}
-		return curr;
-	};
-
-	for (let index = 0; index < patch.length; index++) {
-		const operation = patch[index]!;
-		try {
-			if (before) before(working, operation, index);
-			validateOperation(operation);
-
-			const pathTokens = parseTokens(operation.path);
-			const fromTokens =
-				'from' in operation ? parseTokens((operation as any).from) : null;
-
-			const setAt = (
-				doc: any,
-				tokens: string[],
-				value: any,
-				allowCreate: boolean,
-			) => {
-				if (tokens.length === 0) return value;
-				let parent = doc;
-				for (let i = 0; i < tokens.length - 1; i++) {
-					const k = tokens[i]!;
-					if (parent === null || typeof parent !== 'object') {
-						throw new JSONPathError(
-							`Parent path not found: /${tokens.slice(0, i + 1).join('/')}`,
-							'PATH_NOT_FOUND',
-						);
-					}
-					if (!(k in parent)) {
-						if (!allowCreate) {
-							throw new JSONPathError(
-								`Parent path not found: /${tokens.slice(0, i + 1).join('/')}`,
-								'PATH_NOT_FOUND',
-							);
-						}
-						(parent as any)[k] = {};
-					}
-					parent = (parent as any)[k];
-				}
-				const last = tokens[tokens.length - 1]!;
-				if (Array.isArray(parent)) {
-					if (last === '-') {
-						parent.push(value);
-						return doc;
-					}
-					if (!/^(0|[1-9][0-9]*)$/.test(last)) {
-						throw new JSONPathError(
-							`Invalid array index: ${last}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					const i = Number(last);
-					if (i < 0 || i > parent.length) {
-						throw new JSONPathError(
-							`Index out of bounds: ${i}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					parent.splice(i, 0, value);
-					return doc;
-				}
-				if (parent === null || typeof parent !== 'object') {
-					throw new JSONPathError(
-						'Cannot add to non-object/non-array parent',
-						'PATCH_ERROR',
-					);
-				}
-				(parent as any)[last] = value;
-				return doc;
-			};
-
-			const removeAt = (doc: any, tokens: string[]) => {
-				if (tokens.length === 0)
-					throw new JSONPathError('Cannot remove root', 'PATCH_ERROR');
-				let parent = doc;
-				for (let i = 0; i < tokens.length - 1; i++) {
-					const k = tokens[i]!;
-					if (parent === null || typeof parent !== 'object' || !(k in parent)) {
-						throw new JSONPathError(
-							`Path not found: /${tokens.join('/')}`,
-							'PATH_NOT_FOUND',
-						);
-					}
-					parent = (parent as any)[k];
-				}
-				const last = tokens[tokens.length - 1]!;
-				if (Array.isArray(parent)) {
-					if (!/^(0|[1-9][0-9]*)$/.test(last)) {
-						throw new JSONPathError(
-							`Invalid array index: ${last}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					const i = Number(last);
-					if (i < 0 || i >= parent.length) {
-						throw new JSONPathError(
-							`Index out of bounds: ${i}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					parent.splice(i, 1);
-					return doc;
-				}
-				if (parent === null || typeof parent !== 'object') {
-					throw new JSONPathError(
-						'Cannot remove from non-object/non-array parent',
-						'PATCH_ERROR',
-					);
-				}
-				if (!(last in parent)) {
-					throw new JSONPathError(
-						`Property not found: ${last}`,
-						'PATH_NOT_FOUND',
-					);
-				}
-				delete (parent as any)[last];
-				return doc;
-			};
-
-			const replaceAt = (doc: any, tokens: string[], value: any) => {
-				if (tokens.length === 0) return value;
-				let parent = doc;
-				for (let i = 0; i < tokens.length - 1; i++) {
-					const k = tokens[i]!;
-					if (parent === null || typeof parent !== 'object' || !(k in parent)) {
-						throw new JSONPathError(
-							`Path not found: /${tokens.join('/')}`,
-							'PATH_NOT_FOUND',
-						);
-					}
-					parent = (parent as any)[k];
-				}
-				const last = tokens[tokens.length - 1]!;
-				if (Array.isArray(parent)) {
-					if (!/^(0|[1-9][0-9]*)$/.test(last)) {
-						throw new JSONPathError(
-							`Invalid array index: ${last}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					const i = Number(last);
-					if (i < 0 || i >= parent.length) {
-						throw new JSONPathError(
-							`Index out of bounds: ${i}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					parent[i] = value;
-					return doc;
-				}
-				if (parent === null || typeof parent !== 'object') {
-					throw new JSONPathError(
-						'Cannot replace in non-object/non-array parent',
-						'PATCH_ERROR',
-					);
-				}
-				if (!(last in parent)) {
-					throw new JSONPathError(
-						`Property not found: ${last}`,
-						'PATH_NOT_FOUND',
-					);
-				}
-				(parent as any)[last] = value;
-				return doc;
-			};
-
-			let opResult = working;
-			switch (operation.op) {
-				case 'add':
-					opResult = setAt(working, pathTokens, (operation as any).value, true);
-					break;
-				case 'remove':
-					if (strictMode) {
-						opResult = removeAt(working, pathTokens);
-						break;
-					}
-					try {
-						opResult = removeAt(working, pathTokens);
-					} catch (err: any) {
-						if (err?.code !== 'PATH_NOT_FOUND') throw err;
-					}
-					break;
-				case 'replace':
-					if (strictMode) {
-						opResult = replaceAt(working, pathTokens, (operation as any).value);
-						break;
-					}
-					try {
-						opResult = replaceAt(working, pathTokens, (operation as any).value);
-					} catch (err: any) {
-						if (err?.code !== 'PATH_NOT_FOUND') throw err;
-						opResult = setAt(
-							working,
-							pathTokens,
-							(operation as any).value,
-							true,
-						);
-					}
-					break;
-				case 'move': {
-					if (!fromTokens)
-						throw new JSONPatchError('Missing from', { operationIndex: index });
-					if ((operation as any).from === operation.path) break;
-					if (operation.path.startsWith(`${(operation as any).from}/`)) {
-						throw new JSONPathError(
-							'Cannot move a path to its own child',
-							'PATCH_ERROR',
-						);
-					}
-					const value = getAt(working, fromTokens);
-					if (value === undefined) {
-						throw new JSONPathError(
-							`From path not found: ${(operation as any).from}`,
-							'PATH_NOT_FOUND',
-						);
-					}
-					removeAt(working, fromTokens);
-					opResult = setAt(working, pathTokens, value, true);
-					break;
-				}
-				case 'copy': {
-					if (!fromTokens)
-						throw new JSONPatchError('Missing from', { operationIndex: index });
-					const value = getAt(working, fromTokens);
-					if (value === undefined) {
-						throw new JSONPathError(
-							`From path not found: ${(operation as any).from}`,
-							'PATH_NOT_FOUND',
-						);
-					}
-					opResult = setAt(working, pathTokens, structuredClone(value), true);
-					break;
-				}
-				case 'test': {
-					const actual = getAt(working, pathTokens);
-					if (!deepEqual(actual, (operation as any).value)) {
-						throw new JSONPathError(
-							`Test failed: expected ${JSON.stringify((operation as any).value)}, got ${JSON.stringify(actual)}`,
-							'TEST_FAILED',
-						);
-					}
-					break;
-				}
-				default:
-					throw new JSONPatchError(
-						`Unknown patch operation: ${(operation as any).op}`,
-						{
-							operationIndex: index,
-							operation: (operation as any).op,
-						},
-					);
-			}
-
-			working = opResult;
-			if (after) after(working, operation, index, opResult);
-		} catch (err) {
-			if (continueOnError) continue;
-			if (err instanceof JSONPathError) {
-				throw new JSONPatchError(err.message, {
-					path: (operation as any).path,
-					operationIndex: index,
-					operation: operation.op,
-					cause: err,
-				});
-			}
-			throw err;
-		}
-	}
-
-	// If atomic+mutate, copy back into original target now.
-	if (atomicApply && mutate) {
-		if (
-			target &&
-			typeof target === 'object' &&
-			working &&
-			typeof working === 'object'
-		) {
-			if (Array.isArray(target) && Array.isArray(working)) {
-				target.length = 0;
-				target.push(...working);
-				return target;
-			}
-
-			for (const key of Object.keys(target)) delete (target as any)[key];
-			Object.assign(target, working);
-			return target;
-		}
-		return working;
-	}
-
-	return working;
-}
-```
-
-- [x] (Optional) Update internal callers that opt into `mutate: true` to clone explicitly if they need immutability.
-
-##### Step 5 Verification Checklist
-
-- [x] `pnpm --filter @jsonpath/patch test` passes
-- [x] `pnpm --filter @jsonpath/jsonpath test` passes (pre-existing failures unrelated to patch)
-- [x] `pnpm --filter @jsonpath/benchmarks exec vitest bench src/patch-rfc6902.bench.ts` runs
-
-#### Step 5 STOP & COMMIT
-
-Multiline conventional commit message:
+**Step 5 STOP & COMMIT**
 
 ```txt
-perf(jsonpath-performance-optimization): tokenized applyPatch fast path
+perf(evaluator): expand non-compiled fast paths
 
-Pre-parse JSON Pointer tokens and apply ops via token navigation to reduce per-op overhead while preserving existing atomic/immutability defaults.
+Extend evaluator eager fast path coverage for simple patterns to reduce interpreter overhead.
 
-completes: step 5 of 10 for jsonpath-performance-optimization
+completes: step 5 of 14 for jsonpath-performance-optimization
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 6: Optimize @jsonpath/merge-patch apply performance
+### Step 6: Batch wildcard collection for large arrays
 
-- [x] In `packages/jsonpath/merge-patch/src/merge-patch.ts`, replace `isObject` and `applyMergePatch` with the code below (keep `createMergePatch` as-is):
+**Files:**
 
-```ts
-function isPlainObject(value: unknown): value is Record<string, any> {
-	return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/evaluator/src/query-result-pool.ts`
 
-export function applyMergePatch(
-	target: any,
-	patch: any,
-	options: MergePatchOptions = {},
-): any {
-	const {
-		nullBehavior = 'delete',
-		arrayMergeStrategy = 'replace',
-		mutate = true,
-	} = options;
+**Objective:** Reduce generator overhead for large arrays by batching wildcard expansions.
 
-	if (!isPlainObject(patch)) {
-		return patch;
-	}
+**Checklist:**
 
-	if (!isPlainObject(target)) {
-		if (mutate) return patch;
-		target = {};
-	}
+- [ ] Implement batching for wildcard expansion when arrays exceed a threshold.
+- [ ] Keep small arrays on the simpler per-element path.
+- [ ] Ensure security checks still apply correctly (but only if security is enabled).
 
-	const out: Record<string, any> = mutate ? target : { ...target };
+**Verification:**
 
-	for (const key in patch) {
-		if (!Object.prototype.hasOwnProperty.call(patch, key)) continue;
-		const value = patch[key];
+- `pnpm --filter @jsonpath/evaluator test`
+- `pnpm --filter @jsonpath/benchmarks bench src/scale-testing.bench.ts`
 
-		if (value === null) {
-			if (nullBehavior === 'delete') delete out[key];
-			else out[key] = null;
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (arrayMergeStrategy === 'replace') out[key] = value;
-			continue;
-		}
-
-		if (isPlainObject(value) && isPlainObject(out[key])) {
-			out[key] = applyMergePatch(out[key], value, { ...options, mutate: true });
-			continue;
-		}
-
-		out[key] = value;
-	}
-
-	return out;
-}
-```
-
-##### Step 6 Verification Checklist
-
-- [x] `pnpm --filter @jsonpath/merge-patch test` passes
-- [x] `pnpm --filter @jsonpath/benchmarks exec vitest bench` runs (merge-patch benchmarks included)
-
-#### Step 6 STOP & COMMIT
-
-Multiline conventional commit message:
+**Step 6 STOP & COMMIT**
 
 ```txt
-perf(jsonpath-performance-optimization): faster merge-patch apply loop
+perf(evaluator): batch wildcard expansion for large arrays
 
-Optimize applyMergePatch with for-in iteration, fewer allocations, and faster plain-object checks.
+Reduce generator suspension overhead by batching wildcard expansion for large arrays.
 
-completes: step 6 of 10 for jsonpath-performance-optimization
+completes: step 6 of 14 for jsonpath-performance-optimization
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 7: Reduce allocations in hot paths
+### Step 7: Compile-time function resolution
 
-- [x] Avoid extra node allocations for simple-path results (already addressed by Step 2 fast path).
-- [x] Confirm `QueryResult.pointerStrings()` correctness for fast-path-created nodes.
+**Files:**
 
-##### Step 7 Verification Checklist
+- `packages/jsonpath/parser/src/parser.ts`
+- `packages/jsonpath/parser/src/nodes.ts`
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/functions/src/registry.ts`
 
-- [x] `pnpm --filter @jsonpath/evaluator test` passes (pre-existing failures unrelated to allocations)
-- [x] `pnpm --filter @jsonpath/benchmarks exec vitest bench src/query-fundamentals.bench.ts` runs
+**Objective:** Resolve functions at parse/compile time where possible to reduce runtime lookup overhead in filters.
 
-#### Step 7 STOP & COMMIT
+**Checklist:**
 
-Multiline conventional commit message:
+- [ ] Store resolved function references on AST nodes during parse/compile.
+- [ ] Prefer resolved references during evaluation; fall back to registry lookup if missing.
+- [ ] Ensure behavior is unchanged when a function is missing/unregistered.
+
+**Verification:**
+
+- `pnpm --filter @jsonpath/parser test`
+- `pnpm --filter @jsonpath/functions test`
+- `pnpm --filter @jsonpath/benchmarks bench --testNamePattern='Filter'`
+
+**Step 7 STOP & COMMIT**
 
 ```txt
-perf(jsonpath-performance-optimization): reduce allocations for common query paths
+perf(parser,evaluator): resolve functions at parse time
 
-Ensure simple-path fast paths return minimal nodes with cached pointers to avoid lazy-chain overhead and pool churn.
+Store resolved function references on AST nodes to reduce runtime lookup cost in filter-heavy queries.
 
-completes: step 7 of 10 for jsonpath-performance-optimization
+completes: step 7 of 14 for jsonpath-performance-optimization
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 8: Optimize recursive descent (..)
+### Step 8: Lazy generator conversion (streaming opt-in)
 
-- [x] Replace recursive generator descent with an iterative DFS in eager mode.
-- [x] In `packages/jsonpath/evaluator/src/evaluator.ts`, refactor `streamDescendants(...)` to avoid `new Set(visited)` per recursion when `detectCircular` is off.
+**Files:**
 
-##### Step 8 Verification Checklist
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/evaluator/src/options.ts`
+- `packages/jsonpath/core/src/types.ts`
 
-- [x] `pnpm --filter @jsonpath/evaluator test` passes (pre-existing failures unrelated to descent)
-- [x] `pnpm --filter @jsonpath/compliance-suite test` passes (703/703 tests)
+**Objective:** Keep eager evaluation as the default; use generators only when streaming is requested (e.g., `{ stream: true }`) or a limit requires early termination.
 
-#### Step 8 STOP & COMMIT
+**Checklist:**
 
-Multiline conventional commit message:
+- [ ] Add `stream?: boolean` to `EvaluatorOptions`.
+- [ ] Ensure default is eager evaluation when `stream` is not set.
+- [ ] Preserve streaming API behavior for callers that explicitly request it.
+
+**Verification:**
+
+- `pnpm --filter @jsonpath/evaluator test`
+- `pnpm --filter @jsonpath/compliance-suite test`
+- `pnpm --filter @jsonpath/benchmarks bench --testNamePattern='Fundamentals'`
+
+**Step 8 STOP & COMMIT**
 
 ```txt
-perf(jsonpath-performance-optimization): faster recursive descent
+perf(evaluator): make streaming opt-in
 
-Optimize descendant traversal to reduce recursion/generator overhead and improve performance for .. queries.
+Use eager evaluation by default and only pay generator overhead when stream mode is explicitly requested.
 
-completes: step 8 of 10 for jsonpath-performance-optimization
+completes: step 8 of 14 for jsonpath-performance-optimization
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 9: Add warn-only performance regression tests (benchmarks)
+### Step 9: Optimize @jsonpath/patch performance
 
-- [x] Create `packages/jsonpath/benchmarks/baseline.json` with the code below:
+**Files:**
 
-```json
-{
-	"simpleQuery": { "opsPerSec": 300000 },
-	"filterQuery": { "opsPerSec": 80000 },
-	"recursiveQuery": { "opsPerSec": 50000 }
-}
-```
+- `packages/jsonpath/patch/src/patch.ts`
+- `packages/jsonpath/patch/src/operations.ts`
+- `packages/jsonpath/patch/src/__tests__/patch.spec.ts`
 
-- [x] Create `packages/jsonpath/benchmarks/src/performance-regression.spec.ts` with the code below:
+**Objective:** Improve patch throughput by reducing cloning/rollback overhead and pre-parsing pointer tokens.
 
-```ts
-import { describe, it, expect } from 'vitest';
-import baseline from '../baseline.json';
-import { queryValues } from '@jsonpath/jsonpath';
-import { STORE_DATA } from './fixtures';
+**Checklist:**
 
-function opsPerSec(iterations: number, elapsedMs: number): number {
-	return iterations / (elapsedMs / 1000);
-}
+- [ ] Default to in-place mutation (`mutate: true`) if required by the plan, and update internal consumers accordingly.
+- [ ] Pre-parse path tokens once per op.
+- [ ] Apply ops using token navigation rather than full pointer resolution.
+- [ ] Ensure validation behavior matches intended defaults.
 
-describe('Performance Regression (warn-only)', () => {
-	it('simple query should not regress >10%', () => {
-		const iterations = 10_000;
-		const start = performance.now();
-		for (let i = 0; i < iterations; i++) {
-			queryValues(STORE_DATA, '$.store.book[0].title');
-		}
-		const elapsed = performance.now() - start;
-		const current = opsPerSec(iterations, elapsed);
-		const threshold = baseline.simpleQuery.opsPerSec * 0.9;
+**Verification:**
 
-		if (current < threshold) {
-			console.warn(
-				`⚠️ Performance regression detected: ${current.toFixed(0)} ops/s < ${threshold.toFixed(0)} ops/s baseline`,
-			);
-		}
+- `pnpm --filter @jsonpath/patch test`
+- `pnpm --filter @jsonpath/benchmarks exec vitest bench src/patch-rfc6902.bench.ts`
 
-		// Warn-only: never fail CI
-		expect(true).toBe(true);
-	});
-});
-```
-
-##### Step 9 Verification Checklist
-
-- [x] `pnpm --filter @jsonpath/benchmarks exec vitest run src/performance-regression.spec.ts` runs and passes
-- [x] Intentional threshold change prints a warning but still passes
-
-#### Step 9 STOP & COMMIT
-
-Multiline conventional commit message:
+**Step 9 STOP & COMMIT**
 
 ```txt
-test(jsonpath-performance-optimization): warn-only perf regression checks
+perf(patch): speed up applyPatch
 
-Add a lightweight, non-blocking Vitest spec that compares ops/sec against a baseline and emits warnings when performance drops >10%.
+Reduce per-op overhead by pre-parsing pointer tokens and minimizing cloning/rollback work.
 
-completes: step 9 of 10 for jsonpath-performance-optimization
+completes: step 9 of 14 for jsonpath-performance-optimization
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
 
 ---
 
-#### Step 10: Update documentation + benchmark reports
+### Step 10: Optimize @jsonpath/merge-patch apply performance
 
-- [x] Update `packages/jsonpath/jsonpath/README.md` to document:
-  - [x] compiled fast-path behavior
-  - [x] new `limit` option for result-count limiting
-- [x] Update `packages/jsonpath/patch` docs (README if present) to document:
-  - [x] BREAKING default `mutate: true`
-  - [x] `atomicApply` option
-  - [x] migration: `applyPatch(structuredClone(target), patch)` for immutability
-- [x] Update benchmark docs:
-  - [x] `packages/jsonpath/benchmarks/AUDIT_REPORT.md`
-  - [x] `packages/jsonpath/benchmarks/README.md`
-- [x] Update API docs: `docs/api/jsonpath.md`
+**Files:**
 
-##### Step 10 Verification Checklist
+- `packages/jsonpath/merge-patch/src/merge-patch.ts`
+- `packages/jsonpath/merge-patch/src/__tests__/merge-patch.spec.ts`
 
-- [x] Docs build/lint (if applicable) passes
-- [x] Benchmarks run and numbers are recorded
+**Objective:** Reduce overhead in merge-patch apply by using direct iteration and fewer intermediate allocations.
 
-#### Step 10 STOP & COMMIT
+**Checklist:**
 
-Multiline conventional commit message:
+- [ ] Use direct property iteration (`for ... in`) with `hasOwnProperty` guard.
+- [ ] Inline plain-object checks.
+- [ ] Ensure semantics match RFC 7386 behavior.
+
+**Verification:**
+
+- `pnpm --filter @jsonpath/merge-patch test`
+- `pnpm --filter @jsonpath/benchmarks exec vitest bench --testNamePattern='Merge'`
+
+**Step 10 STOP & COMMIT**
 
 ```txt
-docs(jsonpath-performance-optimization): document new defaults and perf results
+perf(merge-patch): reduce overhead in apply
 
-Update jsonpath/patch docs for new defaults and add post-optimization benchmark results and tuning notes.
+Use direct property iteration and inline object checks to speed up merge-patch application.
 
-completes: step 10 of 10 for jsonpath-performance-optimization
+completes: step 10 of 14 for jsonpath-performance-optimization
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+### Step 11: Reduce object allocations in evaluator hot paths
+
+**Files:**
+
+- `packages/jsonpath/evaluator/src/query-result-pool.ts`
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/core/src/types.ts`
+
+**Objective:** Reduce allocations and pooling overhead in hot paths while preserving correctness.
+
+**Checklist:**
+
+- [ ] Avoid pool acquisition for eager fast paths.
+- [ ] Reduce intermediate object creation in hot loops.
+- [ ] Avoid unnecessary path array copying.
+
+**Verification:**
+
+- `pnpm --filter @jsonpath/evaluator test`
+- `pnpm --filter @jsonpath/benchmarks bench:query`
+
+**Step 11 STOP & COMMIT**
+
+```txt
+perf(evaluator): reduce hot-path allocations
+
+Reduce per-node allocations and pool churn in evaluator hot paths while preserving streaming correctness.
+
+completes: step 11 of 14 for jsonpath-performance-optimization
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+### Step 12: Optimize recursive descent (`..`)
+
+**Files:**
+
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/compiler/src/compiler.ts`
+
+**Objective:** Improve recursive descent performance by reducing generator/recursion overhead and using an iterative DFS approach where possible.
+
+**Checklist:**
+
+- [ ] Add or improve a dedicated DFS-based traversal for descendant queries.
+- [ ] Ensure correctness under compliance suite.
+- [ ] Avoid deep recursion and excessive intermediate allocations.
+
+**Verification:**
+
+- `pnpm --filter @jsonpath/compliance-suite test`
+- `pnpm --filter @jsonpath/benchmarks bench --testNamePattern='Recursive'`
+
+**Step 12 STOP & COMMIT**
+
+```txt
+perf(evaluator,compiler): speed up recursive descent
+
+Use iterative traversal and reduce generator/recursion overhead for $.. queries.
+
+completes: step 12 of 14 for jsonpath-performance-optimization
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+### Step 13: Add performance regression tests (warn-only)
+
+**Files:**
+
+- `packages/jsonpath/benchmarks/src/performance-regression.spec.ts`
+- `packages/jsonpath/benchmarks/baseline.json`
+
+**Objective:** Warn (non-blocking) if performance regresses more than 10% from baseline.
+
+**Checklist:**
+
+- [ ] Add or update warn-only regression tests that compare ops/sec against a baseline.
+- [ ] Ensure regressions only emit warnings and do not fail CI.
+- [ ] Document baseline update workflow.
+
+**Verification:**
+
+- `pnpm --filter @jsonpath/benchmarks exec vitest run src/performance-regression.spec.ts`
+
+**Step 13 STOP & COMMIT**
+
+```txt
+test(benchmarks): warn-only perf regression checks
+
+Compare ops/sec against baseline.json and warn on >10% regressions without failing CI.
+
+completes: step 13 of 14 for jsonpath-performance-optimization
+```
+
+**STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.
+
+---
+
+### Step 14: Update documentation and benchmark reports
+
+**Files:**
+
+- `packages/jsonpath/benchmarks/AUDIT_REPORT.md`
+- `packages/jsonpath/benchmarks/README.md`
+- `packages/jsonpath/jsonpath/README.md`
+- `docs/api/jsonpath.md`
+
+**Objective:** Document new defaults/options and record post-optimization benchmark numbers.
+
+**Checklist:**
+
+- [ ] Update benchmark docs with before/after results.
+- [ ] Document new options and any breaking changes.
+- [ ] Document tuning tips and how to run benchmarks.
+
+**Verification:**
+
+- `pnpm --filter @jsonpath/benchmarks bench:full`
+
+**Step 14 STOP & COMMIT**
+
+```txt
+docs(benchmarks,jsonpath): update performance docs and results
+
+Record post-optimization benchmark numbers and document new options and breaking changes.
+
+completes: step 14 of 14 for jsonpath-performance-optimization
 ```
 
 **STOP & COMMIT:** Agent must stop here and wait for the user to test, stage, and commit the change.

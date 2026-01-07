@@ -1,5 +1,339 @@
 <!-- markdownlint-disable-file -->
 
+# Task Research Notes: JSONPath Performance Optimization Plan (plans/jsonpath-performance-optimization/plan.md)
+
+This note is constrained to facts verified by direct file reads, workspace searches, and tool-based external doc retrieval in this workspace on 2026-01-06.
+
+## Research Executed
+
+### File Analysis
+
+- plans/jsonpath-performance-optimization/plan.md
+  - Plan steps 1–14, intended performance targets, and per-step “Files” lists.
+
+- package.json
+  - Monorepo tooling (pnpm + Turborepo) and root scripts.
+
+- turbo.json
+  - Task dependency graph (notably `test` depends on `^build`).
+
+- vitest.config.ts
+  - Root Vitest multi-project setup (per-package `vitest.config.ts`).
+
+- packages/jsonpath/evaluator/package.json
+  - Per-package scripts (`test`, `type-check`, etc).
+
+- packages/jsonpath/jsonpath/package.json
+  - Per-package scripts (`test`, `type-check`, etc).
+
+- packages/jsonpath/parser/package.json
+  - Per-package scripts (`test`, `type-check`, etc).
+
+- packages/jsonpath/functions/package.json
+  - Per-package scripts (`test`, `type-check`, etc).
+
+- packages/jsonpath/patch/package.json
+  - Per-package scripts (`test`, `type-check`, etc).
+
+- packages/jsonpath/merge-patch/package.json
+  - Per-package scripts (`test`, `type-check`, etc).
+
+- packages/jsonpath/compliance-suite/package.json
+  - Compliance suite scripts (`test`) and napa-based dependency sync.
+
+- packages/jsonpath/evaluator/src/evaluator.ts
+  - Eager evaluation uses two fast paths (`evaluateSimpleChain`, `evaluateWildcardChain`) before materializing `Array.from(this.stream(ast))`.
+  - `isNodeAllowed` is compiled to a no-op function when allow/block paths are empty.
+  - Filter function calls prefer `expr.resolvedFn ?? getFunction(expr.name)`.
+
+- packages/jsonpath/compiler/src/compiler.ts
+  - Compiler attempts specialized fast paths (`compileSimpleQuery`, `compileWildcardChainQuery`, `compileSimpleRecursiveQuery`).
+  - If no specialized fast path, it attempts to build an executable function from generated code via `new Function(...)`.
+  - `requiresInterpreter(options)` gates to interpreter when limits/hooks/security restrictions are configured.
+
+- packages/jsonpath/parser/src/nodes.ts
+  - `FunctionCallNode` includes `resolvedFn?: FunctionDefinition`.
+
+- packages/jsonpath/parser/src/parser.ts
+  - Parser stores `resolvedFn` from `functionRegistry.get(name)` directly on `FunctionCallNode`.
+
+- packages/jsonpath/patch/src/patch.ts
+  - `applyPatch` defaults: `strictMode = true`, `mutate = false`, `atomicApply = true`, `validate = false`.
+  - When `atomicApply` is enabled, it applies against a clone and only copies back on success.
+  - JSON Pointer token parsing handles `~1` and `~0` unescaping; supports `""` root pointer (empty string).
+
+- packages/jsonpath/benchmarks/package.json
+  - Bench scripts are `vitest bench` and includes `type-check`.
+
+### Code Search Results
+
+- evaluate wildcard and simple fast paths
+  - `evaluateSimpleChain` / `evaluateWildcardChain` located in packages/jsonpath/evaluator/src/evaluator.ts
+
+- compiler fast-path selection / recursive fast path
+  - `isWildcardChainAst`, `compileSimpleRecursiveQuery`, `requiresInterpreter` located in packages/jsonpath/compiler/src/compiler.ts
+
+- parser function resolution
+  - `resolvedFn` field defined in packages/jsonpath/parser/src/nodes.ts
+  - `resolvedFn` assignment located in packages/jsonpath/parser/src/parser.ts
+
+- patch defaults and options
+  - `applyPatch` defaults and `atomicApply` behavior located in packages/jsonpath/patch/src/patch.ts
+
+- benchmark scripting and perf regression spec mention
+  - `bench` scripts in packages/jsonpath/benchmarks/package.json
+  - `performance-regression` references in packages/jsonpath/benchmarks/README.md and artifacts under packages/jsonpath/benchmarks/
+
+### External Research
+
+- #fetch:https://www.rfc-editor.org/rfc/rfc6901
+  - Defines JSON Pointer syntax as `""` (whole document) or `/(token)*` with escape decoding `~1` → `/` then `~0` → `~`.
+  - Array token `"-"` refers to the (nonexistent) element after the last item (application must define behavior).
+
+- #fetch:https://www.rfc-editor.org/rfc/rfc6902
+  - Defines JSON Patch as an array of operations applied sequentially; operations include `add/remove/replace/move/copy/test`.
+  - `add` supports `"-"` to append to arrays; `remove`/`replace` require target to exist.
+  - Error handling: when a patch operation fails, evaluation should terminate and “entire patch document shall not be deemed successful”; HTTP PATCH is specified as atomic.
+
+- #fetch:https://www.rfc-editor.org/rfc/rfc7386
+  - Defines JSON Merge Patch algorithm via `MergePatch(Target, Patch)` pseudocode:
+    - If Patch is an object, recursively apply name/value pairs; `null` removes a member.
+    - If Patch is not an object, result is Patch (full replacement).
+  - Notes the spec is “Obsoleted by RFC 7396” on the RFC Editor page.
+
+- Vitest (Context7: /vitest-dev/vitest/v4.0.7)
+  - `vitest bench --outputJson <file>` and `vitest bench --compare <baseline.json>` support storing and comparing benchmark results.
+  - Performance tuning options include `--pool=threads|forks` and `--no-isolate`.
+
+- TypeScript docs (Context7: /microsoft/typescript-website)
+  - `--noEmit` is a standard mode for “type-check only”.
+  - Incremental builds can be combined with `--noEmit` (producing `.tsbuildinfo`).
+
+### Project Conventions
+
+- Standards referenced: AGENTS.md (pnpm + Turborepo conventions, “do not cd into subdirectory”, use `pnpm --filter`).
+- Instructions followed: Task Researcher mode (research-only), jsonpath packages are ESM + Vitest.
+
+## Key Discoveries
+
+### Project Structure
+
+- Monorepo uses pnpm workspaces and Turborepo.
+- Relevant workspaces in this plan are under `packages/jsonpath/*`.
+- Testing is per-package via Vitest (`vitest run`).
+- Benchmarks are authored with Vitest benches (`vitest bench`).
+
+### Implementation Patterns
+
+- Evaluator design is “streaming first” internally, but eager `evaluate()` short-circuits to fast paths before materializing the generator.
+- “Skip security checks” behavior already exists:
+  - When no allow/block path restrictions are configured, `isNodeAllowed` becomes `() => true`.
+- Function call resolution is already performed at parse time:
+  - Parser stores `resolvedFn` on `FunctionCallNode`.
+  - Evaluator uses `expr.resolvedFn ?? getFunction(expr.name)`.
+- Compiler currently uses multiple layers:
+  - Specialized fast paths for simple chains, wildcard chains, and a simple recursive descent pattern.
+  - Executable codegen is attempted via `new Function(...)` when no specialized fast path matches.
+  - Interpreter fallback is used when options require limits, circular detection, evaluation hooks, or path restrictions.
+
+### Complete Examples
+
+```ts
+// Evaluator eager evaluation: fast paths before stream materialization
+// Source: packages/jsonpath/evaluator/src/evaluator.ts
+public evaluate(ast: QueryNode): QueryResult {
+	const fast = this.evaluateSimpleChain(ast);
+	if (fast) return fast;
+
+	const wildcard = this.evaluateWildcardChain(ast);
+	if (wildcard) return wildcard;
+
+	const results = Array.from(this.stream(ast));
+	const ownedResults = results.map((node) => this.pool.ownFrom(node));
+	return new QueryResult(ownedResults);
+}
+```
+
+```ts
+// Parser stores resolved function definition
+// Source: packages/jsonpath/parser/src/parser.ts
+const resolvedFn = functionRegistry.get(name);
+const node: FunctionCallNode = {
+	type: NodeType.FunctionCall,
+	name,
+	args,
+	resolvedFn,
+};
+```
+
+### API and Schema Documentation
+
+- RFC 6901 (JSON Pointer): escaping rules (`~1`, `~0`) and pointer token evaluation.
+- RFC 6902 (JSON Patch): operation semantics, array index `"-"` handling for `add`, and atomic-error expectation.
+- RFC 7386 (JSON Merge Patch): object-recursive semantics and “non-object patch replaces target”.
+
+### Configuration Examples
+
+```json
+// packages/jsonpath/benchmarks/package.json (scripts excerpt)
+{
+	"scripts": {
+		"bench": "vitest bench",
+		"bench:full": "vitest bench --reporter=json --outputFile=results.json",
+		"bench:query": "vitest bench --testNamePattern='JSONPath'"
+	}
+}
+```
+
+### Technical Requirements
+
+From plans/jsonpath-performance-optimization/plan.md:
+
+- Close benchmark gaps for wildcard, recursive descent, and large-array scenarios.
+- Keep streaming support, but eager evaluation should be default behavior.
+- Breaking changes are allowed per the plan’s “Design Decisions”.
+
+## Recommended Approach
+
+Treat the plan’s Steps 1–14 as “verify what already exists, then target remaining hotspots”:
+
+- Step 1 (Wildcard fast path): there is already an eager wildcard-chain fast path (`evaluateWildcardChain`), but the plan’s target is “any position” and “bypass pooling / generator overhead / per-element checks” — verify current `evaluateWildcardChain` coverage and how it differs from the plan’s intended bypasses.
+- Step 2 (Inline limit checks): evaluator still centralizes limit checks; the plan’s proposal is to reduce function-call overhead in hot loops.
+- Step 3 (Skip security checks): already implemented via a no-op `isNodeAllowed` when restrictions are empty.
+- Step 4 (Compile by default): should be treated as “confirm and ensure benchmarks exercise compiled path”, since compilation infrastructure is present.
+- Step 7 (Compile-time function resolution): already implemented via `resolvedFn` stored by parser and used by evaluator.
+- Step 12 (Recursive descent): compiler has a stack-based fast path for `$..name` / `$..[index]` (single descendant segment) — ensure facade/benchmarks take advantage of this path.
+
+## Implementation Guidance
+
+- **Objectives**: Improve wildcard/recursive/large-array throughput while preserving limit/security semantics when options demand it.
+- **Key Tasks**:
+  - Map each plan step to the exact repo files and confirm “already present” vs “missing”.
+  - For steps proposing breaking behavior (notably patch defaults), reconcile with current defaults and existing tests.
+  - Ensure benchmarks hit the intended execution path (compiled vs interpreted) when evaluating improvements.
+- **Dependencies**: Changes in evaluator/compiler will impact facade behavior (`@jsonpath/jsonpath`) and benchmarks.
+- **Success Criteria**:
+  - Benchmarks show substantial wildcard/recursive/array performance improvements.
+  - Package tests continue to pass for evaluator/parser/compiler/patch/merge-patch/jsonpath.
+  - Performance regression checks (warn-only) continue to run and remain meaningful.
+
+## Per-Step File Map (plan Steps 1–14 → repo files & key symbols)
+
+1. Step 1: Wildcard Fast Path for All Patterns
+
+- packages/jsonpath/evaluator/src/evaluator.ts
+  - Symbols: `Evaluator.evaluate`, `evaluateWildcardChain`, `isNodeAllowed`
+- packages/jsonpath/evaluator/src/**tests**/\*
+  - Tests that should cover wildcard patterns (plan explicitly mentions evaluator.spec.ts)
+
+2. Step 2: Inline Limit Checking in Hot Paths
+
+- packages/jsonpath/evaluator/src/evaluator.ts
+  - Symbols: `checkLimits(...)` and its call sites inside selector loops
+
+3. Step 3: Skip Security Checks When Unconfigured
+
+- packages/jsonpath/evaluator/src/evaluator.ts
+  - Symbols: constructor assigns `this.isNodeAllowed = () => true`
+
+4. Step 4: Enable Compiled Queries by Default in Facade
+
+- packages/jsonpath/jsonpath/src/facade.ts
+  - Symbols: `query`, `compileQuery`
+
+5. Step 5: Add Fast-Path to Evaluator for Non-Compiled Usage
+
+- packages/jsonpath/evaluator/src/evaluator.ts
+  - Symbols: `evaluateSimpleChain`, `evaluateWildcardChain`
+
+6. Step 6: Batch Wildcard Collection
+
+- packages/jsonpath/evaluator/src/evaluator.ts
+  - Symbols: wildcard selector handling (hot loops), intermediate collection strategy
+
+7. Step 7: Implement Compile-Time Function Resolution
+
+- packages/jsonpath/parser/src/nodes.ts
+  - Symbols: `FunctionCallNode.resolvedFn`
+- packages/jsonpath/parser/src/parser.ts
+  - Symbols: `functionRegistry.get(name)` assignment into `resolvedFn`
+- packages/jsonpath/evaluator/src/evaluator.ts
+  - Symbols: `expr.resolvedFn ?? getFunction(expr.name)`
+
+8. Step 8: Lazy Generator Conversion
+
+- packages/jsonpath/evaluator/src/evaluator.ts
+  - Symbols: eager `evaluate(...)` materialization (`Array.from(this.stream(...))`) and generator pipeline
+
+9. Step 9: Optimize @jsonpath/patch Performance
+
+- packages/jsonpath/patch/src/patch.ts
+  - Symbols: `applyPatch`, options (`mutate`, `atomicApply`, `strictMode`), pointer parsing (`parseTokens`)
+- packages/jsonpath/patch/src/**tests**/\*
+  - Tests asserting default immutability and behavior under `mutate: true`
+
+10. Step 10: Optimize @jsonpath/merge-patch Apply Performance
+
+- packages/jsonpath/merge-patch/src/merge-patch.ts
+  - Symbols: merge patch apply algorithm and `mutate` default
+
+11. Step 11: Reduce Object Allocations in Hot Paths
+
+- packages/jsonpath/evaluator/src/evaluator.ts
+  - Symbols: pooled node acquisition (`QueryResultPool`) and per-match allocations
+
+12. Step 12: Optimize Recursive Descent
+
+- packages/jsonpath/evaluator/src/evaluator.ts
+  - Symbols: descendant traversal (generator recursion)
+- packages/jsonpath/compiler/src/compiler.ts
+  - Symbols: `compileSimpleRecursiveQuery`, `isSimpleRecursiveAst`
+
+13. Step 13: Add Performance Regression Tests
+
+- packages/jsonpath/benchmarks/README.md
+- packages/jsonpath/benchmarks/src/performance-regression.spec.ts (referenced by README)
+
+14. Step 14: Update Documentation and Benchmarks
+
+- packages/jsonpath/benchmarks/package.json
+- docs/api/jsonpath.md
+- packages/jsonpath/docs/packages/patch.md
+
+## Commands (copy/paste)
+
+Repo-level (root):
+
+- `pnpm test`
+- `pnpm type-check`
+
+Per-package tests:
+
+- `pnpm --filter @jsonpath/evaluator test`
+- `pnpm --filter @jsonpath/parser test`
+- `pnpm --filter @jsonpath/functions test`
+- `pnpm --filter @jsonpath/jsonpath test`
+- `pnpm --filter @jsonpath/patch test`
+- `pnpm --filter @jsonpath/merge-patch test`
+- `pnpm --filter @jsonpath/compliance-suite test`
+
+Benchmarks:
+
+- `pnpm --filter @jsonpath/benchmarks bench`
+- `pnpm --filter @jsonpath/benchmarks bench:query`
+- `pnpm --filter @jsonpath/benchmarks bench:patch`
+
+Type-check specific workspace:
+
+- `pnpm --filter @jsonpath/benchmarks type-check`
+
+## Risks / Unknowns
+
+- Patch behavior vs plan “breaking changes”: current implementation defaults to `mutate=false` and `atomicApply=true`; changing defaults will require updating tests and any downstream expectations.
+- Merge patch spec note: the RFC Editor page marks RFC 7386 as obsoleted by RFC 7396; confirm which semantics the package intends to follow.
+- Compiler execution path in benchmarks: if benchmarks use facade/compile, recursive fast path in compiler may already apply; if they call evaluator directly, results may reflect interpreter-only performance.
+- `new Function(...)` codegen execution: compiling executable code at runtime can have security and environment constraints; changes here should be reviewed carefully.<!-- markdownlint-disable-file -->
+
 # Task Research Notes: JSONPath Performance Optimization (plans/jsonpath-performance-optimization/plan.md)
 
 This note is constrained to facts verified by direct file reads and searches in this workspace on 2026-01-06.

@@ -187,6 +187,60 @@ describe('Evaluator', () => {
 		]);
 	});
 
+	describe('Wildcard Chain Fast Path', () => {
+		it('should evaluate $[*] (wildcard on root array)', () => {
+			const ast = parse('$[*]');
+			const result = evaluate([1, 2, 3], ast);
+			expect(result.values()).toEqual([1, 2, 3]);
+		});
+
+		it('should evaluate $.prop[*] (property followed by array wildcard)', () => {
+			const ast = parse('$.items[*]');
+			const result = evaluate({ items: ['a', 'b', 'c'] }, ast);
+			expect(result.values()).toEqual(['a', 'b', 'c']);
+		});
+
+		it('should evaluate $[*].prop (array wildcard followed by property)', () => {
+			const ast = parse('$[*].name');
+			const result = evaluate(
+				[{ name: 'Alice' }, { name: 'Bob' }, { name: 'Charlie' }],
+				ast,
+			);
+			expect(result.values()).toEqual(['Alice', 'Bob', 'Charlie']);
+		});
+
+		it('should evaluate $.a[*].b[*].c (nested wildcard chains)', () => {
+			const ast = parse('$.a[*].b[*].c');
+			const result = evaluate(
+				{
+					a: [{ b: [{ c: 1 }, { c: 2 }] }, { b: [{ c: 3 }] }],
+				},
+				ast,
+			);
+			expect(result.values()).toEqual([1, 2, 3]);
+		});
+
+		it('should handle wildcards on objects (object property enumeration)', () => {
+			const ast = parse('$[*]');
+			const result = evaluate({ x: 1, y: 2, z: 3 }, ast);
+			expect(new Set(result.values())).toEqual(new Set([1, 2, 3]));
+		});
+
+		it('should handle mixed wildcards with indices and names', () => {
+			const ast = parse('$.store[*].price');
+			const result = evaluate(
+				{
+					store: [
+						{ name: 'item1', price: 10 },
+						{ name: 'item2', price: 20 },
+					],
+				},
+				ast,
+			);
+			expect(result.values()).toEqual([10, 20]);
+		});
+	});
+
 	describe('Extended Selectors', () => {
 		it('should evaluate parent selector (^)', () => {
 			const ast = parse('$.store.book[0].title.^');
