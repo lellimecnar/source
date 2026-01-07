@@ -1,0 +1,40 @@
+name: Benchmarks (data-map)
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - master
+
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.2
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build deps
+        run: pnpm turbo build --filter=@data-map/benchmarks...
+
+      - name: Run benchmarks
+        run: pnpm --filter @data-map/benchmarks bench:full
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-map-benchmarks
+          path: |
+            packages/data-map/benchmarks/results.json
+            packages/data-map/benchmarks/REPORT.md
+          retention-days: 7

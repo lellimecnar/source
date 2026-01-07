@@ -1,5 +1,6 @@
 import { compile } from '@jsonpath/compiler';
 import { evaluate } from '@jsonpath/evaluator';
+
 import type { BenchmarkAdapter } from './types.js';
 
 export const jsonpathRawAdapter: BenchmarkAdapter = {

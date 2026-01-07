@@ -1,4 +1,5 @@
 import { getProperty, setProperty, deleteProperty } from 'dot-prop';
+
 import type { BenchmarkAdapter } from './types.js';
 
 export const dotPropAdapter: BenchmarkAdapter = {

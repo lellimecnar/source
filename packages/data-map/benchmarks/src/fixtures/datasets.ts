@@ -1,10 +1,10 @@
-import type { DatasetCatalog } from './types.js';
 import {
 	generateDeepObject,
 	generateMixedData,
 	generateWideArray,
 	generateWideObject,
 } from './generators.js';
+import type { DatasetCatalog } from './types.js';
 
 export const DATASETS: DatasetCatalog = {
 	smallObject: generateWideObject({ width: 10, depth: 2, seed: 1 }),

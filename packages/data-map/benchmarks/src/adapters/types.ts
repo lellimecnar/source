@@ -1,4 +1,4 @@
-export type AdapterFeatures = {
+export interface AdapterFeatures {
 	get: boolean;
 	set: boolean;
 	mutate: boolean;
@@ -8,19 +8,19 @@ export type AdapterFeatures = {
 	batch: boolean;
 	definitions: boolean;
 	clone: boolean;
-};
+}
 
-export type PatchOp = {
+export interface PatchOp {
 	op: 'add' | 'remove' | 'replace' | 'move' | 'copy' | 'test';
 	path: string;
 	value?: unknown;
-};
+}
 
-export type SubscriptionHandle = {
+export interface SubscriptionHandle {
 	unsubscribe: () => void;
-};
+}
 
-export type BenchmarkAdapter = {
+export interface BenchmarkAdapter {
 	name: string;
 	features: AdapterFeatures;
 	get?: (data: unknown, path: string) => unknown;
@@ -35,4 +35,4 @@ export type BenchmarkAdapter = {
 	batch?: (fn: (apply: (p: string, v: unknown) => void) => void) => unknown;
 	createDefinition?: (name: string, getter: (data: unknown) => unknown) => void;
 	clone?: (data: unknown) => unknown;
-};
+}

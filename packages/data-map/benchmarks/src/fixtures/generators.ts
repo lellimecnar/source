@@ -50,9 +50,9 @@ export function generateDeepObject(options: DeepObjectOptions): any {
 	return root;
 }
 
-export function generateWideArray(options: WideArrayOptions): Array<any> {
+export function generateWideArray(options: WideArrayOptions): any[] {
 	const rng = createSeededRng(options.seed);
-	const out: Array<any> = [];
+	const out: any[] = [];
 
 	for (let i = 0; i < options.length; i++) {
 		out.push({

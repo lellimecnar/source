@@ -1,4 +1,5 @@
 import * as fastJsonPatch from 'fast-json-patch';
+
 import type { BenchmarkAdapter, PatchOp } from './types.js';
 
 export const fastJsonPatchAdapter: BenchmarkAdapter = {

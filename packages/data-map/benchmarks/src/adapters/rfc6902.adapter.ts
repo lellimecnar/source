@@ -1,4 +1,5 @@
 import { applyPatch } from 'rfc6902';
+
 import type { BenchmarkAdapter, PatchOp } from './types.js';
 
 export const rfc6902Adapter: BenchmarkAdapter = {

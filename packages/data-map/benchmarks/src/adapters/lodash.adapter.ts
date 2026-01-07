@@ -1,6 +1,7 @@
+import cloneDeep from 'lodash-es/cloneDeep';
 import get from 'lodash-es/get';
 import set from 'lodash-es/set';
-import cloneDeep from 'lodash-es/cloneDeep';
+
 import type { BenchmarkAdapter } from './types.js';
 
 export const lodashAdapter: BenchmarkAdapter = {

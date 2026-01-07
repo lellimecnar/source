@@ -1,6 +1,7 @@
 import { create } from 'mutative';
-import type { BenchmarkAdapter } from './types.js';
+
 import { dlvDsetAdapter } from './dlv-dset.adapter.js';
+import type { BenchmarkAdapter } from './types.js';
 
 export const mutativeAdapter: BenchmarkAdapter = {
 	name: 'mutative',

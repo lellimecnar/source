@@ -1,5 +1,6 @@
 import dlv from 'dlv';
 import dset from 'dset';
+
 import type { BenchmarkAdapter } from './types.js';
 
 export const dlvDsetAdapter: BenchmarkAdapter = {

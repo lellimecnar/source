@@ -1,6 +1,7 @@
 import { produce } from 'immer';
-import type { BenchmarkAdapter } from './types.js';
+
 import { dlvDsetAdapter } from './dlv-dset.adapter.js';
+import type { BenchmarkAdapter } from './types.js';
 
 export const immerAdapter: BenchmarkAdapter = {
 	name: 'immer',

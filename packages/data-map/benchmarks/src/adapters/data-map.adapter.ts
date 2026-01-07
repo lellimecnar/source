@@ -1,4 +1,5 @@
 import { DataMap } from '@data-map/core';
+
 import type { BenchmarkAdapter, PatchOp, SubscriptionHandle } from './types.js';
 
 export const dataMapAdapter: BenchmarkAdapter = {

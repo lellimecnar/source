@@ -1,4 +1,5 @@
 import { applyPatch } from 'immutable-json-patch';
+
 import type { BenchmarkAdapter, PatchOp } from './types.js';
 
 export const immutableJsonPatchAdapter: BenchmarkAdapter = {
