@@ -53,6 +53,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	private readonly _defineOptions: DataMapOptions<T, Ctx>['define'] | undefined;
 	private readonly _previousValues = new Map<string, unknown>();
 	private readonly _lastUpdated = new Map<string, number>();
+	private _isOwned = false;
 
 	private get subs(): SubscriptionManagerImpl<T, Ctx> {
 		if (!this._subs) this._subs = new SubscriptionManagerImpl<T, Ctx>(this);
@@ -113,7 +114,9 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	constructor(initialValue: T, options: DataMapOptions<T, Ctx> = {}) {
 		this._strict = options.strict ?? false;
 		this._context = options.context;
-		this._data = cloneSnapshot(initialValue);
+		const cloneInitial = options.cloneInitial ?? true;
+		this._data = cloneInitial ? cloneSnapshot(initialValue) : initialValue;
+		this._isOwned = cloneInitial;
 		this._defineOptions = options.define;
 
 		if (options.define && options.context !== undefined) {
@@ -131,6 +134,12 @@ export class DataMap<T = unknown, Ctx = unknown> {
 
 	subscribe(config: SubscriptionConfig<T, Ctx>): Subscription {
 		return this.subs.register(config);
+	}
+
+	private ensureOwned(): void {
+		if (this._isOwned) return;
+		this._data = cloneSnapshot(this._data);
+		this._isOwned = true;
 	}
 
 	private buildResolvedMatch(pointer: string, value: unknown): ResolvedMatch {
@@ -550,6 +559,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 
 	readonly patch = Object.assign(
 		(ops: Operation[], options: CallOptions = {}) => {
+			this.ensureOwned();
 			const strict = options.strict ?? this._strict;
 
 			// Never mutate caller-provided operations; we may rewrite `value` when before-hooks transform.

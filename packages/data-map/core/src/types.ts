@@ -32,4 +32,9 @@ export interface DataMapOptions<T = unknown, Ctx = unknown> {
 	define?: (Definition<T, Ctx> | DefinitionFactory<T, Ctx>)[];
 	subscribe?: SubscriptionConfig<T, Ctx>[];
 	schema?: unknown;
+	/**
+	 * When false, DataMap will not clone the initial value in the constructor.
+	 * Defaults to true to preserve current immutability guarantees.
+	 */
+	cloneInitial?: boolean;
 }

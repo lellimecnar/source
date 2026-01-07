@@ -161,6 +161,16 @@ describe('DataMap', () => {
 			// Internal value was mutated through the returned reference
 			expect(dm.get('/user/name')).toBe('Bob');
 		});
+
+		it('cloneInitial=false stores initial reference until first mutation', () => {
+			const initial = { a: { b: 1 } };
+			const dm = new DataMap(initial, { cloneInitial: false } as any);
+			expect((dm as any)._data).toBe(initial);
+
+			dm.set('/a/b', 2);
+			expect((dm as any)._data).not.toBe(initial);
+			expect(initial.a.b).toBe(1);
+		});
 	});
 
 	describe('Array API', () => {
