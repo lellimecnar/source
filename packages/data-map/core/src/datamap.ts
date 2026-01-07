@@ -178,7 +178,19 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	}
 
 	toJSON(): T {
-		return cloneSnapshot(this._data);
+		return this.toImmutable() as T;
+	}
+
+	toImmutable(): Readonly<T> {
+		// In dev, shallow freezing is acceptable; deep-freeze can be added later if needed.
+		if (
+			process.env.NODE_ENV === 'development' &&
+			this._data &&
+			typeof this._data === 'object'
+		) {
+			return Object.freeze(this._data as any) as Readonly<T>;
+		}
+		return this._data as Readonly<T>;
 	}
 
 	getSnapshot(): T {
@@ -187,7 +199,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 
 	resolve(pathOrPointer: string, options: CallOptions = {}): ResolvedMatch[] {
 		const strict = options.strict ?? this._strict;
-		const shouldClone = options.clone ?? true;
+		const shouldClone = options.clone ?? false;
 		const pathType = detectPathType(pathOrPointer);
 		const ctx = this._context as any;
 
@@ -297,7 +309,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		options: CallOptions = {},
 	): Generator<ResolvedMatch> {
 		const strict = options.strict ?? this._strict;
-		const shouldClone = options.clone ?? true;
+		const shouldClone = options.clone ?? false;
 		const pathType = detectPathType(pathOrPointer);
 		const ctx = this._context as any;
 
@@ -560,7 +572,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 
 	readonly patch = Object.assign(
 		(ops: Operation[], options: CallOptions = {}) => {
-			this.ensureOwned();
+			// Copy-on-write: avoid redundant deep cloning before applying immutable patch ops.
 			const strict = options.strict ?? this._strict;
 
 			// Never mutate caller-provided operations; we may rewrite `value` when before-hooks transform.

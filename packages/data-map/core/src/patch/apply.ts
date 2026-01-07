@@ -1,5 +1,6 @@
 import type { Operation } from '../types';
 import { applyOperations as applyPatchOperations } from '../utils/jsonpath';
+import { updateAtPointer } from '../utils/structural-sharing';
 
 export interface ApplyResult {
 	nextData: unknown;
@@ -27,9 +28,28 @@ export function applyOperations(
 	currentData: unknown,
 	ops: Operation[],
 ): ApplyResult {
-	// @jsonpath/patch.applyPatch is immutable by default and already clones.
-	// Keep DataMap immutability by returning the new object.
-	const nextData = applyPatchOperations(currentData, ops, { mutate: false });
+	// Fast-path: for pure pointer `replace` operations on existing paths, use structural-sharing.
+	// Fall back to JSON Patch engine for all other ops (add, remove, etc).
+	let nextData: unknown = currentData;
+	let allFastPath = true;
+
+	// Check if all ops are simple replace operations
+	for (const op of ops) {
+		if (op.op !== 'replace' || !op.path.startsWith('/')) {
+			allFastPath = false;
+			break;
+		}
+	}
+
+	if (allFastPath && ops.length > 0) {
+		// Try fast-path: apply replace ops using structural sharing
+		for (const op of ops) {
+			nextData = updateAtPointer(nextData, op.path, op.value);
+		}
+	} else {
+		// Default to immutable semantics; DataMap will decide whether it can safely mutate.
+		nextData = applyPatchOperations(currentData, ops, { mutate: false });
+	}
 
 	const affectedPointers = new Set<string>();
 	const structuralPointers = new Set<string>();

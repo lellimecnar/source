@@ -70,20 +70,24 @@ get(pathOrPointer: string, options?: CallOptions): unknown
 
 Returns a single value at the specified path.
 
-| Parameter        | Type      | Description              |
-| ---------------- | --------- | ------------------------ |
-| `pathOrPointer`  | `string`  | JSON Pointer or JSONPath |
-| `options.strict` | `boolean` | Override strict mode     |
+| Parameter        | Type      | Description                                       |
+| ---------------- | --------- | ------------------------------------------------- |
+| `pathOrPointer`  | `string`  | JSON Pointer or JSONPath                          |
+| `options.strict` | `boolean` | Override strict mode                              |
+| `options.clone`  | `boolean` | (default: `false`) Return deep clone of the value |
 
 **Returns:** The value, or `undefined` if not found (non-strict mode).
 
 **Throws:** In strict mode when path not found.
 
+**Performance Note:** By default (`clone: false`), returns a direct reference into the current state. Do not mutate returned values unless you clone them first or set `clone: true`.
+
 ```typescript
-store.get('/user/name'); // 'Alice'
-store.get('$.user.name'); // 'Alice'
+store.get('/user/name'); // 'Alice' (reference)
+store.get('$.user.name'); // 'Alice' (reference)
 store.get('/missing'); // undefined
 store.get('/missing', { strict: true }); // throws
+store.get('/user', { clone: true }); // Deep cloned { name: 'Alice' }
 ```
 
 ---

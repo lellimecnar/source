@@ -146,20 +146,20 @@ describe('DataMap', () => {
 			expect(dm.get('/user/name')).toBe('Alice');
 		});
 
-		it('get() returns cloned values by default', () => {
+		it('get() returns a direct reference by default', () => {
 			const dm = new DataMap({ user: { name: 'Alice' } });
 			const user = dm.get('/user') as any;
 			user.name = 'Bob';
-			// Internal value should be unchanged
-			expect(dm.get('/user/name')).toBe('Alice');
+			// Internal value should be mutated (reference returned)
+			expect(dm.get('/user/name')).toBe('Bob');
 		});
 
-		it('get({ clone: false }) returns a direct reference', () => {
+		it('get({ clone: true }) returns a cloned value', () => {
 			const dm = new DataMap({ user: { name: 'Alice' } });
-			const user = dm.get('/user', { clone: false }) as any;
+			const user = dm.get('/user', { clone: true }) as any;
 			user.name = 'Bob';
-			// Internal value was mutated through the returned reference
-			expect(dm.get('/user/name')).toBe('Bob');
+			// Internal value should be unchanged (cloned)
+			expect(dm.get('/user/name')).toBe('Alice');
 		});
 
 		it('cloneInitial=false stores initial reference until first mutation', () => {

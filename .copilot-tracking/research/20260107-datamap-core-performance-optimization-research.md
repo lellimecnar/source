@@ -4,21 +4,21 @@
 
 ### File Analysis
 
-- [datamap.ts](../../packages/data-map/core/src/datamap.ts) (938 lines)
+- [datamap.ts](../../packages/data-map/core/src/datamap.ts) (1000 lines)
   - Main `DataMap` class implementing reactive state container
   - Key methods: `resolve()`, `get()`, `set()`, `patch()`, `batch()`, `transaction()`
-  - Uses `cloneSnapshot()` wrapper for `structuredClone` at lines 42-47
-  - Subscription notifications on every `get()`/`resolve()` via `scheduleNotify()`
+  - Construction cloning is via `cloneSnapshot()` (implemented with `rfdc`) and can be disabled with `DataMapOptions.cloneInitial: false`
+  - Subscriptions are lazily instantiated; notification scheduling is skipped when `_subs` is `null`
 - [utils/jsonpath.ts](../../packages/data-map/core/src/utils/jsonpath.ts) (114 lines)
   - Wrapper around `@jsonpath/jsonpath` and `@jsonpath/pointer`
   - `resolvePointer()` creates new `JSONPointer` instance on each call
   - `queryWithPointers()` calls `jpQuery()` then extracts pointers and values
 
-- [subscription/manager.ts](../../packages/data-map/core/src/subscription/manager.ts) (493 lines)
-  - Full subscription lifecycle with bloom filter optimization
-  - `SubscriptionManagerImpl` always initialized in constructor
-  - `scheduleNotify()` adds to microtask queue even with zero subscribers
-  - `handleStructuralChange()` calls `toJSON()` for full clone on any structural change
+- [subscription/manager.ts](../../packages/data-map/core/src/subscription/manager.ts) (527 lines)
+  - Full subscription lifecycle with bloom filter optimization and microtask scheduling
+  - Public `Subscription` handle provides `unsubscribe()` which calls `SubscriptionManagerImpl.unregister(id)`
+  - `scheduleNotify()` and `notify()` both early-return if there are no active subscriptions
+  - `handleStructuralChange()` and `handleFilterCriteriaChange()` both use `dataMap.toJSON()` (deep clone) to re-expand patterns
 
 - [subscription/bloom.ts](../../packages/data-map/core/src/subscription/bloom.ts) (45 lines)
   - BloomFilter with 7 hash computations per lookup (hashCount=7)
@@ -28,9 +28,9 @@
   - `compilePathPattern()` has cache via `patternCache` Map
   - Pattern cache is effective for repeated JSONPath queries
 
-- [path/detect.ts](../../packages/data-map/core/src/path/detect.ts) (24 lines)
-  - `detectPathType()` uses regex without caching
-  - Called on every path access
+- [path/detect.ts](../../packages/data-map/core/src/path/detect.ts) (43 lines)
+  - `detectPathType()` uses a bounded Map cache (max 10,000 entries; clears when full)
+  - Comment indicates Spec §4.3 constraints (“must match exactly”)
 
 - [patch/builder.ts](../../packages/data-map/core/src/patch/builder.ts) (99 lines)
   - `ensureParentContainers()` uses `structuredClone` for working copy
@@ -54,12 +54,10 @@
 
 ### Code Search Results
 
-- `structuredClone` usage in core package:
-  - [datamap.ts#L46](../../packages/data-map/core/src/datamap.ts#L46) - `cloneSnapshot()` wrapper
-  - [batch/builder.ts#L11](../../packages/data-map/core/src/batch/builder.ts#L11) - FluentBatchBuilder constructor
-  - [batch/builder.ts#L90](../../packages/data-map/core/src/batch/builder.ts#L90) - `toPatch()` return
-  - [patch/builder.ts#L35](../../packages/data-map/core/src/patch/builder.ts#L35) - `ensureParentContainers()` clone
-  - [patch/builder.ts#L63](../../packages/data-map/core/src/patch/builder.ts#L63) - container value clone
+- Cloning usage in @data-map/core:
+  - `cloneSnapshot()` is implemented in `utils/clone.ts` using `rfdc`
+  - `DataMapOptions.cloneInitial` controls whether the constructor clones the initial value
+  - `patch/builder.ts` uses `cloneSnapshot()` to build intermediate containers immutably
 
 - Existing caching patterns:
   - [path/compile.ts](../../packages/data-map/core/src/path/compile.ts) - `patternCache` Map for compiled patterns

@@ -34,10 +34,9 @@
   - Public export surface: `DataMap` and types (`Operation`, `CallOptions`, `DataMapOptions`, `ResolvedMatch`, subscription types, definition types).
 
 - packages/data-map/core/src/datamap.ts
-  - Current cloning uses `structuredClone` via a local `cloneSnapshot()` helper.
-  - Subscription manager is eagerly instantiated: `private readonly _subs = new SubscriptionManagerImpl<T, Ctx>(this);`.
-  - `get()` and `resolve()` schedule notifications even when there are no subscribers.
-  - Transactions implemented via snapshot rollback (`getSnapshot()` clones) + `batch()`.
+  - Current cloning uses `rfdc` via `utils/clone.ts` (`cloneSnapshot()`), and construction cloning can be disabled with `DataMapOptions.cloneInitial: false`.
+  - Subscription manager is lazily instantiated (`_subs: SubscriptionManagerImpl | null`); notification scheduling is skipped when `_subs` is `null`.
+  - Transactions are implemented via snapshot rollback (`getSnapshot()` deep clones) + `batch()`.
 
 - packages/data-map/core/src/utils/jsonpath.ts
   - Core integration points:
@@ -57,7 +56,7 @@
 
 - packages/data-map/core/src/path/detect.ts
   - Path-type detection is deliberately minimal and spec-linked (comment: “Spec §4.3 (must match exactly)”).
-  - No caching today.
+  - Uses a bounded cache (max 10,000 entries; clears when full).
 
 - packages/data-map/core/src/path/compile.ts and packages/data-map/core/src/path/predicate.ts
   - Caching patterns already exist:

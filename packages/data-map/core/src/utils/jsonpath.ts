@@ -9,6 +9,7 @@ import { applyPatch } from '@jsonpath/patch';
 import { JSONPointer } from '@jsonpath/pointer';
 
 import type { Operation } from '../types';
+import { compileAccessor } from './accessor-cache';
 import { tryPointerExistsInline, tryResolvePointerInline } from './pointer';
 
 export class DataMapPathError extends Error {
@@ -107,6 +108,12 @@ export function resolvePointer<T = unknown>(
 	pointer: string,
 ): T | undefined {
 	try {
+		// Ultra-fast path: accessor compilation for simple pointers without escapes.
+		// Runs before the inline fast-path to cover more cases without JSONPointer overhead.
+		if (pointer !== '' && pointer.startsWith('/') && !pointer.includes('~')) {
+			const get = compileAccessor(pointer);
+			return get(data) as T | undefined;
+		}
 		const fast = tryResolvePointerInline<T>(data, pointer);
 		if (fast.ok) return fast.value;
 		return new JSONPointer(pointer).resolve<T>(data);
