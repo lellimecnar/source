@@ -88,4 +88,17 @@ describe('utils/jsonpath', () => {
 			expect(e.path).toBe('not-a-pointer');
 		}
 	});
+
+	it('does not treat "/" as root', () => {
+		const data: any = { '': 123 };
+		expect(resolvePointer(data, '')).toBe(data);
+		expect(resolvePointer(data, '/')).toBe(123);
+	});
+
+	it('rejects array indices with leading zeros (matches @jsonpath/pointer)', () => {
+		const data: any = { arr: ['x', 'y'] };
+		expect(resolvePointer(data, '/arr/0')).toBe('x');
+		expect(resolvePointer(data, '/arr/01')).toBeUndefined();
+		expect(pointerExists(data, '/arr/01')).toBe(false);
+	});
 });

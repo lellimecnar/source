@@ -9,6 +9,7 @@ import { applyPatch } from '@jsonpath/patch';
 import { JSONPointer } from '@jsonpath/pointer';
 
 import type { Operation } from '../types';
+import { tryPointerExistsInline, tryResolvePointerInline } from './pointer';
 
 export class DataMapPathError extends Error {
 	readonly code: string;
@@ -106,6 +107,8 @@ export function resolvePointer<T = unknown>(
 	pointer: string,
 ): T | undefined {
 	try {
+		const fast = tryResolvePointerInline<T>(data, pointer);
+		if (fast.ok) return fast.value;
 		return new JSONPointer(pointer).resolve<T>(data);
 	} catch (err) {
 		throw normalizeError(err, pointer);
@@ -114,6 +117,8 @@ export function resolvePointer<T = unknown>(
 
 export function pointerExists(data: unknown, pointer: string): boolean {
 	try {
+		const fast = tryPointerExistsInline(data, pointer);
+		if (fast.ok) return fast.exists;
 		return new JSONPointer(pointer).exists(data);
 	} catch (err) {
 		throw normalizeError(err, pointer);
