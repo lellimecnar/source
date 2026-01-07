@@ -1,874 +1,496 @@
-# JSONPath Performance Optimization
+# JSONPath Performance Optimization (v2 - Updated January 2026)
 
-**Branch:** `feat/jsonpath-performance-optimization`
-**Description:** Optimize @jsonpath packages to outperform all competing JSONPath libraries
+**Branch:** `feat/jsonpath-performance-optimization-v2`
+**Description:** Close remaining performance gaps in @jsonpath/patch and merge-patch to achieve market leadership
 
 ## Goal
 
-Close the performance gaps identified in the v4 benchmark audit and achieve market-leading performance:
+The January 2026 benchmark audit (AUDIT_REPORT_v5.md) revealed that **most JSONPath query operations are already winning**. The remaining gaps are focused on specific packages. This updated plan targets those specific issues.
 
-### Current Performance Status (January 2026)
+### Current Performance Status (January 2026 - AUDIT_REPORT_v5)
 
-| Scenario         | @jsonpath       | Best Competitor         | Gap                 | Target                       |
-| ---------------- | --------------- | ----------------------- | ------------------- | ---------------------------- |
-| Simple path      | **2.24M ops/s** | 1.97M (jsonpath-plus)   | ✅ 1.14x **faster** | Maintain/extend lead         |
-| Deep nesting     | **1.49M ops/s** | 1.31M (jsonpath-plus)   | ✅ 1.14x **faster** | Maintain/extend lead         |
-| Wide object      | **3.76M ops/s** | 2.79M (jsonpath-plus)   | ✅ 1.35x **faster** | Maintain/extend lead         |
-| **Wildcards**    | 145K ops/s      | 1.13M (jsonpath-plus)   | ❌ 7.78x slower     | **1.5M+ ops/s** (outperform) |
-| **Recursive**    | 74K ops/s       | 348K (jsonpath-plus)    | ❌ 4.72x slower     | **500K+ ops/s** (outperform) |
-| **Large arrays** | 1.3K ops/s      | 10.5K (jsonpath-plus)   | ❌ 7.90x slower     | **15K+ ops/s** (outperform)  |
-| Pointer          | **2.66M ops/s** | 1.80M (json-pointer)    | ✅ 1.47x **faster** | Maintain/extend lead         |
-| Patch            | 89K ops/s       | 190K (fast-json-patch)  | ❌ 2.1x slower      | **250K+ ops/s** (outperform) |
-| Merge-patch      | 187K ops/s      | 185K (json-merge-patch) | ≈ Parity            | **250K+ ops/s** (outperform) |
+| Scenario                 | @jsonpath            | Best Competitor          | Status                 | Action          |
+| ------------------------ | -------------------- | ------------------------ | ---------------------- | --------------- |
+| Simple path              | 1.75M ops/s          | 1.98M (jsonpath-plus)    | ⚠️ 0.88x               | Medium priority |
+| Deep nesting             | 1.05M ops/s          | 1.31M (jsonpath-plus)    | ⚠️ 0.80x               | Medium priority |
+| **Wildcards**            | **3.29M ops/s**      | 1.11M (jsonpath-plus)    | ✅ **2.96x FASTER**    | ~~No action~~   |
+| **Recursive**            | **548K ops/s**       | 351K (jsonpath-plus)     | ✅ **1.56x FASTER**    | ~~No action~~   |
+| **Filters**              | **1.33-2.38M ops/s** | 307-434K (jsonpath-plus) | ✅ **3-6x FASTER**     | ~~No action~~   |
+| **Large arrays**         | **2.2K-170K ops/s**  | 998-102K (jsonpath-plus) | ✅ **1.7-2.2x FASTER** | ~~No action~~   |
+| Pointer                  | **2.70M ops/s**      | 1.60M (json-pointer)     | ✅ **1.69x FASTER**    | ~~No action~~   |
+| **Patch (single)**       | 91K ops/s            | 197K (fast-json-patch)   | ❌ **0.46x**           | **Critical**    |
+| **Patch (batch)**        | 75K ops/s            | 140K (fast-json-patch)   | ❌ **0.54x**           | **Critical**    |
+| Merge-patch apply        | 189K ops/s           | 185K (json-merge-patch)  | ✅ 1.02x               | ~~No action~~   |
+| **Merge-patch generate** | 1.69M ops/s          | 2.48M (json-merge-patch) | ❌ **0.68x**           | High priority   |
 
-### Root Causes Identified
+### Remaining Root Causes
 
-1. **Generator overhead**: Wildcard/recursive use generator-based iteration with per-element `yield`
-2. **Object allocation**: `pool.acquire()` called for every matched element
-3. **Path tracking**: Path computed even when not needed
-4. **Security checks**: `isNodeAllowed()` called per element even when no restrictions configured
-5. **Function call overhead**: `checkLimits()` called per element in tight loops
+1. **@jsonpath/patch**: `structuredClone` on every operation, per-call closure allocation, repeated pointer parsing
+2. **@jsonpath/merge-patch generate**: Excessive `structuredClone` usage, double key iteration
+3. **Evaluator simple paths**: Eager pointer computation, runtime condition checking
 
 ---
 
 ## Design Decisions
 
-The following decisions were made during planning:
-
-| Decision                      | Choice                           | Rationale                                                                          |
-| ----------------------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
-| **Breaking Changes**          | ✅ No backwards compatibility    | Breaking changes are acceptable; no migration period needed                        |
-| **Streaming Mode**            | Fully supported, not default     | Streaming remains available via `{ stream: true }` but eager evaluation is default |
-| **Compliance vs Performance** | Performance first, opt-in strict | Prioritize performance; strict RFC mode available via options                      |
-| **AST Modification**          | ✅ Acceptable                    | Parser may store resolved function references directly in AST nodes                |
-| **Regression Tests**          | Warn only (non-blocking)         | CI warns on performance regression but does not block PRs                          |
-| **Optimization Order**        | Highest impact first             | Prioritize wildcards, recursion, and large arrays over incremental gains           |
+| Decision                   | Choice                                         | Rationale                                                              |
+| -------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------- |
+| **Breaking API Changes**   | ✅ Acceptable                                  | Default to mutation for performance; users clone if needed             |
+| **Default behavior**       | `mutate: true`                                 | Performance-first defaults; opt-in safety via explicit cloning         |
+| **fastDeepClone location** | `@jsonpath/core`                               | Shared across all packages that need cloning                           |
+| **Cloning strategy**       | Replace `structuredClone` with `fastDeepClone` | Same semantics, faster execution                                       |
+| **Regression tests**       | Warn only                                      | Non-blocking CI; alerts on performance degradation                     |
+| **Scope**                  | Gaps only                                      | Focus on patch, merge-patch, simple paths; no changes to winning areas |
 
 ---
 
-## Phase 1: Quick Wins (Steps 1-4)
+## Phase 1: Critical - @jsonpath/patch Optimization (Steps 1-4)
 
-### Step 1: Wildcard Fast Path for All Patterns ⭐ HIGHEST PRIORITY
+### Step 1: Add fastDeepClone to @jsonpath/core
 
 **Files:**
 
-- `packages/jsonpath/evaluator/src/evaluator.ts`
-- `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts`
+- `packages/jsonpath/core/src/clone.ts` (new)
+- `packages/jsonpath/core/src/index.ts`
 
 **What:**
-Add a dedicated fast path for wildcard patterns at **any position** in the query (`$[*]`, `$[*].property`, `$.prop[*]`, `$.a.b[*].c.d[*]`) that bypasses generator overhead, object pooling, and per-element security checks. This is the **highest impact** optimization, targeting the 7.78x gap and aiming to **outperform** all competitors.
+Create an optimized deep clone function that bypasses `structuredClone` overhead for JSON-only data. The existing `deepClone` in core already has a fallback, but it tries `structuredClone` first. We need a version that skips it entirely for predictable performance.
 
-**Scope:** Wildcards can appear anywhere in the path, not just at the root level.
-
-**Changes:**
+**Implementation:**
 
 ```typescript
-// Add to Evaluator class after evaluateSimpleChain()
+// packages/jsonpath/core/src/clone.ts
+export function fastDeepClone<T>(value: T): T {
+	if (value === null || typeof value !== 'object') return value;
 
-/**
- * Fast path for queries containing only name selectors and wildcard selectors.
- * Handles patterns like: $[*], $.prop[*], $[*].prop, $.a[*].b[*].c
- * Bypasses generators, pooling, and per-element security checks.
- */
-private evaluateWildcardChainFastPath(ast: QueryNode): QueryResult | null {
-  // Skip if security restrictions are configured
-  if (this.options.secure.allowPaths?.length || this.options.secure.blockPaths?.length) {
-    return null;
-  }
+	if (Array.isArray(value)) {
+		const result = new Array(value.length);
+		for (let i = 0; i < value.length; i++) {
+			result[i] = fastDeepClone(value[i]);
+		}
+		return result as T;
+	}
 
-  // Validate all segments have single, simple selectors (name or wildcard)
-  for (const seg of ast.segments) {
-    if (seg.selectors.length !== 1) return null;
-    const sel = seg.selectors[0];
-    if (sel.type !== NodeType.NameSelector && sel.type !== NodeType.WildcardSelector) {
-      return null;
-    }
-  }
-
-  // Build operation chain for iteration
-  type Op = { type: 'name'; name: string } | { type: 'wildcard' };
-  const ops: Op[] = ast.segments.map(seg => {
-    const sel = seg.selectors[0];
-    return sel.type === NodeType.NameSelector
-      ? { type: 'name', name: sel.name }
-      : { type: 'wildcard' };
-  });
-
-  // Must have at least one wildcard to use this path
-  if (!ops.some(op => op.type === 'wildcard')) return null;
-
-  // Execute chain imperatively
-  interface IntermediateNode {
-    value: unknown;
-    path: (string | number)[];
-    parent: unknown;
-    parentKey: string | number;
-  }
-
-  let current: IntermediateNode[] = [
-    { value: this.root, path: [], parent: null as unknown, parentKey: '' }
-  ];
-
-  for (const op of ops) {
-    const next: IntermediateNode[] = [];
-
-    if (op.type === 'name') {
-      // Property access
-      for (const node of current) {
-        const val = node.value;
-        if (val && typeof val === 'object' && op.name in (val as Record<string, unknown>)) {
-          next.push({
-            value: (val as Record<string, unknown>)[op.name],
-            path: [...node.path, op.name],
-            parent: val,
-            parentKey: op.name,
-          });
-        }
-      }
-    } else {
-      // Wildcard expansion
-      for (const node of current) {
-        const val = node.value;
-        if (Array.isArray(val)) {
-          // Pre-allocate for arrays (hot path)
-          for (let i = 0; i < val.length; i++) {
-            next.push({
-              value: val[i],
-              path: [...node.path, i],
-              parent: val,
-              parentKey: i,
-            });
-          }
-        } else if (val && typeof val === 'object') {
-          // Object properties
-          const keys = Object.keys(val as Record<string, unknown>);
-          for (const key of keys) {
-            next.push({
-              value: (val as Record<string, unknown>)[key],
-              path: [...node.path, key],
-              parent: val,
-              parentKey: key,
-            });
-          }
-        }
-      }
-    }
-
-    current = next;
-    if (current.length === 0) break; // Early exit
-  }
-
-  // Convert to QueryResultNode[]
-  const results: QueryResultNode[] = current.map(node => ({
-    value: node.value,
-    path: node.path,
-    root: this.root,
-    parent: node.parent,
-    parentKey: node.parentKey,
-  }));
-
-  return new QueryResult(results);
-}
-
-// In evaluate() method, add after evaluateSimpleChain():
-public evaluate(ast: QueryNode): QueryResult {
-  const fast = this.evaluateSimpleChain(ast);
-  if (fast) return fast;
-
-  const wildcard = this.evaluateWildcardChainFastPath(ast);  // NEW
-  if (wildcard) return wildcard;                              // NEW
-
-  const results = Array.from(this.stream(ast));
-  // ... rest
+	const result: Record<string, unknown> = {};
+	for (const key in value) {
+		if (Object.prototype.hasOwnProperty.call(value, key)) {
+			result[key] = fastDeepClone((value as Record<string, unknown>)[key]);
+		}
+	}
+	return result as T;
 }
 ```
 
 **Testing:**
 
-1. Run evaluator tests: `pnpm --filter @jsonpath/evaluator test`
-2. Run benchmarks: `pnpm --filter @jsonpath/benchmarks bench src/query-fundamentals.bench.ts`
-3. Verify wildcard queries improve to **1.5M+ ops/s** (outperforming jsonpath-plus's 1.13M)
-4. Add unit tests for:
-   - `$[*]` - root array wildcard
-   - `$.prop[*]` - nested wildcard
-   - `$[*].prop` - wildcard then property
-   - `$.a[*].b[*].c` - multiple wildcards in chain
+1. Add unit tests: primitives, nested objects, arrays, null, undefined
+2. Benchmark vs `structuredClone` to verify 10-30% improvement
+3. Run `pnpm --filter @jsonpath/core test`
 
-**Expected Impact:** 10x+ improvement on wildcard queries, achieving **1.5M+ ops/s** to outperform jsonpath-plus (1.13M ops/s)
+**Expected Impact:** Foundation for 10-30% improvement in clone-heavy operations
 
 ---
 
-### Step 2: Inline Limit Checking in Hot Paths
-
-**Files:**
-
-- `packages/jsonpath/evaluator/src/evaluator.ts`
-
-**What:**
-Replace `this.checkLimits()` function calls in tight loops with inline conditional checks to eliminate function call overhead.
-
-**Changes:**
-
-```typescript
-// In WildcardSelector, SliceSelector, FilterSelector cases:
-// Replace:
-this.checkLimits(result._depth ?? 0);
-
-// With inline check:
-if (++this.nodesVisited > this.options.maxNodes) {
-	throw new JSONPathLimitError(
-		`Maximum nodes exceeded: ${this.options.maxNodes}`,
-	);
-}
-// Keep timeout check in separate method for less frequent calls
-```
-
-**Testing:**
-
-1. Run evaluator tests
-2. Run benchmarks to verify 5-10% improvement
-3. Ensure limit errors still thrown correctly
-
-**Expected Impact:** 5-10% improvement in tight loops
-
----
-
-### Step 3: Skip Security Checks When Unconfigured
-
-**Files:**
-
-- `packages/jsonpath/evaluator/src/evaluator.ts`
-
-**What:**
-Add a compile-time boolean flag to completely bypass security checks when no `allowPaths` or `blockPaths` are configured (the 99% case).
-
-**Changes:**
-
-```typescript
-// In constructor
-private readonly securityEnabled: boolean;
-
-constructor(root: any, options?: EvaluatorOptions) {
-  // ...
-  this.securityEnabled =
-    (options?.secure?.allowPaths?.length ?? 0) > 0 ||
-    (options?.secure?.blockPaths?.length ?? 0) > 0;
-}
-
-// In streamSelector cases, use early check:
-case NodeType.WildcardSelector:
-  for (let i = 0; i < val.length; i++) {
-    const result = this.pool.acquire({...});
-    // Only check if security is enabled
-    if (this.securityEnabled && !this.isNodeAllowed(result)) continue;
-    yield result;
-  }
-```
-
-**Testing:**
-
-1. Run evaluator tests including security tests
-2. Benchmark with and without security options
-3. Verify no regression when security is enabled
-
-**Expected Impact:** 10-20% improvement for default usage
-
----
-
-### Step 4: Enable Compiled Queries by Default in Facade
-
-**Files:**
-
-- `packages/jsonpath/jsonpath/src/facade.ts`
-- `packages/jsonpath/jsonpath/src/__tests__/facade.spec.ts`
-
-**What:**
-Wire the facade to use `compileQuery()` for all queries by default, leveraging the existing fast-path detection in the compiler.
-
-**Changes:**
-
-```typescript
-// Current flow: query() -> evaluator.evaluate() (interpreter)
-// New flow: query() -> compileQuery() -> compiled function (with fast path)
-
-export function query(
-	root: JsonValue,
-	path: string,
-	options?: QueryOptions,
-): QueryResult {
-	const compiled = compileQuery(path, options);
-	return compiled(root, withDefaultPlugins(options));
-}
-```
-
-**Testing:**
-
-1. Run existing unit tests: `pnpm --filter @jsonpath/jsonpath test`
-2. Run compliance suite: `pnpm --filter @jsonpath/compliance-suite test`
-3. Run benchmarks: `pnpm --filter @jsonpath/benchmarks bench --testNamePattern="Fundamentals"`
-4. Verify simple queries are 2-4x faster
-
----
-
-## Phase 2: Core Optimizations (Steps 5-8)
-
-### Step 5: Add Fast-Path to Evaluator for Non-Compiled Usage
-
-**Files:**
-
-- `packages/jsonpath/evaluator/src/evaluator.ts`
-- `packages/jsonpath/evaluator/src/__tests__/evaluator.spec.ts`
-
-**What:**
-Extend the existing `evaluateSimpleChain()` method to handle more patterns. This is already partially implemented, ensure it's used consistently.
-
-**Testing:**
-
-1. Run evaluator unit tests
-2. Verify simple queries use fast path
-
----
-
-### Step 6: Batch Wildcard Collection
-
-**Files:**
-
-- `packages/jsonpath/evaluator/src/evaluator.ts`
-- `packages/jsonpath/evaluator/src/query-result-pool.ts`
-
-**What:**
-For large arrays, instead of yielding one element at a time (O(n) generator suspensions), collect results in batches of 100+ elements and yield the entire batch. This reduces generator overhead from O(n) to O(n/batchSize).
-
-**Changes:**
-
-```typescript
-// Add to Evaluator class
-private readonly BATCH_THRESHOLD = 50;  // Use batching for arrays > 50 elements
-
-private *streamWildcardBatched(
-  node: QueryResultNode,
-  batchSize = 100
-): Generator<QueryResultNode[]> {
-  const val = node.value;
-  if (!Array.isArray(val)) return;
-
-  const batch: QueryResultNode[] = [];
-  for (let i = 0; i < val.length; i++) {
-    batch.push(this.pool.acquire({
-      value: val[i],
-      root: node.root,
-      parent: val,
-      parentKey: i,
-      pathParent: node,
-      pathSegment: i,
-    }));
-
-    if (batch.length >= batchSize) {
-      yield [...batch];
-      batch.length = 0;
-    }
-  }
-
-  if (batch.length > 0) yield batch;
-}
-
-// In WildcardSelector case, use batching for large arrays:
-case NodeType.WildcardSelector:
-  if (Array.isArray(val) && val.length > this.BATCH_THRESHOLD) {
-    for (const batch of this.streamWildcardBatched(node)) {
-      for (const result of batch) {
-        if (!this.securityEnabled || this.isNodeAllowed(result)) {
-          yield result;
-        }
-      }
-    }
-  } else {
-    // Existing per-element iteration for small arrays
-  }
-```
-
-**Testing:**
-
-1. Run evaluator tests
-2. Run scale-testing benchmarks: `pnpm --filter @jsonpath/benchmarks bench src/scale-testing.bench.ts`
-3. Verify improvement from ~1.3K to ~5K+ ops/s on 1K arrays
-
-**Expected Impact:** 2-3x improvement for large array operations
-
----
-
-### Step 7: Implement Compile-Time Function Resolution
-
-**Files:**
-
-- `packages/jsonpath/parser/src/parser.ts`
-- `packages/jsonpath/parser/src/nodes.ts`
-- `packages/jsonpath/evaluator/src/evaluator.ts`
-- `packages/jsonpath/functions/src/registry.ts`
-
-**What:**
-Move function resolution from runtime to parse/compile time by storing resolved function references in AST nodes.
-
-**Changes:**
-
-```typescript
-// In parser.ts - after parsing function call
-case NodeType.FunctionCall: {
-  const fnDef = getFunction(expr.name);
-  if (fnDef) {
-    (expr as any)._resolvedFn = fnDef;
-  }
-  return expr;
-}
-
-// In evaluator.ts - use pre-resolved function
-private evaluateFunctionCall(node: FunctionCallNode): any {
-  const fn = (node as any)._resolvedFn ?? getFunction(node.name);
-  // ... rest of evaluation
-}
-```
-
-**Testing:**
-
-1. Run parser tests
-2. Run function tests: `pnpm --filter @jsonpath/functions test`
-3. Run filter expression benchmarks
-4. Verify 10-30% improvement in filter-heavy queries
-
----
-
-### Step 8: Lazy Generator Conversion
-
-**Files:**
-
-- `packages/jsonpath/evaluator/src/evaluator.ts`
-- `packages/jsonpath/evaluator/src/options.ts`
-
-**What:**
-Generators have inherent overhead. Only use them when streaming is actually needed (explicit stream mode or limit option). For standard queries, use direct iteration loops.
-
-**Changes:**
-
-```typescript
-// In options.ts - add explicit stream mode
-export interface EvaluatorOptions {
-  stream?: boolean;  // Explicit streaming mode
-  limit?: number;    // Early termination limit
-  // ... existing options
-}
-
-// In evaluator.ts
-public evaluate(ast: QueryNode, options?: EvaluatorOptions): QueryResult {
-  const shouldStream = options?.stream || options?.limit != null;
-
-  if (shouldStream) {
-    return this.evaluateStreaming(ast, options);
-  }
-
-  // Non-streaming: direct loop collection
-  return this.evaluateEager(ast);
-}
-
-private evaluateEager(ast: QueryNode): QueryResult {
-  const results: QueryResultNode[] = [];
-  let current: QueryResultNode[] = [{ value: this.root, root: this.root }];
-
-  for (const segment of ast.segments) {
-    current = this.processSegmentEager(segment, current);
-  }
-
-  return new QueryResult(current);
-}
-```
-
-**Testing:**
-
-1. Run all evaluator tests
-2. Compare streaming vs eager benchmarks
-3. Verify 20-40% improvement for non-streaming queries
-
----
-
-## Phase 3: Package-Specific Optimizations (Steps 9-11)
-
-### Step 9: Optimize @jsonpath/patch Performance
+### Step 2: Move patch helper functions to module scope and change defaults
 
 **Files:**
 
 - `packages/jsonpath/patch/src/patch.ts`
-- `packages/jsonpath/patch/src/operations.ts`
-- `packages/jsonpath/patch/src/__tests__/patch.spec.ts`
-- Internal consumers (benchmarks, tests) must be updated
 
 **What:**
-Optimize patch operations by:
 
-1. Default to in-place mutation (`mutate: true`) instead of cloning
-2. Pre-parse paths once instead of per-operation
-3. Skip validation by default (already implemented, ensure enforced)
-4. Use direct property access instead of full pointer resolution
-5. Update all internal usages to pass `structuredClone()` when immutability is needed
+1. The `setAt`, `removeAt`, `replaceAt` functions are currently defined inside the `applyPatch` loop (lines 114-192), causing per-iteration closure allocation. Move them to module scope.
+2. **BREAKING CHANGE**: Change default from `mutate: false` to `mutate: true` for performance. Users who need immutability must clone before calling.
 
-**Changes:**
+**Current (problematic):**
 
 ```typescript
-export interface ApplyOptions {
-	mutate?: boolean; // Default: true (changed from false)
-	validate?: boolean; // Default: false
-	atomicApply?: boolean; // Default: false (skip rollback overhead)
+for (let index = 0; index < patch.length; index++) {
+	const setAt = (doc, tokens, value, allowCreate) => {
+		/* ... */
+	}; // Allocated every iteration!
+	const removeAt = (doc, tokens) => {
+		/* ... */
+	};
+	const replaceAt = (doc, tokens, value) => {
+		/* ... */
+	};
 }
+```
 
-export function applyPatch(
-	target: JsonValue,
-	patch: PatchOperation[],
-	options: ApplyOptions = {},
-): JsonValue {
-	const { mutate = true, validate = false, atomicApply = false } = options;
+**Target:**
 
-	// Skip clone when mutating
-	let result = mutate ? target : structuredClone(target);
+```typescript
+// Module-level helpers
+const patchOperations = {
+    setAt: (doc: any, tokens: string[], value: unknown, allowCreate: boolean) => { /* ... */ },
+    removeAt: (doc: any, tokens: string[]) => { /* ... */ },
+    replaceAt: (doc: any, tokens: string[], value: unknown) => { /* ... */ },
+};
 
-	// Pre-parse all paths upfront
-	const parsed = patch.map((op) => ({
-		...op,
-		_tokens: op.path.split('/').slice(1).map(unescapeJsonPointer),
-	}));
-
-	// Apply without rollback overhead when not atomic
-	for (const op of parsed) {
-		applyOperationFast(result, op);
-	}
-
-	return result;
-}
-
-// Optimized operation that uses pre-parsed path tokens
-function applyOperationFast(target: any, op: ParsedOperation): void {
-	const tokens = op._tokens;
-	let parent = target;
-
-	// Navigate to parent of target location
-	for (let i = 0; i < tokens.length - 1; i++) {
-		parent = parent[tokens[i]];
-	}
-
-	const lastToken = tokens[tokens.length - 1];
-
-	switch (op.op) {
-		case 'add':
-		case 'replace':
-			parent[lastToken] = op.value;
-			break;
-		case 'remove':
-			if (Array.isArray(parent)) {
-				parent.splice(Number(lastToken), 1);
-			} else {
-				delete parent[lastToken];
-			}
-			break;
-		// ... other operations
-	}
+export function applyPatch(...) {
+    for (let index = 0; index < patch.length; index++) {
+        // Use patchOperations.setAt, etc.
+    }
 }
 ```
 
 **Testing:**
 
-1. Run patch unit tests with new defaults
-2. Run RFC 6902 benchmarks
-3. Target: within 1.5x of fast-json-patch performance
+1. Run `pnpm --filter @jsonpath/patch test`
+2. Run RFC 6902 compliance: `pnpm --filter @jsonpath/patch test src/__tests__/spec.spec.ts`
+3. Benchmark single replace and batch operations
+
+**Expected Impact:** 10-20% improvement from reduced allocation
 
 ---
 
-### Step 10: Optimize @jsonpath/merge-patch Apply Performance
+### Step 3: Replace structuredClone with fastDeepClone in patch
+
+**Files:**
+
+- `packages/jsonpath/patch/src/patch.ts`
+
+**What:**
+Replace all `structuredClone` calls (lines 87-91, 321) with the new `fastDeepClone` from @jsonpath/core.
+
+**Current:**
+
+```typescript
+const workingRoot = atomicApply
+	? structuredClone(target)
+	: mutate
+		? target
+		: structuredClone(target);
+```
+
+**Target:**
+
+```typescript
+import { fastDeepClone } from '@jsonpath/core';
+
+const workingRoot = atomicApply
+	? fastDeepClone(target)
+	: mutate
+		? target
+		: fastDeepClone(target);
+```
+
+**Testing:**
+
+1. Run full patch test suite
+2. Run RFC 6902 compliance tests
+3. Verify atomicApply rollback still works
+4. Benchmark to verify 10-30% improvement
+
+**Expected Impact:** 10-30% improvement on clone-heavy operations
+
+---
+
+### Step 4: Add pointer token caching
+
+**Files:**
+
+- `packages/jsonpath/patch/src/patch.ts`
+
+**What:**
+Create a bounded cache for parsed pointer tokens. The `parseTokens` function is called for every operation but doesn't cache results. For batch operations on similar paths, this is wasteful.
+
+**Implementation:**
+
+```typescript
+// Bounded cache
+const tokenCache = new Map<string, string[]>();
+const TOKEN_CACHE_MAX = 1000;
+
+function parseTokensCached(ptr: string): string[] {
+	let tokens = tokenCache.get(ptr);
+	if (tokens) return tokens;
+
+	tokens = parseTokensImpl(ptr);
+
+	if (tokenCache.size >= TOKEN_CACHE_MAX) {
+		const firstKey = tokenCache.keys().next().value;
+		tokenCache.delete(firstKey);
+	}
+	tokenCache.set(ptr, tokens);
+
+	return tokens;
+}
+```
+
+**Testing:**
+
+1. Run full patch test suite
+2. Benchmark batch operations with repeated paths
+3. Verify cache doesn't grow unbounded
+
+**Expected Impact:** 5-15% improvement for batch operations
+
+---
+
+## Phase 2: High Priority - @jsonpath/merge-patch Optimization (Steps 5-6)
+
+### Step 5: Eliminate unnecessary clones in merge-patch generate
 
 **Files:**
 
 - `packages/jsonpath/merge-patch/src/merge-patch.ts`
-- `packages/jsonpath/merge-patch/src/__tests__/merge-patch.spec.ts`
 
 **What:**
-Optimize the apply function by:
+The `createMergePatch` function uses `structuredClone(target[key])` for every changed value (lines 67, 75, 84). This is unnecessary - we can return references since the patch is a new object.
 
-1. Eliminate intermediate object creation
-2. Use direct property iteration
-3. Reduce function call overhead in recursive path
-
-**Changes:**
+**Current:**
 
 ```typescript
-export function apply(target: JsonValue, patch: JsonValue): JsonValue {
-	// Non-object patch replaces entirely
-	if (!isPlainObject(patch)) {
-		return patch;
+patch[key] = structuredClone(target[key]);
+```
+
+**Target:**
+
+```typescript
+patch[key] = target[key]; // Return reference, not clone
+```
+
+**Also fix double key iteration (lines 70-72):**
+
+```typescript
+// Current (allocates 3 data structures)
+const keys = new Set([...Object.keys(source), ...Object.keys(target)]);
+
+// Target (single pass)
+for (const key in source) {
+	if (!(key in target)) {
+		patch[key] = null;
+		continue;
 	}
-
-	// Non-object target gets replaced with merged object
-	if (!isPlainObject(target)) {
-		target = {};
-	}
-
-	// Direct iteration - no Object.keys() overhead
-	for (const key in patch) {
-		if (!Object.prototype.hasOwnProperty.call(patch, key)) continue;
-
-		const patchValue = patch[key];
-
-		if (patchValue === null) {
-			delete (target as Record<string, unknown>)[key];
-		} else if (
-			isPlainObject(patchValue) &&
-			isPlainObject((target as any)[key])
-		) {
-			// Recursive in-place merge
-			apply((target as any)[key], patchValue);
-		} else {
-			(target as Record<string, unknown>)[key] = patchValue;
-		}
-	}
-
-	return target;
+	// ... compare
 }
-
-// Inline isPlainObject check to avoid function call overhead
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-	return value !== null && typeof value === 'object' && !Array.isArray(value);
+for (const key in target) {
+	if (!(key in source)) {
+		patch[key] = target[key];
+	}
 }
 ```
 
 **Testing:**
 
-1. Run merge-patch unit tests
-2. Run RFC 7386 benchmarks with increased iterations for stability
-3. Target: within 1.5x of json-merge-patch
+1. Run `pnpm --filter @jsonpath/merge-patch test`
+2. Run RFC 7386 compliance tests
+3. Benchmark createMergePatch to verify 30-50% improvement
+
+**Expected Impact:** 30-50% improvement by eliminating unnecessary clones
 
 ---
 
-### Step 11: Reduce Object Allocations in Hot Paths
+### Step 6: Use fastDeepClone in merge-patch apply
 
 **Files:**
 
-- `packages/jsonpath/evaluator/src/query-result-pool.ts`
-- `packages/jsonpath/evaluator/src/evaluator.ts`
-- `packages/jsonpath/core/src/types.ts`
+- `packages/jsonpath/merge-patch/src/merge-patch.ts`
 
 **What:**
-The QueryResultPool adds overhead for small operations. Optimize by:
-
-1. Removing pool for simple results (overhead exceeds benefit)
-2. Using plain objects instead of class instances where possible
-3. Reusing path arrays instead of creating new ones
-
-**Changes:**
-
-```typescript
-// Use plain objects instead of pooled class instances for simple results
-interface QueryResultNode {
-  value: JsonValue;
-  path: PathSegment[];
-  root: JsonValue;
-}
-
-// Reuse path array references where possible
-private evaluateSimplePath(ast: QueryNode): QueryResult {
-  let value = this.root;
-  // Reuse single path array, only copy when returning
-  const path: PathSegment[] = [];
-
-  // ... evaluation ...
-
-  // Only create result object at the end
-  return new QueryResult([{ value, path, root: this.root }]);
-}
-```
+Replace any remaining `structuredClone` calls with `fastDeepClone` from @jsonpath/core for consistent performance.
 
 **Testing:**
 
-1. Run memory profiling benchmarks
-2. Compare allocation counts before/after
-3. Verify no regression in streaming scenarios
+1. Run merge-patch tests
+2. Benchmark apply operations
+
+**Expected Impact:** 10-20% improvement on apply with cloning
 
 ---
 
-## Phase 4: Architectural Improvements (Steps 12-14)
+## Phase 3: Medium Priority - Evaluator Simple Path Optimization (Steps 7-8)
 
-### Step 12: Optimize Recursive Descent
+### Step 7: Pre-compute fast path eligibility in evaluator
 
 **Files:**
 
 - `packages/jsonpath/evaluator/src/evaluator.ts`
-- `packages/jsonpath/evaluator/src/segments/descendant.ts` (if exists, or create)
 
 **What:**
-Recursive descent (`..`) is currently one of the slowest operations. Optimize with:
+Multiple condition checks happen on every `evaluateSimpleChain` call (lines 95-114). Pre-compute these at construction time.
 
-1. Dedicated DFS algorithm avoiding generator overhead
-2. Skip intermediate result collection
-3. Early termination when possible
-
-**Changes:**
+**Current:**
 
 ```typescript
-private evaluateDescendantEager(
-  segment: DescendantSegment,
-  node: QueryResultNode
-): QueryResultNode[] {
-  const results: QueryResultNode[] = [];
-  const stack: Array<[value: any, path: PathSegment[]]> = [[node.value, []]];
+if (
+	this.options.detectCircular ||
+	this.hasEvaluationHooks ||
+	(this.options.maxDepth > 0 && ast.segments.length > this.options.maxDepth) ||
+	this.options.maxResults === 0
+) {
+	return null;
+}
+```
 
-  while (stack.length > 0) {
-    const [current, currentPath] = stack.pop()!;
+**Target:**
 
-    // Apply selectors to current node
-    for (const selector of segment.selectors) {
-      const matches = this.applySelector(selector, current, currentPath);
-      results.push(...matches);
-    }
+```typescript
+// In constructor
+private readonly canUseFastPath: boolean;
 
-    // Add children to stack (DFS)
-    if (Array.isArray(current)) {
-      for (let i = current.length - 1; i >= 0; i--) {
-        stack.push([current[i], [...currentPath, i]]);
-      }
-    } else if (current !== null && typeof current === 'object') {
-      const keys = Object.keys(current);
-      for (let i = keys.length - 1; i >= 0; i--) {
-        stack.push([current[keys[i]], [...currentPath, keys[i]]]);
-      }
-    }
-  }
+constructor(root: any, options?: EvaluatorOptions) {
+    this.options = withDefaults(options);
+    this.canUseFastPath = this.computeFastPathEligibility();
+}
 
-  return results;
+private computeFastPathEligibility(): boolean {
+    if (this.options.detectCircular) return false;
+    if (this.hasEvaluationHooks) return false;
+    if (this.options.maxResults === 0) return false;
+    const { allowPaths, blockPaths } = this.options.secure;
+    if ((allowPaths?.length ?? 0) > 0 || (blockPaths?.length ?? 0) > 0) return false;
+    return true;
+}
+
+private evaluateSimpleChain(ast: QueryNode): QueryResult | null {
+    if (!this.canUseFastPath) return null;
+    // ... rest
 }
 ```
 
 **Testing:**
 
-1. Run recursive descent benchmarks
-2. Target: **7x improvement to 500K+ ops/s** (outperforming jsonpath-plus 348K)
-3. Verify correctness with compliance suite
+1. Run `pnpm --filter @jsonpath/evaluator test`
+2. Benchmark simple path queries
+
+**Expected Impact:** 5-10% improvement from reduced condition checking
 
 ---
 
-### Step 13: Add Performance Regression Tests
+### Step 8: Lazy pointer string computation
+
+**Files:**
+
+- `packages/jsonpath/evaluator/src/evaluator.ts`
+- `packages/jsonpath/evaluator/src/result.ts`
+
+**What:**
+Pointer strings are computed eagerly (lines 163-168) even when not needed. Defer computation until accessed.
+
+**Current:**
+
+```typescript
+const escape = (segment: PathSegment) =>
+	String(segment).replace(/~/g, '~0').replace(/\//g, '~1');
+let ptr = '';
+for (const s of path) ptr += `/${escape(s)}`;
+```
+
+**Target:**
+Use the existing lazy pattern with `_cachedPointer` getter:
+
+```typescript
+// Only compute pointer when accessed via getter
+get pointer(): string {
+    if (this._cachedPointer === undefined) {
+        this._cachedPointer = this.computePointer();
+    }
+    return this._cachedPointer;
+}
+```
+
+**Testing:**
+
+1. Run evaluator tests
+2. Verify `pointer` property still works when accessed
+3. Benchmark simple paths
+
+**Expected Impact:** 5-10% improvement when pointer not used
+
+---
+
+## Phase 4: Finalization (Steps 9-10)
+
+### Step 9: Run comprehensive benchmarks and update documentation
+
+**Files:**
+
+- `packages/jsonpath/benchmarks/AUDIT_REPORT_v5.md`
+- `packages/jsonpath/benchmarks/PERFORMANCE_BASELINES.json` (new)
+
+**What:**
+
+1. Run complete benchmark suite against all competitors
+2. Update AUDIT_REPORT_v5.md with post-optimization results
+3. Create performance baselines file for CI regression detection
+
+**Testing:**
+
+- Full benchmark suite: `pnpm --filter @jsonpath/benchmarks bench`
+- Verify all packages meet target thresholds
+
+**Expected Impact:** Documentation and baseline establishment
+
+---
+
+### Step 10: Add performance regression tests
 
 **Files:**
 
 - `packages/jsonpath/benchmarks/src/__tests__/regression.spec.ts` (new)
-- `packages/jsonpath/benchmarks/baseline.json` (new)
 - `packages/jsonpath/benchmarks/vitest.config.ts`
 
 **What:**
-Add automated performance regression detection to CI:
-
-1. Store baseline performance numbers
-2. Compare against baseline on each run
-3. **Warn (non-blocking)** if performance degrades by more than 10%
-
-**Changes:**
+Add automated performance regression detection:
 
 ```typescript
-// regression.spec.ts
-import { describe, it, expect } from 'vitest';
-import baseline from '../baseline.json';
-
 describe('Performance Regression', () => {
-  it('simple query should not regress', async () => {
-    const start = performance.now();
-    for (let i = 0; i < 10000; i++) {
-      queryValues(STORE_DATA, '$.store.book[0].title');
-    }
-    const elapsed = performance.now() - start;
-    const opsPerSec = 10000 / (elapsed / 1000);
-
-    const threshold = baseline.simpleQuery.opsPerSec * 0.9;
-    if (opsPerSec < threshold) {
-      console.warn(`⚠️ Performance regression detected: ${opsPerSec.toFixed(0)} ops/s < ${threshold.toFixed(0)} ops/s baseline`);
-    }
-    // Non-blocking: always pass, just warn
-    expect(true).toBe(true);
-  });
+	it('patch single replace should meet baseline', async () => {
+		const opsPerSec = await measureOpsPerSec(() => {
+			applyPatch(doc, [{ op: 'replace', path: '/a', value: 1 }]);
+		});
+		const threshold = baselines.patchSingle * 0.9;
+		if (opsPerSec < threshold) {
+			console.warn(`⚠️ Regression: ${opsPerSec} < ${threshold}`);
+		}
+	});
 });
-
-// baseline.json
-{
-  "simpleQuery": { "opsPerSec": 300000 },
-  "filterQuery": { "opsPerSec": 80000 },
-  "recursiveQuery": { "opsPerSec": 50000 }
-}
 ```
 
 **Testing:**
 
 1. Run regression tests
 2. Verify baseline capture works
-3. Verify detection of intentional regression
 
----
-
-### Step 14: Update Documentation and Benchmarks
-
-**Files:**
-
-- `packages/jsonpath/benchmarks/AUDIT_REPORT.md`
-- `packages/jsonpath/benchmarks/README.md`
-- `packages/jsonpath/jsonpath/README.md`
-- `docs/api/jsonpath.md`
-
-**What:**
-
-1. Update AUDIT_REPORT with post-optimization results
-2. Document new options (mutate, stream, etc.)
-3. Add performance tuning guide
-4. Update benchmark README with optimization notes
-
-**Testing:**
-
-1. Run full benchmark suite
-2. Capture final performance numbers
-3. Verify documentation accuracy
+**Expected Impact:** CI regression detection
 
 ---
 
 ## Summary
 
-| Step | Phase      | Expected Impact               | Package               |
-| ---- | ---------- | ----------------------------- | --------------------- |
-| 1    | Quick Wins | **10x+ faster wildcards ⭐**  | @jsonpath/evaluator   |
-| 2    | Quick Wins | 5-10% faster loops            | @jsonpath/evaluator   |
-| 3    | Quick Wins | 10-20% faster (default)       | @jsonpath/evaluator   |
-| 4    | Quick Wins | 2-4x faster simple queries    | @jsonpath/jsonpath    |
-| 5    | Core       | Ensure fast path used         | @jsonpath/evaluator   |
-| 6    | Core       | 2-3x faster large arrays      | @jsonpath/evaluator   |
-| 7    | Core       | 10-30% faster filters         | parser/evaluator      |
-| 8    | Core       | 20-40% faster non-streaming   | @jsonpath/evaluator   |
-| 9    | Package    | **2-3x faster patch**         | @jsonpath/patch       |
-| 10   | Package    | **1.5-2x faster merge-patch** | @jsonpath/merge-patch |
-| 11   | Package    | 10-20% faster                 | evaluator/core        |
-| 12   | Arch       | **5-7x faster `$..`**         | @jsonpath/evaluator   |
-| 13   | Arch       | CI regression detection       | benchmarks            |
-| 14   | Arch       | Documentation                 | docs                  |
+| Step | Phase    | Package               | Expected Impact        |
+| ---- | -------- | --------------------- | ---------------------- |
+| 1    | Critical | @jsonpath/core        | Foundation for 10-30%  |
+| 2    | Critical | @jsonpath/patch       | 10-20% faster          |
+| 3    | Critical | @jsonpath/patch       | 10-30% faster          |
+| 4    | Critical | @jsonpath/patch       | 5-15% faster           |
+| 5    | High     | @jsonpath/merge-patch | 30-50% faster generate |
+| 6    | High     | @jsonpath/merge-patch | 10-20% faster apply    |
+| 7    | Medium   | @jsonpath/evaluator   | 5-10% faster           |
+| 8    | Medium   | @jsonpath/evaluator   | 5-10% faster           |
+| 9    | Final    | benchmarks            | Documentation          |
+| 10   | Final    | benchmarks            | CI regression tests    |
+
+## Success Criteria
+
+**Target: Achieve parity or better with all competitors**
+
+- [ ] @jsonpath/patch single: From 91K → **180K+ ops/s** (≥0.90x vs fast-json-patch)
+- [ ] @jsonpath/patch batch: From 75K → **130K+ ops/s** (≥0.90x vs fast-json-patch)
+- [ ] @jsonpath/merge-patch generate: From 1.69M → **2.4M+ ops/s** (≥0.95x vs json-merge-patch)
+- [ ] @jsonpath/evaluator simple: From 1.75M → **1.95M+ ops/s** (≥0.98x vs jsonpath-plus)
+- [ ] All RFC compliance tests passing (6902, 7386)
+- [ ] Breaking change documented: `mutate: true` is now default
+- [ ] Performance baselines established for CI (warn-only)
 
 ## Rollback Plan
 
 Each step is independent and can be reverted individually:
 
-- **Phase 1 (Steps 1-4):** Revert fast path additions
-- **Phase 2 (Steps 5-8):** Revert core optimizations
-- **Phase 3 (Steps 9-11):** Revert package-specific changes
-- **Phase 4 (Steps 12-14):** Non-functional, safe to revert
-
-## Success Criteria
-
-**Goal: Outperform all existing JSONPath implementations**
-
-- [ ] Wildcards: From 145K → **1.5M+ ops/s** (10x+ improvement, beats jsonpath-plus 1.13M)
-- [ ] Recursive: From 74K → **500K+ ops/s** (7x improvement, beats jsonpath-plus 348K)
-- [ ] Large arrays: From 1.3K → **15K+ ops/s** (11x improvement, beats jsonpath-plus 10.5K)
-- [ ] Simple paths: Maintain 2.24M+ ops/s (no regression)
-- [ ] Pointer: Maintain 2.66M+ ops/s (no regression)
-- [ ] Patch: From 89K → **250K+ ops/s** (2.8x improvement, beats fast-json-patch 190K)
-- [ ] Merge-patch: From 187K → **250K+ ops/s** (1.3x improvement)
-- [ ] All RFC compliance tests passing
-- [ ] No memory leaks or regressions in streaming mode
-- [ ] Performance regression tests in CI (warn-only, non-blocking)
-- [ ] Documentation updated with optimization notes
+- **Phase 1 (Steps 1-4):** Revert to `structuredClone`, inline helpers
+- **Phase 2 (Steps 5-6):** Revert merge-patch changes
+- **Phase 3 (Steps 7-8):** Revert evaluator changes
+- **Phase 4 (Steps 9-10):** Non-functional, safe to revert
