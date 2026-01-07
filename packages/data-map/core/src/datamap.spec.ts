@@ -335,6 +335,17 @@ describe('DataMap batch edge cases', () => {
 		await flushMicrotasks();
 		expect(calls).toEqual(['after']);
 	});
+
+	it('batch applies operations against a single evolving working state', () => {
+		const dm = new DataMap({ a: 0 });
+
+		dm.batch(() => {
+			dm.set('/a', 1);
+			dm.map('/a', (v) => Number(v) + 1);
+		});
+
+		expect(dm.get('/a')).toBe(2);
+	});
 });
 
 describe('DataMap coverage edge cases', () => {
