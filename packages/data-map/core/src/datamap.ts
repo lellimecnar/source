@@ -47,12 +47,68 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	private _data: T;
 	private readonly _strict: boolean;
 	private readonly _context: Ctx | undefined;
-	private readonly _subs = new SubscriptionManagerImpl<T, Ctx>(this);
+	private _subs: SubscriptionManagerImpl<T, Ctx> | null = null;
 	private readonly _batch = new BatchManager();
 	private readonly _defs = new DefinitionRegistry<T, Ctx>(this);
 	private readonly _defineOptions: DataMapOptions<T, Ctx>['define'] | undefined;
 	private readonly _previousValues = new Map<string, unknown>();
 	private readonly _lastUpdated = new Map<string, number>();
+
+	private get subs(): SubscriptionManagerImpl<T, Ctx> {
+		if (!this._subs) this._subs = new SubscriptionManagerImpl<T, Ctx>(this);
+		return this._subs;
+	}
+
+	private hasSubscribers(): boolean {
+		return this._subs !== null && this._subs.hasSubscribers();
+	}
+
+	private scheduleNotify(
+		pointer: string,
+		event: SubscriptionEvent,
+		stage: 'on' | 'after',
+		value: unknown,
+		previousValue?: unknown,
+		operation?: Operation,
+		originalPath: string = pointer,
+	): void {
+		// Only schedule if we have subscriptions; otherwise skip the overhead
+		if (this._subs) {
+			this._subs.scheduleNotify(
+				pointer,
+				event,
+				stage,
+				value,
+				previousValue,
+				operation,
+				originalPath,
+			);
+		}
+	}
+
+	private notify(
+		pointer: string,
+		event: SubscriptionEvent,
+		stage: 'before' | 'on' | 'after',
+		value: unknown,
+		previousValue?: unknown,
+		operation?: Operation,
+		originalPath: string = pointer,
+	): { cancelled: boolean; transformedValue?: unknown; handlerCount: number } {
+		// Only notify if we have subscriptions; otherwise skip the overhead
+		if (this._subs) {
+			return this._subs.notify(
+				pointer,
+				event,
+				stage,
+				value,
+				previousValue,
+				operation,
+				originalPath,
+			);
+		}
+		return { cancelled: false, handlerCount: 0 };
+	}
 
 	constructor(initialValue: T, options: DataMapOptions<T, Ctx> = {}) {
 		this._strict = options.strict ?? false;
@@ -74,7 +130,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	}
 
 	subscribe(config: SubscriptionConfig<T, Ctx>): Subscription {
-		return this._subs.register(config);
+		return this.subs.register(config);
 	}
 
 	private buildResolvedMatch(pointer: string, value: unknown): ResolvedMatch {
@@ -135,7 +191,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			if (pointerString === '') {
 				const raw = this._defs.applyGetter('', this._data, ctx);
 				const value = shouldClone ? cloneSnapshot(raw) : raw;
-				this._subs.scheduleNotify(
+				this.scheduleNotify(
 					'',
 					'resolve',
 					'on',
@@ -144,7 +200,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 					undefined,
 					pathOrPointer,
 				);
-				this._subs.scheduleNotify(
+				this.scheduleNotify(
 					'',
 					'resolve',
 					'after',
@@ -165,7 +221,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			const raw = this._defs.applyGetter(pointerString, resolved, ctx);
 			const value = shouldClone ? cloneSnapshot(raw) : raw;
 
-			this._subs.scheduleNotify(
+			this.scheduleNotify(
 				pointerString,
 				'resolve',
 				'on',
@@ -174,7 +230,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				undefined,
 				pathOrPointer,
 			);
-			this._subs.scheduleNotify(
+			this.scheduleNotify(
 				pointerString,
 				'resolve',
 				'after',
@@ -196,7 +252,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			});
 
 			for (const m of matches) {
-				this._subs.scheduleNotify(
+				this.scheduleNotify(
 					m.pointer,
 					'resolve',
 					'on',
@@ -205,7 +261,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 					undefined,
 					pathOrPointer,
 				);
-				this._subs.scheduleNotify(
+				this.scheduleNotify(
 					m.pointer,
 					'resolve',
 					'after',
@@ -247,7 +303,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				const raw = this._defs.applyGetter(pointer, node.value, ctx);
 				const value = shouldClone ? cloneSnapshot(raw) : raw;
 
-				this._subs.scheduleNotify(
+				this.scheduleNotify(
 					pointer,
 					'resolve',
 					'on',
@@ -256,7 +312,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 					undefined,
 					pathOrPointer,
 				);
-				this._subs.scheduleNotify(
+				this.scheduleNotify(
 					pointer,
 					'resolve',
 					'after',
@@ -281,7 +337,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		const match = matches[0];
 		if (!match) return undefined;
 
-		const before = this._subs.notify(
+		const before = this.notify(
 			match.pointer,
 			'get',
 			'before',
@@ -291,7 +347,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			pathOrPointer,
 		);
 
-		this._subs.scheduleNotify(
+		this.scheduleNotify(
 			match.pointer,
 			'get',
 			'on',
@@ -300,7 +356,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			undefined,
 			pathOrPointer,
 		);
-		this._subs.scheduleNotify(
+		this.scheduleNotify(
 			match.pointer,
 			'get',
 			'after',
@@ -514,7 +570,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 					const previousValue = previousValues.get(op.path);
 					const nextValue = 'value' in op ? op.value : undefined;
 
-					const before = this._subs.notify(
+					const before = this.notify(
 						op.path,
 						'patch',
 						'before',
@@ -563,18 +619,18 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				}
 
 				for (const p of structuralPointers) {
-					this._subs.handleStructuralChange(p);
+					this._subs?.handleStructuralChange(p);
 				}
 
 				for (const p of affectedPointers) {
-					this._subs.handleFilterCriteriaChange(p);
+					this._subs?.handleFilterCriteriaChange(p);
 				}
 
 				// Dispatch notifications, expanding move operations for subscription semantics
 				for (const op of effectiveOps) {
 					if (op.op === 'move') {
 						// Treat move as remove(from) + set(to) for subscription dispatch
-						this._subs.notify(
+						this.notify(
 							op.from,
 							'remove',
 							'on',
@@ -583,7 +639,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 							op,
 							op.from,
 						);
-						this._subs.notify(
+						this.notify(
 							op.from,
 							'remove',
 							'after',
@@ -593,7 +649,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 							op.from,
 						);
 
-						this._subs.notify(
+						this.notify(
 							op.path,
 							'set',
 							'on',
@@ -602,7 +658,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 							op,
 							op.path,
 						);
-						this._subs.notify(
+						this.notify(
 							op.path,
 							'set',
 							'after',
@@ -612,7 +668,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 							op.path,
 						);
 					} else {
-						this._subs.notify(
+						this.notify(
 							op.path,
 							'patch',
 							'on',
@@ -621,7 +677,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 							op,
 							op.path,
 						);
-						this._subs.notify(
+						this.notify(
 							op.path,
 							'patch',
 							'after',
@@ -895,17 +951,17 @@ export class DataMap<T = unknown, Ctx = unknown> {
 
 	private _flushBatch(context: BatchContext): void {
 		for (const p of context.structuralPointers) {
-			this._subs.handleStructuralChange(p);
+			this._subs?.handleStructuralChange(p);
 		}
 
 		for (const p of context.affectedPointers) {
-			this._subs.handleFilterCriteriaChange(p);
+			this._subs?.handleFilterCriteriaChange(p);
 		}
 
 		for (const p of context.affectedPointers) {
 			const val = this.get(p);
-			this._subs.notify(p, 'patch', 'on', val, undefined, undefined, p);
-			this._subs.notify(p, 'patch', 'after', val, undefined, undefined, p);
+			this.notify(p, 'patch', 'on', val, undefined, undefined, p);
+			this.notify(p, 'patch', 'after', val, undefined, undefined, p);
 		}
 	}
 

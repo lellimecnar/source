@@ -55,10 +55,10 @@ describe('subscription manager', () => {
 
 	it('getMatchingSubscriptions returns both static and dynamic matches', () => {
 		const dm = new DataMap({ a: 1 });
-		const mgr = (dm as any)._subs;
-		mgr.register({ path: '/a', fn: () => {} });
-		mgr.register({ path: '$.*', fn: () => {} });
+		dm.subscribe({ path: '/a', fn: () => {} });
+		dm.subscribe({ path: '$.*', fn: () => {} });
 
+		const mgr = (dm as any)._subs;
 		const subs = mgr.getMatchingSubscriptions('/a');
 		expect(subs.length).toBe(2);
 	});
@@ -170,5 +170,13 @@ describe('subscription manager', () => {
 		} finally {
 			spy.mockRestore();
 		}
+	});
+
+	it('does not instantiate SubscriptionManagerImpl until first subscribe()', () => {
+		const dm = new DataMap({ a: 1 });
+		expect((dm as any)._subs).toBeNull();
+
+		dm.subscribe({ path: '/a', after: 'set', fn: () => {} });
+		expect((dm as any)._subs).not.toBeNull();
 	});
 });
