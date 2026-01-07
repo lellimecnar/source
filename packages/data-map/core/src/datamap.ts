@@ -96,19 +96,20 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		operation?: Operation,
 		originalPath: string = pointer,
 	): { cancelled: boolean; transformedValue?: unknown; handlerCount: number } {
-		// Only notify if we have subscriptions; otherwise skip the overhead
-		if (this._subs) {
-			return this._subs.notify(
-				pointer,
-				event,
-				stage,
-				value,
-				previousValue,
-				operation,
-				originalPath,
-			);
+		// Skip all notification work if there are no subscribers
+		if (!this.hasSubscribers()) {
+			return { cancelled: false, handlerCount: 0 };
 		}
-		return { cancelled: false, handlerCount: 0 };
+
+		return this._subs!.notify(
+			pointer,
+			event,
+			stage,
+			value,
+			previousValue,
+			operation,
+			originalPath,
+		);
 	}
 
 	constructor(initialValue: T, options: DataMapOptions<T, Ctx> = {}) {
