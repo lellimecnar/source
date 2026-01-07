@@ -1,4 +1,4 @@
-import { rfdc } from 'rfdc';
+import rfdc from 'rfdc';
 
 import type { BenchmarkAdapter } from './types.js';
 

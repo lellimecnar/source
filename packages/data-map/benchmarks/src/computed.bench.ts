@@ -3,39 +3,35 @@ import { bench, describe } from 'vitest';
 
 import { DATASETS } from './fixtures';
 
+// Pre-compute the define arrays at module level to measure actual getter execution
+const definitions50 = Array.from({ length: 50 }, (_, i) => ({
+	pointer: `/computed${i}`,
+	get: () => `computed_${i}`,
+}));
+
+const dependentDefinitions = [
+	{ pointer: '/derived1', get: () => 'v1' },
+	{ pointer: '/derived2', get: () => 'v2' },
+];
+
 describe('Computed', () => {
 	bench('define 50 computed values', () => {
-		const define: any = {};
-		for (let i = 0; i < 50; i++) {
-			define[`c${i}`] = {
-				getter: (ctx: any) => `computed_${i}`,
-			};
-		}
-		const dm = new DataMap({
-			data: structuredClone(DATASETS.smallObject),
-			define,
+		const dm = new DataMap(structuredClone(DATASETS.smallObject), {
+			define: definitions50,
 		});
-		// force reads to measure behavior
+		// force reads to measure getter execution
 		for (let i = 0; i < 50; i++) {
-			dm.get(`$defs/c${i}`);
+			dm.get(`/computed${i}`);
 		}
 	});
 
 	bench('multiple dependent definitions', () => {
-		const dm = new DataMap({
-			data: structuredClone(DATASETS.smallObject),
-			define: {
-				derived1: {
-					getter: (ctx: any) => 'v1',
-				},
-				derived2: {
-					getter: (ctx: any) => 'v2',
-				},
-			},
+		const dm = new DataMap(structuredClone(DATASETS.smallObject), {
+			define: dependentDefinitions,
 		});
 		for (let i = 0; i < 100; i++) {
-			dm.get(`$defs/derived1`);
-			dm.get(`$defs/derived2`);
+			dm.get('/derived1');
+			dm.get('/derived2');
 		}
 	});
 });

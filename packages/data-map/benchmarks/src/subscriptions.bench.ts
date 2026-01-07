@@ -3,48 +3,57 @@ import { bench, describe } from 'vitest';
 
 import { DATASETS } from './fixtures';
 
+const smallObjectTemplate = DATASETS.smallObject;
+
+// No-op subscription handler for benchmarking overhead
+const noop = () => {};
+
 describe('Subscriptions', () => {
-	bench('subscribe + 100 updates', () => {
-		const dm = new DataMap({
-			data: structuredClone(DATASETS.smallObject),
-		});
-		let hits = 0;
-		const unsubscribe = dm.subscribe({
-			on: () => {
-				hits++;
-			},
-		});
-
-		for (let i = 0; i < 100; i++) {
-			dm.set('/key0', i);
-		}
-
-		unsubscribe();
-		if (hits === 0) throw new Error('no hits');
+	bench('10 updates without subscribe', () => {
+		const dm = new DataMap(structuredClone(smallObjectTemplate));
+		dm.set('/key0', 1);
+		dm.set('/key0', 2);
+		dm.set('/key0', 3);
+		dm.set('/key0', 4);
+		dm.set('/key0', 5);
+		dm.set('/key0', 6);
+		dm.set('/key0', 7);
+		dm.set('/key0', 8);
+		dm.set('/key0', 9);
+		dm.set('/key0', 10);
 	});
 
-	bench('multiple subscriptions + updates', () => {
-		const dm = new DataMap({
-			data: structuredClone(DATASETS.smallObject),
-		});
-		let hits1 = 0;
-		let hits2 = 0;
-		const unsub1 = dm.subscribe({
-			on: () => {
-				hits1++;
-			},
-		});
-		const unsub2 = dm.subscribe({
-			on: () => {
-				hits2++;
-			},
-		});
+	bench('10 updates with subscribe', () => {
+		const dm = new DataMap(structuredClone(smallObjectTemplate));
+		// Valid subscription config: path and fn are required
+		const sub = dm.subscribe({ path: '/key0', after: 'set', fn: noop });
+		dm.set('/key0', 1);
+		dm.set('/key0', 2);
+		dm.set('/key0', 3);
+		dm.set('/key0', 4);
+		dm.set('/key0', 5);
+		dm.set('/key0', 6);
+		dm.set('/key0', 7);
+		dm.set('/key0', 8);
+		dm.set('/key0', 9);
+		dm.set('/key0', 10);
+		sub.unsubscribe();
+	});
 
-		for (let i = 0; i < 10; i++) {
-			dm.set('/key0', i);
-		}
-
-		unsub1();
-		unsub2();
+	bench('10 updates with wildcard subscribe', () => {
+		const dm = new DataMap(structuredClone(smallObjectTemplate));
+		// Wildcard path subscription
+		const sub = dm.subscribe({ path: '$..*', after: 'set', fn: noop });
+		dm.set('/key0', 1);
+		dm.set('/key0', 2);
+		dm.set('/key0', 3);
+		dm.set('/key0', 4);
+		dm.set('/key0', 5);
+		dm.set('/key0', 6);
+		dm.set('/key0', 7);
+		dm.set('/key0', 8);
+		dm.set('/key0', 9);
+		dm.set('/key0', 10);
+		sub.unsubscribe();
 	});
 });

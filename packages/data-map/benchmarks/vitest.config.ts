@@ -7,6 +7,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
 	...vitestBaseConfig(),
+	test: {
+		...vitestBaseConfig().test,
+		benchmark: {
+			include: ['**/*.bench.ts'],
+			reporters: ['default'],
+			outputJson: './benchmark-results.json',
+		},
+	},
 	resolve: {
 		alias: {
 			'@data-map/core': path.resolve(__dirname, '../core/src/index.ts'),
