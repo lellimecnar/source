@@ -58,6 +58,7 @@ export class Evaluator {
 	private resultsFound = 0;
 	private currentFilterDepth = 0;
 	private readonly pool = new QueryResultPool();
+	private readonly securityEnabled: boolean;
 	private readonly isNodeAllowed: (node: QueryResultNode) => boolean;
 	private readonly hasEvaluationHooks: boolean;
 
@@ -66,7 +67,11 @@ export class Evaluator {
 		this.options = withDefaults(options);
 
 		const { allowPaths, blockPaths } = this.options.secure;
-		if (!allowPaths?.length && !blockPaths?.length) {
+		const hasSecurity =
+			(allowPaths?.length ?? 0) > 0 || (blockPaths?.length ?? 0) > 0;
+		this.securityEnabled = hasSecurity;
+
+		if (!hasSecurity) {
 			this.isNodeAllowed = () => true;
 		} else {
 			this.isNodeAllowed = (node) => this.checkPathRestrictions(node);
@@ -636,7 +641,42 @@ export class Evaluator {
 								pathSegment: i,
 							});
 							if (this.isNodeAllowed(result)) {
-								this.checkLimits(result._depth ?? 0);
+								// Inlined checkLimits for hot path
+								this.nodesVisited++;
+								if (this.options.signal.aborted) {
+									throw new JSONPathTimeoutError(
+										'Evaluation aborted by signal',
+										{
+											code: 'TIMEOUT',
+										},
+									);
+								}
+								if (
+									this.options.maxNodes > 0 &&
+									this.nodesVisited > this.options.maxNodes
+								) {
+									throw new JSONPathLimitError(
+										`Maximum nodes visited exceeded: ${this.options.maxNodes}`,
+										{ code: 'MAX_NODES_EXCEEDED' },
+									);
+								}
+								if (
+									this.options.maxDepth > 0 &&
+									(result._depth ?? 0) > this.options.maxDepth
+								) {
+									throw new JSONPathLimitError(
+										`Maximum depth exceeded: ${this.options.maxDepth}`,
+										{ code: 'MAX_DEPTH_EXCEEDED' },
+									);
+								}
+								if (this.options.timeout > 0) {
+									if (Date.now() - this.startTime > this.options.timeout) {
+										throw new JSONPathTimeoutError(
+											`Query timed out after ${this.options.timeout}ms`,
+											{ code: 'TIMEOUT' },
+										);
+									}
+								}
 								yield result;
 							}
 						}
@@ -651,7 +691,42 @@ export class Evaluator {
 								pathSegment: k,
 							});
 							if (this.isNodeAllowed(result)) {
-								this.checkLimits(result._depth ?? 0);
+								// Inlined checkLimits for hot path
+								this.nodesVisited++;
+								if (this.options.signal.aborted) {
+									throw new JSONPathTimeoutError(
+										'Evaluation aborted by signal',
+										{
+											code: 'TIMEOUT',
+										},
+									);
+								}
+								if (
+									this.options.maxNodes > 0 &&
+									this.nodesVisited > this.options.maxNodes
+								) {
+									throw new JSONPathLimitError(
+										`Maximum nodes visited exceeded: ${this.options.maxNodes}`,
+										{ code: 'MAX_NODES_EXCEEDED' },
+									);
+								}
+								if (
+									this.options.maxDepth > 0 &&
+									(result._depth ?? 0) > this.options.maxDepth
+								) {
+									throw new JSONPathLimitError(
+										`Maximum depth exceeded: ${this.options.maxDepth}`,
+										{ code: 'MAX_DEPTH_EXCEEDED' },
+									);
+								}
+								if (this.options.timeout > 0) {
+									if (Date.now() - this.startTime > this.options.timeout) {
+										throw new JSONPathTimeoutError(
+											`Query timed out after ${this.options.timeout}ms`,
+											{ code: 'TIMEOUT' },
+										);
+									}
+								}
 								yield result;
 							}
 						}
@@ -685,7 +760,42 @@ export class Evaluator {
 									pathSegment: i,
 								});
 								if (this.isNodeAllowed(result)) {
-									this.checkLimits(result._depth ?? 0);
+									// Inlined checkLimits for hot path
+									this.nodesVisited++;
+									if (this.options.signal.aborted) {
+										throw new JSONPathTimeoutError(
+											'Evaluation aborted by signal',
+											{
+												code: 'TIMEOUT',
+											},
+										);
+									}
+									if (
+										this.options.maxNodes > 0 &&
+										this.nodesVisited > this.options.maxNodes
+									) {
+										throw new JSONPathLimitError(
+											`Maximum nodes visited exceeded: ${this.options.maxNodes}`,
+											{ code: 'MAX_NODES_EXCEEDED' },
+										);
+									}
+									if (
+										this.options.maxDepth > 0 &&
+										(result._depth ?? 0) > this.options.maxDepth
+									) {
+										throw new JSONPathLimitError(
+											`Maximum depth exceeded: ${this.options.maxDepth}`,
+											{ code: 'MAX_DEPTH_EXCEEDED' },
+										);
+									}
+									if (this.options.timeout > 0) {
+										if (Date.now() - this.startTime > this.options.timeout) {
+											throw new JSONPathTimeoutError(
+												`Query timed out after ${this.options.timeout}ms`,
+												{ code: 'TIMEOUT' },
+											);
+										}
+									}
 									yield result;
 								}
 							}
@@ -702,7 +812,42 @@ export class Evaluator {
 									pathSegment: i,
 								});
 								if (this.isNodeAllowed(result)) {
-									this.checkLimits(result._depth ?? 0);
+									// Inlined checkLimits for hot path
+									this.nodesVisited++;
+									if (this.options.signal.aborted) {
+										throw new JSONPathTimeoutError(
+											'Evaluation aborted by signal',
+											{
+												code: 'TIMEOUT',
+											},
+										);
+									}
+									if (
+										this.options.maxNodes > 0 &&
+										this.nodesVisited > this.options.maxNodes
+									) {
+										throw new JSONPathLimitError(
+											`Maximum nodes visited exceeded: ${this.options.maxNodes}`,
+											{ code: 'MAX_NODES_EXCEEDED' },
+										);
+									}
+									if (
+										this.options.maxDepth > 0 &&
+										(result._depth ?? 0) > this.options.maxDepth
+									) {
+										throw new JSONPathLimitError(
+											`Maximum depth exceeded: ${this.options.maxDepth}`,
+											{ code: 'MAX_DEPTH_EXCEEDED' },
+										);
+									}
+									if (this.options.timeout > 0) {
+										if (Date.now() - this.startTime > this.options.timeout) {
+											throw new JSONPathTimeoutError(
+												`Query timed out after ${this.options.timeout}ms`,
+												{ code: 'TIMEOUT' },
+											);
+										}
+									}
 									yield result;
 								}
 							}
@@ -724,7 +869,42 @@ export class Evaluator {
 							});
 							if (this.evaluateFilter(selector.expression, item)) {
 								if (this.isNodeAllowed(item)) {
-									this.checkLimits(item._depth ?? 0);
+									// Inlined checkLimits for hot path
+									this.nodesVisited++;
+									if (this.options.signal.aborted) {
+										throw new JSONPathTimeoutError(
+											'Evaluation aborted by signal',
+											{
+												code: 'TIMEOUT',
+											},
+										);
+									}
+									if (
+										this.options.maxNodes > 0 &&
+										this.nodesVisited > this.options.maxNodes
+									) {
+										throw new JSONPathLimitError(
+											`Maximum nodes visited exceeded: ${this.options.maxNodes}`,
+											{ code: 'MAX_NODES_EXCEEDED' },
+										);
+									}
+									if (
+										this.options.maxDepth > 0 &&
+										(item._depth ?? 0) > this.options.maxDepth
+									) {
+										throw new JSONPathLimitError(
+											`Maximum depth exceeded: ${this.options.maxDepth}`,
+											{ code: 'MAX_DEPTH_EXCEEDED' },
+										);
+									}
+									if (this.options.timeout > 0) {
+										if (Date.now() - this.startTime > this.options.timeout) {
+											throw new JSONPathTimeoutError(
+												`Query timed out after ${this.options.timeout}ms`,
+												{ code: 'TIMEOUT' },
+											);
+										}
+									}
 									yield item;
 								}
 							}
@@ -741,7 +921,42 @@ export class Evaluator {
 							});
 							if (this.evaluateFilter(selector.expression, item)) {
 								if (this.isNodeAllowed(item)) {
-									this.checkLimits(item._depth ?? 0);
+									// Inlined checkLimits for hot path
+									this.nodesVisited++;
+									if (this.options.signal.aborted) {
+										throw new JSONPathTimeoutError(
+											'Evaluation aborted by signal',
+											{
+												code: 'TIMEOUT',
+											},
+										);
+									}
+									if (
+										this.options.maxNodes > 0 &&
+										this.nodesVisited > this.options.maxNodes
+									) {
+										throw new JSONPathLimitError(
+											`Maximum nodes visited exceeded: ${this.options.maxNodes}`,
+											{ code: 'MAX_NODES_EXCEEDED' },
+										);
+									}
+									if (
+										this.options.maxDepth > 0 &&
+										(item._depth ?? 0) > this.options.maxDepth
+									) {
+										throw new JSONPathLimitError(
+											`Maximum depth exceeded: ${this.options.maxDepth}`,
+											{ code: 'MAX_DEPTH_EXCEEDED' },
+										);
+									}
+									if (this.options.timeout > 0) {
+										if (Date.now() - this.startTime > this.options.timeout) {
+											throw new JSONPathTimeoutError(
+												`Query timed out after ${this.options.timeout}ms`,
+												{ code: 'TIMEOUT' },
+											);
+										}
+									}
 									yield item;
 								}
 							}

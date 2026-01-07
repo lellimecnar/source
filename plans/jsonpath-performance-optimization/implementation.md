@@ -46,7 +46,7 @@ Primary priorities:
   - [x] `$[*]`
   - [x] `$.prop[*]`
   - [x] `$[*].prop`
-  - [x] `$.a[*].b[*].c`
+  - [x] `$.a[*].b[*].c` (COMPLETED)
 
 **Verification:**
 
@@ -79,13 +79,13 @@ completes: step 1 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Identify hot loops (wildcard, slices, filters, large arrays) that call `checkLimits(...)`.
-- [ ] Replace calls with inline checks that preserve semantics for:
-  - [ ] `signal.aborted`
-  - [ ] `maxNodes`
-  - [ ] `maxDepth`
-  - [ ] `timeout`
-  - [ ] `maxResults` (for call sites that check `resultsFound`)
+- [x] Identify hot loops (wildcard, slices, filters, large arrays) that call `checkLimits(...)`.
+- [x] Replace calls with inline checks that preserve semantics for:
+  - [x] `signal.aborted`
+  - [x] `maxNodes`
+  - [x] `maxDepth`
+  - [x] `timeout`
+  - [x] `maxResults` (for call sites that check `resultsFound`) (COMPLETED)
 
 **Verification:**
 
@@ -116,9 +116,9 @@ completes: step 2 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Add a boolean flag in evaluator initialization that indicates whether security is enabled.
-- [ ] Guard security checks (`isNodeAllowed`) behind that flag.
-- [ ] Ensure security behavior is unchanged when allow/block rules are configured.
+- [x] Add a boolean flag in evaluator initialization that indicates whether security is enabled.
+- [x] Guard security checks (`isNodeAllowed`) behind that flag.
+- [x] Ensure security behavior is unchanged when allow/block rules are configured. (COMPLETED)
 
 **Verification:**
 
@@ -150,9 +150,9 @@ completes: step 3 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Change facade flow from interpreter-first to compiler-first.
-- [ ] Ensure plugins and options are preserved.
-- [ ] Ensure cache strategy (if any) remains correct.
+- [x] Change facade flow from interpreter-first to compiler-first.
+- [x] Ensure plugins and options are preserved.
+- [x] Ensure cache strategy (if any) remains correct. (COMPLETED)
 
 **Verification:**
 
@@ -185,9 +185,9 @@ completes: step 4 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Extend the simple-chain fast path coverage (where appropriate).
-- [ ] Add/extend tests that prove fast-path behavior.
-- [ ] Confirm no behavior differences vs. interpreter path.
+- [x] Extend the simple-chain fast path coverage (where appropriate).
+- [x] Add/extend tests that prove fast-path behavior.
+- [x] Confirm no behavior differences vs. interpreter path. (COMPLETED)
 
 **Verification:**
 
@@ -219,9 +219,9 @@ completes: step 5 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Implement batching for wildcard expansion when arrays exceed a threshold.
-- [ ] Keep small arrays on the simpler per-element path.
-- [ ] Ensure security checks still apply correctly (but only if security is enabled).
+- [x] Implement batching for wildcard expansion when arrays exceed a threshold.
+- [x] Keep small arrays on the simpler per-element path.
+- [x] Ensure security checks still apply correctly (but only if security is enabled). (COMPLETED - via evaluateWildcardChain eager expansion)
 
 **Verification:**
 
@@ -255,9 +255,9 @@ completes: step 6 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Store resolved function references on AST nodes during parse/compile.
-- [ ] Prefer resolved references during evaluation; fall back to registry lookup if missing.
-- [ ] Ensure behavior is unchanged when a function is missing/unregistered.
+- [x] Store resolved function references on AST nodes during parse/compile.
+- [x] Prefer resolved references during evaluation; fall back to registry lookup if missing.
+- [x] Ensure behavior is unchanged when a function is missing/unregistered. (COMPLETED)
 
 **Verification:**
 
@@ -291,9 +291,9 @@ completes: step 7 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Add `stream?: boolean` to `EvaluatorOptions`.
-- [ ] Ensure default is eager evaluation when `stream` is not set.
-- [ ] Preserve streaming API behavior for callers that explicitly request it.
+- [x] Add `stream?: boolean` to `EvaluatorOptions`.
+- [x] Ensure default is eager evaluation when `stream` is not set.
+- [x] Preserve streaming API behavior for callers that explicitly request it. (COMPLETED - already implemented)
 
 **Verification:**
 
@@ -327,10 +327,10 @@ completes: step 8 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Default to in-place mutation (`mutate: true`) if required by the plan, and update internal consumers accordingly.
-- [ ] Pre-parse path tokens once per op.
-- [ ] Apply ops using token navigation rather than full pointer resolution.
-- [ ] Ensure validation behavior matches intended defaults.
+- [x] Default to in-place mutation (`mutate: true`) if required by the plan, and update internal consumers accordingly.
+- [x] Pre-parse path tokens once per op.
+- [x] Apply ops using token navigation rather than full pointer resolution.
+- [x] Ensure validation behavior matches intended defaults. (COMPLETED)
 
 **Verification:**
 
@@ -362,9 +362,9 @@ completes: step 9 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Use direct property iteration (`for ... in`) with `hasOwnProperty` guard.
-- [ ] Inline plain-object checks.
-- [ ] Ensure semantics match RFC 7386 behavior.
+- [x] Use direct property iteration (`for ... in`) with `hasOwnProperty` guard.
+- [x] Inline plain-object checks.
+- [x] Ensure semantics match RFC 7386 behavior. (COMPLETED)
 
 **Verification:**
 
@@ -397,9 +397,9 @@ completes: step 10 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Avoid pool acquisition for eager fast paths.
-- [ ] Reduce intermediate object creation in hot loops.
-- [ ] Avoid unnecessary path array copying.
+- [x] Avoid pool acquisition for eager fast paths.
+- [x] Reduce intermediate object creation in hot loops.
+- [x] Avoid unnecessary path array copying. (COMPLETED)
 
 **Verification:**
 
@@ -431,9 +431,9 @@ completes: step 11 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Add or improve a dedicated DFS-based traversal for descendant queries.
-- [ ] Ensure correctness under compliance suite.
-- [ ] Avoid deep recursion and excessive intermediate allocations.
+- [x] Add or improve a dedicated DFS-based traversal for descendant queries.
+- [x] Ensure correctness under compliance suite.
+- [x] Avoid deep recursion and excessive intermediate allocations. (COMPLETED)
 
 **Verification:**
 
@@ -465,9 +465,9 @@ completes: step 12 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Add or update warn-only regression tests that compare ops/sec against a baseline.
-- [ ] Ensure regressions only emit warnings and do not fail CI.
-- [ ] Document baseline update workflow.
+- [x] Add or update warn-only regression tests that compare ops/sec against a baseline.
+- [x] Ensure regressions only emit warnings and do not fail CI.
+- [x] Document baseline update workflow. (COMPLETED)
 
 **Verification:**
 
@@ -500,9 +500,9 @@ completes: step 13 of 14 for jsonpath-performance-optimization
 
 **Checklist:**
 
-- [ ] Update benchmark docs with before/after results.
-- [ ] Document new options and any breaking changes.
-- [ ] Document tuning tips and how to run benchmarks.
+- [x] Update benchmark docs with before/after results.
+- [x] Document new options and any breaking changes.
+- [x] Document tuning tips and how to run benchmarks. (COMPLETED)
 
 **Verification:**
 
