@@ -25,6 +25,7 @@
 		"@jsonpath/compiler": "workspace:*",
 		"@jsonpath/evaluator": "workspace:*",
 		"@jsonpath/jsonpath": "workspace:*",
+		"@jsonpath/parser": "workspace:*",
 		"@jsonpath/patch": "workspace:*",
 		"@jsonpath/pointer": "workspace:*",
 		"dlv": "^1.1.3",
@@ -46,6 +47,7 @@
 		"@lellimecnar/vitest-config": "workspace:*",
 		"@types/dlv": "^1.1.4",
 		"@types/lodash-es": "^4.17.12",
+		"tsx": "^4.21.0",
 		"typescript": "~5.5",
 		"vitest": "^4.0.16"
 	}
