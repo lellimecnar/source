@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { DataMap } from '../datamap';
 import { flushMicrotasks } from '../__fixtures__/helpers';
@@ -158,5 +158,17 @@ describe('subscription manager', () => {
 		await flushMicrotasks();
 
 		expect(calls).toEqual(['pointer', 'wildcard', 'recursive']);
+	});
+
+	it('does not schedule microtasks when there are no subscriptions', () => {
+		const spy = vi.spyOn(globalThis, 'queueMicrotask');
+		try {
+			const dm = new DataMap({ a: 1 });
+			dm.get('/a');
+			dm.resolve('/a');
+			expect(spy).not.toHaveBeenCalled();
+		} finally {
+			spy.mockRestore();
+		}
 	});
 });

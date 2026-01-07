@@ -180,6 +180,10 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		}
 	}
 
+	hasSubscribers(): boolean {
+		return this.subscriptions.size > 0;
+	}
+
 	scheduleNotify(
 		pointer: string,
 		event: SubscriptionEvent,
@@ -189,6 +193,7 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		operation?: Operation,
 		originalPath: string = pointer,
 	): void {
+		if (!this.hasSubscribers()) return;
 		this.scheduler.schedule(() => {
 			this.notify(
 				pointer,
@@ -211,6 +216,10 @@ export class SubscriptionManagerImpl<T, Ctx> {
 		operation?: Operation,
 		originalPath: string = pointer,
 	): NotificationResult {
+		if (!this.hasSubscribers()) {
+			return { cancelled: false, handlerCount: 0 };
+		}
+
 		if (stage === 'on') {
 			this.handleFilterCriteriaChange(pointer);
 		}
