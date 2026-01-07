@@ -9,26 +9,26 @@ import { builder } from '../builder.js';
 
 describe('Patch Options & Advanced Features', () => {
 	describe('mutate option', () => {
-		it('should not mutate by default', () => {
+		it('should mutate by default (breaking change)', () => {
 			const data = { a: 1 };
 			const result = applyPatch(data, [
 				{ op: 'replace', path: '/a', value: 2 },
 			]);
 			expect(result).toEqual({ a: 2 });
-			expect(data).toEqual({ a: 1 });
-			expect(result).not.toBe(data);
+			expect(data).toEqual({ a: 2 });
+			expect(result).toBe(data);
 		});
 
-		it('should mutate when mutate: true', () => {
+		it('should not mutate when mutate: false', () => {
 			const data = { a: 1 };
 			const result = applyPatch(
 				data,
 				[{ op: 'replace', path: '/a', value: 2 }],
-				{ mutate: true },
+				{ mutate: false },
 			);
 			expect(result).toEqual({ a: 2 });
-			expect(data).toEqual({ a: 2 });
-			expect(result).toBe(data);
+			expect(data).toEqual({ a: 1 });
+			expect(result).not.toBe(data);
 		});
 	});
 

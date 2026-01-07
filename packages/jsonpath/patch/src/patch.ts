@@ -73,6 +73,174 @@ export function validate(patch: PatchOperation[]): void {
 	});
 }
 
+function unescapePointer(s: string): string {
+	return s.replace(/~1/g, '/').replace(/~0/g, '~');
+}
+
+function parseTokens(ptr: string): string[] {
+	if (ptr === '') return [];
+	if (!ptr.startsWith('/')) {
+		throw new JSONPathError(`Invalid JSON Pointer: ${ptr}`, 'PATCH_ERROR');
+	}
+	// Keep empty segments (valid pointer into "" property)
+	return ptr.split('/').slice(1).map(unescapePointer);
+}
+
+function getAt(doc: any, tokens: string[]): any {
+	let curr = doc;
+	for (const t of tokens) {
+		if (curr === null || typeof curr !== 'object') return undefined;
+		curr = curr[t];
+	}
+	return curr;
+}
+
+function setAt(
+	doc: any,
+	tokens: string[],
+	value: any,
+	_allowCreate: boolean,
+): any {
+	if (tokens.length === 0) return value;
+	let parent = doc;
+	// Always require parent path to exist - never create intermediate paths
+	for (let i = 0; i < tokens.length - 1; i++) {
+		const k = tokens[i]!;
+		if (parent === null || typeof parent !== 'object') {
+			throw new JSONPathError(
+				`Parent path not found: /${tokens.slice(0, i + 1).join('/')}`,
+				'PATH_NOT_FOUND',
+			);
+		}
+		if (!(k in parent)) {
+			throw new JSONPathError(
+				`Parent path not found: /${tokens.slice(0, i + 1).join('/')}`,
+				'PATH_NOT_FOUND',
+			);
+		}
+		parent = parent[k];
+	}
+	const last = tokens[tokens.length - 1]!;
+	if (Array.isArray(parent)) {
+		if (last === '-') {
+			parent.push(value);
+			return doc;
+		}
+		if (!/^(0|[1-9][0-9]*)$/.test(last)) {
+			throw new JSONPathError(
+				`Invalid array index: ${last}`,
+				'INVALID_ARRAY_INDEX',
+			);
+		}
+		const i = Number(last);
+		if (i < 0 || i > parent.length) {
+			throw new JSONPathError(
+				`Index out of bounds: ${i}`,
+				'INVALID_ARRAY_INDEX',
+			);
+		}
+		parent.splice(i, 0, value);
+		return doc;
+	}
+	if (parent === null || typeof parent !== 'object') {
+		throw new JSONPathError(
+			'Cannot add to non-object/non-array parent',
+			'PATCH_ERROR',
+		);
+	}
+	parent[last] = value;
+	return doc;
+}
+
+function removeAt(doc: any, tokens: string[]): any {
+	if (tokens.length === 0)
+		throw new JSONPathError('Cannot remove root', 'PATCH_ERROR');
+	let parent = doc;
+	for (let i = 0; i < tokens.length - 1; i++) {
+		const k = tokens[i]!;
+		if (parent === null || typeof parent !== 'object' || !(k in parent)) {
+			throw new JSONPathError(
+				`Path not found: /${tokens.join('/')}`,
+				'PATH_NOT_FOUND',
+			);
+		}
+		parent = parent[k];
+	}
+	const last = tokens[tokens.length - 1]!;
+	if (Array.isArray(parent)) {
+		if (!/^(0|[1-9][0-9]*)$/.test(last)) {
+			throw new JSONPathError(
+				`Invalid array index: ${last}`,
+				'INVALID_ARRAY_INDEX',
+			);
+		}
+		const i = Number(last);
+		if (i < 0 || i >= parent.length) {
+			throw new JSONPathError(
+				`Index out of bounds: ${i}`,
+				'INVALID_ARRAY_INDEX',
+			);
+		}
+		parent.splice(i, 1);
+		return doc;
+	}
+	if (parent === null || typeof parent !== 'object') {
+		throw new JSONPathError(
+			'Cannot remove from non-object/non-array parent',
+			'PATCH_ERROR',
+		);
+	}
+	if (!(last in parent)) {
+		throw new JSONPathError(`Property not found: ${last}`, 'PATH_NOT_FOUND');
+	}
+	delete parent[last];
+	return doc;
+}
+
+function replaceAt(doc: any, tokens: string[], value: any): any {
+	if (tokens.length === 0) return value;
+	let parent = doc;
+	for (let i = 0; i < tokens.length - 1; i++) {
+		const k = tokens[i]!;
+		if (parent === null || typeof parent !== 'object' || !(k in parent)) {
+			throw new JSONPathError(
+				`Path not found: /${tokens.join('/')}`,
+				'PATH_NOT_FOUND',
+			);
+		}
+		parent = parent[k];
+	}
+	const last = tokens[tokens.length - 1]!;
+	if (Array.isArray(parent)) {
+		if (!/^(0|[1-9][0-9]*)$/.test(last)) {
+			throw new JSONPathError(
+				`Invalid array index: ${last}`,
+				'INVALID_ARRAY_INDEX',
+			);
+		}
+		const i = Number(last);
+		if (i < 0 || i >= parent.length) {
+			throw new JSONPathError(
+				`Index out of bounds: ${i}`,
+				'INVALID_ARRAY_INDEX',
+			);
+		}
+		parent[i] = value;
+		return doc;
+	}
+	if (parent === null || typeof parent !== 'object') {
+		throw new JSONPathError(
+			'Cannot replace in non-object/non-array parent',
+			'PATCH_ERROR',
+		);
+	}
+	if (!(last in parent)) {
+		throw new JSONPathError(`Property not found: ${last}`, 'PATH_NOT_FOUND');
+	}
+	parent[last] = value;
+	return doc;
+}
+
 /**
  * JSON Patch (RFC 6902) implementation.
  */
@@ -83,7 +251,7 @@ export function applyPatch(
 ): any {
 	const {
 		strictMode = true,
-		mutate = false,
+		mutate = true,
 		validate: shouldValidate = false,
 		continueOnError = false,
 		atomicApply = true,
@@ -96,31 +264,13 @@ export function applyPatch(
 	}
 
 	// When atomicApply is enabled, always work on a clone and only copy back on success.
+	// Note: cloning strategy is optimized in Step 3.
 	const workingRoot = atomicApply
 		? structuredClone(target)
 		: mutate
 			? target
 			: structuredClone(target);
 	let working = workingRoot;
-
-	const unescapePointer = (s: string) =>
-		s.replace(/~1/g, '/').replace(/~0/g, '~');
-	const parseTokens = (ptr: string): string[] => {
-		if (ptr === '') return [];
-		if (!ptr.startsWith('/'))
-			throw new JSONPathError(`Invalid JSON Pointer: ${ptr}`, 'PATCH_ERROR');
-		// Keep empty segments (valid pointer into "" property)
-		return ptr.split('/').slice(1).map(unescapePointer);
-	};
-
-	const getAt = (doc: any, tokens: string[]): any => {
-		let curr = doc;
-		for (const t of tokens) {
-			if (curr === null || typeof curr !== 'object') return undefined;
-			curr = curr[t];
-		}
-		return curr;
-	};
 
 	for (let index = 0; index < patch.length; index++) {
 		const operation = patch[index]!;
@@ -131,158 +281,6 @@ export function applyPatch(
 			const pathTokens = parseTokens(operation.path);
 			const fromTokens =
 				'from' in operation ? parseTokens((operation as any).from) : null;
-
-			const setAt = (
-				doc: any,
-				tokens: string[],
-				value: any,
-				allowCreate: boolean,
-			) => {
-				if (tokens.length === 0) return value;
-				let parent = doc;
-				// Always require parent path to exist - never create intermediate paths
-				for (let i = 0; i < tokens.length - 1; i++) {
-					const k = tokens[i]!;
-					if (parent === null || typeof parent !== 'object') {
-						throw new JSONPathError(
-							`Parent path not found: /${tokens.slice(0, i + 1).join('/')}`,
-							'PATH_NOT_FOUND',
-						);
-					}
-					if (!(k in parent)) {
-						throw new JSONPathError(
-							`Parent path not found: /${tokens.slice(0, i + 1).join('/')}`,
-							'PATH_NOT_FOUND',
-						);
-					}
-					parent = parent[k];
-				}
-				const last = tokens[tokens.length - 1]!;
-				if (Array.isArray(parent)) {
-					if (last === '-') {
-						parent.push(value);
-						return doc;
-					}
-					if (!/^(0|[1-9][0-9]*)$/.test(last)) {
-						throw new JSONPathError(
-							`Invalid array index: ${last}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					const i = Number(last);
-					if (i < 0 || i > parent.length) {
-						throw new JSONPathError(
-							`Index out of bounds: ${i}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					parent.splice(i, 0, value);
-					return doc;
-				}
-				if (parent === null || typeof parent !== 'object') {
-					throw new JSONPathError(
-						'Cannot add to non-object/non-array parent',
-						'PATCH_ERROR',
-					);
-				}
-				parent[last] = value;
-				return doc;
-			};
-
-			const removeAt = (doc: any, tokens: string[]) => {
-				if (tokens.length === 0)
-					throw new JSONPathError('Cannot remove root', 'PATCH_ERROR');
-				let parent = doc;
-				for (let i = 0; i < tokens.length - 1; i++) {
-					const k = tokens[i]!;
-					if (parent === null || typeof parent !== 'object' || !(k in parent)) {
-						throw new JSONPathError(
-							`Path not found: /${tokens.join('/')}`,
-							'PATH_NOT_FOUND',
-						);
-					}
-					parent = parent[k];
-				}
-				const last = tokens[tokens.length - 1]!;
-				if (Array.isArray(parent)) {
-					if (!/^(0|[1-9][0-9]*)$/.test(last)) {
-						throw new JSONPathError(
-							`Invalid array index: ${last}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					const i = Number(last);
-					if (i < 0 || i >= parent.length) {
-						throw new JSONPathError(
-							`Index out of bounds: ${i}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					parent.splice(i, 1);
-					return doc;
-				}
-				if (parent === null || typeof parent !== 'object') {
-					throw new JSONPathError(
-						'Cannot remove from non-object/non-array parent',
-						'PATCH_ERROR',
-					);
-				}
-				if (!(last in parent)) {
-					throw new JSONPathError(
-						`Property not found: ${last}`,
-						'PATH_NOT_FOUND',
-					);
-				}
-				delete parent[last];
-				return doc;
-			};
-
-			const replaceAt = (doc: any, tokens: string[], value: any) => {
-				if (tokens.length === 0) return value;
-				let parent = doc;
-				for (let i = 0; i < tokens.length - 1; i++) {
-					const k = tokens[i]!;
-					if (parent === null || typeof parent !== 'object' || !(k in parent)) {
-						throw new JSONPathError(
-							`Path not found: /${tokens.join('/')}`,
-							'PATH_NOT_FOUND',
-						);
-					}
-					parent = parent[k];
-				}
-				const last = tokens[tokens.length - 1]!;
-				if (Array.isArray(parent)) {
-					if (!/^(0|[1-9][0-9]*)$/.test(last)) {
-						throw new JSONPathError(
-							`Invalid array index: ${last}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					const i = Number(last);
-					if (i < 0 || i >= parent.length) {
-						throw new JSONPathError(
-							`Index out of bounds: ${i}`,
-							'INVALID_ARRAY_INDEX',
-						);
-					}
-					parent[i] = value;
-					return doc;
-				}
-				if (parent === null || typeof parent !== 'object') {
-					throw new JSONPathError(
-						'Cannot replace in non-object/non-array parent',
-						'PATCH_ERROR',
-					);
-				}
-				if (!(last in parent)) {
-					throw new JSONPathError(
-						`Property not found: ${last}`,
-						'PATH_NOT_FOUND',
-					);
-				}
-				parent[last] = value;
-				return doc;
-			};
 
 			let opResult = working;
 			switch (operation.op) {

@@ -937,7 +937,7 @@ Important: this is a **breaking change**. Immutability remains available via `ap
 
 #### Step 2.1 — Replace `packages/jsonpath/patch/src/patch.ts` (Step 2 state)
 
-- [ ] Copy and paste code below into `packages/jsonpath/patch/src/patch.ts`:
+- [x] Copy and paste code below into `packages/jsonpath/patch/src/patch.ts`:
 
 ```ts
 import { JSONPathError, JSONPatchError, deepEqual } from '@jsonpath/core';
@@ -1729,7 +1729,7 @@ export function patchTest(target: any, path: string, value: any): void {
 
 #### Step 2.2 — Update `packages/jsonpath/patch/src/__tests__/options.spec.ts`
 
-- [ ] Copy and paste code below into `packages/jsonpath/patch/src/__tests__/options.spec.ts`:
+- [x] Copy and paste code below into `packages/jsonpath/patch/src/__tests__/options.spec.ts`:
 
 ```ts
 import { describe, it, expect, vi } from 'vitest';
@@ -1918,7 +1918,7 @@ describe('Patch Options & Advanced Features', () => {
 
 #### Step 2.3 — Update `packages/jsonpath/patch/src/__tests__/patch.spec.ts`
 
-- [ ] Copy and paste code below into `packages/jsonpath/patch/src/__tests__/patch.spec.ts`:
+- [x] Copy and paste code below into `packages/jsonpath/patch/src/__tests__/patch.spec.ts`:
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -2146,8 +2146,8 @@ describe('JSON Patch', () => {
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/patch test`
-- [ ] `pnpm --filter @jsonpath/patch type-check`
+- [x] `pnpm --filter @jsonpath/patch test`
+- [x] `pnpm --filter @jsonpath/patch type-check`
 
 #### Step 2 STOP & COMMIT
 
