@@ -4072,7 +4072,7 @@ if (!this.canUseSimpleChainFastPath) return null;
 
 ##### Step 7 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/evaluator test`
+- [x] `pnpm --filter @jsonpath/evaluator test` — 63 passed (63)
 
 #### Step 7 STOP & COMMIT
 
@@ -4112,7 +4112,7 @@ const node = {
 
 ##### Step 8 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/evaluator test`
+- [x] `pnpm --filter @jsonpath/evaluator test` — 63 passed (63)
 
 #### Step 8 STOP & COMMIT
 
@@ -4150,7 +4150,9 @@ Note: this repo already uses `packages/jsonpath/benchmarks/baseline.json` and `p
 
 ##### Step 9 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/benchmarks exec vitest run src/performance-regression.spec.ts`
+- [x] `pnpm --filter @jsonpath/benchmarks bench` — All benchmarks completed successfully
+- [x] Updated `AUDIT_REPORT_v5.md` with post-optimization metrics and v5.1 update note
+- [x] Updated `baseline.json` with new post-optimization ops/sec values
 
 #### Step 9 STOP & COMMIT
 
@@ -4322,7 +4324,9 @@ describe('Performance Regression (warn-only)', () => {
 
 ##### Step 10 Verification Checklist
 
-- [ ] `pnpm --filter @jsonpath/benchmarks exec vitest run src/performance-regression.spec.ts`
+- [x] `pnpm --filter @jsonpath/benchmarks exec vitest run src/performance-regression.spec.ts` — 7 passed (7)
+  - All regression checks passing (warn-only)
+  - Covers: simple query, filter, recursive, patch, merge-patch, evaluator
 
 #### Step 10 STOP & COMMIT
 

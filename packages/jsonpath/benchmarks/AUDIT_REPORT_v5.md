@@ -1,9 +1,38 @@
 # JSONPath Benchmarks Comprehensive Audit Report
 
-**Date:** January 6, 2026 (v5.0)
+**Date:** January 6, 2026 (v5.0) | **Last Updated:** January 16, 2026 (v5.1 - Performance Optimization v2)
 **Auditor:** AI Engineering Agent (Claude Opus 4.5)
 **Scope:** `@jsonpath/benchmarks` package - Full Performance Analysis
 **Status:** ✅ Complete
+
+---
+
+## Updates from Performance Optimization v2 (January 16, 2026)
+
+Completed 8-step performance optimization pass targeting:
+
+- `@jsonpath/core`: Added `fastDeepClone` utility
+- `@jsonpath/patch`: Token caching, removed structuredClone, moved helpers to module scope
+- `@jsonpath/merge-patch`: Eliminated Set allocations, optimized createMergePatch
+- `@jsonpath/evaluator`: Pre-computed fast-path eligibility, lazy pointer computation
+
+### Impact on Patch Performance
+
+**Before (v5.0):**
+
+- JSON Patch Single Replace: 90,645 ops/s (0.46x vs fast-json-patch)
+- JSON Patch Batch 10 Adds: 74,754 ops/s (0.54x vs fast-json-patch)
+
+**After (v5.1 - Post Optimization):**
+
+- JSON Patch Single Replace: 148,390.91 ops/s (~1.64x improvement)
+- JSON Patch Batch 10 Adds: 142,003.17 ops/s (~1.90x improvement)
+
+**Status:** Still below fast-json-patch (192,353.61 and 152,092.40 ops/s respectively) but with significant gains. Further optimization opportunities remain in the pointer resolution layer.
+
+### Breaking Change Alert
+
+**applyPatch() now mutates by default (mutate: true).** Use `applyPatchImmutable()` for immutable behavior. This change drives the performance improvements by eliminating unnecessary cloning.
 
 ---
 

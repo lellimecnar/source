@@ -1,11 +1,26 @@
 {
 	"simpleQuery": {
-		"opsPerSec": 300000
+		"opsPerSec": 1891515.8
 	},
 	"filterQuery": {
-		"opsPerSec": 80000
+		"opsPerSec": 1257835.26
 	},
 	"recursiveQuery": {
-		"opsPerSec": 50000
+		"opsPerSec": 543163.23
+	},
+	"patchSingleReplace": {
+		"opsPerSec": 148390.91
+	},
+	"patchBatch10Adds": {
+		"opsPerSec": 142003.17
+	},
+	"mergePatchGenerate": {
+		"opsPerSec": 2400000
+	},
+	"wildcardFastPath": {
+		"opsPerSec": 3220101.32
+	},
+	"deepPathAccess": {
+		"opsPerSec": 1464451.98
 	}
 }

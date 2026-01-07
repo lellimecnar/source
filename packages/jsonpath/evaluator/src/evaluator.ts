@@ -61,6 +61,8 @@ export class Evaluator {
 	private readonly securityEnabled: boolean;
 	private readonly isNodeAllowed: (node: QueryResultNode) => boolean;
 	private readonly hasEvaluationHooks: boolean;
+	private readonly canUseSimpleChainFastPath: boolean;
+	private readonly canUseWildcardChainFastPath: boolean;
 
 	constructor(root: any, options?: EvaluatorOptions) {
 		this.root = root;
@@ -81,6 +83,50 @@ export class Evaluator {
 		this.hasEvaluationHooks = this.options.plugins.some(
 			(p) => p.beforeEvaluate || p.afterEvaluate || p.onError,
 		);
+
+		// Pre-compute fast-path eligibility flags
+		const eligibility = this.computeFastPathEligibility();
+		this.canUseSimpleChainFastPath = eligibility.simple;
+		this.canUseWildcardChainFastPath = eligibility.wildcard;
+	}
+
+	/**
+	 * Determines whether fast paths can be used based on current options.
+	 * Pre-computing this in the constructor avoids repeated checks during evaluation.
+	 */
+	private computeFastPathEligibility(): {
+		simple: boolean;
+		wildcard: boolean;
+	} {
+		// Both fast paths require:
+		const commonBlockers =
+			this.options.detectCircular ||
+			this.hasEvaluationHooks ||
+			(this.options.maxDepth > 0 &&
+				this.options.maxDepth < 1) /* conservative: at least 1 segment */ ||
+			this.options.maxResults === 0;
+
+		if (commonBlockers) {
+			return { simple: false, wildcard: false };
+		}
+
+		// Security restrictions block both paths
+		const { allowPaths, blockPaths } = this.options.secure;
+		const hasSecurityRestrictions =
+			(allowPaths?.length ?? 0) > 0 || (blockPaths?.length ?? 0) > 0;
+
+		if (hasSecurityRestrictions) {
+			return { simple: false, wildcard: false };
+		}
+
+		// Wildcard path requires lower maxResults threshold
+		const wildcardBlocked =
+			this.options.maxResults > 0 && this.options.maxResults < 10_000;
+
+		return {
+			simple: true,
+			wildcard: !wildcardBlocked,
+		};
 	}
 
 	public evaluate(ast: QueryNode): QueryResult {
@@ -102,25 +148,14 @@ export class Evaluator {
 		if (ast.type !== NodeType.Query) return null;
 		if (ast.segments.length === 0) return null;
 
-		// Skip fast path when features require full evaluator:
-		// - detectCircular requires tracking visited nodes
-		// - plugins with evaluation hooks need to fire during traversal
-		// - maxDepth < chain length would be violated by this chain
-		// - maxResults === 0 means user wants no results
-		if (
-			this.options.detectCircular ||
-			this.hasEvaluationHooks ||
-			(this.options.maxDepth > 0 &&
-				ast.segments.length > this.options.maxDepth) ||
-			this.options.maxResults === 0
-		) {
-			return null;
-		}
+		// Skip fast path when features require full evaluator
+		if (!this.canUseSimpleChainFastPath) return null;
 
-		// Preserve allow/block path semantics: fall back to the normal evaluator path
-		// which already enforces these restrictions.
-		const { allowPaths, blockPaths } = this.options.secure;
-		if ((allowPaths?.length ?? 0) > 0 || (blockPaths?.length ?? 0) > 0) {
+		// Respect remaining per-call depth checks
+		if (
+			this.options.maxDepth > 0 &&
+			ast.segments.length > this.options.maxDepth
+		) {
 			return null;
 		}
 		if (
@@ -176,19 +211,12 @@ export class Evaluator {
 			path.push(idx);
 		}
 
-		// Compute pointer from path (QueryResult.pointerStrings relies on cached pointer)
-		const escape = (segment: PathSegment) =>
-			String(segment).replace(/~/g, '~0').replace(/\//g, '~1');
-		let ptr = '';
-		for (const s of path) ptr += `/${escape(s)}`;
-
 		const node = {
 			value: current,
 			path,
 			root: this.root,
 			parent,
 			parentKey,
-			_cachedPointer: ptr,
 		};
 
 		if (!this.isNodeAllowed(node)) return new QueryResult([]);
@@ -205,29 +233,12 @@ export class Evaluator {
 		if (ast.type !== NodeType.Query) return null;
 		if (ast.segments.length === 0) return null;
 
-		// Circular detection requires tracking visited nodes
-		if (this.options.detectCircular) return null;
+		// Skip fast path when features require full evaluator
+		if (!this.canUseWildcardChainFastPath) return null;
 
-		// Plugins with evaluation hooks require the full evaluator
-		if (this.hasEvaluationHooks) return null;
-
-		// Depth check: bail if user's maxDepth is less than the chain's depth
+		// Respect remaining per-call depth checks
 		const depth = ast.segments.length;
 		if (this.options.maxDepth > 0 && this.options.maxDepth < depth) return null;
-
-		// maxResults: For wildcard fast path, we cannot easily enforce mid-traversal
-		// without performance cost. Bail to the full evaluator when maxResults is set
-		// below the default (10,000), as user expects enforcement.
-		// Default of 10_000 and 0 (disabled) both allow fast path.
-		if (this.options.maxResults > 0 && this.options.maxResults < 10_000) {
-			return null;
-		}
-
-		// Skip if security restrictions are configured
-		const { allowPaths, blockPaths } = this.options.secure;
-		if ((allowPaths?.length ?? 0) > 0 || (blockPaths?.length ?? 0) > 0) {
-			return null;
-		}
 
 		// Validate all segments have single, simple selectors (name, index, or wildcard)
 		let hasWildcard = false;
@@ -356,22 +367,16 @@ export class Evaluator {
 			current = next;
 		}
 
-		// Convert to QueryResultNode[] with cached pointers
-		const escape = (segment: PathSegment) =>
-			String(segment).replace(/~/g, '~0').replace(/\//g, '~1');
-
+		// Convert to QueryResultNode[]
 		const results: QueryResultNode[] = new Array(current.length);
 		for (let i = 0; i < current.length; i++) {
 			const node = current[i]!;
-			let ptr = '';
-			for (const s of node.path) ptr += `/${escape(s)}`;
 			results[i] = {
 				value: node.value,
 				path: node.path,
 				root: this.root,
 				parent: node.parent,
 				parentKey: node.parentKey,
-				_cachedPointer: ptr,
 			};
 		}
 
