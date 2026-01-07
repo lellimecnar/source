@@ -196,4 +196,24 @@ describe('subscription manager', () => {
 		await flushMicrotasks();
 		expect(calls.includes('0')).toBe(true);
 	});
+
+	it('batch notifies once per affected pointer (deduped)', async () => {
+		const dm = new DataMap({ a: 0 });
+		const calls: string[] = [];
+
+		dm.subscribe({
+			path: '/a',
+			after: 'patch',
+			fn: () => calls.push('after'),
+		});
+
+		dm.batch(() => {
+			dm.set('/a', 1);
+			dm.set('/a', 2);
+			dm.set('/a', 3);
+		});
+
+		await flushMicrotasks();
+		expect(calls).toEqual(['after']);
+	});
 });
