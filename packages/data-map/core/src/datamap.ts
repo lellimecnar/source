@@ -121,6 +121,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 
 	resolve(pathOrPointer: string, options: CallOptions = {}): ResolvedMatch[] {
 		const strict = options.strict ?? this._strict;
+		const shouldClone = options.clone ?? true;
 		const pathType = detectPathType(pathOrPointer);
 		const ctx = this._context as any;
 
@@ -132,9 +133,8 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		if (pathType === 'pointer') {
 			const pointerString = normalizePointerInput(pathOrPointer);
 			if (pointerString === '') {
-				const value = cloneSnapshot(
-					this._defs.applyGetter('', this._data, ctx),
-				);
+				const raw = this._defs.applyGetter('', this._data, ctx);
+				const value = shouldClone ? cloneSnapshot(raw) : raw;
 				this._subs.scheduleNotify(
 					'',
 					'resolve',
@@ -162,9 +162,8 @@ export class DataMap<T = unknown, Ctx = unknown> {
 				return [];
 			}
 
-			const value = cloneSnapshot(
-				this._defs.applyGetter(pointerString, resolved, ctx),
-			);
+			const raw = this._defs.applyGetter(pointerString, resolved, ctx);
+			const value = shouldClone ? cloneSnapshot(raw) : raw;
 
 			this._subs.scheduleNotify(
 				pointerString,
@@ -190,12 +189,11 @@ export class DataMap<T = unknown, Ctx = unknown> {
 
 		try {
 			const { pointers, values } = queryWithPointers(this._data, pathOrPointer);
-			const matches = pointers.map((pointer, idx) =>
-				this.buildResolvedMatch(
-					pointer,
-					cloneSnapshot(this._defs.applyGetter(pointer, values[idx], ctx)),
-				),
-			);
+			const matches = pointers.map((pointer, idx) => {
+				const raw = this._defs.applyGetter(pointer, values[idx], ctx);
+				const value = shouldClone ? cloneSnapshot(raw) : raw;
+				return this.buildResolvedMatch(pointer, value);
+			});
 
 			for (const m of matches) {
 				this._subs.scheduleNotify(
@@ -233,6 +231,7 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		options: CallOptions = {},
 	): Generator<ResolvedMatch> {
 		const strict = options.strict ?? this._strict;
+		const shouldClone = options.clone ?? true;
 		const pathType = detectPathType(pathOrPointer);
 		const ctx = this._context as any;
 
@@ -245,9 +244,8 @@ export class DataMap<T = unknown, Ctx = unknown> {
 		try {
 			for (const node of streamQuery(this._data, pathOrPointer)) {
 				const pointer = node.pointer;
-				const value = cloneSnapshot(
-					this._defs.applyGetter(pointer, node.value, ctx),
-				);
+				const raw = this._defs.applyGetter(pointer, node.value, ctx);
+				const value = shouldClone ? cloneSnapshot(raw) : raw;
 
 				this._subs.scheduleNotify(
 					pointer,

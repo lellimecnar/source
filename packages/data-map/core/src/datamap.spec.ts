@@ -145,6 +145,22 @@ describe('DataMap', () => {
 			s1.user.name = 'Bob';
 			expect(dm.get('/user/name')).toBe('Alice');
 		});
+
+		it('get() returns cloned values by default', () => {
+			const dm = new DataMap({ user: { name: 'Alice' } });
+			const user = dm.get('/user') as any;
+			user.name = 'Bob';
+			// Internal value should be unchanged
+			expect(dm.get('/user/name')).toBe('Alice');
+		});
+
+		it('get({ clone: false }) returns a direct reference', () => {
+			const dm = new DataMap({ user: { name: 'Alice' } });
+			const user = dm.get('/user', { clone: false }) as any;
+			user.name = 'Bob';
+			// Internal value was mutated through the returned reference
+			expect(dm.get('/user/name')).toBe('Bob');
+		});
 	});
 
 	describe('Array API', () => {
