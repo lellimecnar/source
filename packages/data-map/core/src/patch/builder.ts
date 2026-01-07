@@ -1,4 +1,5 @@
 import type { Operation } from '../types';
+import { cloneSnapshot } from '../utils/clone';
 import { resolvePointer, pointerExists } from '../utils/jsonpath';
 import { parsePointerSegments, buildPointer } from '../utils/pointer';
 
@@ -32,7 +33,7 @@ export function ensureParentContainers(
 	targetPointer: string,
 ): { ops: Operation[]; nextData: unknown } {
 	const ops: Operation[] = [];
-	const nextData = structuredClone(currentData);
+	const nextData = cloneSnapshot(currentData);
 
 	const segments = parsePointerSegments(targetPointer);
 	if (segments.length === 0) {
@@ -60,7 +61,7 @@ export function ensureParentContainers(
 		ops.push({
 			op: 'add',
 			path: childPointer,
-			value: structuredClone(container),
+			value: cloneSnapshot(container),
 		});
 
 		// Apply the op to nextData by directly mutating through JSON Pointer.

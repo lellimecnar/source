@@ -28,6 +28,7 @@ import type {
 	Operation,
 	ResolvedMatch,
 } from './types';
+import { cloneSnapshot } from './utils/clone';
 import { deepEqual, deepExtends } from './utils/equal';
 import {
 	pointerExists,
@@ -40,10 +41,6 @@ function normalizePointerInput(input: string): string {
 	if (input === '#') return '';
 	if (input.startsWith('#/')) return input.slice(1);
 	return input;
-}
-
-function cloneSnapshot<T>(value: T): T {
-	return structuredClone(value);
 }
 
 export class DataMap<T = unknown, Ctx = unknown> {

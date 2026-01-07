@@ -531,6 +531,9 @@ importers:
       '@jsonpath/pointer':
         specifier: workspace:*
         version: link:../../jsonpath/pointer
+      rfdc:
+        specifier: ^1.4.1
+        version: 1.4.1
     devDependencies:
       '@lellimecnar/eslint-config':
         specifier: workspace:*

@@ -28,7 +28,8 @@
 		"@jsonpath/core": "workspace:*",
 		"@jsonpath/jsonpath": "workspace:*",
 		"@jsonpath/patch": "workspace:*",
-		"@jsonpath/pointer": "workspace:*"
+		"@jsonpath/pointer": "workspace:*",
+		"rfdc": "^1.4.1"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

@@ -2,13 +2,14 @@ import type { DataMap } from '../datamap';
 import type { Batch } from './fluent';
 import { buildSetPatch } from '../patch/builder';
 import type { CallOptions, Operation } from '../types';
+import { cloneSnapshot } from '../utils/clone';
 
 export class FluentBatchBuilder<T, Ctx> implements Batch<DataMap<T, Ctx>> {
 	private ops: Operation[] = [];
 	private workingData: unknown;
 
 	constructor(private dm: DataMap<T, Ctx>) {
-		this.workingData = structuredClone(dm.getSnapshot());
+		this.workingData = dm.getSnapshot();
 	}
 
 	set(pathOrPointer: string, value: unknown, options?: CallOptions): this {
@@ -87,6 +88,6 @@ export class FluentBatchBuilder<T, Ctx> implements Batch<DataMap<T, Ctx>> {
 	}
 
 	toPatch(): Operation[] {
-		return structuredClone(this.ops);
+		return cloneSnapshot(this.ops);
 	}
 }
