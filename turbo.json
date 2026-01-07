@@ -48,6 +48,20 @@
 		},
 		"ui": {
 			"cache": false
+		},
+		"bench": {
+			"dependsOn": ["^build"],
+			"cache": false
+		},
+		"bench:full": {
+			"dependsOn": ["^build"],
+			"cache": false,
+			"outputs": ["results.json"]
+		},
+		"report": {
+			"dependsOn": ["bench:full"],
+			"cache": false,
+			"outputs": ["REPORT.md"]
 		}
 	}
 }
