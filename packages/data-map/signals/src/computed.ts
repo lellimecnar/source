@@ -46,11 +46,15 @@ class ComputedImpl<T> implements ReadonlySignal<T>, DependencySource, Observer {
 	onDependencyChanged(): void {
 		if (this.dirty) return;
 		this.dirty = true;
-		for (const obs of this.observers) {
+		// Snapshot iteration prevents pathological re-entrancy when observers
+		// trigger effects that re-track dependencies during notification.
+		const observers = Array.from(this.observers);
+		for (const obs of observers) {
 			if (isBatching()) queueObserver(obs);
 			else obs.onDependencyChanged();
 		}
-		for (const sub of this.subscribers) sub(this._value);
+		const subs = Array.from(this.subscribers);
+		for (const sub of subs) sub(this._value);
 	}
 
 	invalidate(): void {

@@ -1,6 +1,7 @@
 import { computed } from '@data-map/signals';
-import type { DataMapComputeHost } from './types.js';
+
 import { DependencyTracker } from './dependency-tracker.js';
+import type { DataMapComputeHost } from './types.js';
 
 export function queryComputed<T = unknown>(
 	host: DataMapComputeHost,
@@ -19,6 +20,8 @@ export function queryComputed<T = unknown>(
 	tracker.trackQuery(path, invalidate);
 	return {
 		computed: c,
-		dispose: () => tracker.dispose(),
+		dispose: () => {
+			tracker.dispose();
+		},
 	};
 }

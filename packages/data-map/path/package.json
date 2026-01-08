@@ -27,6 +27,7 @@
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
+		"@data-map/storage": "workspace:*",
 		"@jsonpath/jsonpath": "workspace:*",
 		"mnemonist": "^0.39.0"
 	},

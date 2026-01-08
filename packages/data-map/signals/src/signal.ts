@@ -39,8 +39,12 @@ class SignalImpl<T> implements SignalType<T>, DependencySource {
 	}
 
 	private notify(): void {
-		for (const sub of this.subscribers) sub(this._value);
-		for (const obs of this.observers) {
+		// Snapshot iteration prevents pathological re-entrancy when callbacks
+		// subscribe/unsubscribe or (re)track dependencies during notification.
+		const subs = Array.from(this.subscribers);
+		for (const sub of subs) sub(this._value);
+		const observers = Array.from(this.observers);
+		for (const obs of observers) {
 			if (isBatching()) queueObserver(obs);
 			else obs.onDependencyChanged();
 		}

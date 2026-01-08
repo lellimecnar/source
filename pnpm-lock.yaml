@@ -606,6 +606,9 @@ importers:
 
   packages/data-map/path:
     dependencies:
+      '@data-map/storage':
+        specifier: workspace:*
+        version: link:../storage
       '@jsonpath/jsonpath':
         specifier: workspace:*
         version: link:../../jsonpath/jsonpath

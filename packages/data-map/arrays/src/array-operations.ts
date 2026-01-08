@@ -1,4 +1,5 @@
 import type { FlatStore } from '@data-map/storage';
+
 import { IndirectionLayer } from './indirection-layer.js';
 
 export class SmartArray {
