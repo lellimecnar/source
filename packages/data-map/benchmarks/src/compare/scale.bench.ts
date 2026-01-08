@@ -143,37 +143,57 @@ describe('Scale Testing', () => {
 	});
 
 	describe('Object Size Scaling - Mutation', () => {
+		/**
+		 * Measures: adapter mutation cost (single set) on pre-cloned inputs.
+		 * Excludes: structuredClone cost (performed once per pool slot, outside the timed callback).
+		 */
 		describe('10 keys', () => {
+			const dataPool = Array.from({ length: 100 }, () =>
+				structuredClone(obj10),
+			);
+			let poolIndex = 0;
 			for (const adapter of mutationAdapters) {
 				bench(adapter.name, () => {
-					const data = structuredClone(obj10);
+					const data = dataPool[poolIndex++ % dataPool.length];
 					adapter.set!(data, '/key5', 'updated');
 				});
 			}
 		});
 
 		describe('100 keys', () => {
+			const dataPool = Array.from({ length: 100 }, () =>
+				structuredClone(obj100),
+			);
+			let poolIndex = 0;
 			for (const adapter of mutationAdapters) {
 				bench(adapter.name, () => {
-					const data = structuredClone(obj100);
+					const data = dataPool[poolIndex++ % dataPool.length];
 					adapter.set!(data, '/key50', 'updated');
 				});
 			}
 		});
 
 		describe('1,000 keys', () => {
+			const dataPool = Array.from({ length: 100 }, () =>
+				structuredClone(obj1000),
+			);
+			let poolIndex = 0;
 			for (const adapter of mutationAdapters) {
 				bench(adapter.name, () => {
-					const data = structuredClone(obj1000);
+					const data = dataPool[poolIndex++ % dataPool.length];
 					adapter.set!(data, '/key500', 'updated');
 				});
 			}
 		});
 
 		describe('10,000 keys', () => {
+			const dataPool = Array.from({ length: 100 }, () =>
+				structuredClone(obj10000),
+			);
+			let poolIndex = 0;
 			for (const adapter of mutationAdapters) {
 				bench(adapter.name, () => {
-					const data = structuredClone(obj10000);
+					const data = dataPool[poolIndex++ % dataPool.length];
 					adapter.set!(data, '/key5000', 'updated');
 				});
 			}
@@ -181,19 +201,31 @@ describe('Scale Testing', () => {
 	});
 
 	describe('Nesting Depth Scaling - Mutation', () => {
+		/**
+		 * Measures: adapter mutation cost (single set) on pre-cloned inputs.
+		 * Excludes: structuredClone cost (performed once per pool slot, outside the timed callback).
+		 */
 		describe('Depth 3', () => {
+			const dataPool = Array.from({ length: 100 }, () =>
+				structuredClone(depth3),
+			);
+			let poolIndex = 0;
 			for (const adapter of mutationAdapters) {
 				bench(adapter.name, () => {
-					const data = structuredClone(depth3);
+					const data = dataPool[poolIndex++ % dataPool.length];
 					adapter.set!(data, '/level0/level1/level2', 'updated');
 				});
 			}
 		});
 
 		describe('Depth 10', () => {
+			const dataPool = Array.from({ length: 100 }, () =>
+				structuredClone(depth10),
+			);
+			let poolIndex = 0;
 			for (const adapter of mutationAdapters) {
 				bench(adapter.name, () => {
-					const data = structuredClone(depth10);
+					const data = dataPool[poolIndex++ % dataPool.length];
 					adapter.set!(
 						data,
 						'/level0/level1/level2/level3/level4/level5/level6/level7/level8/level9',
@@ -205,9 +237,13 @@ describe('Scale Testing', () => {
 
 		describe('Depth 20', () => {
 			const path = Array.from({ length: 20 }, (_, i) => `level${i}`).join('/');
+			const dataPool = Array.from({ length: 100 }, () =>
+				structuredClone(depth20),
+			);
+			let poolIndex = 0;
 			for (const adapter of mutationAdapters) {
 				bench(adapter.name, () => {
-					const data = structuredClone(depth20);
+					const data = dataPool[poolIndex++ % dataPool.length];
 					adapter.set!(data, `/${path}`, 'updated');
 				});
 			}
@@ -344,9 +380,17 @@ describe('Scale Testing', () => {
 		});
 
 		describe('100 sets', () => {
+			/**
+			 * Measures: throughput of 100 sequential set operations on pre-cloned inputs.
+			 * Excludes: structuredClone cost (performed once per pool slot, outside the timed callback).
+			 */
+			const dataPool = Array.from({ length: 100 }, () =>
+				structuredClone(obj100),
+			);
+			let poolIndex = 0;
 			for (const adapter of mutationAdapters) {
 				bench(adapter.name, () => {
-					const data = structuredClone(obj100);
+					const data = dataPool[poolIndex++ % dataPool.length];
 					for (let i = 0; i < 100; i++) {
 						adapter.set!(data, `/key${i}`, `updated${i}`);
 					}
@@ -367,9 +411,17 @@ describe('Scale Testing', () => {
 
 	describe('Memory Pressure - Large Object Manipulation', () => {
 		describe('Create and mutate large object', () => {
+			/**
+			 * Measures: repeated mutation cost on pre-cloned inputs.
+			 * Excludes: structuredClone cost (performed once per pool slot, outside the timed callback).
+			 */
+			const dataPool = Array.from({ length: 100 }, () =>
+				structuredClone(obj10000),
+			);
+			let poolIndex = 0;
 			for (const adapter of mutationAdapters) {
 				bench(adapter.name, () => {
-					const data = structuredClone(obj10000);
+					const data = dataPool[poolIndex++ % dataPool.length];
 					for (let i = 0; i < 100; i++) {
 						adapter.set!(data, `/key${i * 100}`, { mutated: true, index: i });
 					}

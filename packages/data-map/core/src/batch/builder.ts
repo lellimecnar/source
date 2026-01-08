@@ -9,7 +9,9 @@ export class FluentBatchBuilder<T, Ctx> implements Batch<DataMap<T, Ctx>> {
 	private workingData: unknown;
 
 	constructor(private dm: DataMap<T, Ctx>) {
-		this.workingData = dm.getSnapshot();
+		// Fluent batch preview mutates workingData while building ops; always isolate it
+		// from the DataMap instance regardless of snapshotMode.
+		this.workingData = cloneSnapshot(dm.getSnapshot());
 	}
 
 	set(pathOrPointer: string, value: unknown, options?: CallOptions): this {

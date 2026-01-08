@@ -14,8 +14,8 @@ describe('utilities', () => {
 		expect(deepExtends({ a: { b: 1 } }, { a: { b: 2 } })).toBe(false);
 	});
 
-	it('DataMap snapshots are immutable clones', () => {
-		const dm = new DataMap({ a: { b: 1 } });
+	it("DataMap getSnapshot() clones when snapshotMode='clone'", () => {
+		const dm = new DataMap({ a: { b: 1 } }, { snapshotMode: 'clone' } as any);
 		const snap = dm.getSnapshot() as any;
 		snap.a.b = 999;
 		expect(dm.get('/a/b')).toBe(1);

@@ -5,6 +5,10 @@ import type { BenchmarkAdapter, PatchOp, SubscriptionHandle } from './types.js';
 let cachedMap: DataMap<any> | null = null;
 let cachedData: unknown | null = null;
 
+function createMutationDataMap(data: unknown): DataMap<any> {
+	return new DataMap(data as any, { cloneInitial: false } as any);
+}
+
 function getCachedDataMap(data: unknown): DataMap<any> {
 	if (cachedData !== data) {
 		cachedMap = new DataMap(data as any);
@@ -51,56 +55,56 @@ export const dataMapAdapter: BenchmarkAdapter = {
 		return dm.getAll(path);
 	},
 	set: (data: unknown, path: string, value: unknown) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.set(path, value);
 		return dm.getSnapshot();
 	},
 	setAll: (data: unknown, path: string, value: unknown) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.setAll(path, value);
 		return dm.getSnapshot();
 	},
 	mutate: (data: unknown, path: string, value: unknown) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.set(path, value);
 	},
 	immutableUpdate: (data: unknown, path: string, value: unknown) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.set(path, value);
 		return dm.getSnapshot();
 	},
 	map: (data: unknown, path: string, fn: (v: unknown) => unknown) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.map(path, fn);
 		return dm.getSnapshot();
 	},
 	applyPatch: (data: unknown, patches: PatchOp[]) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.patch(patches as any);
 		return dm.getSnapshot();
 	},
 	patch: (data: unknown, patches: PatchOp[]) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.patch(patches as any);
 		return dm.getSnapshot();
 	},
 	push: (data: unknown, path: string, ...items: unknown[]) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.push(path, ...items);
 		return dm.getSnapshot();
 	},
 	pop: (data: unknown, path: string) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		const value = dm.pop(path);
 		return { data: dm.getSnapshot(), value };
 	},
 	shift: (data: unknown, path: string) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		const value = dm.shift(path);
 		return { data: dm.getSnapshot(), value };
 	},
 	unshift: (data: unknown, path: string, ...items: unknown[]) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.unshift(path, ...items);
 		return dm.getSnapshot();
 	},
@@ -111,7 +115,7 @@ export const dataMapAdapter: BenchmarkAdapter = {
 		deleteCount: number,
 		...items: unknown[]
 	) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.splice(path, start, deleteCount, ...items);
 		return dm.getSnapshot();
 	},
@@ -120,7 +124,7 @@ export const dataMapAdapter: BenchmarkAdapter = {
 		path: string,
 		compareFn?: (a: unknown, b: unknown) => number,
 	) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.sort(path, compareFn);
 		return dm.getSnapshot();
 	},
@@ -143,7 +147,7 @@ export const dataMapAdapter: BenchmarkAdapter = {
 		data: unknown,
 		fn: (apply: (p: string, v: unknown) => void) => void,
 	) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.batch(() => {
 			fn((path: string, value: unknown) => {
 				dm.set(path, value);
@@ -155,7 +159,7 @@ export const dataMapAdapter: BenchmarkAdapter = {
 		data: unknown,
 		fn: (apply: (p: string, v: unknown) => void) => void,
 	) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.transaction(() => {
 			fn((path: string, value: unknown) => {
 				dm.set(path, value);
@@ -168,6 +172,7 @@ export const dataMapAdapter: BenchmarkAdapter = {
 	},
 	clone: (data: unknown) => {
 		const dm = getCachedDataMap(data);
+		// Measures a single deep clone operation via snapshot cloning.
 		return dm.getSnapshot();
 	},
 	query: (data: unknown, expression: string) => {
@@ -175,7 +180,7 @@ export const dataMapAdapter: BenchmarkAdapter = {
 		return dm.getAll(expression);
 	},
 	shuffle: (data: unknown, path: string) => {
-		const dm = getCachedDataMap(data);
+		const dm = createMutationDataMap(data);
 		dm.shuffle(path);
 		return dm.getSnapshot();
 	},

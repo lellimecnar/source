@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildSetPatch } from './builder';
+import { buildSetPatch, ensureParentContainers } from './builder';
 
 describe('patch builder', () => {
 	it('generates replace when path exists', () => {
@@ -21,5 +21,24 @@ describe('patch builder', () => {
 		expect(ops[0]).toEqual({ op: 'add', path: '/items', value: [] });
 		expect(ops[1]).toEqual({ op: 'add', path: '/items/0', value: {} });
 		expect(ops[2]).toEqual({ op: 'add', path: '/items/0/name', value: 'x' });
+	});
+
+	it('ensureParentContainers shares untouched branches (structural sharing)', () => {
+		const keep = { x: 1 };
+		const other = { y: 2 };
+		const data = { keep, other };
+
+		const { nextData, ops } = ensureParentContainers(
+			data,
+			'/created/deep/value',
+		);
+		expect(ops).toEqual([
+			{ op: 'add', path: '/created', value: {} },
+			{ op: 'add', path: '/created/deep', value: {} },
+		]);
+
+		expect((data as any).created).toBeUndefined();
+		expect((nextData as any).keep).toBe(keep);
+		expect((nextData as any).other).toBe(other);
 	});
 });

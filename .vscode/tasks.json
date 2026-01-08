@@ -60,6 +60,18 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "test:data-map-core",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@data-map/core",
+				"test"
+			],
+			"isBackground": false,
+			"group": "test"
 		}
 	]
 }

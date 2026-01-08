@@ -1,7 +1,8 @@
 import type { Operation } from '../types';
 import { cloneSnapshot } from '../utils/clone';
-import { resolvePointer, pointerExists } from '../utils/jsonpath';
+import { pointerExists } from '../utils/jsonpath';
 import { parsePointerSegments, buildPointer } from '../utils/pointer';
+import { trySetChildAtPointerWithSharing } from '../utils/structural-sharing';
 
 function isIndexSegment(seg: string): boolean {
 	return /^\d+$/.test(seg);
@@ -10,10 +11,6 @@ function isIndexSegment(seg: string): boolean {
 function inferContainerForNextSeg(nextSeg: string | undefined): unknown {
 	if (nextSeg === undefined) return {};
 	return isIndexSegment(nextSeg) ? [] : {};
-}
-
-function getAtPointer(data: unknown, pointer: string): unknown {
-	return resolvePointer(data, pointer);
 }
 
 function existsAtPointer(data: unknown, pointer: string): boolean {
@@ -33,7 +30,7 @@ export function ensureParentContainers(
 	targetPointer: string,
 ): { ops: Operation[]; nextData: unknown } {
 	const ops: Operation[] = [];
-	const nextData = cloneSnapshot(currentData);
+	let nextData = currentData;
 
 	const segments = parsePointerSegments(targetPointer);
 	if (segments.length === 0) {
@@ -64,21 +61,15 @@ export function ensureParentContainers(
 			value: cloneSnapshot(container),
 		});
 
-		// Apply the op to nextData by directly mutating through JSON Pointer.
-		// (We keep this local to builder to avoid pulling in patch apply here.)
-		const parentValue =
-			parentPointer === '' ? nextData : getAtPointer(nextData, parentPointer);
-		if (parentPointer === '') {
-			if (Array.isArray(nextData) && isIndexSegment(seg)) {
-				(nextData as unknown[])[Number(seg)] = container;
-			} else if (typeof nextData === 'object' && nextData !== null) {
-				(nextData as Record<string, unknown>)[seg] = container;
-			}
-		} else if (Array.isArray(parentValue) && isIndexSegment(seg)) {
-			(parentValue as unknown[])[Number(seg)] = container;
-		} else if (typeof parentValue === 'object' && parentValue !== null) {
-			(parentValue as Record<string, unknown>)[seg] = container;
-		}
+		// Apply the op to nextData via structural sharing (O(depth)).
+		// If the parent path can't be resolved (missing/non-object), we preserve
+		// prior behavior: ops are still emitted, but nextData may remain unchanged.
+		nextData = trySetChildAtPointerWithSharing(
+			nextData,
+			segments.slice(0, depth),
+			seg,
+			container,
+		);
 	}
 
 	return { ops, nextData };

@@ -33,6 +33,19 @@ export interface DataMapOptions<T = unknown, Ctx = unknown> {
 	subscribe?: SubscriptionConfig<T, Ctx>[];
 	schema?: unknown;
 	/**
+	 * Controls `getSnapshot()` behavior.
+	 *
+	 * - `'reference'` (default): return the internal data by reference (fastest)
+	 * - `'clone'`: deep clone (mutation isolation)
+	 * - `'frozen'`: return a shallow-frozen reference in development (helps catch accidental mutation)
+	 */
+	snapshotMode?: 'reference' | 'clone' | 'frozen';
+	/**
+	 * When false, DataMap.set(pointer, ...) will use the legacy patch-based write path.
+	 * Defaults to true.
+	 */
+	useStructuralUpdate?: boolean;
+	/**
 	 * When false, DataMap will not clone the initial value in the constructor.
 	 * Defaults to true to preserve current immutability guarantees.
 	 */

@@ -73,11 +73,20 @@ describe('spec compliance', () => {
 				expect(initial.a).toBe(1);
 			});
 
-			it('returns cloned snapshots', () => {
+			it('supports snapshot tradeoffs via snapshotMode', () => {
+				// Default is fastest by-reference snapshot (v0 breaking change per plan).
 				const dm = new DataMap({ a: { b: 1 } });
-				const snap = dm.getSnapshot() as any;
-				snap.a.b = 999;
-				expect(dm.get('/a/b')).toBe(1);
+				const refSnap = dm.getSnapshot() as any;
+				refSnap.a.b = 999;
+				expect(dm.get('/a/b')).toBe(999);
+
+				// Use snapshotMode='clone' for mutation isolation.
+				const dmClone = new DataMap({ a: { b: 1 } }, {
+					snapshotMode: 'clone',
+				} as any);
+				const clonedSnap = dmClone.getSnapshot() as any;
+				clonedSnap.a.b = 999;
+				expect(dmClone.get('/a/b')).toBe(1);
 			});
 		});
 

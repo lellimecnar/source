@@ -1,5 +1,4 @@
 import { FluentBatchBuilder } from './batch/builder';
-import type { Batch } from './batch/fluent';
 import { BatchManager } from './batch/manager';
 import type { BatchContext } from './batch/types';
 import { DefinitionRegistry } from './definitions/registry';
@@ -36,6 +35,12 @@ import {
 	resolvePointer,
 	streamQuery,
 } from './utils/jsonpath';
+import {
+	buildPointer,
+	parsePointerSegments,
+	tryPointerExistsInline,
+} from './utils/pointer';
+import { setAtPointer } from './utils/structural-update';
 
 function normalizePointerInput(input: string): string {
 	if (input === '#') return '';
@@ -47,6 +52,10 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	private _data: T;
 	private readonly _strict: boolean;
 	private readonly _context: Ctx | undefined;
+	private readonly _snapshotMode: NonNullable<
+		DataMapOptions<T, Ctx>['snapshotMode']
+	>;
+	private readonly _useStructuralUpdate: boolean;
 	private _subs: SubscriptionManagerImpl<T, Ctx> | null = null;
 	private readonly _batch = new BatchManager();
 	private readonly _defs = new DefinitionRegistry<T, Ctx>(this);
@@ -115,6 +124,8 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	constructor(initialValue: T, options: DataMapOptions<T, Ctx> = {}) {
 		this._strict = options.strict ?? false;
 		this._context = options.context;
+		this._snapshotMode = options.snapshotMode ?? 'reference';
+		this._useStructuralUpdate = options.useStructuralUpdate ?? true;
 		const cloneInitial = options.cloneInitial ?? true;
 		this._data = cloneInitial ? cloneSnapshot(initialValue) : initialValue;
 		this._isOwned = cloneInitial;
@@ -182,19 +193,40 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	}
 
 	toImmutable(): Readonly<T> {
-		// In dev, shallow freezing is acceptable; deep-freeze can be added later if needed.
+		/**
+		 * Returns a snapshot suitable for read-only usage.
+		 *
+		 * - Respects `snapshotMode` (see `getSnapshot()`)
+		 * - In development, shallow-freezes the returned value when it's an object
+		 */
+		const snapshot = this.getSnapshot();
 		if (
 			process.env.NODE_ENV === 'development' &&
-			this._data &&
-			typeof this._data === 'object'
+			snapshot &&
+			typeof snapshot === 'object'
 		) {
-			return Object.freeze(this._data as any) as Readonly<T>;
+			return Object.freeze(snapshot as any) as Readonly<T>;
 		}
-		return this._data as Readonly<T>;
+		return snapshot as Readonly<T>;
 	}
 
 	getSnapshot(): T {
-		return cloneSnapshot(this._data);
+		switch (this._snapshotMode) {
+			case 'clone':
+				return cloneSnapshot(this._data);
+			case 'frozen':
+				if (
+					process.env.NODE_ENV === 'development' &&
+					this._data &&
+					typeof this._data === 'object'
+				) {
+					return Object.freeze(this._data as any) as T;
+				}
+				return this._data;
+			case 'reference':
+			default:
+				return this._data;
+		}
 	}
 
 	resolve(pathOrPointer: string, options: CallOptions = {}): ResolvedMatch[] {
@@ -418,13 +450,179 @@ export class DataMap<T = unknown, Ctx = unknown> {
 			options: CallOptions = {},
 		) => {
 			const strict = options.strict ?? this._strict;
+			const pathType = detectPathType(pathOrPointer);
+
+			// Fast-path: pointer set() with structural sharing (no patch-building).
+			if (pathType === 'pointer' && this._useStructuralUpdate !== false) {
+				const pointerString = normalizePointerInput(pathOrPointer);
+				const segments = parsePointerSegments(pointerString);
+
+				const ctx = this._context as any;
+				const current = this.peek(pointerString);
+				let nextValue =
+					typeof value === 'function' ? (value as any)(current) : value;
+				nextValue = this._defs.applySetter(
+					pointerString,
+					nextValue,
+					current,
+					ctx,
+				);
+
+				const parentPointer = (p: string): string => {
+					if (p === '') return '';
+					const idx = p.lastIndexOf('/');
+					if (idx <= 0) return '';
+					return p.slice(0, idx);
+				};
+
+				const isStructuralOp = (op: Operation): boolean =>
+					op.op === 'add' ||
+					op.op === 'remove' ||
+					op.op === 'move' ||
+					op.op === 'copy';
+
+				try {
+					// Build the equivalent op list (container creation + final add/replace),
+					// so metadata and batch semantics match the patch-based implementation.
+					const targetPointer = buildPointer(segments);
+					let workingData: unknown = this._data;
+					const effectiveOps: Operation[] = [];
+
+					const existsAt = (data: unknown, pointer: string): boolean => {
+						const r = tryPointerExistsInline(data, pointer);
+						if (r.ok) return r.exists;
+						try {
+							return pointerExists(data, pointer);
+						} catch {
+							return false;
+						}
+					};
+
+					const inferContainerForNextSeg = (
+						nextSeg: string | undefined,
+					): any => {
+						if (nextSeg === undefined) return {};
+						return /^(0|[1-9][0-9]*)$/.test(nextSeg) ? [] : {};
+					};
+
+					for (let depth = 0; depth < segments.length - 1; depth++) {
+						const childPointer = buildPointer(segments.slice(0, depth + 1));
+						if (existsAt(workingData, childPointer)) continue;
+
+						const container = inferContainerForNextSeg(segments[depth + 1]);
+						effectiveOps.push({
+							op: 'add',
+							path: childPointer,
+							value: container,
+						});
+						workingData = setAtPointer(workingData, childPointer, container, {
+							createPath: true,
+						});
+					}
+
+					const targetExists = existsAt(workingData, targetPointer);
+					effectiveOps.push(
+						targetExists
+							? { op: 'replace', path: targetPointer, value: nextValue }
+							: { op: 'add', path: targetPointer, value: nextValue },
+					);
+
+					// Capture previous values and run before-hooks (sync).
+					const previousValues = new Map<string, unknown>();
+					for (const op of effectiveOps) {
+						previousValues.set(op.path, this.peek(op.path));
+					}
+
+					for (const op of effectiveOps) {
+						const previousValue = previousValues.get(op.path);
+						const nextOpValue = 'value' in op ? op.value : undefined;
+
+						const before = this.notify(
+							op.path,
+							'patch',
+							'before',
+							nextOpValue,
+							previousValue,
+							op,
+							op.path,
+						);
+
+						if (before.cancelled) {
+							throw new Error('Patch cancelled by subscription');
+						}
+						if (before.transformedValue !== undefined && 'value' in op) {
+							op.value = before.transformedValue;
+						}
+					}
+
+					// Apply ops via structural update.
+					let nextData: unknown = this._data;
+					for (const op of effectiveOps) {
+						if (!('value' in op)) continue;
+						nextData = setAtPointer(nextData, op.path, op.value, {
+							createPath: true,
+						});
+					}
+					this._data = nextData as T;
+					this._isOwned = true;
+
+					// Compute affected + structural pointers (matches patch/apply.ts semantics).
+					const affectedPointers = new Set<string>();
+					const structuralPointers = new Set<string>();
+					for (const op of effectiveOps) {
+						affectedPointers.add(op.path);
+						if (isStructuralOp(op)) {
+							structuralPointers.add(parentPointer(op.path));
+						}
+					}
+
+					// Track metadata.
+					const now = Date.now();
+					for (const op of effectiveOps) {
+						const prevValue = previousValues.get(op.path);
+						this._previousValues.set(op.path, prevValue);
+						this._lastUpdated.set(op.path, now);
+					}
+
+					if (this._batch.isBatching) {
+						this._batch.collect(
+							effectiveOps,
+							affectedPointers,
+							structuralPointers,
+						);
+						return this;
+					}
+
+					for (const p of structuralPointers) {
+						this._subs?.handleStructuralChange(p);
+					}
+
+					for (const p of affectedPointers) {
+						this._subs?.handleFilterCriteriaChange(p);
+					}
+
+					// Dispatch on/after asynchronously (REQ-016).
+					for (const op of effectiveOps) {
+						const p = op.path;
+						const val = this.peek(p);
+						const prev = previousValues.get(p);
+						this.scheduleNotify(p, 'patch', 'on', val, prev, op, p);
+						this.scheduleNotify(p, 'patch', 'after', val, prev, op, p);
+					}
+
+					return this;
+				} catch (e) {
+					if (strict) throw e;
+					return this;
+				}
+			}
+
 			const matches = this.resolve(pathOrPointer, { strict });
 			const targetPointer = matches[0]?.pointer;
 			const ctx = this._context as any;
 
 			// If pointer or singular JSONPath resolved, use it; otherwise if unresolved and strict, throw.
 			if (!targetPointer) {
-				const pathType = detectPathType(pathOrPointer);
 				if (pathType === 'pointer') {
 					const pointerString = normalizePointerInput(pathOrPointer);
 					const current = undefined;
@@ -1001,11 +1199,20 @@ export class DataMap<T = unknown, Ctx = unknown> {
 	}
 
 	clone(options?: Partial<DataMapOptions<T, Ctx>>): DataMap<T, Ctx> {
-		return new (this.constructor as any)(this.getSnapshot(), {
+		// clone() must always produce an owned, mutation-isolated instance.
+		// Do not use getSnapshot(), since snapshotMode may be 'reference'.
+		const snapshot = cloneSnapshot(this._data);
+		const dm = new (this.constructor as any)(snapshot, {
 			strict: this._strict,
 			context: this._context,
 			define: this._defineOptions,
 			...options,
-		});
+			// snapshot already deep-cloned above
+			cloneInitial: false,
+		}) as DataMap<T, Ctx>;
+
+		// Preserve existing clone() semantics: the clone owns its data immediately.
+		dm._isOwned = true;
+		return dm;
 	}
 }

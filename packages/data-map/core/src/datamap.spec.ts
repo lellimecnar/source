@@ -139,11 +139,93 @@ describe('DataMap', () => {
 			expect(initial.a).toBe(1);
 		});
 
-		it('should return cloned snapshots', () => {
+		it('pointer set() clones only along the modified path', () => {
+			const initial = {
+				a: { b: 1, keep: { z: 1 } },
+				unrelated: { x: 1 },
+			};
+			const dm = new DataMap(initial, { cloneInitial: false } as any);
+			const before = (dm as any)._data;
+			const beforeUnrelated = before.unrelated;
+			const beforeA = before.a;
+
+			dm.set('/a/b', 2);
+
+			const after = (dm as any)._data;
+			expect(after).not.toBe(before);
+			expect(after.unrelated).toBe(beforeUnrelated);
+			expect(after.a).not.toBe(beforeA);
+			expect(after.a.keep).toBe(beforeA.keep);
+			expect(after.a.b).toBe(2);
+		});
+
+		it('createPath builds missing parents and preserves unrelated references', () => {
+			const initial = { keep: { x: 1 } };
+			const dm = new DataMap(initial, { cloneInitial: false } as any);
+			const before = (dm as any)._data;
+			const keepRef = before.keep;
+
+			dm.set('/a/0/b', 'x');
+
+			const after = (dm as any)._data;
+			expect(after.keep).toBe(keepRef);
+			expect(after.a).toEqual([{ b: 'x' }]);
+		});
+
+		it('useStructuralUpdate=false uses legacy patch-based container creation', () => {
+			const initial = { keep: { x: 1 } };
+			const dm = new DataMap(initial, {
+				cloneInitial: false,
+				useStructuralUpdate: false,
+			} as any);
+			const before = (dm as any)._data;
+			const keepRef = before.keep;
+
+			dm.set('/a/0/b', 'x');
+
+			const after = (dm as any)._data;
+			expect(after.a).toEqual([{ b: 'x' }]);
+			// Legacy path goes through JSON Patch apply (mutate:false), which does not
+			// guarantee reference stability for untouched branches.
+			expect(after.keep).not.toBe(keepRef);
+		});
+
+		it('getSnapshot() returns a direct reference by default (snapshotMode=reference)', () => {
 			const dm = new DataMap({ user: { name: 'Alice' } });
-			const s1 = dm.getSnapshot() as any;
-			s1.user.name = 'Bob';
+			const snap = dm.getSnapshot() as any;
+			// Implication: mutating the snapshot mutates the DataMap state.
+			snap.user.name = 'Bob';
+			expect(dm.get('/user/name')).toBe('Bob');
+		});
+
+		it("getSnapshot() returns a deep clone when snapshotMode='clone' (mutation isolation)", () => {
+			const dm = new DataMap({ user: { name: 'Alice', tags: ['dev'] } }, {
+				snapshotMode: 'clone',
+			} as any);
+			const snap = dm.getSnapshot() as any;
+			snap.user.name = 'Bob';
+			snap.user.tags.push('admin');
 			expect(dm.get('/user/name')).toBe('Alice');
+			expect(dm.get('/user/tags')).toEqual(['dev']);
+		});
+
+		it("getSnapshot() returns a frozen reference in development when snapshotMode='frozen'", () => {
+			const prevEnv = process.env.NODE_ENV;
+			process.env.NODE_ENV = 'development';
+			try {
+				const dm = new DataMap({ user: { name: 'Alice' } }, {
+					snapshotMode: 'frozen',
+				} as any);
+				const snap = dm.getSnapshot() as any;
+				expect(Object.isFrozen(snap)).toBe(true);
+				// Shallow freeze: top-level writes should throw.
+				expect(() => {
+					snap.user = { name: 'Bob' };
+				}).toThrow();
+				expect(dm.get('/user/name')).toBe('Alice');
+			} finally {
+				process.env.NODE_ENV = prevEnv;
+			}
 		});
 
 		it('get() returns a direct reference by default', () => {
@@ -170,6 +252,16 @@ describe('DataMap', () => {
 			dm.set('/a/b', 2);
 			expect((dm as any)._data).not.toBe(initial);
 			expect(initial.a.b).toBe(1);
+		});
+
+		it('clone() avoids redundant cloning but preserves owned semantics', () => {
+			const dm = new DataMap({ a: { b: 1 } });
+			const cloned = dm.clone() as any;
+			// clone() historically produced an owned instance; keep that invariant.
+			expect(cloned._isOwned).toBe(true);
+
+			cloned.set('/a/b', 2);
+			expect(dm.get('/a/b')).toBe(1);
 		});
 	});
 
