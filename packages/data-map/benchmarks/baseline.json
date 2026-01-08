@@ -29,6 +29,9 @@
 	"signals.batch100Writes": {
 		"opsPerSec": 0
 	},
+	"signals.effectDispose": {
+		"opsPerSec": 0
+	},
 	"subscriptions.subscribePointer": {
 		"opsPerSec": 0
 	},
@@ -39,6 +42,9 @@
 		"opsPerSec": 0
 	},
 	"subscriptions.notifyPattern10": {
+		"opsPerSec": 0
+	},
+	"subscriptions.cleanup": {
 		"opsPerSec": 0
 	},
 	"arrays.smartArrayPush": {
@@ -57,6 +63,24 @@
 		"opsPerSec": 0
 	},
 	"arrays.persistentVectorSetMiddle": {
+		"opsPerSec": 0
+	},
+	"path.pointerGetSmall": {
+		"opsPerSec": 0
+	},
+	"path.pointerSetSmall": {
+		"opsPerSec": 0
+	},
+	"core.dataMapGetSmall": {
+		"opsPerSec": 0
+	},
+	"core.dataMapSetSmall": {
+		"opsPerSec": 0
+	},
+	"core.dataMapSubscribePointer": {
+		"opsPerSec": 0
+	},
+	"core.dataMapBatch10Sets": {
 		"opsPerSec": 0
 	},
 	"scale.flatStoreGetMedium": {

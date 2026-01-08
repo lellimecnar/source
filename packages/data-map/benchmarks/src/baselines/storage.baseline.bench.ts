@@ -1,9 +1,9 @@
 import { FlatStore } from '@data-map/storage';
 import { bench, describe } from 'vitest';
 
-import { SMALL } from './fixtures';
+import { SMALL } from '../fixtures';
 
-describe('Storage', () => {
+describe('Baselines / Storage', () => {
 	const pointers = SMALL.pointers;
 	const values = SMALL.values;
 	const store = new FlatStore(SMALL.root);

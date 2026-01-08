@@ -1,9 +1,9 @@
 import { SubscriptionEngine } from '@data-map/subscriptions';
 import { bench, describe } from 'vitest';
 
-import { SMALL } from './fixtures';
+import { SMALL } from '../fixtures';
 
-describe('Subscriptions', () => {
+describe('Baselines / Subscriptions', () => {
 	const engine = new SubscriptionEngine();
 	const pointer = SMALL.pointers[0]!;
 
@@ -17,7 +17,6 @@ describe('Subscriptions', () => {
 		unsub();
 	});
 
-	// Pre-wire 100 exact subscriptions once.
 	const unsubs100: (() => void)[] = [];
 	for (let i = 0; i < 100; i++) {
 		unsubs100.push(engine.subscribePointer(pointer, () => {}));
@@ -27,7 +26,6 @@ describe('Subscriptions', () => {
 		engine.notify(pointer, 1);
 	});
 
-	// Pre-wire 10 pattern subscriptions once.
 	const unsubs10: (() => void)[] = [];
 	for (let i = 0; i < 10; i++) {
 		unsubs10.push(engine.subscribePattern('$.data.*', () => {}));
@@ -37,7 +35,6 @@ describe('Subscriptions', () => {
 		engine.notify(pointer, 1);
 	});
 
-	// Cleanup bench (ensures unsub fns are exercised)
 	bench('subscriptions.cleanup', () => {
 		for (const u of unsubs100) u();
 		for (const u of unsubs10) u();
