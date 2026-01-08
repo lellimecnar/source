@@ -30,6 +30,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced root README with badges and quick start guide
 - Updated AGENTS.md to reference new documentation
 
+### Fixed
+
+- **@data-map/benchmarks**: Fixed benchmark methodology to exclude setup costs
+  - Pre-clone input data outside of timed loops
+  - Separate mutation-style adapter paths (no `cloneInitial`)
+  - Ensure measurements reflect actual operation cost, not framework overhead
+  - Add documentation to clarify what each benchmark measures
+
+- **@data-map/core**: Performance optimizations
+  - Verify `clone()` implementation avoids redundant cloning
+  - Add `getRawData()` internal fast-path for direct data access without cloning
+  - Ensure zero-subscriber fast paths skip all notification overhead
+  - Verify structural sharing is used in patch building and applies operations
+  - Confirm pointer-first mutation path uses `setAtPointer()` for O(depth) writes
+
+- **docs**: Update PERFORMANCE_AUDIT_EXHAUSTIVE.md with methodology notes about benchmark harness corrections
+
 ## [0.0.0] - 2024-01-01
 
 ### Added

@@ -50,6 +50,19 @@ This audit used a “code + benchmark forensics” approach:
 
 No new performance instrumentation was added during this audit; results reference the existing benchmark harness and the current implementation.
 
+## Benchmark methodology (Updated 2026-01-07)
+
+### Critical benchmark harness improvements
+
+As of the resolution phase (Tier 0 of the performance audit resolution), the benchmark harness has been corrected to ensure fair measurements:
+
+1. **No cloning inside timed loops**: All benchmarks now use pre-cloned data pools, ensuring that `structuredClone()` cost is excluded from timing.
+2. **Adapter pools**: Mutation-style benchmarks construct `DataMap` instances with `{ cloneInitial: false }` to isolate mutation cost.
+3. **Read vs mutation separation**: The benchmark adapter now clearly distinguishes between cached instances (for reads/subscriptions) and freshly constructed instances (for mutations).
+4. **Documentation**: Each benchmark suite documents what is measured vs excluded in its header comments.
+
+**Impact**: These fixes ensure that benchmark results now measure **actual mutation/read cost**, not cloning overhead, making DataMap's performance characteristics much more transparent and actionable for optimization work.
+
 ## Benchmark review (what is measured vs what you think you’re measuring)
 
 ### 1) Scale mutation benchmarks clone the input per iteration
