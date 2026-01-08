@@ -146,8 +146,8 @@ completes: step 1 of 10 for DataMap
 
 #### Step 2: Add External Dependency (mnemonist)
 
-- [ ] Add `mnemonist` as a dependency to the packages that will import it (`@data-map/subscriptions`, `@data-map/path`).
-- [ ] Create `packages/data-map/subscriptions/package.json` with the exact content below:
+- [x] Add `mnemonist` as a dependency to the packages that will import it (`@data-map/subscriptions`, `@data-map/path`).
+- [x] Create `packages/data-map/subscriptions/package.json` with the exact content below:
 
 ```json
 {
@@ -196,7 +196,7 @@ completes: step 1 of 10 for DataMap
 }
 ```
 
-- [ ] Create `packages/data-map/path/package.json` with the exact content below:
+- [x] Create `packages/data-map/path/package.json` with the exact content below:
 
 ```json
 {
@@ -247,8 +247,8 @@ completes: step 1 of 10 for DataMap
 
 ##### Step 2 Verification Checklist
 
-- [ ] Run `pnpm install`.
-- [ ] Confirm pnpm can resolve mnemonist: `pnpm why mnemonist`.
+- [x] Run `pnpm install`.
+- [x] Confirm pnpm can resolve mnemonist: `pnpm why mnemonist`.
 
 #### Step 2 STOP & COMMIT
 
