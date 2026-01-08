@@ -17,12 +17,13 @@ describe('@data-map/core', () => {
 		expect(fn).toHaveBeenCalledTimes(1);
 	});
 
-	it('computedPointer updates after mutation', () => {
+	it('computedPointer updates after mutation', async () => {
 		const store = createDataMap({});
 		store.set('/x', 1);
 		const { computed: c } = store.computedPointer<number>('/x');
 		expect(c.value).toBe(1);
 		store.set('/x', 2);
+		await Promise.resolve();
 		expect(c.value).toBe(2);
 	});
 

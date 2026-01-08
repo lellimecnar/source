@@ -9,7 +9,7 @@ export function pointerComputed<T = unknown>(
 	const tracker = new DependencyTracker(host);
 	const c = computed(() => host.get(pointer) as T);
 	tracker.trackPointers([pointer], () => {
-		// Invalidate by recomputing
+		c.invalidate();
 	});
 	return {
 		computed: c,

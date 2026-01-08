@@ -24,10 +24,12 @@ export class SmartArray {
 
 	splice(index: number, deleteCount: number, ...items: unknown[]): void {
 		for (let i = 0; i < deleteCount; i++) {
-			this.indirection.removeAt(index);
+			const phys = this.indirection.removeAt(index);
+			this.store.delete(`${this.pointer}/_p/${phys}`);
 		}
 		for (let i = 0; i < items.length; i++) {
-			this.indirection.insertAt(index + i);
+			const phys = this.indirection.insertAt(index + i);
+			this.store.set(`${this.pointer}/_p/${phys}`, items[i]);
 		}
 
 		// Rewrite logical projection (keeps physical slots stable; logical pointers updated)

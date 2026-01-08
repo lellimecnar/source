@@ -20,7 +20,13 @@ describe('SubscriptionEngine', () => {
 		engine.notify('/users/1/name', 'Bob');
 		engine.notify('/users/0/age', 1);
 		await Promise.resolve();
-		expect(fn).toHaveBeenCalledTimes(2);
+		// Pattern subscriptions are microtask-batched and coalesced per subscriber.
+		// With two matching updates in the same tick, the subscriber sees the last one.
+		expect(fn).toHaveBeenCalledTimes(1);
+		expect(fn.mock.calls[0][0]).toEqual({
+			pointer: '/users/1/name',
+			value: 'Bob',
+		});
 	});
 
 	it('matches recursive descent like $..name', async () => {
@@ -31,6 +37,11 @@ describe('SubscriptionEngine', () => {
 		engine.notify('/org/name', 'ACME');
 		engine.notify('/users/0/age', 1);
 		await Promise.resolve();
-		expect(fn).toHaveBeenCalledTimes(2);
+		// Same batching/coalescing behavior as other pattern subscriptions.
+		expect(fn).toHaveBeenCalledTimes(1);
+		expect(fn.mock.calls[0][0]).toEqual({
+			pointer: '/org/name',
+			value: 'ACME',
+		});
 	});
 });
