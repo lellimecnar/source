@@ -22,10 +22,8 @@ tags:
 
 	### Prerequisites
 
-	- [ ] Checkout branch `perf/data-map-core-optimization`.
-	- [ ] Install dependencies:
-
-	```bash
+- [x] Checkout branch `perf/data-map-core-optimization`.
+- [x] Install dependencies:
 	pnpm install
 	```
 
@@ -58,24 +56,18 @@ tags:
 
 	**Acceptance**
 
-	- Mutation-style adapter entrypoints construct `DataMap` with `{ cloneInitial: false }`.
-	- Read/subscribe/query operations may continue to use cached DataMap instances.
+- [x] Mutation-style adapter entrypoints construct `DataMap` with `{ cloneInitial: false }`.
+- [x] Read/subscribe/query operations may continue to use cached DataMap instances.
 
-	**Verify quickly**
+**Verify quickly**
 
-	- [ ] `data-map.adapter.ts` contains `createMutationDataMap(...){ return new DataMap(...,{ cloneInitial:false }) }`.
-	- [ ] `set`, `setAll`, `patch`/`applyPatch`, array mutations, `batch`, `transaction` call `createMutationDataMap`.
+- [x] `data-map.adapter.ts` contains `createMutationDataMap(...){ return new DataMap(...,{ cloneInitial:false }) }`.
+- [x] `set`, `setAll`, `patch`/`applyPatch`, array mutations, `batch`, `transaction` call `createMutationDataMap`.
 
-	**Validate**
+**Validate**
 
-	- [ ] `pnpm --filter @data-map/benchmarks type-check`
-	- [ ] `pnpm --filter @data-map/benchmarks bench:scale`
-
-	**STOP & COMMIT**
-
-	```text
-	perf(benchmarks): avoid adapter double-cloning for mutation benches
-
+- [x] `pnpm --filter @data-map/benchmarks type-check`
+- [x] `pnpm --filter @data-map/benchmarks bench:scale`
 	- construct DataMap with cloneInitial:false for mutation-style adapter methods
 	- keep cached DataMap for read/subscribe paths
 	```
@@ -88,7 +80,7 @@ tags:
 
 	**Acceptance**
 
-	- `clone(data)` measures **one deep clone** (no compounded clone+snapshot).
+	- [x] `clone(data)` measures **one deep clone** (no compounded clone+snapshot).
 
 	**Recommended implementation**
 
@@ -102,7 +94,7 @@ tags:
 
 	**Validate**
 
-	- [ ] `pnpm --filter @data-map/benchmarks bench --testNamePattern='Cloning'`
+	- [x] `pnpm --filter @data-map/benchmarks bench --testNamePattern='Cloning'`
 
 	**STOP & COMMIT**
 
@@ -118,10 +110,11 @@ tags:
 
 	**Target files**
 
-	- `packages/data-map/benchmarks/src/compare/scale.bench.ts`
-	- `packages/data-map/benchmarks/src/compare/immutable-updates.bench.ts`
-	- `packages/data-map/benchmarks/src/compare/subscriptions.bench.ts`
-	- `packages/data-map/benchmarks/src/compare/array-operations.bench.ts`
+	- [x] `packages/data-map/benchmarks/src/compare/scale.bench.ts`
+	- [x] `packages/data-map/benchmarks/src/compare/immutable-updates.bench.ts`
+	- [x] `packages/data-map/benchmarks/src/compare/subscriptions.bench.ts`
+	- [x] `packages/data-map/benchmarks/src/compare/array-operations.bench.ts`
+	- [x] `packages/data-map/benchmarks/src/compare/json-patch.bench.ts` (FIXED)
 
 	**Rule**: the timed callback passed to `bench(...)` must not call `structuredClone(...)`.
 
@@ -139,8 +132,8 @@ tags:
 
 	**Validate**
 
-	- [ ] `pnpm --filter @data-map/benchmarks bench:scale`
-	- [ ] `pnpm --filter @data-map/benchmarks bench:mutations`
+	- [x] `pnpm --filter @data-map/benchmarks bench:scale`
+	- [x] `pnpm --filter @data-map/benchmarks bench:mutations`
 
 	**STOP & COMMIT**
 
@@ -157,7 +150,7 @@ tags:
 
 	**Target files**: benchmark suites touched in Tier 0.
 
-	**Acceptance**: each pooled section states what is measured vs excluded.
+	**Acceptance**: [x] each pooled section states what is measured vs excluded.
 
 	```ts
 	/**

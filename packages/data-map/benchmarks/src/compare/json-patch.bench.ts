@@ -65,77 +65,133 @@ const veryLargeBatchPatch: PatchOp[] = Array.from({ length: 50 }, (_, i) => ({
 	value: i,
 }));
 
+/**
+ * Data pools for patch benchmarks.
+ * Pre-cloned outside of timed callbacks to measure patch cost, not clone cost.
+ */
+const smallDataPoolAddOp = Array.from({ length: 100 }, () =>
+	structuredClone(smallDataset.data),
+);
+const smallDataPoolReplaceOp = Array.from({ length: 100 }, () =>
+	structuredClone(smallDataset.data),
+);
+const smallDataPoolRemoveOp = Array.from({ length: 100 }, () =>
+	structuredClone(smallDataset.data),
+);
+const smallDataPoolMultiOp = Array.from({ length: 100 }, () =>
+	structuredClone(smallDataset.data),
+);
+const mediumDataPoolNested = Array.from({ length: 100 }, () =>
+	structuredClone(mediumDataset.data),
+);
+const smallDataWithItemsPool = Array.from({ length: 100 }, () =>
+	structuredClone({
+		...(smallDataset.data as Record<string, unknown>),
+		items: [1, 2, 3, 4, 5],
+	}),
+);
+const smallDataPoolLargeBatch = Array.from({ length: 100 }, () =>
+	structuredClone(smallDataset.data),
+);
+const mediumDataPoolVeryLargeBatch = Array.from({ length: 100 }, () =>
+	structuredClone(mediumDataset.data),
+);
+const largeObjectPool = Array.from({ length: 100 }, () =>
+	structuredClone(DATASETS.largeObject),
+);
+const smallDataPoolMove = Array.from({ length: 100 }, () =>
+	structuredClone(smallDataset.data),
+);
+const smallDataPoolCopy = Array.from({ length: 100 }, () =>
+	structuredClone(smallDataset.data),
+);
+
 describe('JSON Patch Comparison', () => {
 	describe('Single Add Operation', () => {
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone(smallDataset.data);
+				const data =
+					smallDataPoolAddOp[poolIndex++ % smallDataPoolAddOp.length];
 				adapter.patch!(data, singleAddPatch);
 			});
 		}
 	});
 
 	describe('Single Replace Operation', () => {
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone(smallDataset.data);
+				const data =
+					smallDataPoolReplaceOp[poolIndex++ % smallDataPoolReplaceOp.length];
 				adapter.patch!(data, singleReplacePatch);
 			});
 		}
 	});
 
 	describe('Single Remove Operation', () => {
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone(smallDataset.data);
+				const data =
+					smallDataPoolRemoveOp[poolIndex++ % smallDataPoolRemoveOp.length];
 				adapter.patch!(data, singleRemovePatch);
 			});
 		}
 	});
 
 	describe('Multi-Operation Patch (5 ops)', () => {
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone(smallDataset.data);
+				const data =
+					smallDataPoolMultiOp[poolIndex++ % smallDataPoolMultiOp.length];
 				adapter.patch!(data, multiOpPatch);
 			});
 		}
 	});
 
 	describe('Nested Path Patch', () => {
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone(mediumDataset.data);
+				const data =
+					mediumDataPoolNested[poolIndex++ % mediumDataPoolNested.length];
 				adapter.patch!(data, nestedPatch);
 			});
 		}
 	});
 
 	describe('Array Operations', () => {
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone({
-					...(smallDataset.data as Record<string, unknown>),
-					items: [1, 2, 3, 4, 5],
-				});
+				const data =
+					smallDataWithItemsPool[poolIndex++ % smallDataWithItemsPool.length];
 				adapter.patch!(data, arrayPatch);
 			});
 		}
 	});
 
 	describe('Large Batch Patch (10 ops)', () => {
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone(smallDataset.data);
+				const data =
+					smallDataPoolLargeBatch[poolIndex++ % smallDataPoolLargeBatch.length];
 				adapter.patch!(data, largeBatchPatch);
 			});
 		}
 	});
 
 	describe('Very Large Batch Patch (50 ops)', () => {
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone(mediumDataset.data);
+				const data =
+					mediumDataPoolVeryLargeBatch[
+						poolIndex++ % mediumDataPoolVeryLargeBatch.length
+					];
 				adapter.patch!(data, veryLargeBatchPatch);
 			});
 		}
@@ -147,9 +203,10 @@ describe('JSON Patch Comparison', () => {
 			{ op: 'add', path: '/key20/newNested', value: { a: 1, b: 2 } },
 		];
 
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone(DATASETS.largeObject);
+				const data = largeObjectPool[poolIndex++ % largeObjectPool.length];
 				adapter.patch!(data, largePatch);
 			});
 		}
@@ -160,9 +217,10 @@ describe('JSON Patch Comparison', () => {
 			{ op: 'move', from: '/key0', path: '/movedKey0' },
 		];
 
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone(smallDataset.data);
+				const data = smallDataPoolMove[poolIndex++ % smallDataPoolMove.length];
 				try {
 					adapter.patch!(data, movePatch);
 				} catch {
@@ -177,9 +235,10 @@ describe('JSON Patch Comparison', () => {
 			{ op: 'copy', from: '/key0', path: '/copiedKey0' },
 		];
 
+		let poolIndex = 0;
 		for (const adapter of patchAdapters) {
 			bench(adapter.name, () => {
-				const data = structuredClone(smallDataset.data);
+				const data = smallDataPoolCopy[poolIndex++ % smallDataPoolCopy.length];
 				try {
 					adapter.patch!(data, copyPatch);
 				} catch {
