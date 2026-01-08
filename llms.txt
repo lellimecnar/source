@@ -1,6 +1,6 @@
 # @lellimecnar/source
 
-> A pnpm + Turborepo monorepo containing web applications (Next.js), mobile applications (Expo), shared UI libraries, a card game engine, and an RFC-compliant JSONPath suite.
+> A pnpm + Turborepo monorepo containing web applications (Next.js), mobile applications (Expo), shared UI libraries, and a card game engine.
 
 ## Core Documentation
 

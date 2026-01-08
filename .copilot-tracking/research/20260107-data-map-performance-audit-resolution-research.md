@@ -32,11 +32,10 @@
   - Core `DataMap<T, Ctx>` implementation.
   - Current semantics that matter for the plan:
     - Construction cloning: `cloneInitial ?? true` (deep clones initial value via `cloneSnapshot()` when true).
-    - Read cloning: `resolve(..., options)` uses `options.clone ?? true` (deep clones values by default).
+    - Read cloning: `resolve(..., options)` uses `options.clone ?? false` (does NOT clone by default; `getSnapshot()` is the explicit deep-clone API).
     - Subscriptions are lazy (`_subs: SubscriptionManagerImpl | null`), and notifications are skipped if there are no subscribers.
     - Mutations are implemented as JSON Patch building (`buildSetPatch`) + `patch()`.
-    - `patch()` calls `ensureOwned()` which deep clones the entire root if `_isOwned` is false.
-    - `patch()` always applies ops immutably via `patch/apply.ts` → `utils/jsonpath.applyOperations(..., { mutate: false })`.
+    - `patch()` applies ops via `patch/apply.ts` and does NOT call `ensureOwned()` (note: `ensureOwned()` exists but is currently unused in the codebase).
     - Batch: stack-based collection via `BatchManager` + `_flushBatch()`.
     - Transaction: snapshot rollback using `getSnapshot()` (deep clone) and `batch()`.
 
@@ -79,7 +78,7 @@
 - packages/data-map/core/src/utils/structural-sharing.ts
   - Structural sharing utility exists:
     - `updateAtPointer(data, pointer, value)` clones only along the path.
-  - Not currently used by `DataMap.set()`/`patch()` (those go through patch building + patch application).
+  - Used by `patch/apply.ts` fast-path when all operations are pointer `replace` operations.
 
 - packages/data-map/core/src/utils/pool.ts
   - `ObjectPool<T>` utility exists but is currently unused in `@data-map/core`.
@@ -89,7 +88,7 @@
     - `nextData`
     - `affectedPointers: Set<string>`
     - `structuralPointers: Set<string>`
-  - Delegates application to `utils/jsonpath.applyOperations(..., { mutate: false })`.
+  - Has a fast-path: if all ops are pointer `replace`, applies via `updateAtPointer()` (structural sharing); otherwise falls back to JSON Patch engine via `utils/jsonpath.applyOperations(..., { mutate: false })`.
 
 - packages/data-map/core/src/batch/\*
   - Batch is already implemented:
@@ -97,15 +96,16 @@
     - `batch/builder.ts`: `FluentBatchBuilder` accumulates ops and applies via `dm.batch(() => dm.patch(ops))`
 
 - packages/data-map/benchmarks/src/adapters/data-map.adapter.ts
-  - Current adapter creates a new `DataMap(data)` for almost every single operation (get/set/patch/batch/etc.).
-  - This directly matches Step 1.1’s “benchmark flaw” claim.
+  - Adapter caches `DataMap` instances keyed by _object identity_ (`cachedData !== data`).
+  - Many mutation benches call `structuredClone()` inside the timed loop (e.g. `compare/scale.bench.ts`), which creates a new object identity per iteration and forces repeated `new DataMap(data)` construction.
+  - `clone` adapter currently does `dm.clone().getSnapshot()` (this compounds cloning; see pitfalls).
 
 - packages/data-map/docs/\*\*
-  - Docs exist for:
-    - API: `docs/api/datamap.md`, `docs/api/subscriptions.md`, `docs/api/types.md`
-    - Architecture: `docs/architecture/subscription-system.md`, `docs/architecture/patch-system.md`, `docs/architecture/path-system.md`
-    - Guides: `docs/guides/batching.md`, `docs/guides/subscriptions.md`, etc.
-  - These are the obvious targets for plan steps 6.1–6.2.
+  - Documentation lives in this dedicated workspace folder (not under `@data-map/core`).
+  - Notable files:
+    - `packages/data-map/docs/README.md` (doc index)
+    - `packages/data-map/docs/CHANGELOG.md` (package-level changelog-style narrative)
+    - `packages/data-map/docs/api/datamap.md` and `packages/data-map/docs/architecture/*` (API + architecture)
 
 ### Code Search Results
 
@@ -118,6 +118,10 @@
 - Proxy/selector/shallow utilities
   - No existing symbols matching `proxy`, `selector`, `toImmutable`, or `shallow` under `packages/data-map/core/src/**`.
 
+- Performance mode options referenced by the plan
+  - No existing `snapshotMode` or `useStructuralUpdate` options were found in `packages/data-map/core/src/types.ts` or `packages/data-map/core/src/datamap.ts`.
+  - Any “default fastest settings” mentioned in the plan will require adding new options and wiring, or revising plan expectations.
+
 ### External Research
 
 - (None executed) — Workspace code and existing internal docs were sufficient to verify concrete implementations and APIs.
@@ -128,7 +132,8 @@
 - Conventions verified from current code:
   - ESM packages (`"type": "module"`) in both core and benchmarks.
   - TS module settings: `module: ESNext`, `moduleResolution: Bundler` (per-package tsconfig).
-  - Benchmarks TS sources use `.js` extensions in relative imports (e.g. `./types.js`) to be Node ESM-friendly after emit.
+  - Benchmarks TS sources frequently use `.js` extensions in relative imports (e.g. `./types.js`, `../comparison.js`) to remain Node ESM-friendly after `tsc` emit (see `tsconfig.scripts.json` + Node execution in `run-all.ts`).
+  - Core TS sources use extensionless relative imports; build is via Vite, and runtime consumption is via `dist/index.js` as configured in `package.json` exports.
 
 ## Key Discoveries
 
@@ -172,16 +177,21 @@
 **Read cloning**
 
 - `CallOptions.clone?: boolean` exists and is already honored by `resolve()`.
-- Default behavior today is defensive clone (`options.clone ?? true`).
-- `get()` itself does not clone; it consumes the (possibly cloned) value returned by `resolve()`.
+- Default behavior today is _no clone_ (`options.clone ?? false`).
+- `getSnapshot()` is the explicit deep-clone operation (uses `rfdc`).
 
 **Write behavior today**
 
 - `set()` / `setAll()` / `map()` build JSON Patch ops using `buildSetPatch()` and then call `patch()`.
 - `patch()`:
-  - deep clones the entire root if `_isOwned` is false (`ensureOwned()`)
-  - applies operations immutably via `patch/apply.ts` (which calls `@jsonpath/patch.applyPatch(..., { mutate: false })`)
+  - applies operations via `patch/apply.ts` (fast-path for pointer-only `replace` ops uses structural sharing; otherwise falls back to JSON Patch engine)
   - invokes subscription hooks and invalidation (`handleStructuralChange`, `handleFilterCriteriaChange`)
+
+**Patch building costs (relevant to performance plan tiers)**
+
+- `buildSetPatch()` delegates to `ensureParentContainers()` in `packages/data-map/core/src/patch/builder.ts`.
+- `ensureParentContainers()` currently starts with `const nextData = cloneSnapshot(currentData);` (a full deep clone of the root), then constructs container-creation ops while mutating `nextData` to track existence.
+- This means deep-path creation can pay an O(n) clone even when only a small branch is changed.
 
 ### Complete Examples
 
@@ -240,6 +250,33 @@ export class NotificationScheduler {
 }
 ```
 
+```bash
+# Verified commands (run from repo root; no cd)
+
+# @data-map/core
+pnpm --filter @data-map/core test
+pnpm --filter @data-map/core test:watch
+pnpm --filter @data-map/core test:coverage
+pnpm --filter @data-map/core type-check
+pnpm --filter @data-map/core bench
+
+# @data-map/benchmarks
+pnpm --filter @data-map/benchmarks bench
+pnpm --filter @data-map/benchmarks bench:full
+pnpm --filter @data-map/benchmarks bench:mutations
+pnpm --filter @data-map/benchmarks report
+pnpm --filter @data-map/benchmarks run-all
+pnpm --filter @data-map/benchmarks type-check
+
+# Benchmarks “unit tests” (workspace has a smoke test; no package.json test script)
+pnpm --filter @data-map/benchmarks exec vitest run
+
+# Turbo equivalents (also valid; turbo tasks define bench/report pipelines)
+pnpm turbo -F @data-map/core test
+pnpm turbo -F @data-map/benchmarks bench
+pnpm turbo -F @data-map/benchmarks report
+```
+
 ### Technical Requirements
 
 - Any changes that affect cloning semantics (plan steps 1.5, 2.1) will require coordinated updates across:
@@ -247,6 +284,24 @@ export class NotificationScheduler {
   - `packages/data-map/core/src/datamap.ts` default clone behavior
   - tests under `packages/data-map/core/src/**/*.spec.ts` and `packages/data-map/core/src/__tests__/*.spec.ts`
   - docs under `packages/data-map/docs/api/datamap.md` and guides
+
+### Pitfalls That Affect Writing Exact Code Blocks
+
+- **ESM + Node runtime imports**: both workspaces are `"type": "module"`.
+  - For TS files compiled with `tsc` then executed by Node (benchmarks scripts: `src/run-all.ts`, `src/report.ts`), relative imports must be written with `.js` extensions in source (e.g. `./reporter.js`) so emitted JS remains runnable.
+  - For Vite-built library code (`@data-map/core`), extensionless imports are currently used and work under the bundler.
+
+- **Benchmark adapter identity caching**: `packages/data-map/benchmarks/src/adapters/data-map.adapter.ts` caches by `cachedData !== data`.
+  - Any benchmark that does `structuredClone()` per iteration forces a new `DataMap(...)` per iteration for this adapter.
+
+- **Mutation benches include clone cost**: multiple benchmark files clone inside the timed loop (confirmed in `compare/scale.bench.ts`).
+  - This means “mutation performance” is partially measuring clone+construction overhead, not just set/patch.
+
+- **Clone bench compounds cloning**: adapter `clone` uses `dm.clone().getSnapshot()`.
+  - `DataMap.clone()` itself calls `new DataMap(this.getSnapshot(), ...)` and constructor defaults `cloneInitial: true`, so it clones again.
+
+- **Type-check does not include tests**: `packages/data-map/core/tsconfig.json` excludes `src/**/*.spec.ts` and `src/**/__tests__/**`.
+  - `pnpm --filter @data-map/core type-check` validates library sources, but not test files.
 
 ## Recommended Approach
 

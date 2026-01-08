@@ -168,7 +168,7 @@ export const dataMapAdapter: BenchmarkAdapter = {
 	},
 	clone: (data: unknown) => {
 		const dm = getCachedDataMap(data);
-		return dm.clone().getSnapshot();
+		return dm.getSnapshot();
 	},
 	query: (data: unknown, expression: string) => {
 		const dm = getCachedDataMap(data);

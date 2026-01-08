@@ -1,71 +1,251 @@
 # @data-map/core Performance Audit Resolution
 
 **Branch:** `perf/data-map-core-optimization`
-**Description:** Resolve all performance issues identified in COMPREHENSIVE_PERFORMANCE_AUDIT.md, achieving competitive performance with Immer/Zustand/Mutative.
+**Description:** Resolve all performance issues identified in PERFORMANCE_AUDIT_EXHAUSTIVE.md, achieving competitive performance with lodash/Immer/Mutative.
 
 ## Goal
 
-Transform `@data-map/core` from **30-27,000x slower** than competitors to **competitive or better** performance by implementing copy-on-write with structural sharing, fixing benchmark methodology, optimizing the subscription system, and leveraging existing unused optimizations already present in the codebase.
+Close the mutation performance gap for `@data-map/core` while maintaining read leadership. Current state (10,000-key objects):
+
+- **Read**: 8.22M ops/sec (rank #3, competitive ✅)
+- **Mutation**: 103.9 ops/sec (rank #8, target: 200+ ops/sec)
+- **Clone**: 203 ops/sec (rank last, target: 400+ ops/sec)
+
+Primary causes: benchmark methodology artifacts (double-cloning) + intrinsic write-path costs (patch-building clones).
 
 ## Implementation Notes
 
 - **v0 Implementation:** Breaking changes are acceptable. No deprecation periods or migration guides required.
-- **Proxy Support:** Included in Phase 5 for fine-grained reactivity.
-- **Performance Targets:** Aspirational, not hard requirements.
+- **Benchmark Fixes First:** Tier 0 must be completed before measuring true impact of core fixes.
+- **Performance Targets:** 2× improvement on mutations, maintain read performance.
+- **Benchmark Environment:** Local development machine (no CI required).
+- **Default Settings:** Use fastest options by default (`snapshotMode: 'reference'`, `useStructuralUpdate: true`).
 
 ## Executive Summary
 
-The audit identified that **existing optimization utilities (structural sharing, object pooling) are already implemented but unused**. This dramatically reduces implementation risk and effort. The plan is structured in 6 phases matching the audit's roadmap, with each phase containing multiple commits that can be independently tested and validated.
+The exhaustive audit (2026-01-07) identified that benchmarks **inflate DataMap's measured slowness** by 40-60% due to double-cloning artifacts. After fixing benchmarks, the remaining gap can be closed through:
+
+1. Fixing `clone()` redundant cloning (2× improvement)
+2. Structural sharing in patch building (3-10× for path creation)
+3. Pointer-first mutation path (5-10× for simple sets)
+4. Ownership/snapshot modes (2-3× with reference mode)
 
 ---
 
-## Phase 1: Quick Wins (Immediate 3-5x Improvement)
+## Tier 0: Fix Benchmark Methodology (Do This First)
 
-**Estimated Time:** 1-2 days
-**Risk Level:** Low
-**Expected Improvement:** 3-5x across all operations
+**Estimated Time:** 0.5-1 day
+**Risk Level:** Minimal
+**Expected Improvement:** 40-60% in measured mutation performance (artifact removal)
 
-### Step 1.1: Fix Benchmark Adapter Methodology
+> **Critical**: This tier must be completed before measuring the true impact of core fixes.
+
+### Step 0.1: Fix DataMap Adapter Double-Cloning
 
 **Files:**
 
 - `packages/data-map/benchmarks/src/adapters/data-map.adapter.ts`
 
-**What:** Fix the critical benchmark flaw where a new DataMap instance is created per operation. Implement instance caching to measure true operation performance, not constructor overhead.
+**What:** The adapter cache uses object identity (`cachedData !== data`), but mutation benchmarks call `structuredClone()` per iteration, causing cache misses. Combined with `cloneInitial: true` default, this produces **double cloning before any mutation work begins**.
 
 **Implementation:**
 
 ```typescript
-let cachedMap: DataMap<any> | null = null;
-let cachedData: any = null;
-
+// For mutation benchmarks where data is already cloned by harness:
 export const dataMapAdapter = {
-	get: (data, path) => {
-		if (cachedData !== data) {
-			cachedMap = new DataMap(data);
-			cachedData = data;
-		}
-		return cachedMap!.get(path);
+	set: (data, path, value) => {
+		// Use cloneInitial: false since benchmark harness already cloned
+		const dm = new DataMap(data, { cloneInitial: false });
+		dm.set(path, value);
+		return dm.getSnapshot();
 	},
-	// Similar for set, patch, etc.
+	// ...
 };
 ```
 
 **Testing:**
 
 - Run `pnpm --filter @data-map/benchmarks run bench` before and after
-- Expect 2-3x improvement in measured scores immediately
+- DataMap mutation should be within 2× of lodash after this fix
 
 ---
 
-### Step 1.2: Add Subscriber Count Fast Check
+### Step 0.2: Fix Clone Benchmark Triple-Clone
+
+**Files:**
+
+- `packages/data-map/benchmarks/src/adapters/data-map.adapter.ts`
+
+**What:** Current clone benchmark does `dm.clone().getSnapshot()` which is:
+
+1. `clone()` → `getSnapshot()` (deep clone)
+2. Constructor with `cloneInitial: true` (deep clone again)
+3. `.getSnapshot()` at end (third deep clone)
+
+**Implementation:**
+
+```typescript
+// Measure single operation, not triple:
+clone: (data) => {
+	const dm = getCachedDataMap(data);
+	return dm.clone(); // Single clone operation
+	// OR: return dm.getSnapshot(); // Alternative: single snapshot
+};
+```
+
+**Testing:**
+
+- Clone benchmark should show DataMap within ~1× of rfdc baseline
+
+---
+
+### Step 0.3: Move structuredClone Outside Timed Loops
+
+**Files:**
+
+- `packages/data-map/benchmarks/src/compare/scale.bench.ts`
+- `packages/data-map/benchmarks/src/compare/immutable-updates.bench.ts`
+- `packages/data-map/benchmarks/src/compare/subscriptions.bench.ts`
+- `packages/data-map/benchmarks/src/compare/array-operations.bench.ts`
+
+**What:** Mutation benchmarks call `structuredClone()` inside the timed loop, measuring clone cost for all adapters. Move cloning outside or restructure to measure only mutation cost.
+
+**Implementation:**
+
+```typescript
+// BEFORE (clone inside loop):
+bench('DataMap set', () => {
+	const data = structuredClone(largeObject);
+	adapter.set(data, '/key', 'value');
+});
+
+// AFTER (clone outside, use fresh instances per iteration):
+const dataPool = Array.from({ length: 100 }, () =>
+	structuredClone(largeObject),
+);
+let poolIndex = 0;
+bench('DataMap set', () => {
+	const data = dataPool[poolIndex++ % dataPool.length];
+	adapter.set(data, '/key', 'value');
+});
+```
+
+**Testing:**
+
+- Benchmark results should show clearer separation between adapters
+- All adapters should benefit from this fix (apples-to-apples comparison)
+
+---
+
+### Step 0.4: Add Benchmark Documentation Comments
+
+**Files:**
+
+- All benchmark files in `packages/data-map/benchmarks/src/`
+
+**What:** Document what each benchmark measures to prevent future confusion.
+
+**Implementation:**
+
+```typescript
+/**
+ * Object Size Scaling - Mutation
+ *
+ * Measures: Cost of a single set operation on pre-cloned data
+ * Excludes: Initial clone cost, DataMap construction overhead
+ * Adapters: All use pre-cloned data with cloneInitial: false
+ */
+describe('Object Size Scaling - Mutation', () => {
+	// ...
+});
+```
+
+---
+
+## Tier 1: Low-Risk Core Fixes (High Win Per LOC)
+
+**Estimated Time:** 1-2 days
+**Risk Level:** Low
+**Expected Improvement:** 2-5× for clone and path creation operations
+
+### Step 1.1: Fix `DataMap.clone()` Redundant Cloning
 
 **Files:**
 
 - `packages/data-map/core/src/datamap.ts`
-- `packages/data-map/core/src/subscriptions/manager.ts`
 
-**What:** Skip all notification overhead when no subscribers exist. Add `#hasSubscribers` boolean flag that tracks subscription state.
+**What:** The current `clone()` implementation does **two deep clones**:
+
+1. `getSnapshot()` = deep clone via rfdc
+2. Constructor with default `cloneInitial: true` = deep clone again
+
+Fix by passing `cloneInitial: false` since we already have a snapshot.
+
+**Implementation:**
+
+```typescript
+clone(options?: Partial<DataMapOptions<T, Ctx>>): DataMap<T, Ctx> {
+    const snapshot = this.getSnapshot();
+    return new (this.constructor as any)(snapshot, {
+        ...this._options,
+        ...options,
+        cloneInitial: false,  // Already cloned via getSnapshot()
+    });
+}
+```
+
+**Testing:**
+
+- Clone benchmark should show ~50% improvement (2× faster)
+- Ensure `clone()` produces fully independent copy (mutation isolation test)
+- Run full test suite to verify no regressions
+
+---
+
+### Step 1.2: Reduce Cloning in Patch Building
+
+**Files:**
+
+- `packages/data-map/core/src/patch/builder.ts`
+- `packages/data-map/core/src/utils/structural-sharing.ts`
+
+**What:** The `ensureParentContainers()` function does `cloneSnapshot(currentData)` - a full O(n) clone even when creating a single deep path. Use structural sharing instead:
+
+1. Clone only the path segments being created
+2. Share everything else via reference
+3. Keep current behavior as fallback for complex multi-op patches
+
+**Implementation:**
+
+```typescript
+// Instead of:
+const nextData = cloneSnapshot(currentData); // O(n) full clone
+
+// Use structural sharing:
+import { setAtPath } from './utils/structural-sharing.js';
+const nextData = setAtPath(currentData, pointer, value); // O(depth) work
+```
+
+**Testing:**
+
+- Path creation benchmarks for deep paths (10+ levels): expect 3-10× improvement
+- Property-based testing for edge cases (missing parents, array indices)
+- Wide object updates should approach lodash performance
+
+---
+
+### Step 1.3: Verify Zero-Subscriber Overhead
+
+**Files:**
+
+- `packages/data-map/core/src/subscription/manager.ts`
+- `packages/data-map/core/src/datamap.ts`
+
+**What:** Audit and ensure subscription machinery has near-zero overhead when no subscribers exist:
+
+- [ ] `set()` doesn't construct notification payloads unless `hasSubscribers()`
+- [ ] `get()` skips bloom filter checks when subscriber count is 0
+- [ ] `scheduleNotify()` returns immediately if no subscribers
 
 **Implementation:**
 
@@ -91,240 +271,200 @@ class DataMap<T> {
 
 **Testing:**
 
-- Add benchmark for operations without subscribers
-- Existing subscription tests must pass unchanged
-- Expect 1.5-2x improvement for non-subscribed operations
+- Create benchmark: mutation with 0 subscribers vs mutation with 1+ subscribers
+- Zero-subscriber overhead should be <5% vs baseline
+- Document findings in audit resolution summary
 
 ---
 
-### Step 1.3: Integrate Existing Structural Sharing Utility
+## Tier 2: Pointer-First Mutation Path (Core Throughput)
 
-**Files:**
-
-- `packages/data-map/core/src/datamap.ts`
-- `packages/data-map/core/src/utils/structural-sharing.ts`
-
-**What:** The `updateAtPointer()` function already exists in `structural-sharing.ts` but is NOT used by DataMap. Integrate it into `set()` operations to replace full deep clones with path-only updates.
-
-**Implementation:**
-
-```typescript
-import { updateAtPointer } from './utils/structural-sharing.js';
-
-class DataMap<T> {
-	set<P extends string>(path: P, value: V): this {
-		// OLD: const operations = [{ op: 'replace', path, value }];
-		//      return this.patch(operations);
-
-		// NEW: Direct structural update
-		this.#data = updateAtPointer(this.#data, path, value);
-		this.#maybeNotify();
-		return this;
-	}
-}
-```
-
-**Testing:**
-
-- All existing `set()` tests must pass
-- Add benchmark comparison for nested set operations
-- Expect 3-5x improvement for `set()` operations
-
----
-
-### Step 1.4: Implement Accessor Compilation Cache
-
-**Files:**
-
-- `packages/data-map/core/src/utils/pointer.ts`
-- `packages/data-map/core/src/utils/accessor-cache.ts` (new file)
-
-**What:** Compile frequently-used paths into direct property accessor functions. Cache compiled accessors for reuse across operations.
-
-**Implementation:**
-
-```typescript
-const accessorCache = new Map<string, (obj: any) => any>();
-
-export function compileAccessor(path: string): (obj: any) => any {
-	if (accessorCache.has(path)) return accessorCache.get(path)!;
-
-	const segments = path.split('/').filter(Boolean);
-	const accessor = (obj: any) => {
-		let current = obj;
-		for (const seg of segments) {
-			if (current == null) return undefined;
-			current = current[seg];
-		}
-		return current;
-	};
-
-	accessorCache.set(path, accessor);
-	return accessor;
-}
-```
-
-**Testing:**
-
-- Benchmark repeated access to same paths
-- Expect 10-20x improvement for repeated path access
-
----
-
-### Step 1.5: Add `clone: false` Option to `get()`
-
-**Files:**
-
-- `packages/data-map/core/src/datamap.ts`
-- `packages/data-map/core/src/types.ts`
-
-**What:** Add an option to `get()` that skips defensive cloning for performance-critical reads. Document that returned values should not be mutated.
-
-**Implementation:**
-
-```typescript
-interface GetOptions {
-  clone?: boolean; // default: true (backward compatible)
-}
-
-get<P extends string>(path: P, options?: GetOptions): ResolvePath<T, P> {
-  const match = this.resolve(path);
-  if (!match) return undefined as any;
-
-  if (options?.clone === false) {
-    return match.value; // Direct reference
-  }
-  return cloneSnapshot(match.value); // Existing behavior
-}
-```
-
-**Testing:**
-
-- Existing tests pass (default behavior unchanged)
-- Add tests for `clone: false` option
-- Expect 2x improvement when using `clone: false`
-
----
-
-### Step 1.6: Enable Microtask Batching by Default
-
-**Files:**
-
-- `packages/data-map/core/src/subscriptions/scheduler.ts`
-- `packages/data-map/core/src/datamap.ts`
-
-**What:** Batch multiple synchronous operations into a single notification using microtask scheduling. This is already partially implemented in `scheduler.ts`.
-
-**Implementation:**
-
-```typescript
-class DataMap<T> {
-	#pendingNotify = false;
-
-	#scheduleNotify() {
-		if (this.#pendingNotify) return;
-		this.#pendingNotify = true;
-		queueMicrotask(() => {
-			this.#pendingNotify = false;
-			this.notify();
-		});
-	}
-}
-```
-
-**Testing:**
-
-- Verify multiple rapid `set()` calls result in single notification
-- Existing subscription timing tests may need adjustment
-- Expect 2-5x improvement for batched operations
-
----
-
-## Phase 2: Structural Sharing Deep Integration (10-20x Improvement)
-
-**Estimated Time:** 3-5 days
+**Estimated Time:** 2-3 days
 **Risk Level:** Medium
-**Expected Improvement:** 10-20x for writes, 30x for reads
+**Expected Improvement:** 5-10× for simple pointer mutations
 
-### Step 2.1: Remove Defensive Cloning from `get()`
+### Step 2.1: Create Structural Update Utility
 
 **Files:**
 
-- `packages/data-map/core/src/datamap.ts`
-- `packages/data-map/core/src/utils/clone.ts`
+- `packages/data-map/core/src/utils/structural-update.ts` (new file)
 
-**What:** Change default behavior to return direct references instead of clones. Remove defensive cloning entirely.
+**What:** Create a first-class structural sharing operation for pointer-based updates that bypasses the JSON Patch machinery entirely.
 
 **Implementation:**
 
 ```typescript
-// BEFORE (default clones)
-get<P extends string>(path: P): ResolvePath<T, P> {
-  const match = this.resolve(path);
-  return cloneSnapshot(match?.value);
-}
+export function setAtPointer(
+	data: unknown,
+	pointer: string,
+	value: unknown,
+	options: { createPath?: boolean } = {},
+): unknown {
+	// 1. Parse pointer once
+	const segments = parsePointer(pointer);
 
-// AFTER (direct reference)
-get<P extends string>(path: P): ResolvePath<T, P> {
-  const match = this.resolve(path);
-  return match?.value;
+	// 2. Walk down, cloning only the path being modified
+	let root = shallowClone(data);
+	let current = root;
+
+	for (let i = 0; i < segments.length - 1; i++) {
+		const seg = segments[i];
+		const child = current[seg];
+
+		if (child === undefined && options.createPath) {
+			// Create missing container
+			const nextSeg = segments[i + 1];
+			current[seg] = isArrayIndex(nextSeg) ? [] : {};
+		} else {
+			current[seg] = shallowClone(child);
+		}
+		current = current[seg];
+	}
+
+	// 3. Set the value
+	current[segments[segments.length - 1]] = value;
+
+	// 4. Return new root (structural sharing)
+	return root;
 }
 ```
 
 **Testing:**
 
-- Update tests that relied on mutation isolation
-- Add tests verifying reference identity
-- Expect 30x improvement for read operations
+- Unit tests for various path depths and types
+- Property-based testing for edge cases
+- Benchmark: single pointer set vs current patch-based approach
 
 ---
 
-### Step 2.2: Implement Copy-on-Write for `patch()`
+### Step 2.2: Integrate Pointer-First Path into DataMap.set()
 
 **Files:**
 
 - `packages/data-map/core/src/datamap.ts`
-- `packages/data-map/core/src/patch/apply.ts`
-- `packages/data-map/core/src/utils/structural-sharing.ts`
+- `packages/data-map/core/src/utils/path-type.ts`
 
-**What:** Apply patch operations using copy-on-write semantics. Only clone the nodes along the path being modified, preserving references to unchanged subtrees.
+**What:** Route simple JSON Pointer mutations through the fast path, keeping JSON Patch for complex scenarios.
 
 **Implementation:**
 
 ```typescript
-import { updateAtPointer } from './utils/structural-sharing.js';
+import { setAtPointer } from './utils/structural-update.js';
+import { detectPathType } from './utils/path-type.js';
 
-patch(operations: PatchOperation[]): this {
-  let state = this.#data;
+set(pathOrPointer: string, value: unknown, options: CallOptions = {}): void {
+    const pathType = detectPathType(pathOrPointer);
 
-  for (const op of operations) {
-    switch (op.op) {
-      case 'add':
-      case 'replace':
-        state = updateAtPointer(state, op.path, op.value);
-        break;
-      case 'remove':
-        state = removeAtPointer(state, op.path);
-        break;
-      // ... other operations
+    if (pathType === 'pointer' && !this.hasComplexInterceptors()) {
+        // Fast path: direct structural update
+        this._data = setAtPointer(this._data, pathOrPointer, value, {
+            createPath: options.createPath ?? true
+        });
+        this._maybeNotify(pathOrPointer);
+        return;
     }
-  }
 
-  this.#data = state;
-  this.#scheduleNotify();
-  return this;
+    // Slow path: JSON Patch (for JSONPath, complex patterns, interceptors)
+    const operations = [{ op: 'replace', path: pathOrPointer, value }];
+    this.patch(operations);
 }
 ```
 
 **Testing:**
 
-- All existing patch tests must pass
-- Add structural sharing verification tests
-- Expect 3-5x improvement for patch operations
+- Single-pointer set: expect 5-10× faster on large objects
+- Deep path creation (10 levels): expect 3-5× faster
+- Wide object updates (10k keys): should approach lodash performance (within 20%)
+- All existing set tests must pass
 
 ---
 
-### Step 2.3: Add `toImmutable()` Snapshot Method
+### Step 2.3: Add Feature Flag for Gradual Rollout
+
+**Files:**
+
+- `packages/data-map/core/src/types.ts`
+- `packages/data-map/core/src/datamap.ts`
+
+**What:** Add opt-in flag for pointer-first mutations to allow gradual rollout and easy rollback.
+
+**Implementation:**
+
+```typescript
+interface DataMapOptions<T, Ctx> {
+	// Existing options...
+
+	/** Use structural update for simple pointer operations (default: true) */
+	useStructuralUpdate?: boolean;
+}
+
+// In DataMap.set():
+if (this._options.useStructuralUpdate !== false && pathType === 'pointer') {
+	// Fast path
+}
+```
+
+**Testing:**
+
+- Verify flag defaults to `true`
+- Verify `false` falls back to patch-based path
+- Add benchmark comparing both modes
+
+---
+
+## Tier 3: Ownership & Snapshot Modes (Unlock Fast Immutable)
+
+**Estimated Time:** 1-2 days
+**Risk Level:** Medium-High
+**Expected Improvement:** 2-3× with reference mode
+
+### Step 3.1: Add snapshotMode Option
+
+**Files:**
+
+- `packages/data-map/core/src/types.ts`
+- `packages/data-map/core/src/datamap.ts`
+
+**What:** Add explicit API option for users to choose snapshot performance tradeoffs.
+
+**Implementation:**
+
+```typescript
+interface DataMapOptions<T, Ctx> {
+    // Existing options...
+
+    /**
+     * Control snapshot behavior:
+     * - 'reference': Return this._data directly (default, fastest)
+     * - 'clone': Deep clone (safest, use for mutation isolation)
+     * - 'frozen': Return Object.freeze(this._data) (safe reads, dev-mode throws on mutation)
+     */
+    snapshotMode?: 'reference' | 'clone' | 'frozen';
+}
+
+getSnapshot(): T {
+    switch (this._options.snapshotMode) {
+        case 'clone':
+            return cloneSnapshot(this._data);
+        case 'frozen':
+            return Object.freeze(this._data) as T;
+        case 'reference':
+        default:
+            return this._data;  // Fastest: direct reference
+    }
+}
+```
+
+**Testing:**
+
+- Benchmark each mode separately
+- 'reference' mode (new default) should be 2-3× faster than 'clone' mode
+- Verify 'frozen' mode throws on attempted mutation in development
+- Breaking change: default changed from 'clone' to 'reference' (v0, acceptable)
+
+---
+
+### Step 3.2: Add toImmutable() Convenience Method
 
 **Files:**
 
@@ -352,604 +492,117 @@ toJSON(): T {
 **Testing:**
 
 - Add tests for `toImmutable()` method
-- Verify frozen objects in development mode
-- Expect instant return (no clone) in production
+- Verify frozen objects throw in development mode
+- Verify direct return in production mode
 
 ---
 
-### Step 2.4: Optimize Batch Operations with Deferred Application
+## Phase 4: Documentation & Cleanup
 
-**Files:**
-
-- `packages/data-map/core/src/batch/builder.ts`
-- `packages/data-map/core/src/batch/collector.ts`
-
-**What:** Collect all batch operations before applying them in a single structural update pass.
-
-**Implementation:**
-
-```typescript
-class BatchBuilder<T> {
-	#operations: PatchOperation[] = [];
-
-	set(path: string, value: unknown): this {
-		this.#operations.push({ op: 'replace', path, value });
-		return this;
-	}
-
-	apply(map: DataMap<T>): void {
-		// Single combined application
-		map.patch(this.#operations);
-	}
-}
-```
-
-**Testing:**
-
-- Verify batch of 100 operations is faster than 100 individual sets
-- Expect 5-10x improvement for batch operations
-
----
-
-### Step 2.5: Update All Tests for New Semantics
-
-**Files:**
-
-- `packages/data-map/core/src/__tests__/**/*.spec.ts` (all 27 test files)
-
-**What:** Update tests to work with new reference-returning `get()` behavior. Add tests for new structural sharing guarantees.
-
-**Implementation:**
-
-- Tests that mutated returned values need `{ clone: true }` option
-- Add tests verifying unchanged subtrees keep same reference
-- Add tests for `toImmutable()` behavior
-
-**Testing:**
-
-- All 27 test files must pass
-- Coverage must remain at current level or improve
-
----
-
-## Phase 3: Subscription System Optimization (5-10x Improvement)
-
-**Estimated Time:** 3-5 days
-**Risk Level:** Medium
-**Expected Improvement:** 5-10x for reactive use cases
-
-### Step 3.1: Implement Tiered Subscription Matching
-
-**Files:**
-
-- `packages/data-map/core/src/subscriptions/manager.ts`
-- `packages/data-map/core/src/subscriptions/tiers.ts` (new file)
-
-**What:** Use different matching strategies based on subscription pattern complexity:
-
-- Tier 1: Exact path match (O(1) Map lookup)
-- Tier 2: Prefix match (O(depth) Trie lookup)
-- Tier 3: Complex patterns (Bloom filter + linear scan)
-
-**Implementation:**
-
-```typescript
-class TieredSubscriptionManager<T> {
-	#exactMatch = new Map<string, Set<Subscription>>();
-	#prefixTrie = new PathTrie<Set<Subscription>>();
-	#complexPatterns = new Set<Subscription>();
-
-	add(pattern: string, callback: Callback): Unsubscribe {
-		if (isExactPath(pattern)) {
-			// Tier 1: O(1) exact lookup
-		} else if (isPrefixPattern(pattern)) {
-			// Tier 2: O(depth) trie lookup
-		} else {
-			// Tier 3: complex JSONPath pattern
-		}
-	}
-
-	notify(changedPaths: string[]) {
-		const matched = new Set<Subscription>();
-		for (const path of changedPaths) {
-			// Check Tier 1 first (fastest)
-			this.#exactMatch.get(path)?.forEach((s) => matched.add(s));
-			// Then Tier 2
-			this.#prefixTrie.matchPrefix(path).forEach((s) => matched.add(s));
-		}
-		// Only check Tier 3 if complex subscriptions exist
-		if (this.#complexPatterns.size > 0) {
-			// Bloom filter check
-		}
-	}
-}
-```
-
-**Testing:**
-
-- All existing subscription tests must pass
-- Add benchmark for tiered vs flat matching
-- Expect 5x improvement for exact/prefix subscriptions
-
----
-
-### Step 3.2: Add Path Trie for Prefix Matching
-
-**Files:**
-
-- `packages/data-map/core/src/subscriptions/trie.ts` (new file)
-- `packages/data-map/core/src/subscriptions/manager.ts`
-
-**What:** Implement a Trie data structure for efficient prefix-based subscription matching.
-
-**Implementation:**
-
-```typescript
-class PathTrie<V> {
-	#root = new Map<string, PathTrie<V>>();
-	#values = new Set<V>();
-
-	insert(path: string, value: V): void {
-		const segments = path.split('/').filter(Boolean);
-		let node: PathTrie<V> = this;
-		for (const seg of segments) {
-			if (!node.#root.has(seg)) {
-				node.#root.set(seg, new PathTrie());
-			}
-			node = node.#root.get(seg)!;
-		}
-		node.#values.add(value);
-	}
-
-	matchPrefix(path: string): Set<V> {
-		const matched = new Set<V>();
-		const segments = path.split('/').filter(Boolean);
-		let node: PathTrie<V> = this;
-
-		for (const seg of segments) {
-			matched.addAll(node.#values); // Collect prefix matches
-			if (!node.#root.has(seg)) break;
-			node = node.#root.get(seg)!;
-		}
-		matched.addAll(node.#values);
-		return matched;
-	}
-}
-```
-
-**Testing:**
-
-- Unit tests for Trie operations
-- Integration with subscription manager
-- Expect 3x improvement for prefix subscriptions
-
----
-
-### Step 3.3: Dynamic Bloom Filter Toggle
-
-**Files:**
-
-- `packages/data-map/core/src/subscriptions/manager.ts`
-- `packages/data-map/core/src/subscriptions/bloom.ts`
-
-**What:** The Bloom filter toggle (`USE_BLOOM`) already exists but is static. Make it dynamic based on subscription count.
-
-**Implementation:**
-
-```typescript
-class SubscriptionManager<T> {
-	#useBloom = false;
-	#bloom?: BloomFilter;
-
-	add(pattern: string, callback: Callback) {
-		// ... add subscription
-
-		// Enable Bloom filter when subscription count exceeds threshold
-		if (!this.#useBloom && this.count > 100) {
-			this.#useBloom = true;
-			this.#bloom = new BloomFilter();
-			this.#rebuildBloom();
-		}
-	}
-
-	remove(id: SubscriptionId) {
-		// ... remove subscription
-
-		// Disable Bloom filter when count drops
-		if (this.#useBloom && this.count < 50) {
-			this.#useBloom = false;
-			this.#bloom = undefined;
-		}
-	}
-}
-```
-
-**Testing:**
-
-- Verify Bloom is disabled for small subscription sets
-- Verify Bloom enables automatically at threshold
-- Expect 2x improvement for small subscription sets
-
----
-
-### Step 3.4: Optimize `handleStructuralChange()`
-
-**Files:**
-
-- `packages/data-map/core/src/subscriptions/manager.ts`
-
-**What:** The `handleStructuralChange()` method currently re-expands ALL dynamic subscriptions. Optimize to only re-expand affected paths.
-
-**Implementation:**
-
-```typescript
-handleStructuralChange(newState: T, changedPaths: string[]): void {
-  // Only re-expand subscriptions that overlap with changed paths
-  for (const [id, sub] of this.#dynamicSubscriptions) {
-    const expandedPaths = sub.expandedPaths;
-    const needsReExpand = changedPaths.some(cp =>
-      expandedPaths.some(ep => pathOverlaps(cp, ep))
-    );
-
-    if (needsReExpand) {
-      this.#reExpandSubscription(id, sub, newState);
-    }
-  }
-}
-```
-
-**Testing:**
-
-- Add benchmark for structural changes with many subscriptions
-- Verify selective re-expansion works correctly
-- Expect 3-5x improvement for structural changes
-
----
-
-## Phase 4: Path Resolution Optimization (10-20x Improvement)
-
-**Estimated Time:** 2-3 days
-**Risk Level:** Low
-**Expected Improvement:** 10-20x for path access
-
-### Step 4.1: Implement LRU Cache for Path Detection
-
-**Files:**
-
-- `packages/data-map/core/src/paths/detect.ts`
-
-**What:** Replace simple Map-with-clear with proper LRU cache for path type detection.
-
-**Implementation:**
-
-```typescript
-class LRUCache<K, V> {
-	#cache = new Map<K, V>();
-	#maxSize: number;
-
-	get(key: K): V | undefined {
-		const value = this.#cache.get(key);
-		if (value !== undefined) {
-			// Move to end (most recently used)
-			this.#cache.delete(key);
-			this.#cache.set(key, value);
-		}
-		return value;
-	}
-
-	set(key: K, value: V): void {
-		if (this.#cache.size >= this.#maxSize) {
-			// Delete oldest (first key)
-			const oldest = this.#cache.keys().next().value;
-			this.#cache.delete(oldest);
-		}
-		this.#cache.set(key, value);
-	}
-}
-```
-
-**Testing:**
-
-- Verify LRU eviction behavior
-- Benchmark cache hit rates
-- Expect improved cache utilization
-
----
-
-### Step 4.2: Expand Inline Pointer Fast Path
-
-**Files:**
-
-- `packages/data-map/core/src/utils/pointer.ts`
-
-**What:** Extend the inline fast path to handle more pointer patterns without falling back to JSONPointer class.
-
-**Implementation:**
-
-```typescript
-export function tryResolvePointerInline<T>(
-	data: unknown,
-	pointer: string,
-): { ok: true; value: T | undefined } | { ok: false } {
-	// Currently only handles simple paths without escapes
-	// Extend to handle:
-	// - Escaped slashes (~1)
-	// - Escaped tildes (~0)
-	// - Array indices
-	// - Negative indices (from end)
-
-	if (!pointer.startsWith('/')) return { ok: false };
-
-	const segments = pointer.slice(1).split('/');
-	let current: any = data;
-
-	for (let seg of segments) {
-		if (current == null) return { ok: true, value: undefined };
-
-		// Handle escapes inline
-		if (seg.includes('~')) {
-			seg = seg.replace(/~1/g, '/').replace(/~0/g, '~');
-		}
-
-		// Handle negative array indices
-		if (Array.isArray(current) && seg.startsWith('-')) {
-			const idx = current.length + parseInt(seg, 10);
-			current = current[idx];
-		} else {
-			current = current[seg];
-		}
-	}
-
-	return { ok: true, value: current as T };
-}
-```
-
-**Testing:**
-
-- Add tests for escaped paths
-- Add tests for negative indices
-- Expect 10-20x improvement for simple pointer access
-
----
-
-### Step 4.3: Use Object Pool for Hot Path Allocations
-
-**Files:**
-
-- `packages/data-map/core/src/utils/pool.ts`
-- `packages/data-map/core/src/datamap.ts`
-- `packages/data-map/core/src/paths/detect.ts`
-
-**What:** The ObjectPool class already exists but is unused. Integrate it for frequently-allocated objects like ResolvedMatch.
-
-**Implementation:**
-
-```typescript
-const resolvedMatchPool = new ObjectPool<ResolvedMatch<any>>({
-	create: () => ({ path: '', value: undefined, type: 'pointer' }),
-	reset: (obj) => {
-		obj.path = '';
-		obj.value = undefined;
-		obj.type = 'pointer';
-	},
-});
-
-function buildResolvedMatch<T>(match: JSONPathResult<T>): ResolvedMatch<T> {
-	const result = resolvedMatchPool.acquire();
-	result.path = match.path;
-	result.value = match.value;
-	result.type = match.type;
-	return result;
-}
-
-// Caller must release when done
-function releaseResolvedMatch(match: ResolvedMatch<any>): void {
-	resolvedMatchPool.release(match);
-}
-```
-
-**Testing:**
-
-- Verify pool acquire/release cycle
-- Measure GC pressure reduction
-- Expect 3-5x improvement in allocation-heavy operations
-
----
-
-## Phase 5: Advanced Optimizations (Competitive Performance)
-
-**Estimated Time:** 3-5 days
-**Risk Level:** Medium-High
-**Expected Improvement:** Competitive with Zustand/Immer
-
-### Step 5.1: Implement Proxy-Based Change Detection
-
-**Files:**
-
-- `packages/data-map/core/src/proxy/tracker.ts` (new file)
-- `packages/data-map/core/src/datamap.ts`
-
-**What:** Use Proxy to track which properties are accessed and modified, enabling fine-grained subscription notifications.
-
-**Implementation:**
-
-```typescript
-class AccessTracker<T extends object> {
-	#accessed = new Set<string>();
-	#modified = new Set<string>();
-
-	track(obj: T, path = ''): T {
-		return new Proxy(obj, {
-			get: (target, prop) => {
-				const fullPath = `${path}/${String(prop)}`;
-				this.#accessed.add(fullPath);
-				const value = Reflect.get(target, prop);
-				if (typeof value === 'object' && value !== null) {
-					return this.track(value, fullPath);
-				}
-				return value;
-			},
-			set: (target, prop, value) => {
-				const fullPath = `${path}/${String(prop)}`;
-				this.#modified.add(fullPath);
-				return Reflect.set(target, prop, value);
-			},
-		});
-	}
-}
-```
-
-**Testing:**
-
-- Add tests for Proxy-based tracking
-- Benchmark Proxy overhead vs current approach
-- Evaluate if Proxy overhead is justified
-
----
-
-### Step 5.2: Implement Selector-Based Subscriptions
-
-**Files:**
-
-- `packages/data-map/core/src/subscriptions/selector.ts` (new file)
-- `packages/data-map/core/src/datamap.ts`
-
-**What:** Add Zustand-style selector subscriptions that only notify when selected value changes.
-
-**Implementation:**
-
-```typescript
-subscribeWithSelector<S>(
-  selector: (state: T) => S,
-  callback: (selected: S, prev: S) => void,
-  equalityFn: (a: S, b: S) => boolean = Object.is
-): Unsubscribe {
-  let currentSelected = selector(this.#data);
-
-  return this.subscribe('$', () => {
-    const nextSelected = selector(this.#data);
-    if (!equalityFn(currentSelected, nextSelected)) {
-      const prev = currentSelected;
-      currentSelected = nextSelected;
-      callback(nextSelected, prev);
-    }
-  });
-}
-```
-
-**Testing:**
-
-- Add tests for selector subscriptions
-- Verify equality comparison works
-- Benchmark selector overhead
-
----
-
-### Step 5.3: Add Shallow Comparison Utilities
-
-**Files:**
-
-- `packages/data-map/core/src/utils/compare.ts` (new file)
-- `packages/data-map/core/src/subscriptions/manager.ts`
-
-**What:** Implement fast shallow comparison for detecting meaningful changes.
-
-**Implementation:**
-
-```typescript
-export function shallowEqual<T>(a: T, b: T): boolean {
-	if (Object.is(a, b)) return true;
-	if (typeof a !== 'object' || typeof b !== 'object') return false;
-	if (a === null || b === null) return false;
-
-	const keysA = Object.keys(a);
-	const keysB = Object.keys(b);
-
-	if (keysA.length !== keysB.length) return false;
-
-	for (const key of keysA) {
-		if (!Object.hasOwn(b, key) || !Object.is(a[key], b[key])) {
-			return false;
-		}
-	}
-
-	return true;
-}
-```
-
-**Testing:**
-
-- Unit tests for shallow comparison
-- Integration with subscription system
-- Expect reduced unnecessary notifications
-
----
-
-## Phase 6: Documentation and Benchmarks
-
-**Estimated Time:** 1 day
+**Estimated Time:** 0.5 day
 **Risk Level:** Low
 
-### Step 6.1: Update API Documentation
+### Step 4.1: Update Performance Audit Document
+
+**Files:**
+
+- `packages/data-map/core/PERFORMANCE_AUDIT_EXHAUSTIVE.md`
+
+**What:** Mark resolved items, add resolution notes, document final benchmark results.
+
+**Implementation:**
+
+Add "Resolution Status" section at the top with:
+
+- Tier 0: ✅ Resolved - benchmark methodology fixed
+- Tier 1.1: ✅ Resolved - clone() redundant cloning fixed
+- Tier 1.2: ✅ Resolved - patch building uses structural sharing
+- Tier 1.3: ✅ Resolved - zero-subscriber overhead verified
+- Tier 2: ✅ Resolved - pointer-first mutation path added
+- Tier 3: ✅ Resolved - snapshotMode option added
+
+---
+
+### Step 4.2: Update API Documentation
 
 **Files:**
 
 - `packages/data-map/core/README.md`
 - `docs/api/data-map.md`
-- `packages/data-map/core/COMPREHENSIVE_PERFORMANCE_AUDIT.md` (mark resolved)
 
-**What:** Document new APIs and performance characteristics.
+**What:** Document new options and performance characteristics:
 
-**Topics:**
-
-- `toImmutable()` method
-- Selector subscriptions
-- Proxy-based change detection
-- Performance tips and best practices
+- `snapshotMode` option and tradeoffs
+- `useStructuralUpdate` option
+- Performance tuning guidelines
+- Benchmark results summary
 
 ---
 
-### Step 6.2: Update CHANGELOG
+### Step 4.3: Update CHANGELOG
 
 **Files:**
 
 - `packages/data-map/core/CHANGELOG.md`
 
-**What:** Document all changes for the release.
+**What:** Document all performance improvements for the release.
 
 ---
 
-## Summary: Expected Performance After All Phases
+## Summary: Expected Performance After All Tiers
 
-| Operation           | Before     | After (Expected) | Improvement |
-| ------------------- | ---------- | ---------------- | ----------- |
-| Simple get          | 2.1M ops/s | 50-70M ops/s     | **25-35x**  |
-| Nested get          | 1.5M ops/s | 40-60M ops/s     | **27-40x**  |
-| Simple set          | 89K ops/s  | 1-2M ops/s       | **11-22x**  |
-| Nested update       | 12K ops/s  | 500K-1M ops/s    | **42-83x**  |
-| Subscription notify | 45K ops/s  | 500K-1M ops/s    | **11-22x**  |
-| Batch operations    | N/A        | 2-5M ops/s       | N/A         |
+Based on the exhaustive audit's realistic targets for 10,000-key objects:
+
+| Metric                   | Before  | Target         | Improvement               |
+| ------------------------ | ------- | -------------- | ------------------------- |
+| Read (ops/sec)           | 8.22M   | 8M+ (maintain) | ≈0% (already competitive) |
+| Mutation (ops/sec)       | 103.9   | 200+           | **2× improvement**        |
+| Clone (ops/sec)          | 203     | 400+           | **2× improvement**        |
+| Deep path creation       | O(n)    | O(depth)       | Structural sharing        |
+| Zero-subscriber overhead | Unknown | <5%            | Verified minimal          |
+
+**Note:** The previous audit's 25-35× improvement claims were based on different baseline measurements. The exhaustive audit establishes more realistic targets based on current competitive benchmarks.
 
 ## Risk Mitigation
 
-1. **Regression Risk:** All phases include:
-   - Running existing 27 test files
+1. **Regression Risk:** All tiers include:
+   - Running existing test suite
    - Adding new tests for new behavior
+   - Feature flags for gradual rollout
 
-2. **Complexity Risk:** Phases are ordered by risk:
-   - Phase 1: Low risk, high reward quick wins
-   - Later phases: Higher risk, but built on validated foundation
+2. **Complexity Risk:** Tiers are ordered by risk:
+   - Tier 0: Minimal risk (benchmark-only changes)
+   - Tier 1: Low risk, high reward
+   - Tier 2-3: Higher risk, gated behind feature flags
+
+3. **Benchmark Variability:**
+   - Run benchmarks on consistent environment
+   - Document machine specs and run conditions
+   - Take median of multiple runs
 
 ## Dependencies
 
-- All existing `@jsonpath/*` workspace packages
-- `rfdc` (may be removed/reduced after Phase 2)
+- Existing `@jsonpath/*` workspace packages
+- `rfdc` for deep cloning (existing)
 - No new external dependencies required
 
 ## Success Criteria
 
-1. All existing tests pass
-2. Benchmark scores improve significantly
-3. No memory leaks introduced
-4. Documentation updated
-5. CHANGELOG includes all changes
+1. All existing tests pass (27 test files)
+2. Benchmark methodology fixes verified (Tier 0 complete)
+3. Clone operations 2× faster
+4. Mutation operations 2× faster (within 20% of lodash)
+5. Read performance maintained (8M+ ops/sec)
+6. Zero-subscriber overhead <5%
+7. Documentation updated
+8. CHANGELOG includes all changes
+
+---
+
+## Resolved Decisions
+
+1. **Benchmark environment:** Local development machine (no CI)
+2. **Snapshot mode default:** `'reference'` (fastest)
+3. **Feature flag default:** `useStructuralUpdate: true` (fastest)
+4. **Breaking changes:** Acceptable (v0 implementation)
+5. **Priority ordering:** Tier 0 (benchmarks) first, then core optimizations
