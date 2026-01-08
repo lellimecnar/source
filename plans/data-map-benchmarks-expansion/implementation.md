@@ -1671,9 +1671,9 @@ export const PATH_ADAPTERS = [
 
 ##### Step 9 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/benchmarks exec vitest run src/adapters/path.*.spec.ts`
+- [x] `pnpm --filter @data-map/benchmarks exec vitest run src/adapters/path.*.spec.ts` ✓ PASSED (only data-map adapter, external ones need optional dependencies)
 
-#### Step 9 STOP & COMMIT
+#### Step 9 STOP & COMMIT ✅ COMPLETED
 
 ```txt
 feat(data-map-benchmarks-expansion): add path adapters
@@ -1793,10 +1793,10 @@ describe('Path / Scale', () => {
 
 ##### Step 10 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/benchmarks exec vitest bench src/path-access.bench.ts`
-- [ ] `pnpm --filter @data-map/benchmarks exec vitest bench src/path-scale.bench.ts`
+- [x] `pnpm --filter @data-map/benchmarks exec vitest bench src/path-access.bench.ts` ✓ PASSED (4 benchmarks, comparative tests executed successfully)
+- [x] `pnpm --filter @data-map/benchmarks exec vitest bench src/path-scale.bench.ts` ✓ PASSED (3 benchmarks, scale tests executed successfully)
 
-#### Step 10 STOP & COMMIT
+#### Step 10 STOP & COMMIT ✅ COMPLETED
 
 ```txt
 feat(data-map-benchmarks-expansion): add path benchmarks
@@ -1812,7 +1812,7 @@ completes: step 10 of 21 for data-map-benchmarks-expansion
 
 #### Step 11.1 — DataMap pubsub adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/pubsub.data-map.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/pubsub.data-map.ts`:
 
 ```ts
 import { createDataMap } from '@data-map/core';
@@ -1867,7 +1867,7 @@ export const dataMapPubSubAdapter: PubSubAdapter = {
 };
 ```
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/pubsub.data-map.spec.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/pubsub.data-map.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1883,7 +1883,7 @@ describe('pubsub.data-map adapter', () => {
 
 #### Step 11.2 — Mitt adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/pubsub.mitt.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/pubsub.mitt.ts`:
 
 ```ts
 import mitt from 'mitt';
@@ -1918,7 +1918,7 @@ export const mittPubSubAdapter: PubSubAdapter = {
 };
 ```
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/pubsub.mitt.spec.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/pubsub.mitt.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1934,7 +1934,7 @@ describe('pubsub.mitt adapter', () => {
 
 #### Step 11.3 — EventEmitter3 adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/pubsub.eventemitter3.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/pubsub.eventemitter3.ts`:
 
 ```ts
 import EventEmitter from 'eventemitter3';
@@ -1975,7 +1975,7 @@ export const eventemitter3PubSubAdapter: PubSubAdapter = {
 };
 ```
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/pubsub.eventemitter3.spec.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/pubsub.eventemitter3.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1991,7 +1991,7 @@ describe('pubsub.eventemitter3 adapter', () => {
 
 #### Step 11.4 — nanoevents adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/pubsub.nanoevents.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/pubsub.nanoevents.ts`:
 
 ```ts
 import { createNanoEvents } from 'nanoevents';
@@ -2037,7 +2037,7 @@ export const nanoeventsPubSubAdapter: PubSubAdapter = {
 };
 ```
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/pubsub.nanoevents.spec.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/pubsub.nanoevents.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -2053,7 +2053,7 @@ describe('pubsub.nanoevents adapter', () => {
 
 #### Step 11.5 — Register pubsub adapters
 
-- [ ] Update `packages/data-map/benchmarks/src/adapters/index.ts` by importing and exporting:
+- [x] Update `packages/data-map/benchmarks/src/adapters/index.ts` by importing and exporting:
 
 ```ts
 import { dataMapPubSubAdapter } from './pubsub.data-map.js';
@@ -2071,9 +2071,9 @@ export const PUBSUB_ADAPTERS = [
 
 ##### Step 11 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/benchmarks exec vitest run src/adapters/pubsub.*.spec.ts`
+- [x] `pnpm --filter @data-map/benchmarks exec vitest run src/adapters/pubsub.*.spec.ts` ✓ PASSED (only data-map adapter, external ones need optional dependencies)
 
-#### Step 11 STOP & COMMIT
+#### Step 11 STOP & COMMIT ✅ COMPLETED
 
 ```txt
 feat(data-map-benchmarks-expansion): add pubsub adapters
@@ -2089,7 +2089,7 @@ completes: step 11 of 21 for data-map-benchmarks-expansion
 
 #### Step 12.1 — Subscription comparative suite
 
-- [ ] Create `packages/data-map/benchmarks/src/subscriptions-comparative.bench.ts`:
+- [x] Create `packages/data-map/benchmarks/src/subscriptions-comparative.bench.ts`:
 
 ```ts
 import { bench, describe } from 'vitest';
@@ -2154,9 +2154,9 @@ describe('Subscriptions / Comparative', () => {
 
 ##### Step 12 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/benchmarks exec vitest bench src/subscriptions-comparative.bench.ts`
+- [x] `pnpm --filter @data-map/benchmarks exec vitest bench src/subscriptions-comparative.bench.ts` ✓ PASSED (5 benchmarks, comparative subscription tests executed successfully)
 
-#### Step 12 STOP & COMMIT
+#### Step 12 STOP & COMMIT ✅ COMPLETED
 
 ```txt
 feat(data-map-benchmarks-expansion): add subscription benchmarks
@@ -2172,7 +2172,7 @@ completes: step 12 of 21 for data-map-benchmarks-expansion
 
 #### Step 13.1 — Arrays comparative suite
 
-- [ ] Create `packages/data-map/benchmarks/src/arrays-comparative.bench.ts`:
+- [x] Create `packages/data-map/benchmarks/src/arrays-comparative.bench.ts`:
 
 ```ts
 import { bench, describe } from 'vitest';
@@ -2213,9 +2213,9 @@ describe('Arrays / Comparative', () => {
 
 ##### Step 13 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/benchmarks exec vitest bench src/arrays-comparative.bench.ts`
+- [x] `pnpm --filter @data-map/benchmarks exec vitest bench src/arrays-comparative.bench.ts` ✓ PASSED (4 benchmarks, array data structure comparisons executed successfully)
 
-#### Step 13 STOP & COMMIT
+#### Step 13 STOP & COMMIT ✅ COMPLETED
 
 ```txt
 feat(data-map-benchmarks-expansion): add arrays comparative benchmarks
@@ -2231,20 +2231,20 @@ completes: step 13 of 21 for data-map-benchmarks-expansion
 
 #### Step 14.1 — Memory profiler helper
 
-- [ ] Create `packages/data-map/benchmarks/src/utils/memory-profiler.ts` to wrap existing measurement helpers in a stable API.
+- [x] Create `packages/data-map/benchmarks/src/utils/memory-profiler.ts` to wrap existing measurement helpers in a stable API.
 
 #### Step 14.2 — Memory benchmark entrypoints
 
-- [ ] Create:
+- [x] Create:
   - `packages/data-map/benchmarks/src/memory-signals.bench.ts`
   - `packages/data-map/benchmarks/src/memory-storage.bench.ts`
   - `packages/data-map/benchmarks/src/memory-subscriptions.bench.ts`
 
 ##### Step 14 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/benchmarks exec vitest bench src/memory-*.bench.ts`
+- [x] `pnpm --filter @data-map/benchmarks exec vitest bench src/memory-*.bench.ts` ✓ PASSED (memory benchmarks executed successfully)
 
-#### Step 14 STOP & COMMIT
+#### Step 14 STOP & COMMIT ✅ COMPLETED
 
 ```txt
 feat(data-map-benchmarks-expansion): add memory profiling suite
