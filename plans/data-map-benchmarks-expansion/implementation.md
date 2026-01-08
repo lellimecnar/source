@@ -688,7 +688,7 @@ export const dataMapSignalsAdapter: SignalAdapter = {
 };
 ```
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/signals.data-map.spec.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/signals.data-map.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -704,7 +704,7 @@ describe('signals.data-map adapter', () => {
 
 #### Step 3.2 — Preact signals adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/signals.preact.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/signals.preact.ts`:
 
 ```ts
 import { batch, computed, effect, signal } from '@preact/signals-core';
@@ -755,7 +755,7 @@ export const preactSignalsAdapter: SignalAdapter = {
 };
 ```
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/signals.preact.spec.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/signals.preact.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -771,7 +771,7 @@ describe('signals.preact adapter', () => {
 
 #### Step 3.3 — Maverick signals adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/signals.maverick.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/signals.maverick.ts`:
 
 ```ts
 import { computed, effect, root, signal, tick } from '@maverick-js/signals';
@@ -834,7 +834,7 @@ export const maverickSignalsAdapter: SignalAdapter = {
 };
 ```
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/signals.maverick.spec.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/signals.maverick.spec.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -850,7 +850,7 @@ describe('signals.maverick adapter', () => {
 
 #### Step 3.4 — Vue reactivity adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/signals.vue.ts`:
+- [x] Create `packages/data-map/benchmarks/src/adapters/signals.vue.ts`:
 
 ```ts
 import { computed, effect, ref } from '@vue/reactivity';
@@ -1098,7 +1098,7 @@ export const PUBSUB_ADAPTERS: import('./types.js').PubSubAdapter[] = [];
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/benchmarks exec vitest run src/adapters/signals.*.spec.ts`
+- [x] `pnpm --filter @data-map/benchmarks exec vitest run src/adapters/signals.*.spec.ts` (data-map adapter passed; external adapters require optional dependencies)
 
 #### Step 3 STOP & COMMIT
 
