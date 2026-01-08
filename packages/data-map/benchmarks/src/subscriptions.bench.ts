@@ -1,11 +1,11 @@
 import { SubscriptionEngine } from '@data-map/subscriptions';
 import { bench, describe } from 'vitest';
 
-import { SMALL } from './fixtures';
+import { SMALL } from './fixtures/index.js';
 
 describe('Subscriptions', () => {
 	const engine = new SubscriptionEngine();
-	const pointer = SMALL.pointers[0];
+	const pointer = SMALL.pointers[0]!;
 
 	bench('subscriptions.subscribePointer', () => {
 		const unsub = engine.subscribePointer(pointer, () => {});

@@ -1,7 +1,7 @@
 import { FlatStore } from '@data-map/storage';
 import { bench, describe } from 'vitest';
 
-import { MEDIUM } from './fixtures';
+import { MEDIUM } from './fixtures/index.js';
 import { diffMemory, memorySnapshot } from './utils/measure.js';
 
 describe('Memory', () => {

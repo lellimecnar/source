@@ -2,7 +2,7 @@ import { DataMap } from '@data-map/core';
 import { FlatStore } from '@data-map/storage';
 import { bench, describe } from 'vitest';
 
-import { MEDIUM } from './fixtures';
+import { MEDIUM } from './fixtures/index.js';
 
 describe('Scale', () => {
 	const pointers = MEDIUM.pointers;
@@ -14,12 +14,12 @@ describe('Scale', () => {
 
 		bench('scale.flatStoreGetMedium', () => {
 			const idx = i++ % pointers.length;
-			store.get(pointers[idx]);
+			store.get(pointers[idx]!);
 		});
 
 		bench('scale.flatStoreSetMedium', () => {
 			const idx = i++ % pointers.length;
-			store.set(pointers[idx], values[idx]);
+			store.set(pointers[idx]!, values[idx]);
 		});
 	});
 
@@ -29,12 +29,12 @@ describe('Scale', () => {
 
 		bench('scale.dataMapSetMedium', () => {
 			const idx = i++ % pointers.length;
-			dm.set(pointers[idx], values[idx]);
+			dm.set(pointers[idx]!, values[idx]);
 		});
 
 		bench('scale.dataMapSubscribeMedium', () => {
 			const idx = i++ % pointers.length;
-			const unsub = dm.subscribe(pointers[idx], () => {});
+			const unsub = dm.subscribe(pointers[idx]!, () => {});
 			unsub();
 		});
 	});
