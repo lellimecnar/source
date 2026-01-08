@@ -6,20 +6,35 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"bench": "node -e \"console.log('benchmarks placeholder package: add runners in later step')\"",
+		"bench": "vitest bench",
+		"bench:browser": "vitest bench --config vitest.config.browser.ts",
+		"bench:browser:chromium": "vitest bench --config vitest.config.browser.ts --browser.name=chromium",
+		"bench:browser:firefox": "vitest bench --config vitest.config.browser.ts --browser.name=firefox",
+		"bench:browser:webkit": "vitest bench --config vitest.config.browser.ts --browser.name=webkit",
+		"bench:compare": "node scripts/compare-results.js",
+		"bench:full": "vitest bench --reporter=json --outputFile=results.json",
 		"build": "vite build",
 		"type-check": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@data-map/core": "workspace:*"
+		"@data-map/arrays": "workspace:*",
+		"@data-map/core": "workspace:*",
+		"@data-map/path": "workspace:*",
+		"@data-map/signals": "workspace:*",
+		"@data-map/storage": "workspace:*",
+		"@data-map/subscriptions": "workspace:*"
 	},
 	"devDependencies": {
 		"@lellimecnar/typescript-config": "workspace:*",
 		"@lellimecnar/vite-config": "workspace:*",
+		"@lellimecnar/vitest-config": "workspace:*",
 		"@types/node": "^24",
+		"@vitest/browser": "^4.0.16",
+		"playwright": "^1.48.2",
 		"typescript": "~5.5",
 		"vite": "^7.3.0",
 		"vite-plugin-dts": "^4.5.4",
-		"vite-tsconfig-paths": "^6.0.3"
+		"vite-tsconfig-paths": "^6.0.3",
+		"vitest": "^4.0.16"
 	}
 }

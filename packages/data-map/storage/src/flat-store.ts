@@ -7,12 +7,12 @@ export class FlatStore {
 	private data = new Map<Pointer, unknown>();
 	private versions = new Map<Pointer, number>();
 	private arrays = new Map<Pointer, ArrayMetadata>();
-	private globalVersion = 0;
+	private _version = 0;
 
 	constructor(initial?: unknown) {
 		if (typeof initial !== 'undefined') {
 			ingestNested(this.data, this.versions, this.arrays, initial, '');
-			this.globalVersion++;
+			this._version++;
 		}
 	}
 
@@ -20,8 +20,13 @@ export class FlatStore {
 		return this.data.size;
 	}
 
+	get version(): number {
+		return this._version;
+	}
+
+	// Back-compat alias for earlier drafts.
 	get globalVersion(): number {
-		return this.globalVersion;
+		return this._version;
 	}
 
 	get(pointer: Pointer): unknown {
@@ -35,24 +40,20 @@ export class FlatStore {
 	set(pointer: Pointer, value: unknown): void {
 		this.data.set(pointer, value);
 		bumpVersion(this.versions, pointer);
-		this.globalVersion++;
+		this._version++;
 	}
 
 	delete(pointer: Pointer): boolean {
 		const existed = this.data.delete(pointer);
 		if (existed) {
 			bumpVersion(this.versions, pointer);
-			this.globalVersion++;
+			this._version++;
 		}
 		return existed;
 	}
 
-	version(pointer: Pointer): number {
-		return this.versions.get(pointer) ?? 0;
-	}
-
 	getVersion(pointer: Pointer): number {
-		return this.version(pointer);
+		return this.versions.get(pointer) ?? 0;
 	}
 
 	snapshot(): FlatSnapshot {
@@ -214,11 +215,11 @@ export class FlatStore {
 
 		// Ingest new subtree at pointer.
 		ingestNested(this.data, this.versions, this.arrays, value, base);
-		this.globalVersion++;
+		this._version++;
 	}
 
 	ingest(root: unknown): void {
 		ingestNested(this.data, this.versions, this.arrays, root, '');
-		this.globalVersion++;
+		this._version++;
 	}
 }

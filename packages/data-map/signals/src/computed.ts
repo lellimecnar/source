@@ -1,12 +1,13 @@
 import { isBatching, queueObserver } from './batch.js';
 import { popObserver, pushObserver, trackRead } from './context.js';
 import type { DependencySource, Observer } from './internal.js';
-import type { ReadonlySignal, Subscriber, Unsubscribe } from './types.js';
+import type { Computed, Subscriber, Unsubscribe } from './types.js';
 
-class ComputedImpl<T> implements ReadonlySignal<T>, DependencySource, Observer {
+class ComputedImpl<T> implements Computed<T>, DependencySource, Observer {
 	private compute: () => T;
 	private _value!: T;
 	private dirty = true;
+	private computing = false;
 
 	private sources = new Set<DependencySource>();
 	private observers = new Set<Observer>();
@@ -46,8 +47,6 @@ class ComputedImpl<T> implements ReadonlySignal<T>, DependencySource, Observer {
 	onDependencyChanged(): void {
 		if (this.dirty) return;
 		this.dirty = true;
-		// Snapshot iteration prevents pathological re-entrancy when observers
-		// trigger effects that re-track dependencies during notification.
 		const observers = Array.from(this.observers);
 		for (const obs of observers) {
 			if (isBatching()) queueObserver(obs);
@@ -61,9 +60,19 @@ class ComputedImpl<T> implements ReadonlySignal<T>, DependencySource, Observer {
 		this.onDependencyChanged();
 	}
 
+	triggerObservers(): void {
+		this.onDependencyChanged();
+	}
+
 	private recompute(): void {
+		if (this.computing) {
+			throw new Error('Circular computed dependency detected');
+		}
+
 		for (const src of this.sources) src.removeObserver(this);
 		this.sources.clear();
+
+		this.computing = true;
 		pushObserver(this);
 		try {
 			const next = this.compute();
@@ -71,10 +80,11 @@ class ComputedImpl<T> implements ReadonlySignal<T>, DependencySource, Observer {
 			this.dirty = false;
 		} finally {
 			popObserver();
+			this.computing = false;
 		}
 	}
 }
 
-export function computed<T>(fn: () => T): ComputedImpl<T> {
+export function computed<T>(fn: () => T): Computed<T> {
 	return new ComputedImpl(fn);
 }

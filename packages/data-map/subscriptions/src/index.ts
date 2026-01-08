@@ -1,6 +1,8 @@
 export type {
 	Pointer,
 	SubscriptionEvent,
+	SubscriptionOptions,
+	SubscriptionStage,
 	Subscriber,
 	Unsubscribe,
 } from './types.js';

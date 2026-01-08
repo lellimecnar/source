@@ -1,0 +1,77 @@
+{
+	"storage.getSmall": {
+		"opsPerSec": 0
+	},
+	"storage.setSmall": {
+		"opsPerSec": 0
+	},
+	"storage.hasSmall": {
+		"opsPerSec": 0
+	},
+	"storage.deleteSmall": {
+		"opsPerSec": 0
+	},
+	"storage.toObjectSmall": {
+		"opsPerSec": 0
+	},
+	"signals.signalRead": {
+		"opsPerSec": 0
+	},
+	"signals.signalWrite": {
+		"opsPerSec": 0
+	},
+	"signals.computedReadCached": {
+		"opsPerSec": 0
+	},
+	"signals.computedReadDirty": {
+		"opsPerSec": 0
+	},
+	"signals.batch100Writes": {
+		"opsPerSec": 0
+	},
+	"subscriptions.subscribePointer": {
+		"opsPerSec": 0
+	},
+	"subscriptions.subscribePattern": {
+		"opsPerSec": 0
+	},
+	"subscriptions.notifyExact100": {
+		"opsPerSec": 0
+	},
+	"subscriptions.notifyPattern10": {
+		"opsPerSec": 0
+	},
+	"arrays.smartArrayPush": {
+		"opsPerSec": 0
+	},
+	"arrays.smartArraySpliceMiddle": {
+		"opsPerSec": 0
+	},
+	"arrays.gapBufferInsertMiddle": {
+		"opsPerSec": 0
+	},
+	"arrays.gapBufferDeleteMiddle": {
+		"opsPerSec": 0
+	},
+	"arrays.persistentVectorPush": {
+		"opsPerSec": 0
+	},
+	"arrays.persistentVectorSetMiddle": {
+		"opsPerSec": 0
+	},
+	"scale.flatStoreGetMedium": {
+		"opsPerSec": 0
+	},
+	"scale.flatStoreSetMedium": {
+		"opsPerSec": 0
+	},
+	"scale.dataMapSetMedium": {
+		"opsPerSec": 0
+	},
+	"scale.dataMapSubscribeMedium": {
+		"opsPerSec": 0
+	},
+	"memory.processMemoryUsage": {
+		"opsPerSec": 0
+	}
+}

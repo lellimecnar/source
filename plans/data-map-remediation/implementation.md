@@ -1488,11 +1488,11 @@ completes: data-map remediation step 4 of 12 (signals)
 
 ### Step 5 Checklist
 
-- [ ] Add `readonly size` property
-- [ ] Add `readonly version` counter (global change counter; keep `globalVersion` as a back-compat alias)
-- [ ] Add `setDeep(pointer, value)` and `getObject(pointer)`
-- [ ] Add `keys(prefix?)` and `entries(prefix?)`
-- [ ] Add `getVersion(pointer)`
+- [x] Add `readonly size` property
+- [x] Add `readonly version` counter (global change counter; keep `globalVersion` as a back-compat alias)
+- [x] Add `setDeep(pointer, value)` and `getObject(pointer)`
+- [x] Add `keys(prefix?)` and `entries(prefix?)`
+- [x] Add `getVersion(pointer)`
 
 ### Step 5 Files
 
@@ -1834,8 +1834,8 @@ describe('FlatStore', () => {
 
 ### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/storage type-check`
-- [ ] `pnpm --filter @data-map/storage test`
+- [x] `pnpm --filter @data-map/storage type-check`
+- [x] `pnpm --filter @data-map/storage test`
 
 ### Step 5 STOP & COMMIT
 
@@ -1859,8 +1859,8 @@ This step updates `queryFlat()` to avoid `store.toObject()` for simple JSONPath 
 
 ### Step 6 Checklist
 
-- [ ] Ensure `queryFlat()` uses the pointer-iterator fast-path
-- [ ] Ensure the complex path fallback uses `store.getObject('')`
+- [x] Ensure `queryFlat()` uses the pointer-iterator fast-path
+- [x] Ensure the complex path fallback uses `store.getObject('')`
 
 ### Step 6 Files
 
@@ -1919,7 +1919,7 @@ export function queryFlat(
 
 ### Step 6 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/path test`
+- [x] `pnpm --filter @data-map/path test`
 
 ### Step 6 STOP & COMMIT
 
@@ -1948,14 +1948,14 @@ Enhance the subscription engine to support the full event model required by the 
 
 ### Step 7 Checklist
 
-- [ ] Add `SubscriptionOptions` and `SubscriptionStage` types.
-- [ ] Extend `SubscriptionEvent` to include `previousValue`, `stage`, and `cancel()`.
-- [ ] Add options support to `SubscriptionEngine.subscribePointer` and `SubscriptionEngine.subscribePattern`.
-- [ ] Implement `SubscriptionEngine.getAffected(pointer)`.
-- [ ] Implement lifecycle stage notification (`before` → `on` → `after`) with cancel support.
-- [ ] Implement `debounce` timers (applies to the `on` stage).
-- [ ] Implement `immediate` support for pointer subscriptions.
-- [ ] Add/expand tests for the new behaviors.
+- [x] Add `SubscriptionOptions` and `SubscriptionStage` types.
+- [x] Extend `SubscriptionEvent` to include `previousValue`, `stage`, and `cancel()`.
+- [x] Add options support to `SubscriptionEngine.subscribePointer` and `SubscriptionEngine.subscribePattern`.
+- [x] Implement `SubscriptionEngine.getAffected(pointer)`.
+- [x] Implement lifecycle stage notification (`before` → `on` → `after`) with cancel support.
+- [x] Implement `debounce` timers (applies to the `on` stage).
+- [x] Implement `immediate` support for pointer subscriptions.
+- [x] Add/expand tests for the new behaviors.
 
 ### Step 7 Files
 
@@ -2352,8 +2352,8 @@ describe('SubscriptionEngine', () => {
 
 ### Step 7 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/subscriptions type-check`
-- [ ] `pnpm --filter @data-map/subscriptions test`
+- [x] `pnpm --filter @data-map/subscriptions type-check`
+- [x] `pnpm --filter @data-map/subscriptions test`
 
 ### Step 7 STOP & COMMIT
 
@@ -2377,9 +2377,9 @@ Integrate a TrieMap-backed index for exact pointer subscriptions, and implement 
 
 ### Step 8 Checklist
 
-- [ ] Add a TrieMap-backed index wrapper with prefix iteration.
-- [ ] Refactor the exact pointer index to use the trie wrapper.
-- [ ] Ensure the `mnemonist` dependency is present.
+- [x] Add a TrieMap-backed index wrapper with prefix iteration.
+- [x] Refactor the exact pointer index to use the trie wrapper.
+- [x] Ensure the `mnemonist` dependency is present.
 
 ### Step 8 Files
 
@@ -2581,8 +2581,8 @@ export class ExactIndex {
 
 ### Step 8 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/subscriptions type-check`
-- [ ] `pnpm --filter @data-map/subscriptions test`
+- [x] `pnpm --filter @data-map/subscriptions type-check`
+- [x] `pnpm --filter @data-map/subscriptions test`
 
 ### Step 8 STOP & COMMIT
 
@@ -2603,10 +2603,10 @@ completes: data-map remediation step 8 of 12 (subscriptions trie index)
 
 ### Step 9 Checklist
 
-- [ ] Add missing array operations: `pop`, `shift`, `unshift`, `sort`, `reverse`, `shuffle`
-- [ ] Add conversions: `toArray()` and `toPointerMap()`
-- [ ] Ensure `splice()` returns removed items and maintains a consistent logical view
-- [ ] Expand tests to cover the full public surface
+- [x] Add missing array operations: `pop`, `shift`, `unshift`, `sort`, `reverse`, `shuffle`
+- [x] Add conversions: `toArray()` and `toPointerMap()`
+- [x] Ensure `splice()` returns removed items and maintains a consistent logical view
+- [x] Expand tests to cover the full public surface
 
 ### Step 9 Files
 
@@ -2880,8 +2880,8 @@ describe('SmartArray', () => {
 
 ### Step 9 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/arrays type-check`
-- [ ] `pnpm --filter @data-map/arrays test`
+- [x] `pnpm --filter @data-map/arrays type-check`
+- [x] `pnpm --filter @data-map/arrays test`
 
 ### Step 9 STOP & COMMIT
 
@@ -2903,9 +2903,9 @@ completes: data-map remediation step 9 of 12 (arrays)
 
 ### Step 10 Checklist
 
-- [ ] Add multi-pointer computed helper
-- [ ] Add `SignalCache` for `signalFor(pointer)` caching
-- [ ] Add tests for multi-pointer reactivity and cache behavior
+- [x] Add multi-pointer computed helper
+- [x] Add `SignalCache` for `signalFor(pointer)` caching
+- [x] Add tests for multi-pointer reactivity and cache behavior
 
 ### Step 10 Files
 
@@ -3080,8 +3080,8 @@ describe('@data-map/computed', () => {
 
 ### Step 10 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/computed type-check`
-- [ ] `pnpm --filter @data-map/computed test`
+- [x] `pnpm --filter @data-map/computed type-check`
+- [x] `pnpm --filter @data-map/computed test`
 
 ### Step 10 STOP & COMMIT
 
@@ -3103,13 +3103,13 @@ completes: data-map remediation step 10 of 12 (computed)
 
 ### Step 11 Checklist
 
-- [ ] Add `has(pointer)`
-- [ ] Add `batch(fn)` that coalesces notifications
-- [ ] Add `transaction<R>(fn)` with rollback semantics
-- [ ] Add `keys(prefixOrPath?)` and `fromObject(obj)`
-- [ ] Add unified `subscribe(pathOrPointer, cb, options?)`
-- [ ] Add core array helpers: `push/pop/shift/unshift/splice/sort/reverse/shuffle`
-- [ ] Add multi-pointer `computed(pointers, compute)` facade
+- [x] Add `has(pointer)`
+- [x] Add `batch(fn)` that coalesces notifications
+- [x] Add `transaction<R>(fn)` with rollback semantics
+- [x] Add `keys(prefixOrPath?)` and `fromObject(obj)`
+- [x] Add unified `subscribe(pathOrPointer, cb, options?)`
+- [x] Add core array helpers: `push/pop/shift/unshift/splice/sort/reverse/shuffle`
+- [x] Add multi-pointer `computed(pointers, compute)` facade
 
 ### Step 11 Files
 
@@ -3469,8 +3469,8 @@ describe('@data-map/core', () => {
 
 ### Step 11 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/core type-check`
-- [ ] `pnpm --filter @data-map/core test`
+- [x] `pnpm --filter @data-map/core type-check`
+- [x] `pnpm --filter @data-map/core test`
 
 ### Step 11 STOP & COMMIT
 
@@ -3493,10 +3493,10 @@ completes: data-map remediation step 11 of 12 (core)
 
 ### Step 12 Checklist
 
-- [ ] Run full benchmark suite and update `baseline.json`
-- [ ] Run all `@data-map/*` tests and type-checks
-- [ ] Update [docs/audit/data-map-implementation-audit.md](../../docs/audit/data-map-implementation-audit.md) to reflect 100% completion
-- [ ] Add API reference doc: [docs/api/data-map.md](../../docs/api/data-map.md)
+- [x] Run full benchmark suite and update `baseline.json`
+- [x] Run all `@data-map/*` tests and type-checks
+- [x] Update [docs/audit/data-map-implementation-audit.md](../../docs/audit/data-map-implementation-audit.md) to reflect 100% completion
+- [x] Add API reference doc: [docs/api/data-map.md](../../docs/api/data-map.md)
 
 ### Step 12 Documentation Files
 

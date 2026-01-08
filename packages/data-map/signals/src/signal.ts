@@ -23,6 +23,10 @@ class SignalImpl<T> implements SignalType<T>, DependencySource {
 		this.notify();
 	}
 
+	peek(): T {
+		return this._value;
+	}
+
 	subscribe(subscriber: Subscriber<T>): Unsubscribe {
 		this.subscribers.add(subscriber);
 		return () => {
@@ -36,6 +40,10 @@ class SignalImpl<T> implements SignalType<T>, DependencySource {
 
 	removeObserver(observer: Observer): void {
 		this.observers.delete(observer);
+	}
+
+	triggerObservers(): void {
+		this.notify();
 	}
 
 	private notify(): void {
