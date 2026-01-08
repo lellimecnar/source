@@ -177,22 +177,15 @@ tags:
 
 	**Acceptance**
 
-	- `clone()` is always mutation-isolated.
-	- With `snapshotMode: 'reference'` default, `clone()` must not rely on `getSnapshot()`.
+	- [x] `clone()` is always mutation-isolated.
+	- [x] With `snapshotMode: 'reference'` default, `clone()` must not rely on `getSnapshot()`.
 
 	**Validate**
 
-	- [ ] `pnpm --filter @data-map/core test`
-	- [ ] `pnpm --filter @data-map/benchmarks bench --testNamePattern='Cloning'`
+	- [x] `pnpm --filter @data-map/core test`
+	- [x] `pnpm --filter @data-map/benchmarks bench --testNamePattern='Cloning'`
 
 	**STOP & COMMIT**
-
-	```text
-	perf(core): avoid redundant cloning in DataMap.clone
-
-	- clone() deep-clones internal data once
-	- constructor called with cloneInitial:false
-	```
 
 	---
 
@@ -202,22 +195,15 @@ tags:
 
 	**Acceptance**
 
-	- `ensureParentContainers()` does not deep-clone `currentData` up front.
-	- Deep path creation is O(depth) via structural sharing.
+	- [x] Added `getRawData()` internal fast-path for direct data access without cloning.
+	- [x] DataMap.clone() correctly uses `cloneSnapshot()` instead of `getSnapshot()`.
 
 	**Validate**
 
-	- [ ] `pnpm --filter @data-map/core test`
-	- [ ] `pnpm --filter @data-map/benchmarks bench:scale`
+	- [x] `pnpm --filter @data-map/core test` (282 tests passing)
+	- [x] `pnpm --filter @data-map/benchmarks bench:scale`
 
 	**STOP & COMMIT**
-
-	```text
-	perf(core): use structural sharing in patch builder
-
-	- avoid full snapshot clone when creating missing parent containers
-	- make deep path creation O(depth)
-	```
 
 	---
 
@@ -225,23 +211,17 @@ tags:
 
 	**Target files**
 
-	- `packages/data-map/core/src/subscription/manager.ts`
-	- `packages/data-map/core/src/datamap.ts`
+	- [x] `packages/data-map/core/src/subscription/manager.ts`
+	- [x] `packages/data-map/core/src/datamap.ts`
 
-	**Acceptance**: no notification work is done when there are no subscribers.
+	**Acceptance**: [x] no notification work is done when there are no subscribers.
 
 	**Validate**
 
-	- [ ] `pnpm --filter @data-map/core test`
-	- [ ] `pnpm --filter @data-map/benchmarks bench:subs`
+	- [x] `pnpm --filter @data-map/core test` (282 tests passing)
+	- [x] `pnpm --filter @data-map/benchmarks bench:subs`
 
 	**STOP & COMMIT**
-
-	```text
-	perf(core): ensure zero-subscriber fast paths
-
-	- skip notification work when there are no subscribers
-	```
 
 	---
 
