@@ -19,17 +19,17 @@ If not, move them to the correct branch.
 
 #### Step 1: Workspace Setup & Foundation
 
-- [ ] Create these directories:
-  - [ ] `packages/data-map/signals`
-  - [ ] `packages/data-map/storage`
-  - [ ] `packages/data-map/subscriptions`
-  - [ ] `packages/data-map/arrays`
-  - [ ] `packages/data-map/path`
-  - [ ] `packages/data-map/computed`
-  - [ ] `packages/data-map/core`
-  - [ ] `packages/data-map/benchmarks`
+- [x] Create these directories:
+  - [x] `packages/data-map/signals`
+  - [x] `packages/data-map/storage`
+  - [x] `packages/data-map/subscriptions`
+  - [x] `packages/data-map/arrays`
+  - [x] `packages/data-map/path`
+  - [x] `packages/data-map/computed`
+  - [x] `packages/data-map/core`
+  - [x] `packages/data-map/benchmarks`
 
-- [ ] Replace the contents of `pnpm-workspace.yaml` with the exact YAML below (this is idempotent and ensures `packages/data-map/*` is present):
+- [x] Replace the contents of `pnpm-workspace.yaml` with the exact YAML below (this is idempotent and ensures `packages/data-map/*` is present):
 
 ```yaml
 packages:
@@ -42,8 +42,8 @@ packages:
   - 'packages/jsonpath/*'
 ```
 
-- [ ] Update root `package.json` scripts to add a convenience script for DataMap development.
-- [ ] Copy and paste the JSON below into `package.json` (only the `scripts` field changes; everything else stays identical):
+- [x] Update root `package.json` scripts to add a convenience script for DataMap development.
+- [x] Copy and paste the JSON below into `package.json` (only the `scripts` field changes; everything else stays identical):
 
 ```json
 {
@@ -124,8 +124,8 @@ packages:
 
 ##### Step 1 Verification Checklist
 
-- [ ] Run `pnpm install` and confirm no workspace errors.
-- [ ] Run `pnpm -w data-map build` and confirm Turbo recognizes the filter.
+- [x] Run `pnpm install` and confirm no workspace errors.
+- [x] Run `pnpm -w data-map build` and confirm Turbo recognizes the filter.
 
 #### Step 1 STOP & COMMIT
 

@@ -15,6 +15,7 @@
 		"build": "turbo build",
 		"clean": "turbo clean; git clean -xdf node_modules .turbo .next .expo",
 		"clean:hard": "pnpm clean && rm -rf pnpm-lock.yaml && pnpm install",
+		"data-map": "turbo run -F @data-map/core",
 		"dev": "turbo dev",
 		"format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,json}\"",
 		"graph": "pnpm list --depth=Infinity --json",
