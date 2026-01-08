@@ -1,0 +1,25 @@
+{
+	"name": "@data-map/benchmarks",
+	"version": "0.1.0",
+	"private": true,
+	"description": "DataMap performance benchmarks",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"bench": "node -e \"console.log('benchmarks placeholder package: add runners in later step')\"",
+		"build": "vite build",
+		"type-check": "tsgo --noEmit"
+	},
+	"dependencies": {
+		"@data-map/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@lellimecnar/typescript-config": "workspace:*",
+		"@lellimecnar/vite-config": "workspace:*",
+		"@types/node": "^24",
+		"typescript": "~5.5",
+		"vite": "^7.3.0",
+		"vite-plugin-dts": "^4.5.4",
+		"vite-tsconfig-paths": "^6.0.3"
+	}
+}
