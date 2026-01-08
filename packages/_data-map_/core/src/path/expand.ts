@@ -1,1 +1,0 @@
-export { compilePathPattern } from './compile';
