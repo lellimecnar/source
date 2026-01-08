@@ -28,7 +28,7 @@
 	},
 	"dependencies": {
 		"@jsonpath/jsonpath": "workspace:*",
-		"mnemonist": "^0.39.0"
+		"mnemonist": "^0.39.8"
 	},
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",

@@ -2,7 +2,7 @@ export type Pointer = string;
 
 export interface ArrayMetadata {
 	length: number;
-	indices: number[];
+	indices: number[] | Uint32Array;
 	freeSlots: number[];
 	physicalPrefix: Pointer;
 }

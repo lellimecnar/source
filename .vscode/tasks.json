@@ -72,6 +72,66 @@
 			],
 			"isBackground": false,
 			"group": "test"
+		},
+		{
+			"label": "test:data-map-storage",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@data-map/storage",
+				"test"
+			],
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "test:data-map-path",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@data-map/path",
+				"test"
+			],
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "build:data-map-storage",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@data-map/storage",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "build:data-map-storage (wait)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@data-map/storage",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "test:data-map-path (after storage build)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@data-map/path",
+				"test"
+			],
+			"isBackground": false,
+			"group": "test"
 		}
 	]
 }
