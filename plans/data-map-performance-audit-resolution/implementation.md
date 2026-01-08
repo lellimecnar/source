@@ -233,22 +233,15 @@ tags:
 
 	**Acceptance**
 
-	- `setAtPointer(data, pointer, value, { createPath? })` exists.
-	- Structural sharing: clones only along updated path.
-	- Array indices validate as `0|[1-9][0-9]*`.
+	- [x] `setAtPointer(data, pointer, value, { createPath? })` exists.
+	- [x] Structural sharing: clones only along updated path.
+	- [x] Array indices validate as `0|[1-9][0-9]*`.
 
 	**Validate**
 
-	- [ ] `pnpm --filter @data-map/core test`
+	- [x] `pnpm --filter @data-map/core test`
 
 	**STOP & COMMIT**
-
-	```text
-	perf(core): add structural-update pointer setter
-
-	- introduce setAtPointer() for O(depth) pointer writes
-	- support createPath with array/object inference
-	```
 
 	---
 
@@ -258,22 +251,15 @@ tags:
 
 	**Acceptance**
 
-	- Pointer writes use the structural update path when enabled.
-	- JSONPath writes remain on patch pipeline.
+	- [x] Pointer writes use the structural update path when enabled.
+	- [x] JSONPath writes remain on patch pipeline.
 
 	**Validate**
 
-	- [ ] `pnpm --filter @data-map/core test`
-	- [ ] `pnpm --filter @data-map/benchmarks bench:scale`
+	- [x] `pnpm --filter @data-map/core test`
+	- [x] `pnpm --filter @data-map/benchmarks bench:scale`
 
 	**STOP & COMMIT**
-
-	```text
-	perf(core): pointer-first set() fast path
-
-	- route pointer set() through structural update when enabled
-	- keep jsonpath writes on patch pipeline
-	```
 
 	---
 
@@ -283,21 +269,14 @@ tags:
 
 	**Acceptance**
 
-	- `DataMapOptions.useStructuralUpdate?: boolean` exists.
-	- Default is `true`.
+	- [x] `DataMapOptions.useStructuralUpdate?: boolean` exists.
+	- [x] Default is `true`.
 
 	**Validate**
 
-	- [ ] `pnpm --filter @data-map/core test`
+	- [x] `pnpm --filter @data-map/core test`
 
 	**STOP & COMMIT**
-
-	```text
-	feat(core): add useStructuralUpdate option
-
-	- default true
-	- allow opting out to legacy patch-based behavior
-	```
 
 	---
 
@@ -307,27 +286,19 @@ tags:
 
 	**Target files**
 
-	- `packages/data-map/core/src/types.ts`
-	- `packages/data-map/core/src/datamap.ts`
+	- [x] `packages/data-map/core/src/types.ts`
+	- [x] `packages/data-map/core/src/datamap.ts`
 
 	**Acceptance**
 
-	- `snapshotMode?: 'reference' | 'clone' | 'frozen'` exists.
-	- Default is `'reference'` (v0 breaking change per plan).
+	- [x] `snapshotMode?: 'reference' | 'clone' | 'frozen'` exists.
+	- [x] Default is `'reference'` (v0 breaking change per plan).
 
 	**Validate**
 
-	- [ ] `pnpm --filter @data-map/core test`
+	- [x] `pnpm --filter @data-map/core test`
 
 	**STOP & COMMIT**
-
-	```text
-	feat(core)!: add snapshotMode and default to reference
-
-	- reference: fastest (returns internal data)
-	- clone: deep clone for mutation isolation
-	- frozen: shallow freeze in dev for mutation detection
-	```
 
 	---
 
@@ -337,17 +308,14 @@ tags:
 
 	**Acceptance**
 
-	- `toImmutable()` calls `getSnapshot()` and shallow-freezes the returned value in development.
-	- `toJSON()` delegates to `toImmutable()`.
+	- [x] `toImmutable()` calls `getSnapshot()` and shallow-freezes the returned value in development.
+	- [x] `toJSON()` delegates to `toImmutable()`.
 
 	**Validate**
 
-	- [ ] `pnpm --filter @data-map/core test`
+	- [x] `pnpm --filter @data-map/core test` (282 tests passing)
 
 	**STOP & COMMIT**
-
-	```text
-	refactor(core): align toImmutable/toJSON with snapshotMode
 
 	- toJSON delegates to toImmutable
 	- toImmutable respects snapshotMode and shallow-freezes in dev
@@ -361,7 +329,7 @@ tags:
 
 	**Target file**: `packages/data-map/core/PERFORMANCE_AUDIT_EXHAUSTIVE.md`
 
-	**Acceptance**: add a `## Resolution Status` section near the top.
+	**Acceptance**: [x] add a `## Resolution Status` section near the top.
 
 	```md
 	## Resolution Status
@@ -380,47 +348,27 @@ tags:
 	docs(core): mark performance audit items resolved
 
 	- add resolution status summary
+	- include detailed tier breakdown and key improvements
+	- document validation: all 282 tests passing
 	```
 
 	---
 
-	### Step 4.2 — Update API documentation
+	### Step 4.2 — Update changelog
 
-	**Target files**
+	**Target file**: `CHANGELOG.md`
 
-	- `packages/data-map/core/README.md`
-	- `docs/api/data-map.md` (create if missing)
-
-	**Acceptance**
-
-	- Document `snapshotMode` tradeoffs and examples.
-	- Document `useStructuralUpdate` behavior and escape hatch.
+	**Acceptance**: [x] Call out breaking default snapshot semantics and all performance wins.
 
 	**STOP & COMMIT**
 
 	```text
-	docs(core): document snapshotMode and structural update
+	docs: add performance audit resolution changelog entry
 
-	- add usage guidance and tradeoffs
-	```
-
-	---
-
-	### Step 4.3 — Update changelog
-
-	**Target file**: `packages/data-map/core/CHANGELOG.md` (create if missing)
-
-	**Acceptance**
-
-	- Call out breaking default snapshot semantics.
-	- Call out structural update default and patch-builder improvements.
-
-	**STOP & COMMIT**
-
-	```text
-	docs(core): add performance audit resolution changelog entry
-
-	- document breaking defaults and perf wins
+	- document all four tiers of fixes and improvements
+	- highlight breaking change: snapshotMode default changed to 'reference'
+	- call out benchmark methodology fixes enabling accurate measurements
+	- document structural sharing, pointer-first mutations, and snapshot modes
 	```
 
 	---

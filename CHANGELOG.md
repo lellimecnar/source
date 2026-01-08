@@ -32,17 +32,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **@data-map/benchmarks**: Fixed benchmark methodology to exclude setup costs
-  - Pre-clone input data outside of timed loops
-  - Separate mutation-style adapter paths (no `cloneInitial`)
+- **@data-map/benchmarks**: Fixed benchmark methodology (Tier 0 performance audit resolution)
+  - Pre-clone input data outside of timed loops to exclude setup costs
+  - Separate mutation-style adapter paths using `{ cloneInitial: false }`
   - Ensure measurements reflect actual operation cost, not framework overhead
-  - Add documentation to clarify what each benchmark measures
+  - Document benchmark methodology to clarify what each suite measures vs excludes
+  - **Impact**: Benchmark results now accurately reflect DataMap performance characteristics
 
-- **@data-map/core**: Performance optimizations
-  - Verify `clone()` implementation avoids redundant cloning
-  - Add `getRawData()` internal fast-path for direct data access without cloning
-  - Ensure zero-subscriber fast paths skip all notification overhead
-  - Verify structural sharing is used in patch building and applies operations
+- **@data-map/core**: Performance optimizations (Tiers 1-3 performance audit resolution)
+  - **Tier 1 (Low-Risk Wins)**:
+    - Eliminate redundant cloning in `DataMap.clone()` method
+    - Add `getRawData()` internal fast-path for direct data access without cloning
+    - Ensure zero-subscriber fast paths skip all notification overhead
+  - **Tier 2 (Structural Sharing)**:
+    - Remove full-data cloning from patch builder parent container creation
+    - Extend structural sharing coverage for patch apply operations
+    - Implement `setAtPointer()` for O(depth) pointer-first mutations
+  - **Tier 3 (Snapshot Modes - BREAKING)**:
+    - Add `snapshotMode` option: 'reference' (new default), 'clone', 'frozen'
+    - **BREAKING**: Default changed from 'clone' to 'reference' for performance
+    - `toImmutable()` respects snapshotMode semantics
+    - Applications can now opt into snapshot tradeoffs based on their needs
+
+- **docs**: Updated PERFORMANCE_AUDIT_EXHAUSTIVE.md with comprehensive resolution status and updated benchmark methodology notes
   - Confirm pointer-first mutation path uses `setAtPointer()` for O(depth) writes
 
 - **docs**: Update PERFORMANCE_AUDIT_EXHAUSTIVE.md with methodology notes about benchmark harness corrections

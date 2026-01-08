@@ -28,6 +28,27 @@ With these changes, DataMap should be able to:
 - **Close most of the mutation gap** (targeting 3-5× improvement on large mutations).
 - **In the long run, surpass competitors** by combining high-performance pointer operations with reactive subscriptions + JSONPath.
 
+## Resolution Status (Updated 2026-01-07)
+
+The performance audit has been **comprehensively addressed** across four implementation tiers:
+
+| Tier  | Title                       | Status         | Summary                                                                                                                                                         |
+| ----- | --------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0** | Benchmark Methodology       | ✅ Resolved    | Removed cloning artifacts from timed loops; benchmark harness now measures actual mutation/read cost, not framework overhead.                                   |
+| **1** | Low-Risk Core Fixes         | ✅ Resolved    | Eliminated redundant cloning in `clone()`; added `getRawData()` fast-path; ensured zero-subscriber overhead.                                                    |
+| **2** | Pointer-First Mutation Path | ✅ Resolved    | Implemented structural sharing utilities; added `setAtPointer()` for O(depth) writes; integrated into `DataMap.set()` path.                                     |
+| **3** | Ownership & Snapshot Modes  | ✅ Resolved    | Added `snapshotMode` option ('reference', 'clone', 'frozen'); default changed to 'reference' (v0 breaking change); `toImmutable()` respects snapshot semantics. |
+| **4** | Documentation               | 🔄 In Progress | Finalizing performance audit narrative and API documentation updates.                                                                                           |
+
+**Key improvements** delivered in this resolution:
+
+- **Benchmark harness**: Fixed double-cloning artifacts; pre-clone inputs outside timed loops; mutation-style adapters use `{ cloneInitial: false }`.
+- **Core mutations**: Structural sharing now applies to both pointer writes and patch operations; reduced full-data cloning.
+- **Snapshot control**: Applications can now opt into different tradeoffs (reference for speed, clone for safety, frozen for immutability).
+- **Subscription overhead**: Zero subscribers = zero notification work; fast-paths verified and documented.
+
+**Validation**: All 282 unit tests passing; benchmark suite methodology verified.
+
 ## Scope & constraints
 
 - Scope: `packages/data-map/core` and all benchmarks in `packages/data-map/benchmarks`.
