@@ -1183,7 +1183,11 @@ completes: step 4 of 21 for data-map-benchmarks-expansion
 
 ##### Step 5 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/benchmarks exec vitest run src/adapters/state.*.spec.ts`
+- [x] `pnpm --filter @data-map/benchmarks exec vitest run src/adapters/state.*.spec.ts` ✓ PASSED (1 test)
+
+#### Step 5 Status
+
+✓ **COMPLETE** - DataMap state adapter created and registered. Other state adapters require optional dependencies.
 
 #### Step 5 STOP & COMMIT
 
@@ -1201,107 +1205,11 @@ completes: step 5 of 21 for data-map-benchmarks-expansion
 
 #### Step 6.1 — Comparative state suite
 
-- [ ] Create `packages/data-map/benchmarks/src/state-management.bench.ts`:
-
-```ts
-import { bench, describe } from 'vitest';
-
-import { STATE_ADAPTERS } from './adapters/index.js';
-import { benchKey } from './utils/adapter-helpers.js';
-
-describe('State / Comparative', () => {
-	for (const adapter of STATE_ADAPTERS) {
-		bench(
-			benchKey({
-				category: 'state',
-				caseName: 'createStore',
-				adapterName: adapter.name,
-			}),
-			() => {
-				adapter.createStore({ a: 1, b: 2, c: 3 });
-			},
-		);
-
-		bench(
-			benchKey({
-				category: 'state',
-				caseName: 'getSet',
-				adapterName: adapter.name,
-			}),
-			() => {
-				const store = adapter.createStore({ a: 1 });
-				for (let i = 0; i < 1000; i++) {
-					store.set('a', i);
-					void store.get('a');
-				}
-			},
-		);
-
-		if (adapter.features.supportsSubscribe === true) {
-			bench(
-				benchKey({
-					category: 'state',
-					caseName: 'subscribeUnsubscribe',
-					adapterName: adapter.name,
-				}),
-				() => {
-					const store = adapter.createStore({ a: 1 });
-					const unsub = store.subscribe?.(() => {}) ?? (() => {});
-					unsub();
-				},
-			);
-		}
-
-		bench(
-			benchKey({
-				category: 'state',
-				caseName: 'getSnapshot',
-				adapterName: adapter.name,
-			}),
-			() => {
-				const store = adapter.createStore({ a: 1, b: 2, c: 3 });
-				void store.getSnapshot();
-			},
-		);
-	}
-});
-```
+- [x] Create `packages/data-map/benchmarks/src/state-management.bench.ts`: ✓ Created with 4 benchmark scenarios
 
 #### Step 6.2 — State scale suite
 
-- [ ] Create `packages/data-map/benchmarks/src/state-scale.bench.ts`:
-
-```ts
-import { bench, describe } from 'vitest';
-
-import { STATE_ADAPTERS } from './adapters/index.js';
-import { benchKey } from './utils/adapter-helpers.js';
-
-const SIZES = [1_000, 10_000, 100_000] as const;
-
-function makeInitial(n: number): Record<string, unknown> {
-	const out: Record<string, unknown> = {};
-	for (let i = 0; i < n; i++) out[`k${i}`] = i;
-	return out;
-}
-
-describe('State / Scale', () => {
-	for (const adapter of STATE_ADAPTERS) {
-		for (const n of SIZES) {
-			bench(
-				benchKey({
-					category: 'state',
-					caseName: `create${n}`,
-					adapterName: adapter.name,
-				}),
-				() => {
-					adapter.createStore(makeInitial(n));
-				},
-			);
-		}
-	}
-});
-```
+- [x] Create `packages/data-map/benchmarks/src/state-scale.bench.ts`: ✓ Created with scale tests for 1K, 10K, 100K entries
 
 ##### Step 6 Verification Checklist
 
@@ -1317,6 +1225,16 @@ describe('State / Scale', () => {
 #### Step 6 Status
 
 ✓ **COMPLETE** - State management comparative and scale benchmarks created and executed successfully.
+
+#### Step 6 STOP & COMMIT
+
+```txt
+feat(data-map-benchmarks-expansion): add state management benchmarks
+
+Add comparative and scale benchmarks for state management adapters.
+
+completes: step 6 of 21 for data-map-benchmarks-expansion
+```
 
 ---
 
@@ -1367,307 +1285,32 @@ describe('State / Scale', () => {
 
 #### Step 9.1 — DataMap path adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/path.data-map.ts`:
-
-```ts
-import { createDataMap } from '@data-map/core';
-
-import type { PathAdapter } from './types.js';
-
-function escapePointerSegment(seg: string): string {
-	return seg.replace(/~/g, '~0').replace(/\//g, '~1');
-}
-
-function dotToPointer(dotPath: string): string {
-	if (dotPath === '') return '';
-	const parts = dotPath.split('.').filter(Boolean).map(escapePointerSegment);
-	return `/${parts.join('/')}`;
-}
-
-function normalizePath(path: string): string {
-	return path.startsWith('/') ? path : dotToPointer(path);
-}
-
-export const dataMapPathAdapter: PathAdapter = {
-	kind: 'path',
-	name: 'data-map',
-	features: {
-		mutatesInput: false,
-		pathSyntax: 'both',
-	},
-	get: (obj, path) => {
-		const dm = createDataMap(structuredClone((obj ?? {}) as any));
-		return dm.get(normalizePath(path));
-	},
-	set: (obj, path, value) => {
-		const dm = createDataMap(structuredClone((obj ?? {}) as any));
-		dm.set(normalizePath(path), value);
-		return dm.toObject();
-	},
-	has: (obj, path) => {
-		const dm = createDataMap(structuredClone((obj ?? {}) as any));
-		return dm.has(normalizePath(path));
-	},
-	del: (obj, path) => {
-		const dm = createDataMap(structuredClone((obj ?? {}) as any));
-		dm.delete(normalizePath(path));
-		return dm.toObject();
-	},
-	smokeTest: () => {
-		const base = { a: { b: 1 } };
-		const next = dataMapPathAdapter.set(base, 'a.b', 2) as any;
-		return base.a.b === 1 && next.a.b === 2;
-	},
-};
-```
-
-- [ ] Create `packages/data-map/benchmarks/src/adapters/path.data-map.spec.ts`:
-
-```ts
-import { describe, expect, it } from 'vitest';
-
-import { dataMapPathAdapter } from './path.data-map.js';
-
-describe('path.data-map adapter', () => {
-	it('smokeTest passes', () => {
-		expect(dataMapPathAdapter.smokeTest()).toBe(true);
-	});
-});
-```
+- [x] Create `packages/data-map/benchmarks/src/adapters/path.data-map.ts`: ✓ Created
+- [x] Create `packages/data-map/benchmarks/src/adapters/path.data-map.spec.ts`: ✓ Created
 
 #### Step 9.2 — Lodash adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/path.lodash.ts`:
-
-```ts
-import { get, has, set, unset } from 'lodash';
-
-import type { PathAdapter } from './types.js';
-
-export const lodashPathAdapter: PathAdapter = {
-	kind: 'path',
-	name: 'lodash',
-	features: {
-		mutatesInput: true,
-		pathSyntax: 'dot',
-	},
-	get: (obj, path) => get(obj as any, path),
-	set: (obj, path, value) => {
-		set(obj as any, path, value);
-		return obj;
-	},
-	has: (obj, path) => has(obj as any, path),
-	del: (obj, path) => {
-		unset(obj as any, path);
-		return obj;
-	},
-	smokeTest: () => {
-		const base: any = { a: { b: 1 } };
-		lodashPathAdapter.set(base, 'a.b', 2);
-		return (
-			lodashPathAdapter.get(base, 'a.b') === 2 &&
-			lodashPathAdapter.has(base, 'a.b')
-		);
-	},
-};
-```
-
-- [ ] Create `packages/data-map/benchmarks/src/adapters/path.lodash.spec.ts`:
-
-```ts
-import { describe, expect, it } from 'vitest';
-
-import { lodashPathAdapter } from './path.lodash.js';
-
-describe('path.lodash adapter', () => {
-	it('smokeTest passes', () => {
-		expect(lodashPathAdapter.smokeTest()).toBe(true);
-	});
-});
-```
+- [x] Create `packages/data-map/benchmarks/src/adapters/path.lodash.ts`: ✓ Created
+- [x] Create `packages/data-map/benchmarks/src/adapters/path.lodash.spec.ts`: ✓ Created
 
 #### Step 9.3 — dot-prop adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/path.dot-prop.ts`:
-
-```ts
-import {
-	deleteProperty,
-	getProperty,
-	hasProperty,
-	setProperty,
-} from 'dot-prop';
-
-import type { PathAdapter } from './types.js';
-
-export const dotPropPathAdapter: PathAdapter = {
-	kind: 'path',
-	name: 'dot-prop',
-	features: {
-		mutatesInput: true,
-		pathSyntax: 'dot',
-	},
-	get: (obj, path) => getProperty(obj as any, path),
-	set: (obj, path, value) => setProperty(obj as any, path, value),
-	has: (obj, path) => hasProperty(obj as any, path),
-	del: (obj, path) => deleteProperty(obj as any, path),
-	smokeTest: () => {
-		const base: any = { a: { b: 1 } };
-		dotPropPathAdapter.set(base, 'a.b', 2);
-		return (
-			dotPropPathAdapter.get(base, 'a.b') === 2 &&
-			dotPropPathAdapter.has(base, 'a.b')
-		);
-	},
-};
-```
-
-- [ ] Create `packages/data-map/benchmarks/src/adapters/path.dot-prop.spec.ts`:
-
-```ts
-import { describe, expect, it } from 'vitest';
-
-import { dotPropPathAdapter } from './path.dot-prop.js';
-
-describe('path.dot-prop adapter', () => {
-	it('smokeTest passes', () => {
-		expect(dotPropPathAdapter.smokeTest()).toBe(true);
-	});
-});
-```
+- [x] Create `packages/data-map/benchmarks/src/adapters/path.dot-prop.ts`: ✓ Created
+- [x] Create `packages/data-map/benchmarks/src/adapters/path.dot-prop.spec.ts`: ✓ Created
 
 #### Step 9.4 — object-path adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/path.object-path.ts`:
-
-```ts
-import objectPath from 'object-path';
-
-import type { PathAdapter } from './types.js';
-
-export const objectPathAdapter: PathAdapter = {
-	kind: 'path',
-	name: 'object-path',
-	features: {
-		mutatesInput: true,
-		pathSyntax: 'dot',
-	},
-	get: (obj, path) => objectPath.get(obj as any, path),
-	set: (obj, path, value) => {
-		objectPath.set(obj as any, path, value);
-		return obj;
-	},
-	has: (obj, path) => objectPath.has(obj as any, path),
-	del: (obj, path) => {
-		objectPath.del(obj as any, path);
-		return obj;
-	},
-	smokeTest: () => {
-		const base: any = { a: { b: 1 } };
-		objectPathAdapter.set(base, 'a.b', 2);
-		return (
-			objectPathAdapter.get(base, 'a.b') === 2 &&
-			objectPathAdapter.has(base, 'a.b')
-		);
-	},
-};
-```
-
-- [ ] Create `packages/data-map/benchmarks/src/adapters/path.object-path.spec.ts`:
-
-```ts
-import { describe, expect, it } from 'vitest';
-
-import { objectPathAdapter } from './path.object-path.js';
-
-describe('path.object-path adapter', () => {
-	it('smokeTest passes', () => {
-		expect(objectPathAdapter.smokeTest()).toBe(true);
-	});
-});
-```
+- [x] Create `packages/data-map/benchmarks/src/adapters/path.object-path.ts`: ✓ Created
+- [x] Create `packages/data-map/benchmarks/src/adapters/path.object-path.spec.ts`: ✓ Created
 
 #### Step 9.5 — dlv/dset adapter + smoke test
 
-- [ ] Create `packages/data-map/benchmarks/src/adapters/path.dlv-dset.ts`:
-
-```ts
-import dlv from 'dlv';
-import dset from 'dset';
-
-import type { PathAdapter } from './types.js';
-
-const MISSING = Symbol('missing');
-
-function delDot(obj: any, path: string): void {
-	const parts = path.split('.').filter(Boolean);
-	let cur = obj;
-	for (let i = 0; i < parts.length - 1; i++) cur = cur?.[parts[i]];
-	if (!cur) return;
-	delete cur[parts[parts.length - 1]];
-}
-
-export const dlvDsetPathAdapter: PathAdapter = {
-	kind: 'path',
-	name: 'dlv+dset',
-	features: {
-		mutatesInput: true,
-		pathSyntax: 'dot',
-	},
-	get: (obj, path) => dlv(obj as any, path, undefined),
-	set: (obj, path, value) => {
-		dset(obj as any, path, value);
-		return obj;
-	},
-	has: (obj, path) => dlv(obj as any, path, MISSING as any) !== MISSING,
-	del: (obj, path) => {
-		delDot(obj as any, path);
-		return obj;
-	},
-	smokeTest: () => {
-		const base: any = { a: { b: 1 } };
-		dlvDsetPathAdapter.set(base, 'a.b', 2);
-		return (
-			dlvDsetPathAdapter.get(base, 'a.b') === 2 &&
-			dlvDsetPathAdapter.has(base, 'a.b')
-		);
-	},
-};
-```
-
-- [ ] Create `packages/data-map/benchmarks/src/adapters/path.dlv-dset.spec.ts`:
-
-```ts
-import { describe, expect, it } from 'vitest';
-
-import { dlvDsetPathAdapter } from './path.dlv-dset.js';
-
-describe('path.dlv-dset adapter', () => {
-	it('smokeTest passes', () => {
-		expect(dlvDsetPathAdapter.smokeTest()).toBe(true);
-	});
-});
-```
+- [x] Create `packages/data-map/benchmarks/src/adapters/path.dlv-dset.ts`: ✓ Created
+- [x] Create `packages/data-map/benchmarks/src/adapters/path.dlv-dset.spec.ts`: ✓ Created
 
 #### Step 9.6 — Register path adapters
 
-- [ ] Update `packages/data-map/benchmarks/src/adapters/index.ts` by importing and exporting:
-
-```ts
-import { dataMapPathAdapter } from './path.data-map.js';
-import { lodashPathAdapter } from './path.lodash.js';
-import { dotPropPathAdapter } from './path.dot-prop.js';
-import { objectPathAdapter } from './path.object-path.js';
-import { dlvDsetPathAdapter } from './path.dlv-dset.js';
-
-export const PATH_ADAPTERS = [
-	dataMapPathAdapter,
-	lodashPathAdapter,
-	dotPropPathAdapter,
-	objectPathAdapter,
-	dlvDsetPathAdapter,
-];
-```
+- [x] Update `packages/data-map/benchmarks/src/adapters/index.ts` by importing and exporting: ✓ Completed
 
 ##### Step 9 Verification Checklist
 
@@ -1689,107 +1332,11 @@ completes: step 9 of 21 for data-map-benchmarks-expansion
 
 #### Step 10.1 — Path access comparative suite
 
-- [ ] Create `packages/data-map/benchmarks/src/path-access.bench.ts`:
-
-```ts
-import { bench, describe } from 'vitest';
-
-import { PATH_ADAPTERS } from './adapters/index.js';
-import { benchKey } from './utils/adapter-helpers.js';
-
-const BASE: any = {
-	a: { b: { c: { d: { e: 1 } } } },
-	wide: Object.fromEntries(
-		Array.from({ length: 2000 }, (_, i) => [`k${i}`, i]),
-	),
-};
-
-describe('Path / Comparative', () => {
-	for (const adapter of PATH_ADAPTERS) {
-		bench(
-			benchKey({
-				category: 'path',
-				caseName: 'shallowGet',
-				adapterName: adapter.name,
-			}),
-			() => {
-				adapter.get(BASE, 'a');
-			},
-		);
-
-		bench(
-			benchKey({
-				category: 'path',
-				caseName: 'deepGet5',
-				adapterName: adapter.name,
-			}),
-			() => {
-				adapter.get(BASE, 'a.b.c.d.e');
-			},
-		);
-
-		bench(
-			benchKey({
-				category: 'path',
-				caseName: 'deepSet5',
-				adapterName: adapter.name,
-			}),
-			() => {
-				const obj: any = structuredClone(BASE);
-				adapter.set(obj, 'a.b.c.d.e', 2);
-			},
-		);
-
-		bench(
-			benchKey({
-				category: 'path',
-				caseName: 'hasWide',
-				adapterName: adapter.name,
-			}),
-			() => {
-				adapter.has(BASE, 'wide.k1999');
-			},
-		);
-	}
-});
-```
+- [x] Create `packages/data-map/benchmarks/src/path-access.bench.ts`: ✓ Created
 
 #### Step 10.2 — Path scale suite
 
-- [ ] Create `packages/data-map/benchmarks/src/path-scale.bench.ts`:
-
-```ts
-import { bench, describe } from 'vitest';
-
-import { PATH_ADAPTERS } from './adapters/index.js';
-import { benchKey } from './utils/adapter-helpers.js';
-
-const WIDTHS = [1_000, 10_000, 100_000] as const;
-
-function makeWide(n: number): Record<string, unknown> {
-	const out: Record<string, unknown> = {};
-	for (let i = 0; i < n; i++) out[`k${i}`] = i;
-	return { wide: out };
-}
-
-describe('Path / Scale', () => {
-	for (const adapter of PATH_ADAPTERS) {
-		for (const n of WIDTHS) {
-			bench(
-				benchKey({
-					category: 'path',
-					caseName: `getWide${n}`,
-					adapterName: adapter.name,
-				}),
-				() => {
-					const obj = makeWide(n);
-					adapter.get(obj, `wide.k${n - 1}`);
-				},
-			);
-		}
-	}
-});
-```
+- [x] Create `packages/data-map/benchmarks/src/path-scale.bench.ts`: ✓ Created
 
 ##### Step 10 Verification Checklist
 
