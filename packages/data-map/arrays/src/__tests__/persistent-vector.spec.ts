@@ -5,10 +5,14 @@ import { PersistentVector } from '../persistent-vector.js';
 describe('PersistentVector', () => {
 	it('push/get/length works', () => {
 		let v = new PersistentVector<number>();
-		for (let i = 0; i < 100; i++) v = v.push(i);
-		expect(v.length).toBe(100);
+		for (let i = 0; i < 2000; i++) v = v.push(i);
+		expect(v.length).toBe(2000);
 		expect(v.get(0)).toBe(0);
-		expect(v.get(99)).toBe(99);
+		// Crosses the first tree growth boundary (root overflow).
+		expect(v.get(1023)).toBe(1023);
+		expect(v.get(1024)).toBe(1024);
+		expect(v.get(1999)).toBe(1999);
+		expect(v.get(2000)).toBeUndefined();
 	});
 
 	it('set returns a new vector and preserves original', () => {

@@ -142,18 +142,16 @@ export class PersistentVector<T> {
 
 		let newRoot: Node<T>;
 		let newShift = this.shift;
+		const idx = this.size - 1;
 
-		const leafIdx = this.size >> BITS;
-		const indexNode = leafIdx >>> this.shift;
-
-		if (indexNode > 0) {
-			// Tree overflow - need to grow
-			newRoot = [this.root];
-			newRoot.push(newPath(this.shift, tailNode));
+		const fullLeafCount = Math.floor(this.size / WIDTH);
+		const maxLeafCountAtShift = 2 ** this.shift;
+		if (fullLeafCount > maxLeafCountAtShift) {
+			// Grow the tree: wrap old root and new leaf as children
+			newRoot = [this.root, [tailNode]];
 			newShift += BITS;
 		} else {
-			// Tree still has room
-			newRoot = pushTail(this.shift, this.root, tailNode, this.size - 1);
+			newRoot = pushTail(this.shift, this.root, tailNode, idx);
 		}
 
 		return PersistentVector.fromInternal({

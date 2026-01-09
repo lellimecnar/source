@@ -1770,7 +1770,7 @@ export class PersistentVector<T> {
 
 #### Step 8.2 — Add PersistentVector unit tests
 
-- [ ] Create `packages/data-map/arrays/src/__tests__/persistent-vector.spec.ts` with the code below:
+- [x] Create `packages/data-map/arrays/src/__tests__/persistent-vector.spec.ts` with the code below:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -1806,8 +1806,8 @@ describe('PersistentVector', () => {
 
 ##### Step 8 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/arrays test` passes
-- [ ] `pnpm --filter @data-map/benchmarks bench src/arrays.bench.ts` shows improved `arrays.persistentVectorPush` and `arrays.persistentVectorSetMiddle`
+- [x] `pnpm --filter @data-map/arrays test` passes
+- [x] `pnpm --filter @data-map/benchmarks bench src/arrays.bench.ts` shows improved `arrays.persistentVectorPush` and `arrays.persistentVectorSetMiddle`
 
 #### Step 8 STOP & COMMIT
 
@@ -1836,7 +1836,7 @@ completes: step 8 of 9 for data-map-performance-optimization
 
 #### Step 9.1 — Add final validation benchmarks
 
-- [ ] Create `packages/data-map/benchmarks/src/final-validation.bench.ts` with the code below:
+- [x] Create `packages/data-map/benchmarks/src/final-validation.bench.ts` with the code below:
 
 ```ts
 import { bench, describe } from 'vitest';
@@ -1886,7 +1886,7 @@ describe('Performance Target Validation', () => {
 
 #### Step 9.2 — Add PERFORMANCE.md documentation
 
-- [ ] Create `packages/data-map/benchmarks/PERFORMANCE.md` with the content below:
+- [x] Create `packages/data-map/benchmarks/PERFORMANCE.md` with the content below:
 
 ````md
 # @data-map/\* Performance
@@ -1959,11 +1959,11 @@ Minimum required updates (copy/paste these snippets into the relevant sections):
 
 ##### Step 9 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/benchmarks bench src/final-validation.bench.ts` runs successfully
-- [ ] `pnpm --filter @data-map/signals test` passes
-- [ ] `pnpm --filter @data-map/arrays test` passes
-- [ ] `pnpm --filter @data-map/path test` passes
-- [ ] `pnpm --filter @data-map/subscriptions test` passes
+- [x] `pnpm --filter @data-map/benchmarks bench src/final-validation.bench.ts` runs successfully
+- [x] `pnpm --filter @data-map/signals test` passes
+- [x] `pnpm --filter @data-map/arrays test` passes
+- [x] `pnpm --filter @data-map/path test` passes
+- [x] `pnpm --filter @data-map/subscriptions test` passes
 
 #### Step 9 STOP & COMMIT
 
