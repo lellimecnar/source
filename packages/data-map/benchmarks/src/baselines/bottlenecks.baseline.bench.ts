@@ -1,10 +1,9 @@
-import { bench, describe } from 'vitest';
-
 import { IndirectionLayer } from '@data-map/arrays';
-import { FlatStore } from '@data-map/storage';
-import { signal } from '@data-map/signals';
-import { SubscriptionEngine } from '@data-map/subscriptions';
 import { queryFlat } from '@data-map/path';
+import { signal } from '@data-map/signals';
+import { FlatStore } from '@data-map/storage';
+import { SubscriptionEngine } from '@data-map/subscriptions';
+import { bench, describe } from 'vitest';
 
 describe('Baselines / Bottlenecks', () => {
 	describe('PatternIndex scaling', () => {

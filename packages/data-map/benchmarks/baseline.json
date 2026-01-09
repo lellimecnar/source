@@ -98,7 +98,6 @@
 	"memory.processMemoryUsage": {
 		"opsPerSec": 0
 	},
-
 	"bottlenecks.patternMatch.10": {
 		"opsPerSec": 0
 	},

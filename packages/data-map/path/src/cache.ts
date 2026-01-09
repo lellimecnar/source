@@ -1,9 +1,9 @@
-type Entry<V> = {
+interface Entry<V> {
 	key: string;
 	value: V;
 	prev: Entry<V> | null;
 	next: Entry<V> | null;
-};
+}
 
 export class QueryCache<T> {
 	private readonly capacity: number;

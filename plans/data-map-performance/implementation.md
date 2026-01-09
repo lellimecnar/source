@@ -27,8 +27,8 @@ Implement the algorithmic performance improvements described in `plans/data-map-
 
 **Files**
 
-- [ ] Create `packages/data-map/benchmarks/src/baselines/bottlenecks.baseline.bench.ts`
-- [ ] Update `packages/data-map/benchmarks/baseline.json`
+- [x] Create `packages/data-map/benchmarks/src/baselines/bottlenecks.baseline.bench.ts`
+- [x] Update `packages/data-map/benchmarks/baseline.json`
 
 #### Step 1.1 — Add targeted bottleneck baseline benchmarks
 

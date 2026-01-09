@@ -2,13 +2,13 @@ import { validateQuery } from '@jsonpath/jsonpath';
 
 import type { Pointer } from './types.js';
 
-type Node<T> = {
+interface Node<T> {
 	id: number;
 	children: Map<string, Node<T>>;
 	wildcardChild: Node<T> | null;
 	recursiveChild: Node<T> | null;
 	values: Set<T>;
-};
+}
 
 function createNode<T>(id: number): Node<T> {
 	return {
@@ -137,7 +137,10 @@ export class PatternTrie<T> {
 		const segments = pointer.split('/').filter(Boolean);
 		const results = new Set<T>();
 
-		type State = { node: Node<T>; index: number };
+		interface State {
+			node: Node<T>;
+			index: number;
+		}
 		const stack: State[] = [{ node: this.root, index: 0 }];
 		const visited = new Set<string>();
 

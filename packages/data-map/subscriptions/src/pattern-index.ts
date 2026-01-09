@@ -1,6 +1,6 @@
-import type { CompiledPattern, Pointer, Subscription } from './types.js';
 import { compilePattern } from './pattern-compiler.js';
 import { PatternTrie } from './pattern-trie.js';
+import type { CompiledPattern, Pointer, Subscription } from './types.js';
 
 export class PatternIndex {
 	private trie = new PatternTrie<Subscription>();
