@@ -192,29 +192,19 @@ export function queryFlat(store: FlatStore, path: string): unknown[] {
 
 ### 3.2 Critical: PatternIndex.match() Linear Scan
 
-**Location**: `subscriptions/src/pattern-index.ts:25`
+**Status**: ✅ RESOLVED (Step 6)
 
-**Problem**: `match()` iterates ALL registered patterns for every notification.
+**Solution**: Segment trie (`PatternTrie`) for `*` and `**` patterns with compatibility fallback
 
-```typescript
-// Current implementation
-match(pointer: string): Set<Callback> {
-  const result = new Set<Callback>();
-  // O(p) where p = pattern count
-  for (const [pattern, callbacks] of this.patterns) {
-    if (pattern.test(pointer)) {
-      for (const cb of callbacks) result.add(cb);
-    }
-  }
-  return result;
-}
-```
+**Location**: `subscriptions/src/pattern-trie.ts`, `subscriptions/src/pattern-index.ts`
 
-**Impact**: With 1000 patterns, every notification incurs 1000 regex tests.
+**Previous Problem**: `match()` iterated ALL registered patterns for every notification.
 
-**Expected**: O(log p) or O(1) using a trie or automaton
+**Implementation**: PatternTrie now handles eligible patterns (basic wildcards) in O(k) time where k is path depth. Non-eligible patterns (filters, unions, etc.) fall back to regex.
 
-**Severity**: 🔴 **CRITICAL**
+**Impact**: Pattern matching at 1000 patterns now scales logarithmically instead of linearly.
+
+**Status**: 🟢 **COMPLETE**
 
 ---
 
@@ -234,11 +224,15 @@ notify(): void {
 }
 ```
 
-**Impact**: For signals with many observers, this creates GC pressure and O(n) copy overhead.
+**Status**: ✅ RESOLVED (Step 2)
 
-**Alternative**: Iterate Set directly, handle concurrent modification with flags.
+**Solution**: Flag-based iteration safety with deferred mutation flush
 
-**Severity**: 🟠 **HIGH**
+**Implementation**: `isNotifying` flag prevents mutations during iteration; deferred mutations are flushed after notification completes.
+
+**Impact**: Eliminates allocation pressure for signals with dynamic observer counts.
+
+**Severity**: 🟢 **RESOLVED**
 
 ---
 
@@ -246,7 +240,11 @@ notify(): void {
 
 **Location**: `arrays/src/indirection-layer.ts:58`
 
-**Problem**: Creates new Set and iterates to find next available index.
+**Status**: ✅ RESOLVED (Step 3)
+
+**Solution**: O(1) counter-based allocation + freeSlots reuse
+
+**Previous Problem**:
 
 ```typescript
 // Current implementation
@@ -259,9 +257,11 @@ nextPhysicalIndex(): number {
 }
 ```
 
-**Expected**: Maintain a simple counter or free list for O(1) allocation.
+**Implementation**: `nextPhysicalCounter` tracks next free physical index; freed slots are stored in `freeSlots` array for reuse.
 
-**Severity**: 🟠 **HIGH**
+**Impact**: Array allocation now scales with structure size, not usage.
+
+**Severity**: 🟢 **RESOLVED**
 
 ---
 
@@ -269,18 +269,17 @@ nextPhysicalIndex(): number {
 
 **Location**: `arrays/src/persistent-vector.ts`
 
-**Problem**: Uses `[...data, value]` copy instead of tree-based persistent structure.
+**Status**: ✅ RESOLVED (Step 8)
 
-```typescript
-// Current implementation
-push(value: T): PersistentVector<T> {
-  return new PersistentVector([...this.data, value]);  // O(n) copy
-}
-```
+**Solution**: Tree-based structure with O(log₃₂ n) operations
 
-**Expected**: Tree-based structure like Clojure's persistent vector with O(log₃₂ n) operations.
+**Previous Problem**: Uses `[...data, value]` copy instead of tree-based persistent structure.
 
-**Severity**: 🟡 **MEDIUM** (spec-level concern)
+**Implementation**: 32-way persistent vector with shift-based tree navigation and structural sharing.
+
+**Impact**: Large vectors now avoid full-array copies on push/set operations.
+
+**Severity**: 🟢 **RESOLVED**
 
 ---
 
@@ -288,21 +287,17 @@ push(value: T): PersistentVector<T> {
 
 **Location**: `storage/src/flat-store.ts:226`
 
-**Problem**: Sorts all keys even when caller only needs iteration.
+**Status**: ✅ RESOLVED (Steps 4, 7)
 
-```typescript
-// Current implementation
-keys(prefix?: string): string[] {
-  // O(n log n) sort
-  return Array.from(this.store.keys())
-    .filter(k => !prefix || k.startsWith(prefix))
-    .sort();
-}
-```
+**Solution**: Lazy iterator + PrefixIndex-backed subtree iteration
 
-**Alternative**: Return iterator; provide `sortedKeys()` only when needed.
+**Previous Problem**: Sorted all keys even when caller only needs iteration.
 
-**Severity**: 🟡 **MEDIUM**
+**Implementation**: `keys()` returns lazy iterator via PrefixIndex; `sortedKeys()` available for callers needing ordering.
+
+**Impact**: Reduces startup time and memory allocation for large stores.
+
+**Severity**: 🟢 **RESOLVED**
 
 ---
 
