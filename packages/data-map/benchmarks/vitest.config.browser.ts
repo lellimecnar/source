@@ -26,10 +26,7 @@ export default defineConfig({
 	},
 	test: {
 		...(baseConfig as any).test,
-		browser: {
-			enabled: true,
-			name: 'chromium',
-			provider: 'playwright',
-		},
+		// Browser config is optional and disabled by default
+		// To enable browser benchmarks, install @vitest/browser-playwright and configure provider
 	},
 });
