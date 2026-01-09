@@ -58,5 +58,6 @@ describe('FlatStore', () => {
 			['/users/0/name', 'Alice'],
 			['/users/1/name', 'Bob'],
 		]);
+		expect(s.sortedKeys('/users')).toEqual(['/users/0/name', '/users/1/name']);
 	});
 });

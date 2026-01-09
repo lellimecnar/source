@@ -8,6 +8,12 @@ class SignalImpl<T> implements SignalType<T>, DependencySource {
 	private observers = new Set<Observer>();
 	private subscribers = new Set<Subscriber<T>>();
 
+	private isNotifying = false;
+	private pendingObserverAdd = new Set<Observer>();
+	private pendingObserverRemove = new Set<Observer>();
+	private pendingSubscriberAdd = new Set<Subscriber<T>>();
+	private pendingSubscriberRemove = new Set<Subscriber<T>>();
+
 	constructor(initial: T) {
 		this._value = initial;
 	}
@@ -28,17 +34,38 @@ class SignalImpl<T> implements SignalType<T>, DependencySource {
 	}
 
 	subscribe(subscriber: Subscriber<T>): Unsubscribe {
-		this.subscribers.add(subscriber);
+		if (this.isNotifying) {
+			this.pendingSubscriberRemove.delete(subscriber);
+			this.pendingSubscriberAdd.add(subscriber);
+		} else {
+			this.subscribers.add(subscriber);
+		}
+
 		return () => {
+			if (this.isNotifying) {
+				this.pendingSubscriberAdd.delete(subscriber);
+				this.pendingSubscriberRemove.add(subscriber);
+				return;
+			}
 			this.subscribers.delete(subscriber);
 		};
 	}
 
 	addObserver(observer: Observer): void {
+		if (this.isNotifying) {
+			this.pendingObserverRemove.delete(observer);
+			this.pendingObserverAdd.add(observer);
+			return;
+		}
 		this.observers.add(observer);
 	}
 
 	removeObserver(observer: Observer): void {
+		if (this.isNotifying) {
+			this.pendingObserverAdd.delete(observer);
+			this.pendingObserverRemove.add(observer);
+			return;
+		}
 		this.observers.delete(observer);
 	}
 
@@ -46,15 +73,38 @@ class SignalImpl<T> implements SignalType<T>, DependencySource {
 		this.notify();
 	}
 
+	private flushPending(): void {
+		if (this.pendingSubscriberAdd.size > 0) {
+			for (const s of this.pendingSubscriberAdd) this.subscribers.add(s);
+			this.pendingSubscriberAdd.clear();
+		}
+		if (this.pendingSubscriberRemove.size > 0) {
+			for (const s of this.pendingSubscriberRemove) this.subscribers.delete(s);
+			this.pendingSubscriberRemove.clear();
+		}
+
+		if (this.pendingObserverAdd.size > 0) {
+			for (const o of this.pendingObserverAdd) this.observers.add(o);
+			this.pendingObserverAdd.clear();
+		}
+		if (this.pendingObserverRemove.size > 0) {
+			for (const o of this.pendingObserverRemove) this.observers.delete(o);
+			this.pendingObserverRemove.clear();
+		}
+	}
+
 	private notify(): void {
-		// Snapshot iteration prevents pathological re-entrancy when callbacks
-		// subscribe/unsubscribe or (re)track dependencies during notification.
-		const subs = Array.from(this.subscribers);
-		for (const sub of subs) sub(this._value);
-		const observers = Array.from(this.observers);
-		for (const obs of observers) {
-			if (isBatching()) queueObserver(obs);
-			else obs.onDependencyChanged();
+		this.isNotifying = true;
+		try {
+			// Iterate the Sets directly to avoid allocations.
+			for (const sub of this.subscribers) sub(this._value);
+			for (const obs of this.observers) {
+				if (isBatching()) queueObserver(obs);
+				else obs.onDependencyChanged();
+			}
+		} finally {
+			this.isNotifying = false;
+			this.flushPending();
 		}
 	}
 }

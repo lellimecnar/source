@@ -97,5 +97,42 @@
 	},
 	"memory.processMemoryUsage": {
 		"opsPerSec": 0
+	},
+
+	"bottlenecks.patternMatch.10": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.patternMatch.100": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.patternMatch.500": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.patternMatch.1000": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.queryFlat.simplePointerLike": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.queryFlat.complexJsonPath": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.signalNotify.10": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.signalNotify.100": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.signalNotify.500": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.signalNotify.1000": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.indirection.allocateFresh": {
+		"opsPerSec": 0
+	},
+	"bottlenecks.indirection.allocateAfterFrees": {
+		"opsPerSec": 0
 	}
 }

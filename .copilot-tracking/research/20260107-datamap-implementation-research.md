@@ -45,12 +45,14 @@
 
 - mnemonist|TrieMap|LRUCache
   - Found in specs/data-map.md and plans/data-map/plan.md (design/plan references).
-- "mnemonist" in \*\*/package.json
-  - No matches found (no workspace declares Mnemonist as a dependency).
+- "mnemonist" in packages/data-map/\*/package.json
+  - Found in:
+    - packages/data-map/subscriptions/package.json (dependency: mnemonist)
+    - packages/data-map/path/package.json (dependency: mnemonist)
 - mnemonist in pnpm-lock.yaml
-  - No matches found (Mnemonist is not currently installed/locked).
-- packages directory inventory
-  - packages/ currently has no data-map workspace folder.
+  - Present (e.g. mnemonist@0.39.8).
+- packages/data-map directory inventory
+  - packages/data-map/\* exists (DataMap packages are present in this repo).
 
 ### External Research
 
@@ -76,7 +78,7 @@
   - pnpm workspaces include `packages/data-map/*` (pnpm-workspace.yaml).
   - Vitest root includes `packages/data-map/*/vitest.config.ts` (vitest.config.ts).
   - Turbo root scripts run workspace `build/test/type-check` via `turbo` (package.json).
-- However, the `packages/data-map/` directory does not exist yet (packages/ inventory).
+- `packages/data-map/` exists (DataMap workspaces are present).
 
 ### Implementation Patterns
 
@@ -215,9 +217,9 @@ module.exports = {
 
 ### Technical Requirements
 
-- Mnemonist is planned/required for DataMap, but is not present in the repo today:
-  - Not in any package.json.
-  - Not in pnpm-lock.yaml.
+- Mnemonist is required and present:
+  - Declared in DataMap package dependencies (e.g. path + subscriptions).
+  - Present in pnpm-lock.yaml.
 - Mnemonist API nuance:
   - `LRUCache` does not support deletion; deletions are on `LRUCacheWithDelete`.
 - Plan vs repo state mismatch to account for:
@@ -230,147 +232,59 @@ Follow existing package conventions (model after packages/jsonpath/core and pack
 - Use `@lellimecnar/vite-config/node` + `vite-plugin-dts` + Rollup `preserveModules` for builds.
 - Use `vitestBaseConfig()` for tests, relying on shared `vite-tsconfig-paths` behavior for TS path aliases.
 - Use `@lellimecnar/typescript-config/base.json` for non-React packages; only use React-oriented TS configs when JSX/React types are actually needed.
-- Add Mnemonist explicitly where required and validate the ESM import form in a unit test (because Mnemonist docs show `require(...)` usage).
+- Mnemonist is already used via CJS entrypoints (e.g. `mnemonist/trie-map.js`) with a default import in TypeScript; keep new usage consistent with the existing pattern.
 
 ## Implementation Guidance
 
-- **Objectives**: Create `packages/data-map/*` packages that build/test/type-check under existing Turbo, Vite, and Vitest infrastructure.
-- **Key Tasks**: Create the missing folders + per-package configs (package.json, tsconfig.json, vite.config.ts, vitest.config.ts, .eslintrc.cjs) using the canonical patterns.
+- **Objectives**: Keep existing `packages/data-map/*` workspaces aligned with Turbo/Vite/Vitest conventions.
+- **Key Tasks**: Apply the canonical per-package config patterns consistently across existing DataMap workspaces.
 - **Dependencies**: `@jsonpath/*` workspaces + `mnemonist` (external) + shared config packages (`@lellimecnar/*-config`).
 - **Success Criteria**: `pnpm build`, `pnpm test`, and `pnpm type-check` automatically include the new DataMap workspaces without additional root config changes.
-<!-- markdownlint-disable-file -->
+  <!-- NOTE: Removed a duplicated second copy of this document to avoid stale/contradictory guidance. -->
+      "name": "@data-map/core",
+      "version": "0.1.0",
+      "description": "DataMap core implementation",
+      "license": "MIT",
+      "sideEffects": false,
+      "type": "module",
+      "exports": {
+      	".": {
+      		"types": "./dist/index.d.ts",
+      		"default": "./dist/index.js"
+      	}
+      },
+      "main": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "files": ["dist", "README.md"],
+      "scripts": {
+      	"build": "vite build",
+      	"dev": "vite build --watch",
+      	"lint": "eslint .",
+      	"test": "vitest run",
+      	"test:coverage": "vitest run --coverage",
+      	"test:watch": "vitest",
+      	"type-check": "tsgo --noEmit"
+      },
+      "dependencies": {
+      	"@jsonpath/pointer": "workspace:*"
+      },
+      "devDependencies": {
+      	"@lellimecnar/eslint-config": "workspace:*",
+      	"@lellimecnar/typescript-config": "workspace:*",
+      	"@lellimecnar/vite-config": "workspace:^",
+      	"@lellimecnar/vitest-config": "workspace:*",
+      	"@types/node": "^24",
+      	"@vitest/coverage-v8": "^4.0.16",
+      	"eslint": "^8.57.1",
+      	"typescript": "~5.5",
+      	"vite": "^7.3.0",
+      	"vite-plugin-dts": "^4.5.4",
+      	"vite-tsconfig-paths": "^6.0.3",
+      	"vitest": "^4.0.16"
+      }
+  }
 
-# Task Research Notes: DataMap Package Implementation
-
-## Research Executed
-
-### File Analysis
-
-- specs/data-map.md
-  - Defines DataMap architecture and explicitly references Mnemonist (`TrieMap`, `LRUCache`) for indexing/caching.
-- plans/data-map/plan.md
-  - Implementation plan references adding `mnemonist` and building `@data-map/*` packages.
-- pnpm-workspace.yaml
-  - Includes `packages/data-map/*` workspace glob (folder currently absent).
-- package.json
-  - Monorepo scripts (`turbo build/lint/test/type-check`) and toolchain versions (Node/pnpm, Vite/Vitest, `@typescript/native-preview`).
-- AGENTS.md
-  - Documents repo-wide dev commands and states `tsgo` is the monorepo type-check engine.
-- vitest.config.ts
-  - Multi-project Vitest configuration includes `packages/data-map/*/vitest.config.ts`.
-- turbo.json
-  - Turbo task graph: `build/test/test:coverage/lint/type-check`, plus `bench` and `report` tasks.
-- packages/config-vite/base.ts
-  - Shared Vite base config uses `vite-tsconfig-paths`.
-- packages/config-vitest/base.ts
-  - Shared Vitest base config uses `vite-tsconfig-paths` and sets reporters/coverage defaults.
-- packages/utils/vite.config.ts
-  - Canonical Vite library-mode pattern for publishable packages (preserved modules + `vite-plugin-dts`).
-- packages/utils/vitest.config.ts
-  - Canonical per-package Vitest config using `vitestBaseConfig()`.
-- packages/jsonpath/core/package.json
-  - Canonical package scripts include `test`, `test:coverage`, `test:watch`, `dev`, `type-check: tsgo --noEmit`.
-- packages/jsonpath/core/tsconfig.json
-  - Canonical TS config for Node-ish TS libraries (`extends: @lellimecnar/typescript-config/base.json`).
-- packages/jsonpath/core/.eslintrc.cjs
-  - Canonical ESLint config (`@lellimecnar/eslint-config/node`).
-- packages/jsonpath/benchmarks/package.json
-  - Canonical Vitest benchmark scripts (`vitest bench`, JSON output to `results.json`).
-
-### Code Search Results
-
-- mnemonist|TrieMap|LRUCache
-  - Found in specs/data-map.md and plans/data-map/plan.md (design/plan references).
-- "mnemonist" in \*\*/package.json
-  - No matches found (no workspace declares Mnemonist as a dependency).
-- mnemonist in pnpm-lock.yaml
-  - No matches found (Mnemonist is not currently installed/locked).
-
-### External Research
-
-- #fetch:https://yomguithereal.github.io/mnemonist/lru-cache
-  - Confirms `LRUCache` API: `new LRUCache(capacity)`, `.set`, `.get`, `.peek`, `.has`, `.clear`, `.setpop`, iterators; deletions require `LRUCacheWithDelete`.
-- #fetch:https://yomguithereal.github.io/mnemonist/trie-map
-  - Confirms `TrieMap` API: `new TrieMap()` or `new TrieMap(Array)`, `.set`, `.update`, `.delete`, `.clear`, `.get`, `.has`, `.find`, iterators (`entries`, `prefixes`, `values`).
-- #fetch:https://vite.dev/guide/build.html#library-mode
-  - Confirms Vite “library mode” uses `build.lib` and recommends externalizing dependencies via `build.rollupOptions.external`.
-- #fetch:https://vitest.dev/guide/workspace.html
-  - Confirms “workspace/projects” pattern: `test.projects` can be globs; root config affects global options (reporters/coverage), and per-project configs can be separate files.
-
-### Project Conventions
-
-- Standards referenced: pnpm workspaces + Turborepo orchestration; Vite for publishable library builds; Vitest multi-project setup; `tsgo` as monorepo type-check engine.
-- Instructions followed: workspace-only dependency protocol (`workspace:*` / `workspace:^`) and reuse shared config packages rather than inlining tool configs.
-
-## Key Discoveries
-
-### Project Structure
-
-- The monorepo is already wired for DataMap packages:
-  - pnpm workspaces include `packages/data-map/*` (pnpm-workspace.yaml).
-  - Vitest root config includes `packages/data-map/*/vitest.config.ts` (vitest.config.ts).
-  - But `packages/data-map/` does not exist yet (packages directory listing shows no data-map).
-
-### Implementation Patterns
-
-- Canonical publishable TS library pattern (seen in packages/utils and packages/jsonpath/core):
-  - ESM output (`"type": "module"`) with `exports["."]` pointing at `dist/index.js` + `dist/index.d.ts`.
-  - Build: Vite library mode + `vite-plugin-dts` + Rollup `preserveModules`.
-  - Tests: per-package `vitest.config.ts` calling `vitestBaseConfig()`.
-  - Paths/aliases: handled by `vite-tsconfig-paths` included in shared configs (packages/config-vite and packages/config-vitest).
-
-- Type-checking convention:
-  - Packages use `"type-check": "tsgo --noEmit"` (e.g., packages/utils/package.json, packages/jsonpath/core/package.json).
-  - Monorepo root runs this via `pnpm type-check` → `turbo type-check` (package.json, AGENTS.md).
-
-### Complete Examples
-
-```json
-// Canonical package.json (modeled after packages/jsonpath/core/package.json)
-{
-	"name": "@data-map/core",
-	"version": "0.1.0",
-	"description": "DataMap core implementation",
-	"license": "MIT",
-	"sideEffects": false,
-	"type": "module",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"default": "./dist/index.js"
-		}
-	},
-	"main": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"files": ["dist", "README.md"],
-	"scripts": {
-		"build": "vite build",
-		"dev": "vite build --watch",
-		"lint": "eslint .",
-		"test": "vitest run",
-		"test:coverage": "vitest run --coverage",
-		"test:watch": "vitest",
-		"type-check": "tsgo --noEmit"
-	},
-	"dependencies": {
-		"@jsonpath/pointer": "workspace:*"
-	},
-	"devDependencies": {
-		"@lellimecnar/eslint-config": "workspace:*",
-		"@lellimecnar/typescript-config": "workspace:*",
-		"@lellimecnar/vite-config": "workspace:^",
-		"@lellimecnar/vitest-config": "workspace:*",
-		"@types/node": "^24",
-		"@vitest/coverage-v8": "^4.0.16",
-		"eslint": "^8.57.1",
-		"typescript": "~5.5",
-		"vite": "^7.3.0",
-		"vite-plugin-dts": "^4.5.4",
-		"vite-tsconfig-paths": "^6.0.3",
-		"vitest": "^4.0.16"
-	}
-}
-```
+````
 
 ```jsonc
 // Canonical tsconfig.json (modeled after packages/jsonpath/core/tsconfig.json)
@@ -386,7 +300,7 @@ Follow existing package conventions (model after packages/jsonpath/core and pack
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "dist", "**/*.spec.ts", "**/__tests__"],
 }
-```
+````
 
 ```typescript
 // Canonical vite.config.ts (exact pattern used in packages/utils/vite.config.ts)

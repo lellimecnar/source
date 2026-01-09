@@ -183,4 +183,74 @@ describe('signals', () => {
 
 		expect(() => a.value).toThrow(/Circular computed dependency detected/);
 	});
+
+	it('subscribe during notification is deferred until the next notification', () => {
+		const s = signal(0);
+		const seen1: number[] = [];
+		const seen2: number[] = [];
+		let unsub2: (() => void) | undefined;
+
+		s.subscribe((v) => {
+			seen1.push(v);
+			if (!unsub2) {
+				unsub2 = s.subscribe((v2) => {
+					seen2.push(v2);
+				});
+			}
+		});
+
+		s.value = 1;
+		// New subscriber should not be invoked in the same notify cycle.
+		expect(seen1).toEqual([1]);
+		expect(seen2).toEqual([]);
+
+		s.value = 2;
+		expect(seen1).toEqual([1, 2]);
+		expect(seen2).toEqual([2]);
+
+		unsub2?.();
+	});
+
+	it('unsubscribe during notification does not break iteration and prevents future notifications', () => {
+		const s = signal(0);
+		const seen: number[] = [];
+		let unsub: (() => void) | undefined;
+
+		unsub = s.subscribe((v) => {
+			seen.push(v);
+			unsub?.();
+		});
+
+		s.value = 1;
+		s.value = 2;
+		expect(seen).toEqual([1]);
+	});
+
+	it('observer add/remove during notification is deferred safely', () => {
+		const s = signal(0) as any;
+		const calls: string[] = [];
+
+		const obs1 = {
+			onDependencyChanged() {
+				calls.push('obs1');
+				s.addObserver(obs2);
+			},
+		};
+
+		const obs2 = {
+			onDependencyChanged() {
+				calls.push('obs2');
+				s.removeObserver(obs1);
+			},
+		};
+
+		s.addObserver(obs1);
+		s.value = 1;
+		// Only obs1 is present at start of cycle.
+		expect(calls).toEqual(['obs1']);
+
+		s.value = 2;
+		// obs2 was added after cycle 1, obs1 removed after obs2 ran.
+		expect(calls).toEqual(['obs1', 'obs1', 'obs2']);
+	});
 });

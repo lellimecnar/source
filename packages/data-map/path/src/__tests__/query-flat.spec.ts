@@ -45,6 +45,40 @@ describe('@data-map/path queryFlat', () => {
 		expect(getObjectCalls).toBe(2);
 	});
 
+	it('fast-path: supports property wildcards without full materialization', () => {
+		const inner = new FlatStore({
+			users: [
+				{ name: 'Alice', age: 30 },
+				{ name: 'Bob', age: 25 },
+			],
+		});
+
+		const getObjectCalls: string[] = [];
+		const store = {
+			get: (p: string) => inner.get(p),
+			has: (p: string) => inner.has(p),
+			keys: (prefix?: string) => inner.keys(prefix),
+			getObject: (p: string) => {
+				getObjectCalls.push(p);
+				return inner.getObject(p);
+			},
+		};
+
+		const res = queryFlat(store, '$.users[*].*');
+		// Properties returned in the order they appear in each object
+		expect(new Set(res.pointers)).toEqual(
+			new Set([
+				'/users/0/age',
+				'/users/0/name',
+				'/users/1/age',
+				'/users/1/name',
+			]),
+		);
+		expect(res.values.sort()).toEqual([25, 30, 'Alice', 'Bob']);
+		// Should not materialize the root object (which would be a call with '')
+		expect(getObjectCalls).not.toContain('');
+	});
+
 	it("fallback: complex JSONPath uses full subtree reconstruction via getObject('')", () => {
 		const inner = new FlatStore({
 			users: [{ name: 'Alice' }, { name: 'Bob' }],

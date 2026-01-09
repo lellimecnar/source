@@ -1,5 +1,6 @@
 import { ingestNested, materializeNested } from './nested-converter.js';
 import { pointerToSegments } from './pointer-utils.js';
+import { PrefixIndex } from './prefix-index.js';
 import type { ArrayMetadata, FlatSnapshot, Pointer } from './types.js';
 import { bumpVersion } from './versioning.js';
 
@@ -7,6 +8,7 @@ export class FlatStore {
 	private data = new Map<Pointer, unknown>();
 	private versions = new Map<Pointer, number>();
 	private arrays = new Map<Pointer, ArrayMetadata>();
+	private prefixIndex = new PrefixIndex();
 	private _version = 0;
 
 	constructor(initial?: unknown) {
@@ -14,6 +16,7 @@ export class FlatStore {
 			ingestNested(this.data, this.versions, this.arrays, initial, '');
 			this._version++;
 		}
+		this.prefixIndex.rebuild(this.data.keys());
 	}
 
 	get size(): number {
@@ -39,6 +42,7 @@ export class FlatStore {
 
 	set(pointer: Pointer, value: unknown): void {
 		this.data.set(pointer, value);
+		this.prefixIndex.add(pointer);
 		bumpVersion(this.versions, pointer);
 		this._version++;
 	}
@@ -46,6 +50,7 @@ export class FlatStore {
 	delete(pointer: Pointer): boolean {
 		const existed = this.data.delete(pointer);
 		if (existed) {
+			this.prefixIndex.remove(pointer);
 			bumpVersion(this.versions, pointer);
 			this._version++;
 		}
@@ -166,16 +171,12 @@ export class FlatStore {
 	}
 
 	*keys(prefix?: Pointer): IterableIterator<Pointer> {
-		const base = prefix ?? '';
-		const basePrefix = base === '' ? '' : `${base}/`;
-		const all = Array.from(this.data.keys()).sort();
-		for (const key of all) {
-			if (base === '') {
-				yield key;
-				continue;
-			}
-			if (key === base || key.startsWith(basePrefix)) yield key;
-		}
+		// Use the prefix index for efficient subtree iteration.
+		yield* this.prefixIndex.keys(prefix);
+	}
+
+	sortedKeys(prefix?: Pointer): Pointer[] {
+		return Array.from(this.keys(prefix)).sort();
 	}
 
 	*entries(prefix?: Pointer): IterableIterator<[Pointer, unknown]> {
@@ -215,11 +216,13 @@ export class FlatStore {
 
 		// Ingest new subtree at pointer.
 		ingestNested(this.data, this.versions, this.arrays, value, base);
+		this.prefixIndex.rebuild(this.data.keys());
 		this._version++;
 	}
 
 	ingest(root: unknown): void {
 		ingestNested(this.data, this.versions, this.arrays, root, '');
+		this.prefixIndex.rebuild(this.data.keys());
 		this._version++;
 	}
 }

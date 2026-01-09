@@ -2,12 +2,14 @@ import type { IndirectionState } from './types.js';
 
 export class IndirectionLayer {
 	private state: IndirectionState;
+	private nextPhysicalCounter: number;
 
 	constructor(initialLength = 0) {
 		this.state = {
 			logicalToPhysical: Array.from({ length: initialLength }, (_, i) => i),
 			freeSlots: [],
 		};
+		this.nextPhysicalCounter = initialLength;
 	}
 
 	get length(): number {
@@ -25,7 +27,7 @@ export class IndirectionLayer {
 	pushPhysical(): number {
 		const reused = this.state.freeSlots.pop();
 		const physical =
-			typeof reused === 'number' ? reused : this.nextPhysicalIndex();
+			typeof reused === 'number' ? reused : this.nextPhysicalCounter++;
 		this.state.logicalToPhysical.push(physical);
 		return physical;
 	}
@@ -33,7 +35,7 @@ export class IndirectionLayer {
 	insertAt(logicalIndex: number): number {
 		const reused = this.state.freeSlots.pop();
 		const physical =
-			typeof reused === 'number' ? reused : this.nextPhysicalIndex();
+			typeof reused === 'number' ? reused : this.nextPhysicalCounter++;
 		this.state.logicalToPhysical.splice(logicalIndex, 0, physical);
 		return physical;
 	}
@@ -48,12 +50,5 @@ export class IndirectionLayer {
 			throw new Error(`No physical index at logical index ${logicalIndex}`);
 		}
 		return physical;
-	}
-
-	private nextPhysicalIndex(): number {
-		const used = new Set(this.state.logicalToPhysical);
-		let i = 0;
-		while (used.has(i)) i++;
-		return i;
 	}
 }

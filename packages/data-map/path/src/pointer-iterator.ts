@@ -3,7 +3,8 @@ import type { Pointer } from './types.js';
 export type SimpleJsonPathToken =
 	| { type: 'prop'; key: string }
 	| { type: 'index'; index: number }
-	| { type: 'wildcardIndex' };
+	| { type: 'wildcardIndex' }
+	| { type: 'wildcardProp' };
 
 export interface PointerIterableStore {
 	keys: (prefix?: Pointer) => IterableIterator<Pointer>;
@@ -59,7 +60,9 @@ function parseQuotedString(
  * Supported:
  * - $ (root)
  * - .prop
+ * - .*
  * - ['prop'] / ["prop"]
+ * - ['*'] / ["*"]
  * - [0]
  * - [*]
  *
@@ -78,12 +81,18 @@ export function parseSimpleJsonPath(
 		if (ch === '.') {
 			if ((path[i + 1] ?? '') === '.') return null; // recursive descent
 			i++;
+			// Handle .* directly
+			if (path[i] === '*') {
+				i++;
+				tokens.push({ type: 'wildcardProp' });
+				continue;
+			}
+			// Handle normal property names
 			const start = i;
 			if (!isIdentStart(path[i] ?? '')) return null;
 			i++;
 			while (i < path.length && isIdentContinue(path[i] ?? '')) i++;
 			const key = path.slice(start, i);
-			if (key === '*') return null;
 			tokens.push({ type: 'prop', key });
 			continue;
 		}
@@ -105,7 +114,11 @@ export function parseSimpleJsonPath(
 				i = parsed.end;
 				if ((path[i] ?? '') !== ']') return null;
 				i++;
-				tokens.push({ type: 'prop', key: parsed.value });
+				if (parsed.value === '*') {
+					tokens.push({ type: 'wildcardProp' });
+				} else {
+					tokens.push({ type: 'prop', key: parsed.value });
+				}
 				continue;
 			}
 
@@ -166,17 +179,35 @@ export function* iteratePointersForSimpleJsonPath(
 			continue;
 		}
 
-		// wildcard index
-		const next: Pointer[] = [];
-		for (const base of pointers) {
-			const children = collectImmediateChildSegments(store, base)
-				.filter((s) => /^\d+$/.test(s))
-				.sort((a, b) => Number(a) - Number(b));
-			for (const seg of children) {
-				next.push(`${base}/${seg}`);
+		if (token.type === 'wildcardIndex') {
+			const next: Pointer[] = [];
+			for (const base of pointers) {
+				const children = collectImmediateChildSegments(store, base)
+					.filter((s) => /^\d+$/.test(s))
+					.sort((a, b) => Number(a) - Number(b));
+				for (const seg of children) {
+					next.push(`${base}/${seg}`);
+				}
 			}
+			pointers = next;
+			continue;
 		}
-		pointers = next;
+
+		// wildcardProp: expand to all non-numeric immediate children
+		if (token.type === 'wildcardProp') {
+			const next: Pointer[] = [];
+			for (const base of pointers) {
+				const children = collectImmediateChildSegments(store, base)
+					.filter((s) => !/^\d+$/.test(s))
+					.sort();
+				for (const seg of children) {
+					const esc = escapePointerSegment(seg);
+					next.push(`${base}/${esc}`);
+				}
+			}
+			pointers = next;
+			continue;
+		}
 	}
 
 	for (const p of pointers) yield p;
