@@ -1,5 +1,5 @@
 import dlv from 'dlv';
-import dset from 'dset';
+import { dset } from 'dset';
 
 import type { PathAdapter } from './types.js';
 

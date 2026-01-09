@@ -1,6 +1,13 @@
 export type SupportFlag = true | false | 'unknown';
 
-export type AdapterKind = 'signals' | 'state' | 'immutable' | 'path' | 'pubsub';
+export type AdapterKind =
+	| 'signals'
+	| 'state'
+	| 'immutable'
+	| 'path'
+	| 'pubsub'
+	| 'jsonpatch'
+	| 'cloning';
 
 export interface BaseAdapter {
 	kind: AdapterKind;
@@ -115,5 +122,59 @@ export interface PubSubAdapter extends BaseAdapter {
 	kind: 'pubsub';
 	features: PubSubFeatures;
 	createBus: () => PubSubBus;
+	smokeTest: () => boolean;
+}
+
+// ============================================================================
+// JSON Patch Adapter (RFC 6902)
+// ============================================================================
+
+export interface JsonPatchOperation {
+	op: 'add' | 'remove' | 'replace' | 'move' | 'copy' | 'test';
+	path: string;
+	value?: unknown;
+	from?: string;
+}
+
+export interface JsonPatchFeatures {
+	/** Whether the library mutates the input document. */
+	mutatesInput: SupportFlag;
+	/** Whether the library supports 'move' and 'copy' operations. */
+	supportsMoveAndCopy: SupportFlag;
+	/** Whether the library supports 'test' operations. */
+	supportsTest: SupportFlag;
+}
+
+export interface JsonPatchAdapter extends BaseAdapter {
+	kind: 'jsonpatch';
+	features: JsonPatchFeatures;
+	/** Apply a list of JSON Patch operations to a document. */
+	applyPatch: (
+		doc: unknown,
+		operations: JsonPatchOperation[],
+	) => { result: unknown; error?: Error };
+	/** Generate a patch from two documents (if supported). */
+	generatePatch?: (from: unknown, to: unknown) => JsonPatchOperation[];
+	smokeTest: () => boolean;
+}
+
+// ============================================================================
+// Cloning Adapter
+// ============================================================================
+
+export interface CloningFeatures {
+	/** Whether the clone is deep (all nested objects cloned). */
+	isDeep: SupportFlag;
+	/** Whether the clone handles circular references. */
+	handlesCircular: SupportFlag;
+	/** Whether the clone preserves prototypes. */
+	preservesPrototypes: SupportFlag;
+}
+
+export interface CloningAdapter extends BaseAdapter {
+	kind: 'cloning';
+	features: CloningFeatures;
+	/** Clone an object. */
+	clone: <T>(value: T) => T;
 	smokeTest: () => boolean;
 }

@@ -7,13 +7,13 @@ featured_image: null
 categories: ['API Documentation']
 tags: ['data-map', 'benchmarks', 'performance']
 ai_note: false
-summary: Benchmark suite for @data-map/core comparing performance across 14+ adapters and data structures.
+summary: Exhaustive benchmark suite for @data-map/* comparing performance across 25+ adapters and data structures.
 post_date: 2024-01-01
 ---
 
 # Data Map Benchmarks
 
-Comprehensive benchmark suite for [`@data-map/core`](../../packages/data-map/core) comparing performance across 14 different library adapters and use cases.
+Exhaustive benchmark suite for [`@data-map/core`](../../packages/data-map/core) and related packages, comparing performance across 25+ library adapters across 8 different categories.
 
 ## Run Locally
 
@@ -28,94 +28,141 @@ Output: `results.json` and `REPORT.md`
 ### Specific suite
 
 ```bash
-pnpm --filter @data-map/benchmarks bench -- --run src/path-access.bench.ts
-pnpm --filter @data-map/benchmarks bench -- --run src/mutations.bench.ts
-pnpm --filter @data-map/benchmarks bench -- --run src/json-patch.bench.ts
-pnpm --filter @data-map/benchmarks bench -- --run src/array-operations.bench.ts
-pnpm --filter @data-map/benchmarks bench -- --run src/batch-operations.bench.ts
-pnpm --filter @data-map/benchmarks bench -- --run src/subscriptions.bench.ts
-pnpm --filter @data-map/benchmarks bench -- --run src/computed.bench.ts
-pnpm --filter @data-map/benchmarks bench -- --run src/scale.bench.ts
+# Comparative suites
+pnpm --filter @data-map/benchmarks bench:path           # Path access comparisons
+pnpm --filter @data-map/benchmarks bench:signals        # Reactive signals comparisons
+pnpm --filter @data-map/benchmarks bench:subscriptions  # PubSub/event emitter comparisons
+pnpm --filter @data-map/benchmarks bench:immutable      # Immutable update comparisons
+pnpm --filter @data-map/benchmarks bench:state          # State management comparisons
+
+# Run specific benchmark files
+pnpm --filter @data-map/benchmarks bench -- --run src/jsonpatch-comparative.bench.ts
+pnpm --filter @data-map/benchmarks bench -- --run src/cloning-comparative.bench.ts
+pnpm --filter @data-map/benchmarks bench -- --run src/scale-comprehensive.bench.ts
 ```
 
-## What's Measured
+## Benchmark Categories
 
-### Path Access (`src/path-access.bench.ts`)
+### 1. Path Access (`src/path-access.bench.ts`)
 
-Compares `.get()` performance:
+Compares path-based property access libraries:
 
-- **Small object**: 10-key object, 2-level nesting
-- **Medium nested**: 20-key object, 3-level nesting
-- **Deep chain**: 10-level nested structure
-- **Array index**: Accessing array element by index
+**Adapters:** data-map, lodash, dot-prop, dlv+dset, object-path, json-pointer
 
-Adapters: DataMap, lodash-es, dot-prop, dlv/dset, @jsonpath/raw
+**Test Scenarios:**
 
-### Mutations (`src/mutations.bench.ts`)
+- **Get Operations**: Shallow, deep (5 levels), wide object access
+- **Set Operations**: Shallow, deep, creating new paths
+- **Has Operations**: Existence checks at various depths
+- **Delete Operations**: Removing properties at shallow and deep paths
+- **Array Access**: Index-based access and nested array objects
+- **Deep Nesting**: 20-level deep path operations
+- **Repeated Access**: Cache behavior with 100 repeated operations
+- **Mixed Objects**: Complex array+object structures
 
-Compares `.set()` and immutable update performance:
+### 2. Signals (`src/signals-comparative.bench.ts`)
 
-- **Shallow mutable**: Set single property, return object
-- **Shallow immutable**: Set with structural cloning
-- **Deep mutable**: Nested set operation
-- **Deep immutable**: Nested set with full cloning
+Compares reactive signal library performance:
 
-Adapters: DataMap, lodash-es, dot-prop, dlv/dset, mutative, immer
+**Adapters:** data-map, @preact/signals-core, @maverick-js/signals, @vue/reactivity, nanostores, solid-js
 
-### JSON Patch (`src/json-patch.bench.ts`)
+**Test Scenarios:**
 
-Applies 10 JSON Patch (RFC 6902) operations:
+- **Basic Operations**: Create, read, write, read-write cycle
+- **Create Scale**: Creating 100 and 1000 signals
+- **Read/Write Scale**: 1000 reads, 1000 writes, 500 read-write cycles
+- **Batching**: Batch 100 and 1000 writes, multi-signal batching
+- **Computed Values**: Creation, cached reads, dirty recalculation, chaining
+- **Diamond Graphs**: Small and medium diamond dependency patterns
+- **Deep Chains**: 10, 25, and 50-level computed chains
+- **Effects**: Creation, 100 triggers, multiple effects
+- **Object Values**: Object and array signal updates
 
-- `add`, `replace`, `remove`, `move`, `copy`
+### 3. Subscriptions / PubSub (`src/subscriptions-comparative.bench.ts`)
 
-Adapters: fast-json-patch, rfc6902, immutable-json-patch
+Compares event emitter and pubsub libraries:
 
-### Array Operations (`src/array-operations.bench.ts`)
+**Adapters:** data-map, mitt, eventemitter3, nanoevents
 
-DataMap-specific array mutations:
+**Test Scenarios:**
 
-- **Push**: Add item to array
-- **Set Index**: Update array element
-- **Pop**: Remove last item
+- **Basic Operations**: Bus creation, subscribe/unsubscribe, single emit
+- **Listener Scaling**: Emit to 1, 10, 100, 1000 listeners
+- **Repeated Emit**: 100x and 1000x emit operations
+- **Multiple Events**: 10 and 100 different event types
+- **Dynamic Subscription**: Add/remove listeners dynamically
+- **Wildcard Support**: Wildcard listeners and mixed patterns
+- **Large Payloads**: Emitting large object payloads
 
-Adapter: DataMap only (method availability)
+### 4. Immutable Updates (`src/immutable-updates.bench.ts`)
 
-### Batch Operations (`src/batch-operations.bench.ts`)
+Compares immutable update libraries:
 
-Multi-item updates:
+**Adapters:** data-map, immer, mutative
 
-- **100 sequential sets**: Loop calling `.set()` 100 times
-- **setAll**: Batch update entire object/array with wildcard path
+**Test Scenarios:**
 
-Adapter: DataMap only
+- **Basic Operations**: Shallow update, deep update (5 levels), array updates, multiple updates
+- **Medium Scale**: 100-property objects with single, deep, and multiple updates
+- **Large Scale**: 1000-property objects with updates
+- **Deep Nesting**: 20-level deep updates
+- **Delete Operations**: Shallow, deep, and array element deletion
+- **Mixed Operations**: Read-then-write, conditional updates
 
-### Subscriptions (`src/subscriptions.bench.ts`)
+### 5. State Management (`src/state-management.bench.ts`)
 
-Listener performance with state changes:
+Compares state management libraries:
 
-- **Single subscriber**: One listener, 100 updates
-- **Multiple subscribers**: 10 listeners, 10 updates each
+**Adapters:** data-map, valtio, zustand, jotai
 
-Adapters: DataMap, valtio, zustand
+**Test Scenarios:**
 
-### Computed/Definitions (`src/computed.bench.ts`)
+- **Basic Operations**: Store creation, get, set, update
+- **Subscriptions**: Subscribe, subscribe-unsubscribe, notification
+- **Scale**: Batched updates, large state operations, many properties
+- **Rapid Updates**: 100 and 1000 rapid updates, interleaved reads
+- **Snapshots**: Snapshot creation and serialization
 
-Dependent value computation:
+### 6. JSON Patch (`src/jsonpatch-comparative.bench.ts`)
 
-- **Define 50 computed**: Create 50 dependent definitions
-- **Multiple dependent**: Chain of dependent definitions with updates
+Compares RFC 6902 JSON Patch implementations:
 
-Adapter: DataMap only (feature availability)
+**Adapters:** data-map, fast-json-patch, rfc6902, immutable-json-patch
 
-### Scale (`src/scale.bench.ts`)
+**Test Scenarios:**
 
-Large dataset operations with memory deltas:
+- **Apply Operations**: Simple replace, add, remove, deep patch, mixed operations
+- **Scale**: Medium documents (100 properties), large documents (1000 properties)
+- **Batch**: Applying 100 operations in sequence
+- **Generate Patch**: Diff generation between documents
+- **Move and Copy**: Object relocation operations
+- **Test Operations**: Conditional patch application
 
-- **Large object set**: Set value on 1000-key object
-- **Large array push**: Push to array with 10,000 items
-- **Large JSONPath query**: Complex JSONPath on deep structure
+### 7. Cloning (`src/cloning-comparative.bench.ts`)
 
-Adapters: DataMap, @jsonpath/\*, klona, rfdc (cloning baselines)
+Compares deep cloning libraries:
+
+**Adapters:** klona, rfdc, structuredClone (native)
+
+**Test Scenarios:**
+
+- **Small Objects**: Flat and nested 5-key objects
+- **Medium Objects**: 100-key flat, 50-key nested (3 levels)
+- **Large Objects**: 1000-key flat and deeply nested
+- **Deep Nesting**: 20-level deep structures
+- **Arrays**: Wide arrays (10k elements), arrays of objects (1k)
+- **Mixed Types**: Objects with dates, regexes, arrays, nested objects
+- **Circular References**: Objects with circular references
+- **Repeated Clones**: 100 consecutive clone operations
+
+### 8. Scale & Memory (`src/scale-comprehensive.bench.ts`)
+
+Large dataset operations with memory tracking:
+
+- **Large Object Operations**: Operations on 1000+ key objects
+- **Large Array Operations**: Operations on 10000+ element arrays
+- **Complex Queries**: JSONPath queries on deep structures
+- **Memory Deltas**: Heap usage tracking
 
 ## Data Generation
 
@@ -150,15 +197,123 @@ See: [Workflow configuration](../../.github/workflows/benchmarks-data-map.yml)
 
 ## Adapter Coverage
 
-Supported adapters (14 total):
+| Category       | Adapter              | Package / Source          | Status   |
+| -------------- | -------------------- | ------------------------- | -------- |
+| **Path**       | data-map             | `@data-map/core`          | ✅ Ready |
+|                | lodash               | `lodash-es`               | ✅ Ready |
+|                | dot-prop             | `dot-prop`                | ✅ Ready |
+|                | dlv+dset             | `dlv` + `dset`            | ✅ Ready |
+|                | object-path          | `object-path`             | ✅ Ready |
+|                | json-pointer         | `json-pointer`            | ✅ Ready |
+| **Signals**    | data-map             | `@data-map/core`          | ✅ Ready |
+|                | preact               | `@preact/signals-core`    | ✅ Ready |
+|                | maverick             | `@maverick-js/signals`    | ✅ Ready |
+|                | vue                  | `@vue/reactivity`         | ✅ Ready |
+|                | nanostores           | `nanostores`              | ✅ Ready |
+|                | solid                | `solid-js`                | ✅ Ready |
+| **PubSub**     | data-map             | `@data-map/core`          | ✅ Ready |
+|                | mitt                 | `mitt`                    | ✅ Ready |
+|                | eventemitter3        | `eventemitter3`           | ✅ Ready |
+|                | nanoevents           | `nanoevents`              | ✅ Ready |
+| **Immutable**  | data-map             | `@data-map/core`          | ✅ Ready |
+|                | immer                | `immer`                   | ✅ Ready |
+|                | mutative             | `mutative`                | ✅ Ready |
+| **State**      | data-map             | `@data-map/core`          | ✅ Ready |
+|                | valtio               | `valtio`                  | ✅ Ready |
+|                | zustand              | `zustand`                 | ✅ Ready |
+|                | jotai                | `jotai`                   | ✅ Ready |
+| **JSON Patch** | data-map             | `@data-map/core`          | ✅ Ready |
+|                | fast-json-patch      | `fast-json-patch`         | ✅ Ready |
+|                | rfc6902              | `rfc6902`                 | ✅ Ready |
+|                | immutable-json-patch | `immutable-json-patch`    | ✅ Ready |
+| **Cloning**    | klona                | `klona`                   | ✅ Ready |
+|                | rfdc                 | `rfdc`                    | ✅ Ready |
+|                | structuredClone      | Native (Node.js built-in) | ✅ Ready |
 
-| Category        | Adapters                                       |
-| --------------- | ---------------------------------------------- |
-| **Data Map**    | DataMap (primary subject)                      |
-| **Path Access** | lodash-es, dot-prop, dlv/dset, @jsonpath/raw   |
-| **Mutations**   | mutative, immer                                |
-| **JSON Patch**  | fast-json-patch, rfc6902, immutable-json-patch |
-| **Reactive**    | valtio, zustand                                |
-| **Cloning**     | klona, rfdc                                    |
+Total: **28 adapters** across **7 categories**
 
-Access via `getAllAdapters()` in `src/adapters/index.ts`
+## Adapter Architecture
+
+All adapters follow a consistent pattern per category for fair benchmarking:
+
+```typescript
+// Example: SignalAdapter interface
+interface SignalAdapter {
+	name: string;
+	createSignal<T>(initial: T): unknown;
+	read<T>(signal: unknown): T;
+	write<T>(signal: unknown, value: T): void;
+	createComputed?<T>(fn: () => T): unknown;
+	batch?(fn: () => void): void;
+	smokeTest(): void; // Validates adapter correctness
+}
+
+// Example: PathAdapter interface
+interface PathAdapter {
+	name: string;
+	get<T>(obj: object, path: string): T;
+	set<T>(obj: object, path: string, value: T): void;
+	has?(obj: object, path: string): boolean;
+	delete?(obj: object, path: string): void;
+	smokeTest(): void;
+}
+```
+
+Adapter files are located in `src/adapters/` with the naming convention:
+`{category}.{library}.ts` (e.g., `signals.preact.ts`, `path.lodash.ts`)
+
+## Adding New Adapters
+
+1. Create adapter file: `src/adapters/{category}.{library}.ts`
+2. Implement the category interface
+3. Add smoke test validation
+4. Create spec file: `src/adapters/{category}.{library}.spec.ts`
+5. Import and register in the benchmark file
+
+Example structure:
+
+```typescript
+// src/adapters/signals.example.ts
+import type { SignalAdapter } from './signals.types';
+import { signal, computed } from 'example-lib';
+
+export const exampleAdapter: SignalAdapter = {
+	name: 'example-lib',
+	createSignal: (v) => signal(v),
+	read: (s) => s.value,
+	write: (s, v) => {
+		s.value = v;
+	},
+	createComputed: (fn) => computed(fn),
+	smokeTest() {
+		const s = this.createSignal(1);
+		this.write(s, 2);
+		if (this.read(s) !== 2) throw new Error('Smoke test failed');
+	},
+};
+```
+
+## Interpreting Results
+
+Each benchmark reports:
+
+- **ops/sec**: Operations per second (higher is better)
+- **mean**: Average time per operation
+- **stddev**: Standard deviation (lower = more consistent)
+- **samples**: Number of iterations run
+
+Example output:
+
+```
+✓ Path Access > Get Operations > shallow (6) 2315ms
+   name                  hz      min      max     mean  p75     p99    p995    p999   samples
+ · data-map     2,847,203.24  0.0003   0.9012   0.0004  0.0003  0.0005  0.0006  0.0019   1423602
+ · lodash       1,523,847.12  0.0005   1.2341   0.0007  0.0006  0.0009  0.0011  0.0025    761924
+ · dot-prop     2,103,456.78  0.0004   0.8745   0.0005  0.0004  0.0007  0.0008  0.0020   1051729
+```
+
+## Related Documentation
+
+- [@data-map/core API](./data-map.md)
+- [JSONPath API](./jsonpath.md)
+- [Performance Optimization](../../CONTRIBUTING.md#performance)
