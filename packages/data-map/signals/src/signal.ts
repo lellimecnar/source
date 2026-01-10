@@ -1,5 +1,5 @@
 import { isBatching, queueObserver } from './batch.js';
-import { trackRead } from './context.js';
+import { currentObserver } from './context.js';
 import type { DependencySource, Observer } from './internal.js';
 import type { Signal as SignalType, Subscriber, Unsubscribe } from './types.js';
 
@@ -19,7 +19,9 @@ class SignalImpl<T> implements SignalType<T>, DependencySource {
 	}
 
 	get value(): T {
-		trackRead(this);
+		// Inline tracking to remove an extra function call from the hot path.
+		const obs = currentObserver();
+		if (obs) obs.onDependencyRead(this);
 		return this._value;
 	}
 

@@ -393,8 +393,8 @@ import { currentObserver } from './context.js';
 
 ##### Step 4 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/signals test` passes
-- [ ] `pnpm --filter @data-map/benchmarks bench` shows improved signal read throughput
+- [x] `pnpm --filter @data-map/signals test` passes
+- [x] `pnpm --filter @data-map/benchmarks bench` shows improved signal read throughput
 
 #### Step 4 STOP & COMMIT
 
