@@ -5,14 +5,16 @@ import type { Signal as SignalType, Subscriber, Unsubscribe } from './types.js';
 
 class SignalImpl<T> implements SignalType<T>, DependencySource {
 	private _value: T;
-	private observers = new Set<Observer>();
-	private subscribers = new Set<Subscriber<T>>();
+	private observers: Set<Observer> | null = null;
+	private subscribers: Set<Subscriber<T>> | null = null;
 
 	private isNotifying = false;
-	private pendingObserverAdd = new Set<Observer>();
-	private pendingObserverRemove = new Set<Observer>();
-	private pendingSubscriberAdd = new Set<Subscriber<T>>();
-	private pendingSubscriberRemove = new Set<Subscriber<T>>();
+	private pending:
+		| (
+				| { kind: 'sub'; op: 'add' | 'rem'; target: Subscriber<T> }
+				| { kind: 'obs'; op: 'add' | 'rem'; target: Observer }
+		  )[]
+		| null = null;
 
 	constructor(initial: T) {
 		this._value = initial;
@@ -37,38 +39,42 @@ class SignalImpl<T> implements SignalType<T>, DependencySource {
 
 	subscribe(subscriber: Subscriber<T>): Unsubscribe {
 		if (this.isNotifying) {
-			this.pendingSubscriberRemove.delete(subscriber);
-			this.pendingSubscriberAdd.add(subscriber);
+			(this.pending ??= []).push({
+				kind: 'sub',
+				op: 'add',
+				target: subscriber,
+			});
 		} else {
-			this.subscribers.add(subscriber);
+			(this.subscribers ??= new Set()).add(subscriber);
 		}
 
 		return () => {
 			if (this.isNotifying) {
-				this.pendingSubscriberAdd.delete(subscriber);
-				this.pendingSubscriberRemove.add(subscriber);
+				(this.pending ??= []).push({
+					kind: 'sub',
+					op: 'rem',
+					target: subscriber,
+				});
 				return;
 			}
-			this.subscribers.delete(subscriber);
+			this.subscribers?.delete(subscriber);
 		};
 	}
 
 	addObserver(observer: Observer): void {
 		if (this.isNotifying) {
-			this.pendingObserverRemove.delete(observer);
-			this.pendingObserverAdd.add(observer);
+			(this.pending ??= []).push({ kind: 'obs', op: 'add', target: observer });
 			return;
 		}
-		this.observers.add(observer);
+		(this.observers ??= new Set()).add(observer);
 	}
 
 	removeObserver(observer: Observer): void {
 		if (this.isNotifying) {
-			this.pendingObserverAdd.delete(observer);
-			this.pendingObserverRemove.add(observer);
+			(this.pending ??= []).push({ kind: 'obs', op: 'rem', target: observer });
 			return;
 		}
-		this.observers.delete(observer);
+		this.observers?.delete(observer);
 	}
 
 	triggerObservers(): void {
@@ -76,33 +82,35 @@ class SignalImpl<T> implements SignalType<T>, DependencySource {
 	}
 
 	private flushPending(): void {
-		if (this.pendingSubscriberAdd.size > 0) {
-			for (const s of this.pendingSubscriberAdd) this.subscribers.add(s);
-			this.pendingSubscriberAdd.clear();
-		}
-		if (this.pendingSubscriberRemove.size > 0) {
-			for (const s of this.pendingSubscriberRemove) this.subscribers.delete(s);
-			this.pendingSubscriberRemove.clear();
-		}
+		const pending = this.pending;
+		if (!pending || pending.length === 0) return;
+		this.pending = null;
 
-		if (this.pendingObserverAdd.size > 0) {
-			for (const o of this.pendingObserverAdd) this.observers.add(o);
-			this.pendingObserverAdd.clear();
-		}
-		if (this.pendingObserverRemove.size > 0) {
-			for (const o of this.pendingObserverRemove) this.observers.delete(o);
-			this.pendingObserverRemove.clear();
+		for (const op of pending) {
+			if (op.kind === 'sub') {
+				const set = (this.subscribers ??= new Set());
+				if (op.op === 'add') set.add(op.target);
+				else set.delete(op.target);
+				continue;
+			}
+
+			const set = (this.observers ??= new Set());
+			if (op.op === 'add') set.add(op.target);
+			else set.delete(op.target);
 		}
 	}
 
 	private notify(): void {
 		this.isNotifying = true;
 		try {
-			// Iterate the Sets directly to avoid allocations.
-			for (const sub of this.subscribers) sub(this._value);
-			for (const obs of this.observers) {
-				if (isBatching()) queueObserver(obs);
-				else obs.onDependencyChanged();
+			if (this.subscribers) {
+				for (const sub of this.subscribers) sub(this._value);
+			}
+			if (this.observers) {
+				for (const obs of this.observers) {
+					if (isBatching()) queueObserver(obs);
+					else obs.onDependencyChanged();
+				}
 			}
 		} finally {
 			this.isNotifying = false;
