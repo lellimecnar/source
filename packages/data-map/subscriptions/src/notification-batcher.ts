@@ -5,20 +5,34 @@ export class NotificationBatcher {
 		symbol,
 		{ sub: Subscription; event: SubscriptionEvent }
 	>();
+	private draining = new Map<
+		symbol,
+		{ sub: Subscription; event: SubscriptionEvent }
+	>();
 	private scheduled = false;
 
 	queue(sub: Subscription, event: SubscriptionEvent): void {
 		this.pending.set(sub.id, { sub, event });
 		if (this.scheduled) return;
 		this.scheduled = true;
-		queueMicrotask(() => this.flush());
+		queueMicrotask(() => {
+			this.flush();
+		});
 	}
 
 	flush(): void {
 		this.scheduled = false;
 		if (this.pending.size === 0) return;
-		const items = Array.from(this.pending.values());
+
+		// Swap maps so we can drain without allocating snapshots.
+		const tmp = this.draining;
+		this.draining = this.pending;
+		this.pending = tmp;
 		this.pending.clear();
-		for (const { sub, event } of items) sub.subscriber(event);
+
+		for (const { sub, event } of this.draining.values()) {
+			sub.subscriber(event);
+		}
+		this.draining.clear();
 	}
 }
