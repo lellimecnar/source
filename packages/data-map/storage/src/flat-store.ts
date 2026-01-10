@@ -85,19 +85,14 @@ export class FlatStore {
 		const exactExists = this.data.has(pointer);
 		const exactValue = this.data.get(pointer);
 
-		const prefix = `${pointer}/`;
-		let hasDescendants = false;
-		for (const key of this.data.keys()) {
-			if (key.startsWith(prefix)) {
-				hasDescendants = true;
-				break;
-			}
-		}
+		const subtreeSize = this.prefixIndex.subtreeSize(pointer);
+		const hasDescendants = exactExists ? subtreeSize > 1 : subtreeSize > 0;
 
 		if (!hasDescendants) {
 			return exactExists ? exactValue : undefined;
 		}
 
+		const prefix = `${pointer}/`;
 		const baseSegs = pointerToSegments(pointer);
 		let root: any | undefined;
 

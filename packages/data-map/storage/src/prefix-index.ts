@@ -43,4 +43,8 @@ export class PrefixIndex {
 		if (!set) return;
 		for (const key of set) yield key;
 	}
+
+	subtreeSize(prefix: Pointer): number {
+		return this.byPrefix.get(prefix)?.size ?? 0;
+	}
 }
