@@ -348,8 +348,8 @@ it('toObject memoizes by version and invalidates on mutation', () => {
 
 ##### Step 3 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/storage test` passes
-- [ ] `pnpm --filter @data-map/benchmarks bench` shows `bottlenecks.toObject.repeated10` improves substantially after the first run
+- [x] `pnpm --filter @data-map/storage test` passes
+- [x] `pnpm --filter @data-map/benchmarks bench` shows `bottlenecks.toObject.repeated10` improves substantially after the first run
 
 #### Step 3 STOP & COMMIT
 

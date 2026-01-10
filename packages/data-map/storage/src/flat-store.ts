@@ -10,6 +10,8 @@ export class FlatStore {
 	private arrays = new Map<Pointer, ArrayMetadata>();
 	private prefixIndex = new PrefixIndex();
 	private _version = 0;
+	private _cachedRoot: unknown | undefined;
+	private _cachedRootVersion = -1;
 
 	constructor(initial?: unknown) {
 		if (typeof initial !== 'undefined') {
@@ -70,11 +72,15 @@ export class FlatStore {
 	}
 
 	toObject(): unknown {
-		return materializeNested(this.data);
+		if (this._cachedRootVersion === this._version) return this._cachedRoot;
+		const next = materializeNested(this.data);
+		this._cachedRoot = next;
+		this._cachedRootVersion = this._version;
+		return next;
 	}
 
 	getObject(pointer: Pointer): unknown {
-		if (pointer === '') return materializeNested(this.data);
+		if (pointer === '') return this.toObject();
 
 		const exactExists = this.data.has(pointer);
 		const exactValue = this.data.get(pointer);

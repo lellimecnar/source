@@ -60,4 +60,19 @@ describe('FlatStore', () => {
 		]);
 		expect(s.sortedKeys('/users')).toEqual(['/users/0/name', '/users/1/name']);
 	});
+
+	it('toObject memoizes by version and invalidates on mutation', () => {
+		const s = new FlatStore({ users: [{ name: 'Alice' }] });
+		const a = s.toObject();
+		const b = s.toObject();
+		// Same object reference when no mutations occur.
+		expect(b).toBe(a);
+
+		s.set('/users/0/age', 30);
+		const c = s.toObject();
+		expect(c).not.toBe(a);
+		// Stable again at the new version.
+		const d = s.toObject();
+		expect(d).toBe(c);
+	});
 });
