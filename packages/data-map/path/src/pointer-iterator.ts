@@ -8,6 +8,7 @@ export type SimpleJsonPathToken =
 
 export interface PointerIterableStore {
 	keys: (prefix?: Pointer) => IterableIterator<Pointer>;
+	childSegments?: (prefix: Pointer) => string[];
 }
 
 function isDigit(c: string): boolean {
@@ -148,6 +149,10 @@ function collectImmediateChildSegments(
 	store: PointerIterableStore,
 	basePointer: Pointer,
 ): string[] {
+	if (store.childSegments) {
+		return store.childSegments(basePointer);
+	}
+	// fallback scan
 	const out = new Set<string>();
 	const prefix = basePointer === '' ? '/' : `${basePointer}/`;
 

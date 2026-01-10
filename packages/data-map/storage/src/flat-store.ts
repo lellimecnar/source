@@ -53,6 +53,8 @@ export class FlatStore {
 		const existed = this.data.delete(pointer);
 		if (existed) {
 			this.prefixIndex.remove(pointer);
+			// Keep child segment index correct by rebuilding after removals.
+			this.prefixIndex.rebuild(this.data.keys());
 			bumpVersion(this.versions, pointer);
 			this._version++;
 		}
@@ -225,5 +227,9 @@ export class FlatStore {
 		ingestNested(this.data, this.versions, this.arrays, root, '');
 		this.prefixIndex.rebuild(this.data.keys());
 		this._version++;
+	}
+
+	childSegments(prefix: Pointer): string[] {
+		return this.prefixIndex.childSegments(prefix);
 	}
 }
