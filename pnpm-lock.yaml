@@ -723,6 +723,9 @@ importers:
       '@jsonpath/jsonpath':
         specifier: workspace:*
         version: link:../../jsonpath/jsonpath
+      '@jsonpath/pointer':
+        specifier: workspace:*
+        version: link:../../jsonpath/pointer
       mnemonist:
         specifier: ^0.39.0
         version: 0.39.8

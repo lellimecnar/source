@@ -29,6 +29,7 @@
 	"dependencies": {
 		"@data-map/storage": "workspace:*",
 		"@jsonpath/jsonpath": "workspace:*",
+		"@jsonpath/pointer": "workspace:*",
 		"mnemonist": "^0.39.0"
 	},
 	"devDependencies": {

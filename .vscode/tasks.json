@@ -132,6 +132,34 @@
 			],
 			"isBackground": false,
 			"group": "test"
+		},
+		{
+			"label": "test:data-map-benchmarks",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@data-map/benchmarks",
+				"exec",
+				"vitest",
+				"run"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "bench:data-map-benchmarks",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"--filter",
+				"@data-map/benchmarks",
+				"bench"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
 		}
 	]
 }

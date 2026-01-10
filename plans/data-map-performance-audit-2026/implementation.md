@@ -274,8 +274,8 @@ export function queryFlat(
 
 ##### Step 2 Verification Checklist
 
-- [ ] `pnpm --filter @data-map/path test` passes
-- [ ] `pnpm --filter @data-map/benchmarks bench` shows a large improvement for `bottlenecks.wideGet.*`
+- [x] `pnpm --filter @data-map/path test` passes
+- [x] `pnpm --filter @data-map/benchmarks bench` shows a large improvement for `bottlenecks.wideGet.*`
 
 #### Step 2 STOP & COMMIT
 

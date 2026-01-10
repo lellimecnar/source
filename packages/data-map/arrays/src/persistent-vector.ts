@@ -21,7 +21,8 @@ function cloneLeaf<T>(leaf: Leaf<T>): Leaf<T> {
 }
 
 function newPath<T>(level: number, leaf: Leaf<T>): Node<T> {
-	if (level === 0) return [leaf];
+	// At level 0 we want a leaf. For higher levels, wrap in nodes until we reach it.
+	if (level === 0) return leaf as unknown as Node<T>;
 	return [newPath(level - BITS, leaf)];
 }
 
@@ -148,7 +149,7 @@ export class PersistentVector<T> {
 		const maxLeafCountAtShift = 2 ** this.shift;
 		if (fullLeafCount > maxLeafCountAtShift) {
 			// Grow the tree: wrap old root and new leaf as children
-			newRoot = [this.root, [tailNode]];
+			newRoot = [this.root, newPath(this.shift, tailNode)];
 			newShift += BITS;
 		} else {
 			newRoot = pushTail(this.shift, this.root, tailNode, idx);
