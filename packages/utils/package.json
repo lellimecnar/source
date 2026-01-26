@@ -28,7 +28,7 @@
 		"@types/lodash": "^4.17.13",
 		"@vitest/coverage-v8": "^4.0.16",
 		"eslint": "^8.57.1",
-		"typescript": "~5.5",
+		"typescript": "~5.9",
 		"vite": "^7.3.0",
 		"vite-plugin-dts": "^4.5.4",
 		"vite-tsconfig-paths": "^6.0.3",

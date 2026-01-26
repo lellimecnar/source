@@ -22,13 +22,13 @@
 	"devDependencies": {
 		"@lellimecnar/eslint-config": "workspace:*",
 		"@lellimecnar/typescript-config": "workspace:*",
-		"@types/node": "^24",
+		"@types/node": "^25",
 		"@vitest/coverage-v8": "^4.0.16",
-		"typescript": "~5.5",
+		"typescript": "~5.9",
 		"vite-tsconfig-paths": "^6.0.3",
 		"vitest": "^4.0.16"
 	},
 	"peerDependencies": {
-		"typescript": "~5.5"
+		"typescript": "~5.9"
 	}
 }
