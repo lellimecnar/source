@@ -49,7 +49,7 @@
 		"@lellimecnar/typescript-config": "workspace:*",
 		"@lellimecnar/vite-config": "workspace:^",
 		"@lellimecnar/vitest-config": "workspace:*",
-		"@types/jest": "^29.5.12",
+		"@types/jest": "^30.0.0",
 		"@vitest/coverage-v8": "^4.0.16",
 		"eslint": "^8.57.1",
 		"reflect-metadata": "^0.2.2",
