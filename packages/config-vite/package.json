@@ -5,9 +5,9 @@
 	"license": "MIT",
 	"type": "module",
 	"exports": {
-		".": "./base.ts",
-		"./node": "./node.ts",
-		"./browser": "./browser.ts"
+		".": "./base.js",
+		"./node": "./node.js",
+		"./browser": "./browser.js"
 	},
 	"scripts": {
 		"lint": "eslint .",
