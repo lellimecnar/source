@@ -1,5 +1,5 @@
 export interface MaterializeWorkerPool {
-	materialize<T>(fn: () => T): Promise<T>;
+	materialize: <T>(fn: () => T) => Promise<T>;
 }
 
 export class SyncMaterializePool implements MaterializeWorkerPool {

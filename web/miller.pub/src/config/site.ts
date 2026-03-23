@@ -34,6 +34,11 @@ export const siteConfig: SiteConfig = {
 					description: 'Randomly generate Pokemon Mash-Ups.',
 					href: '/projects/pokemasher',
 				},
+				{
+					title: 'Pairwise',
+					description: 'Rank items by comparing pairs.',
+					href: '/projects/pairwise',
+				},
 			],
 		},
 	],
