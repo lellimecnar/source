@@ -1,18 +1,15 @@
 import {
 	AmazonwebservicesOriginalWordmark,
-	AngularjsOriginal,
-	CircleciPlain,
+	BashOriginal,
 	CloudflareOriginal,
 	Css3Original,
 	DockerOriginal,
 	ExpressOriginal,
 	FigmaOriginal,
-	GithubactionsOriginal,
 	GithubOriginal,
 	GitOriginal,
 	GooglecloudOriginal,
 	GraphqlPlain,
-	HerokuOriginal,
 	Html5Original,
 	JavascriptOriginal,
 	JestPlain,
@@ -26,7 +23,6 @@ import {
 	NestjsOriginal,
 	NextjsOriginal,
 	NodejsOriginal,
-	PhpOriginal,
 	PostgresqlOriginal,
 	PrismaOriginal,
 	PythonOriginal,
@@ -229,7 +225,7 @@ export default {
 		},
 		{
 			name: 'Nx',
-			score: 4,
+			score: 4.5,
 			icon: (
 				<svg
 					viewBox="0 0 24 24"
@@ -273,7 +269,7 @@ export default {
 		},
 		{
 			name: 'Prisma',
-			score: 4,
+			score: 4.5,
 			icon: <PrismaOriginal />,
 			category: 'Libraries',
 		},
@@ -301,21 +297,21 @@ export default {
 			icon: <RedisOriginal />,
 			category: 'Frameworks',
 		},
-		{
-			name: 'PHP',
-			score: 2.5,
-			icon: <PhpOriginal />,
-			category: 'Languages',
-		},
+		// {
+		// 	name: 'PHP',
+		// 	score: 2.5,
+		// 	icon: <PhpOriginal />,
+		// 	category: 'Languages',
+		// },
 		{
 			name: 'MySQL',
-			score: 4,
+			score: 3.5,
 			icon: <MysqlOriginal />,
 			category: 'Database',
 		},
 		{
 			name: 'Python',
-			score: 0.5,
+			score: 1.5,
 			icon: <PythonOriginal />,
 			category: 'Languages',
 		},
@@ -331,12 +327,12 @@ export default {
 		// 	icon: <BashOriginal />,
 		// 	category: 'Tools',
 		// },
-		{
-			name: 'CircleCI',
-			score: 3,
-			icon: <CircleciPlain />,
-			category: 'Tools',
-		},
+		// {
+		// 	name: 'CircleCI',
+		// 	score: 3,
+		// 	icon: <CircleciPlain />,
+		// 	category: 'Tools',
+		// },
 		{
 			name: 'Express',
 			score: 5,
@@ -345,7 +341,7 @@ export default {
 		},
 		{
 			name: 'Kubernetes',
-			score: 1.5,
+			score: 2.5,
 			icon: <KubernetesOriginal />,
 			category: 'Tools',
 		},
@@ -409,12 +405,12 @@ export default {
 		// 	icon: <StylusOriginal />,
 		// 	category: 'Languages',
 		// },
-		{
-			name: 'Angular',
-			score: 2.5,
-			icon: <AngularjsOriginal />,
-			category: 'Frameworks',
-		},
+		// {
+		// 	name: 'Angular',
+		// 	score: 2.5,
+		// 	icon: <AngularjsOriginal />,
+		// 	category: 'Frameworks',
+		// },
 		// {
 		// 	name: 'Babel',
 		// 	score: 5,
@@ -441,7 +437,7 @@ export default {
 		// },
 		{
 			name: 'Material UI',
-			score: 4.5,
+			score: 4,
 			icon: <MaterialuiOriginal />,
 			category: 'Libraries',
 		},
@@ -531,13 +527,13 @@ export default {
 		},
 		{
 			name: 'Figma',
-			score: 2.5,
+			score: 3,
 			icon: <FigmaOriginal />,
 			category: 'Software',
 		},
 		{
 			name: 'AWS',
-			score: 3,
+			score: 4,
 			icon: <AmazonwebservicesOriginalWordmark />,
 			category: 'Software',
 		},
@@ -549,7 +545,7 @@ export default {
 		},
 		{
 			name: 'PostgreSQL',
-			score: 3.5,
+			score: 4.5,
 			icon: <PostgresqlOriginal />,
 			category: 'Database',
 		},
@@ -573,7 +569,7 @@ export default {
 		// },
 		{
 			name: 'Next.js',
-			score: 4,
+			score: 4.5,
 			icon: <NextjsOriginal />,
 			category: 'Frameworks',
 		},
@@ -583,12 +579,12 @@ export default {
 			icon: <NestjsOriginal />,
 			category: 'Frameworks',
 		},
-		{
-			name: 'Heroku',
-			score: 4.5,
-			icon: <HerokuOriginal />,
-			category: 'Software',
-		},
+		// {
+		// 	name: 'Heroku',
+		// 	score: 4.5,
+		// 	icon: <HerokuOriginal />,
+		// 	category: 'Software',
+		// },
 		{
 			name: 'Google Cloud',
 			score: 4,
@@ -596,13 +592,33 @@ export default {
 			category: 'Software',
 		},
 		{
-			name: 'GitHub Actions',
+			name: 'Bash/Zsh',
 			score: 4,
-			icon: <GithubactionsOriginal />,
+			icon: <BashOriginal />,
 			category: 'Tools',
 		},
+		// {
+		// 	name: 'GitHub Actions',
+		// 	score: 4,
+		// 	icon: <GithubactionsOriginal />,
+		// 	category: 'Tools',
+		// },
 	],
 	experience: [
+		{
+			title: 'Senior Software Engineer',
+			employer: 'PolyAPI',
+			city: 'Broomfield',
+			state: 'CO',
+			startDate: '2025/12/01',
+			endDate: '2026/03/20',
+			items: [
+				'Owned end-to-end delivery of high-priority, customer-facing integration projects in a small startup using Next.js, NestJS, and AWS.',
+				'Built a currency conversion integration, enabling hotel guests to pay in a different currency at check-in.',
+				'Developed a payment reconciliation pipeline using AWS S3 and SES to ingest and match incoming CSV reports, then post payments to the correct invoices.',
+				'Created scheduled HTML email reports with CSV attachments summarizing payment-to-reservation matching status for customers.',
+			],
+		},
 		{
 			title: 'Software Engineer',
 			employer: 'Foster Source',
