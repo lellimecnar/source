@@ -11,10 +11,10 @@
 	"devDependencies": {
 		"@vercel/style-guide": "^6",
 		"prettier": "^3.6.2",
-		"typescript": "~5.5"
+		"typescript": "~5.9"
 	},
 	"peerDependencies": {
 		"prettier": "^3.6.2",
-		"typescript": "~5.5"
+		"typescript": "~5.9"
 	}
 }

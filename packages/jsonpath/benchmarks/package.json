@@ -38,7 +38,7 @@
 		"@lellimecnar/vitest-config": "workspace:*",
 		"@vitest/browser": "^4.0.16",
 		"playwright": "^1.48.2",
-		"typescript": "~5.5",
+		"typescript": "~5.9",
 		"vitest": "^4.0.16"
 	}
 }
