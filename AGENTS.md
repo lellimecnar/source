@@ -1,7 +1,8 @@
 # AGENTS.md - Developer Guide & AI Instructions
 
-> Coding, review and fixing follow the shared `engineering-principles` skill (dotagents). This
-> file's project rules apply those principles here; where they conflict, raise it with the owner.
+> Shared agent skills live in [lellimecnar/dotagents](https://github.com/lellimecnar/dotagents) (`skills/`).
+> Every agent follows `use-existing-solutions-first`; coding, review and fixing follow `engineering-principles`.
+> The rules in this file apply those skills to this project; where they conflict, raise it with the owner.
 
 This file serves as the primary entry point for AI agents and developers working on the `@lellimecnar/source` monorepo. It consolidates critical information about the project structure, workflows, and commands.
 
