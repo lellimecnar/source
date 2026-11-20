@@ -6,10 +6,11 @@ This file provides guidance when working with code in the `@card-stack/deck-stan
 
 ## Tech Stack
 
-- **Language**: TypeScript ~5.5
+- **Language**: TypeScript
 - **Core Engine**: @card-stack/core (workspace package)
 - **Mixins**: polymix (via @card-stack/core exports)
-- **Testing**: Jest ^29
+- **Testing**: Vitest (via `@lellimecnar/vitest-config`)
+- Runtime deps: `@card-stack/core`; versions and test-runner config: see package.json.
 
 ## Package Structure
 
@@ -17,7 +18,7 @@ This file provides guidance when working with code in the `@card-stack/deck-stan
 src/
 ├── standard-deck.ts      # StandardCard and StandardDeck classes
 ├── standard-deck.spec.ts # Tests
-├── __snapshots__/        # Jest snapshots
+├── __snapshots__/        # Vitest snapshots
 │   └── standard-deck.spec.ts.snap
 └── index.ts              # Package exports
 ```
@@ -25,7 +26,11 @@ src/
 ## Development Commands
 
 ```bash
-# Run unit tests via #tool:execute/runTests (preferred)
+# Run unit tests
+pnpm --filter @card-stack/deck-standard test
+
+# Run a single test file
+pnpm --filter @card-stack/deck-standard test -- src/<path>.spec.ts
 
 # Lint code
 pnpm --filter @card-stack/deck-standard lint
@@ -48,20 +53,6 @@ const rank = StandardCard.RANK.Ace;
 // Create a specific card
 const card = new StandardCard(StandardCard.SUIT.Hearts, StandardCard.RANK.Ace);
 ```
-
-## Dependencies
-
-### Runtime Dependencies
-
-- `@card-stack/core` - Core card game engine (workspace package)
-
-### Development Dependencies
-
-- `@lellimecnar/eslint-config` - Shared ESLint configuration
-- `@lellimecnar/jest-config` - Shared Jest configuration
-- `@lellimecnar/typescript-config` - Shared TypeScript configuration
-- `jest` ^29 - Testing framework
-- `@types/jest` - Jest TypeScript types
 
 ## Architecture Notes
 
@@ -133,9 +124,9 @@ for (const rank of StandardCard.RANK) {
 
 ## Testing
 
-- Uses Jest for testing
+- Uses Vitest for testing
 - Tests in `standard-deck.spec.ts`
-- Uses Jest snapshots for output verification
+- Uses Vitest snapshots for output verification
 - Tests deck initialization, card creation, and operations
 
 ## Adding New Features

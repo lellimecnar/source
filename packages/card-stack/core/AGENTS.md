@@ -6,10 +6,10 @@ This file provides guidance when working with code in the `@card-stack/core` pac
 
 ## Tech Stack
 
-- **Language**: TypeScript ~5.5
+- **Language**: TypeScript
 - **Mixins**: polymix (workspace package `polymix`)
-- **Testing**: Jest ^29
-- **Utilities**: @lellimecnar/utils (lodash, date-fns)
+- **Testing**: Vitest (via `@lellimecnar/vitest-config`)
+- Runtime deps: `polymix`, `@lellimecnar/utils`; versions and test-runner config: see package.json.
 
 ## Package Structure
 
@@ -50,8 +50,7 @@ src/
 │   ├── nameable.ts      # Naming support
 │   ├── ownable.ts       # Ownership tracking
 │   ├── parentable.ts    # Parent-child relationships
-│   ├── deckable.ts      # Deck association
-│   └── indexable.ts     # Index management
+│   └── deckable.ts      # Deck association
 ├── checks.ts            # Type checking utilities
 ├── types.ts             # Core types
 ├── utils.ts             # Utility functions
@@ -61,7 +60,11 @@ src/
 ## Development Commands
 
 ```bash
-# Run unit tests via #tool:execute/runTests (preferred)
+# Run unit tests
+pnpm --filter @card-stack/core test
+
+# Run a single test file
+pnpm --filter @card-stack/core test -- src/<path>.spec.ts
 
 # Lint code
 pnpm --filter @card-stack/core lint
@@ -93,26 +96,6 @@ import {
 	mixin,
 } from '@card-stack/core';
 ```
-
-## Dependencies
-
-### Runtime Dependencies
-
-- `@lellimecnar/utils` - Shared utilities (lodash, date-fns)
-- `polymix` - TypeScript mixin library
-
-### Development Dependencies
-
-- `@faker-js/faker` ^9.2.0 - Test data generation
-- `@lellimecnar/eslint-config` - Shared ESLint configuration
-- `@lellimecnar/jest-config` - Shared Jest configuration
-- `@lellimecnar/typescript-config` - Shared TypeScript configuration
-- `jest` ^29 - Testing framework
-- `@types/jest` - Jest TypeScript types
-
-### Peer Dependencies
-
-- `typescript` ~5.5
 
 ## Architecture Notes
 
@@ -184,15 +167,16 @@ import {
 const SUIT = createSuitEnum(['Hearts', 'Diamonds', 'Spades', 'Clubs']);
 const RANK = createRankEnum(['Ace', 'Two', 'Three' /* ... */]);
 
-@mixin(Card, Suitable, Rankable)
-class MyCard {
+export interface MyCard extends Card, Suitable, Rankable {}
+
+@mixin(Suitable, Rankable)
+export class MyCard extends Card {
 	static readonly SUIT = SUIT;
 	static readonly RANK = RANK;
 
+	// eslint-disable-next-line @typescript-eslint/no-useless-constructor -- needed for types
 	constructor(suit: number, rank: number) {
-		super();
-		this.suit = suit;
-		this.rank = rank;
+		super(suit, rank);
 	}
 }
 ```
@@ -228,7 +212,7 @@ if (hasMixin(card, Suitable)) {
 
 ## Testing
 
-- Uses Jest for testing
+- Uses Vitest for testing
 - Tests are co-located with source files (`.spec.ts`)
 - Uses `@faker-js/faker` for test data generation
 - Test files follow naming pattern: `*.spec.ts`
