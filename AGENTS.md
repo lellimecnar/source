@@ -14,6 +14,7 @@ This is a **pnpm + Turborepo** monorepo containing web applications, mobile appl
 
 - **[Developer Guide (this file)](./AGENTS.md):** Primary entry point for developers and AI agents.
 - **[Contributing](./CONTRIBUTING.md):** Guidelines for contributing to the project.
+- **[README](./README.md):** Project overview and quick start.
 - **[Security](./SECURITY.md):** Security policy and secret management.
 - **[Changelog](./CHANGELOG.md):** Version history.
 - **[Code of Conduct](./CODE_OF_CONDUCT.md):** Community standards.
@@ -41,7 +42,7 @@ This is a **pnpm + Turborepo** monorepo containing web applications, mobile appl
 
 The repository is organized into the following workspaces:
 
-- **`web/*`**: Next.js 14+ App Router applications.
+- **`web/*`**: Next.js App Router applications.
   - `miller.pub`: Personal portfolio/website.
   - `readon.app`: Reading application web interface.
 - **`mobile/*`**: Expo/React Native applications.
@@ -50,7 +51,9 @@ The repository is organized into the following workspaces:
   - `ui`: Web UI component library (React, Radix UI, Tailwind, shadcn/ui).
   - `ui-nativewind`: Mobile UI component library (NativeWind).
   - `utils`: Shared utilities (date-fns, lodash).
-  - `config-*`: Shared configs (eslint, prettier, tailwind, typescript, vite, vitest).
+  - `polymix`: Mixin/composition library used by the card engine (see [packages/polymix/AGENTS.md](./packages/polymix/AGENTS.md)).
+  - `config-*`: Shared configs (babel, eslint, prettier, tailwind, typescript, vite, vitest). See [packages/config-babel/AGENTS.md](./packages/config-babel/AGENTS.md) for `config-babel`.
+  - `expo-with-modify-gradle`: Expo config plugin that modifies Gradle (see [AGENTS.md](./packages/expo-with-modify-gradle/AGENTS.md)).
 - **`packages/card-stack/*`**: Domain logic packages.
   - `core`: Core card game engine using TypeScript mixins.
   - `deck-standard`: Standard 52-card deck implementation.
@@ -72,34 +75,24 @@ The repository is organized into the following workspaces:
   - `benchmarks`: Performance benchmarking suite.
   - `compliance-suite`: RFC 9535 compliance test runner.
 
-### Documentation Map
-
-- **[README.md](./README.md)**: Project overview and quick start.
-- **[CONTRIBUTING.md](./CONTRIBUTING.md)**: Contribution guidelines.
-- **[SECURITY.md](./SECURITY.md)**: Security policy.
-- **[CHANGELOG.md](./CHANGELOG.md)**: Version history.
-- **[CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)**: Community standards.
-- **[docs/adr](./docs/adr)**: Architecture Decision Records.
-- **[docs/api](./docs/api)**: API Documentation.
-
 ## 3. Tech Stack Summary
 
-- **Package Manager**: pnpm (v9.12.2)
+- **Package Manager**: pnpm
 - **Build System**: Turborepo
-- **Web Framework**: Next.js 14 (App Router)
-- **Mobile Framework**: Expo 52 (Expo Router)
+- **Web Framework**: Next.js (App Router)
+- **Mobile Framework**: Expo (Expo Router)
 - **Styling**: Tailwind CSS (Web) / NativeWind (Mobile)
-- **Language**: TypeScript 5.5
+- **Language**: TypeScript
 - **Type Checking**: tsgo (`@typescript/native-preview`)
 - **Library Builds**: Vite (publishable packages only; Next.js stays `next build`)
-- **Testing**: Vitest (Jest via `jest-expo` for Expo/RN)
+- **Testing**: Vitest (Jest via `jest-expo` for `mobile/readon`)
+- **Versions**: see root `package.json` (`packageManager`, `engines`) and each workspace `package.json`.
 
 ## 4. Setup & Installation
 
 **Prerequisites:**
 
-- Node.js ^24
-- pnpm ^9 (Enforced via `packageManager` in `package.json`)
+- Node.js and pnpm: see root `package.json` (`engines`, `packageManager`; pnpm is enforced via `packageManager`).
 
 **Installation:**
 
@@ -164,9 +157,22 @@ pnpm ui dev
 pnpm ui ui
 ```
 
-**Card Stack (Testing):**
+**Testing and linting:**
 
-- Use `#tool:execute/runTests` (preferred) and target test files under `packages/card-stack/*/src/**/*.spec.ts`.
+```bash
+# All workspaces
+pnpm test
+pnpm lint
+
+# One workspace
+pnpm --filter @card-stack/core test
+pnpm --filter @card-stack/core lint
+
+# One test file (path relative to the workspace)
+pnpm --filter @card-stack/core test -- src/card/card.spec.ts
+```
+
+Card Stack tests resolve `polymix` (and, for `deck-standard`, `@card-stack/core`) through `dist/`. On a fresh checkout run `pnpm --filter polymix build` (and `pnpm --filter @card-stack/core build`) first.
 
 ## 6. Architecture & Patterns
 
@@ -175,17 +181,17 @@ pnpm ui ui
 - **`@lellimecnar/ui`**: Uses granular exports for tree-shaking.
 
   ```typescript
-  // ?Correct
+  // ✅ Correct
   import { Button } from '@lellimecnar/ui/button';
 
-  // ❌ Incorre
+  // ❌ Incorrect
   import { Button } from '@lellimecnar/ui';
   ```
 
 ### TypeScript Mixins (Card Stack)
 
-- The `@card-stack/core` package uses `ts-mixer` for composition over inheritance.
-- Classes like `StandardCard` mix behaviors (`Flippable`, `Rankable`, `Suitable`).
+- The `@card-stack/core` package composes classes with the workspace `polymix` library (`@mixin(...)`) for composition over inheritance. See [packages/polymix/AGENTS.md](./packages/polymix/AGENTS.md).
+- Classes like `StandardCard` mix behaviors via `@mixin(Suitable, Rankable)` on `class StandardCard extends Card` (see `packages/card-stack/deck-standard/src/standard-deck.ts`).
 
 ### Next.js Configuration
 
@@ -202,16 +208,17 @@ pnpm ui ui
 
 ## 7. Testing Strategy
 
-- **Unit Tests**: Vitest is configured per-package (Jest via `jest-expo` for Expo/RN only).
+- **Unit Tests**: the runner is set by each workspace's `test` script in its `package.json` (Vitest everywhere except `mobile/readon`, which uses Jest with `jest-expo`).
 - **Running Tests**:
-  - Use `#tool:execute/runTests` (preferred).
-  - To run a subset, pass absolute paths to the relevant `*.spec.*` files under the workspace.
+  - Everything: `pnpm test`. One workspace: `pnpm --filter <workspace> test`.
+  - One file: `pnpm --filter <workspace> test -- <path-relative-to-workspace>`.
+  - Other scripts (`test:coverage`, `test:watch`, `lint`, `type-check`, `build`): see each workspace `package.json`.
 - **Test Location**: Co-located with source files (e.g., `src/utils.spec.ts`).
 
 ## 8. Pull Request Guidelines
 
 1.  **Scope**: Keep changes focused on a single task or feature.
-2.  **Tests**: Ensure all tests pass (run via `#tool:execute/runTests`) before submitting.
+2.  **Tests**: Ensure all tests pass (`pnpm test`) before submitting.
 3.  **Linting**: Run `pnpm lint` to verify code style.
 4.  **Type Check**: Run `pnpm type-check` to ensure no TypeScript errors.
 5.  **Documentation**: Update relevant blueprints or `AGENTS.md` if architectural changes are made.
