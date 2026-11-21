@@ -2,16 +2,17 @@ This file provides guidance when working with code in the `readon` mobile app pa
 
 ## Package Overview
 
-`readon` is a React Native mobile application built with Expo 52 and Expo Router. It provides a cross-platform reading app experience for iOS, Android, and Web.
+`readon` is a React Native mobile application built with Expo and Expo Router. It provides a cross-platform reading app experience for iOS, Android, and Web.
 
 ## Tech Stack
 
-- **Framework**: Expo ~52.0.14
-- **React Native**: 0.76.3
-- **Navigation**: Expo Router ~4.0.11 (file-based routing)
-- **Styling**: NativeWind 4.1.23 (Tailwind CSS for React Native)
+- **Framework**: Expo and React Native
+- **Navigation**: Expo Router (file-based routing)
+- **Styling**: NativeWind (Tailwind CSS for React Native)
 - **UI Components**: `@lellimecnar/ui-nativewind` (React Native component library)
-- **TypeScript**: ~5.3.3
+- **TypeScript**
+
+Versions: read `mobile/readon/package.json` (and the root `package.json` for pnpm and Node). Do not copy version numbers into this file.
 
 ## Package Structure
 
@@ -62,37 +63,16 @@ pnpm readon ios
 # Lint code
 pnpm readon lint
 
-# Run unit tests via #tool:execute/runTests (preferred)
+# Run unit tests (Jest with the jest-expo preset)
+pnpm --filter readon test
+
+# Run a single test file
+pnpm --filter readon test -- path/to/file.test.tsx
 ```
 
 ## Dependencies
 
-### Runtime Dependencies
-
-- `@lellimecnar/ui-nativewind` - React Native UI component library (workspace package)
-- `@lellimecnar/tailwind-config` - Shared Tailwind configuration
-- `expo` - Expo SDK
-- `expo-router` - File-based routing for Expo
-- `expo-font` - Font loading
-- `expo-linking` - Deep linking
-- `expo-splash-screen` - Splash screen management
-- `expo-status-bar` - Status bar control
-- `expo-system-ui` - System UI configuration
-- `expo-web-browser` - Web browser integration
-- `nativewind` - Tailwind CSS for React Native
-- `react-native-reanimated` - Animation library
-- `react-native-safe-area-context` - Safe area handling
-- `react-native-screens` - Native screen components
-- `@expo/vector-icons` - Icon library
-- `@react-navigation/*` - Navigation libraries (used by Expo Router)
-
-### Development Dependencies
-
-- `@lellimecnar/babel-preset` - Shared Babel configuration
-- `@lellimecnar/eslint-config` - Shared ESLint configuration
-- `@lellimecnar/typescript-config` - Shared TypeScript configuration
-- `jest` & `jest-expo` - Testing framework
-- `tailwindcss` - Tailwind CSS
+See `mobile/readon/package.json` for runtime and development dependencies.
 
 ## Key Configuration Files
 
@@ -122,7 +102,7 @@ pnpm readon lint
 
 ### Styling with NativeWind
 
-- Uses NativeWind 4.x (Tailwind CSS for React Native)
+- Uses NativeWind (Tailwind CSS for React Native)
 - Global styles in `app/global.css`
 - Uses shared Tailwind config from `@lellimecnar/tailwind-config`
 - Platform-specific styles can use `className` prop
@@ -152,9 +132,10 @@ import { Tabs } from '@lellimecnar/ui-nativewind/tabs';
 
 ### Adding a New Route
 
-1. Create a new file in `app/[route-name].tsx` or directory `app/[route-name]/page.tsx`
-2. Expo Router will automatically create the route
-3. Use `(group)` syntax for route groups without affecting URL
+1. Add `app/<route>.tsx` (or `app/<route>/index.tsx` for a route with nested files). Export a default React component. The path becomes the URL, e.g. `app/modal.tsx` is `/modal`.
+2. Expo Router will automatically create the route. Do not use a `page.tsx` file; that is the Next.js convention.
+3. `[x]` in a file or folder name is a dynamic segment, not a placeholder: `app/book/[id].tsx` matches `/book/123`. Only use brackets for a real parameter.
+4. Use `(group)` syntax for route groups without affecting URL (see `app/(tabs)/`)
 
 ### Adding a New Component
 
@@ -192,6 +173,4 @@ import { Tabs } from '@lellimecnar/ui-nativewind/tabs';
 - This is a private package (not published)
 - Uses workspace dependencies for shared packages
 - Entry point is `expo-router/entry` (defined in `package.json`)
-- React Native version is 0.76.3
-- Expo SDK version is ~52.0.14
 - Uses `@lellimecnar/expo-with-modify-gradle` plugin for Android build fixes
