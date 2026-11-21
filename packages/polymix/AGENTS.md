@@ -8,7 +8,7 @@
 
 - **True `instanceof` support** via `Symbol.hasInstance`
 - **No mixin limit** - variadic generics allow unlimited mixins
-- **9 composition strategies** - control how methods merge
+- **Composition strategies** (pipe, merge, parallel, ...; full list in `src/strategies.ts`) - control how methods merge
 - **Decorator support** - `@mixin`, `@delegate`, `@abstract`, strategy decorators
 - **Decorator metadata inheritance** - supports both `Symbol.metadata` and `reflect-metadata`
 
@@ -38,7 +38,8 @@
 # Build (uses tsconfig.build.json to exclude tests)
 pnpm --filter polymix build
 
-# Run unit tests via #tool:execute/runTests (preferred)
+# Unit tests
+pnpm --filter polymix test
 
 # Type check (uses main tsconfig.json)
 pnpm --filter polymix type-check
