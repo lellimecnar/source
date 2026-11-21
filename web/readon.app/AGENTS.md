@@ -2,16 +2,11 @@ This file provides guidance when working with code in the `readon.app` package.
 
 ## Package Overview
 
-`readon.app` is the web interface for the Readon reading app, built with Next.js 14+ using the App Router.
+`readon.app` is the web interface for the Readon reading app, built with Next.js using the App Router.
 
 ## Tech Stack
 
-- **Framework**: Next.js 14.2.3+ with App Router
-- **React**: 18.2.0+
-- **Styling**: Tailwind CSS
-- **UI Components**: `@lellimecnar/ui` (web component library)
-- **TypeScript**: ~5.5
-- **Utilities**: `@lellimecnar/utils` (date-fns, lodash)
+Next.js (App Router), React, Tailwind CSS, `@lellimecnar/ui`. Versions: see `package.json`.
 
 ## Package Structure
 
@@ -51,21 +46,7 @@ pnpm readon.app type-check
 
 ## Dependencies
 
-### Runtime Dependencies
-
-- `@lellimecnar/ui` - Web UI component library (workspace package)
-- `next` - Next.js framework
-- `react` & `react-dom` - React libraries
-- `react-use` - React hooks utilities
-
-### Development Dependencies
-
-- `@lellimecnar/eslint-config` - Shared ESLint configuration
-- `@lellimecnar/tailwind-config` - Shared Tailwind configuration
-- `@lellimecnar/typescript-config` - Shared TypeScript configuration
-- `@lellimecnar/utils` - Shared utilities (dev dependency for type-checking)
-- `@next/eslint-plugin-next` - Next.js ESLint plugin
-- `tailwindcss`, `postcss`, `autoprefixer` - CSS tooling
+See `package.json`.
 
 ## Key Configuration Files
 
